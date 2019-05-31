@@ -103,7 +103,7 @@
           >
             <p class="text-xs-center title font-weight-regular">Images</p>
             <v-checkbox v-model="cycle" label="Auto-cycle images"></v-checkbox>
-            <v-carousel :cycle="cycle">
+            <v-carousel :cycle="cycle" hide-delimiters>
               <v-carousel-item v-for="(item,i) in thumbnails" :key="i" :src="item">
                 <div class="topbar">
                   <v-spacer></v-spacer>

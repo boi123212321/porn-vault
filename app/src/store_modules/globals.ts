@@ -6,6 +6,7 @@ type RootState = {
   settings: {
     copyThumbnails: boolean;
     darkMode: boolean;
+    thumbnailsOnImport: number;
   };
   customFields: CustomField[];
 }
@@ -16,7 +17,8 @@ export default {
   state: {
     settings: {
       copyThumbnails: true,
-      darkMode: false
+      darkMode: false,
+      thumbnailsOnImport: 10
     },
     customFields: []
   },

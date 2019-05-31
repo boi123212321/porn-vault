@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <div color="primary" class="mb-3 text-xs-center">
-      <v-btn large @click="openFileInput">
+      <v-btn :loading="generatingThumbnails" large @click="openFileInput">
         <v-icon left>add</v-icon>Add videos
       </v-btn>
     </div>
@@ -21,7 +21,7 @@
       </v-flex>
 
       <v-container fluid>
-        <v-layout row wrap align-center v-if="gridSize == 0">
+        <v-layout row wrap v-if="gridSize == 0">
           <v-flex
             xs12
             sm6
@@ -36,7 +36,7 @@
           </v-flex>
         </v-layout>
 
-        <v-layout row wrap align-center v-if="gridSize == 1">
+        <v-layout row wrap v-if="gridSize == 1">
           <v-flex
             xs6
             sm3
@@ -54,7 +54,7 @@
     </v-layout>
 
     <v-navigation-drawer
-      class="pa-3"
+      class="px-3 pt-1"
       v-model="filterDrawer"
       app
       right
@@ -152,10 +152,60 @@
 </template>
 
 <script lang="ts">
+import Image from "@/classes/image";
 import Vue from "vue";
 import VideoComponent from "@/components/Video.vue";
 import Video from "@/classes/video";
 import Fuse from "fuse.js";
+import fs from "fs";
+import path from "path";
+import asyncPool from "tiny-async-pool";
+import ffmpeg from "fluent-ffmpeg";
+import { takeScreenshots } from "@/util/thumbnails";
+var os = require("os");
+
+var platform = os.platform();
+//patch for compatibilit with electron-builder, for smart built process.
+if (platform == "darwin") {
+  platform = "mac";
+} else if (platform == "win32") {
+  platform = "win";
+}
+//adding browser, for use case when module is bundled using browserify. and added to html using src.
+if (
+  platform !== "linux" &&
+  platform !== "mac" &&
+  platform !== "win" &&
+  platform !== "browser"
+) {
+  console.error("Unsupported platform.", platform);
+  process.exit(1);
+}
+
+var arch = os.arch();
+if (platform === "mac" && arch !== "x64") {
+  console.error("Unsupported architecture.");
+  process.exit(1);
+}
+
+const ffmpegPath = path.join(
+  process.cwd(),
+  "bin/ffmpeg",
+  platform,
+  arch,
+  platform === "win" ? "ffmpeg.exe" : "ffmpeg"
+);
+
+const ffprobePath = path.join(
+  process.cwd(),
+  "bin/ffprobe",
+  platform,
+  arch,
+  platform === "win" ? "ffprobe.exe" : "ffprobe"
+);
+
+ffmpeg.setFfmpegPath(ffmpegPath);
+ffmpeg.setFfprobePath(ffprobePath);
 
 export default Vue.extend({
   components: {
@@ -163,19 +213,9 @@ export default Vue.extend({
   },
   data() {
     return {
-      gridSize: 0,
+      generatingThumbnails: false,
       current: null as Video | null,
       visible: false,
-
-      // TODO: this should all go to store so it's persistent
-      filterDrawer: false,
-      search: "",
-      chosenLabels: [] as string[],
-      chosenActors: [] as string[],
-      favoritesOnly: false,
-      bookmarksOnly: false,
-      ratingFilter: 0,
-      chosenSort: 0,
       sortModes: [
         {
           name: "Date added (newest)",
@@ -230,7 +270,7 @@ export default Vue.extend({
     openFileInput() {
       let el = document.getElementById(`file-input-videos`) as any;
 
-      el.addEventListener("change", (ev: Event) => {
+      el.addEventListener("change", async (ev: Event) => {
         let files = Array.from(el.files) as File[];
 
         // Ignore already added videos
@@ -245,19 +285,174 @@ export default Vue.extend({
             "globals/getCustomFieldNames"
           ] as string[];
 
-          videos.forEach(video => {
-            customFieldNames.forEach(field => {
-              video.customFields[field] = null;
+          this.generatingThumbnails = true;
+
+          await asyncPool(1, videos, video => {
+            return new Promise(async (resolve, reject) => {
+              customFieldNames.forEach(field => {
+                video.customFields[field] = null;
+              });
+
+              const thumbnailPath = "library/images/thumbnails/";
+
+              if (!fs.existsSync(thumbnailPath)) {
+                fs.mkdirSync(thumbnailPath);
+              }
+
+              console.log("Creating thumbnails...");
+
+              await takeScreenshots(
+                video.path,
+                `thumbnail-${video.id}-%s.jpg`,
+                this.$store.state.globals.settings.thumbnailsOnImport,
+                thumbnailPath,
+                0
+              );
+
+              let files = fs.readdirSync(thumbnailPath) as any[];
+              files = files.filter(name =>
+                name.includes(`thumbnail-${video.id}`)
+              );
+
+              files = files.map(name => {
+                let filePath = path.resolve(
+                  process.cwd(),
+                  "library/images/thumbnails/",
+                  name
+                );
+                return {
+                  name,
+                  path: filePath,
+                  size: fs.statSync(filePath).size,
+                  time: fs.statSync(filePath).mtime.getTime()
+                };
+              });
+
+              files.sort((a, b) => a.time - b.time);
+
+              let images = files.map(file => Image.create(file));
+
+              images.forEach(image => {
+                image.video = video.id;
+              });
+
+              this.$store.commit("images/add", images);
+
+              video.thumbnails.push(...images.map(i => i.id));
+
+              resolve();
             });
           });
 
           this.$store.commit("videos/add", videos);
+          this.generatingThumbnails = false;
+          el.value = "";
         }
       });
       el.click();
     }
   },
   computed: {
+    chosenSort: {
+      get(): number {
+        return this.$store.state.videos.search.chosenSort;
+      },
+      set(value: number) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "chosenSort",
+          value
+        });
+      }
+    },
+    ratingFilter: {
+      get(): number {
+        return this.$store.state.videos.search.ratingFilter;
+      },
+      set(value: number) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "ratingFilter",
+          value
+        });
+      }
+    },
+    bookmarksOnly: {
+      get(): boolean {
+        return this.$store.state.videos.search.bookmarksOnly;
+      },
+      set(value: boolean) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "bookmarksOnly",
+          value
+        });
+      }
+    },
+    favoritesOnly: {
+      get(): boolean {
+        return this.$store.state.videos.search.favoritesOnly;
+      },
+      set(value: boolean) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "favoritesOnly",
+          value
+        });
+      }
+    },
+    chosenActors: {
+      get(): string[] {
+        return this.$store.state.videos.search.chosenActors;
+      },
+      set(value: string[]) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "chosenActors",
+          value
+        });
+      }
+    },
+    chosenLabels: {
+      get(): string[] {
+        return this.$store.state.videos.search.chosenLabels;
+      },
+      set(value: string[]) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "chosenLabels",
+          value
+        });
+      }
+    },
+    search: {
+      get(): string {
+        return this.$store.state.videos.search.search;
+      },
+      set(value: string) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "search",
+          value
+        });
+      }
+    },
+    gridSize: {
+      get(): number {
+        return this.$store.state.videos.search.gridSize;
+      },
+      set(value: number) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "gridSize",
+          value
+        });
+      }
+    },
+    filterDrawer: {
+      get(): boolean {
+        return this.$store.state.videos.search.filterDrawer;
+      },
+      set(value: boolean) {
+        this.$store.commit("videos/setSearchParam", {
+          key: "filterDrawer",
+          value
+        });
+      }
+    },
+
     labels(): string[] {
       return this.$store.getters["videos/getLabels"];
     },

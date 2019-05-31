@@ -3,14 +3,25 @@ import Vue from "vue";
 import CustomField from '@/classes/custom_field';
 
 type RootState = {
-  items: Image[]
+  items: Image[],
+  search: any
 }
 
 export default {
   namespaced: true,
 
   state: {
-    items: []
+    items: [],
+    search: {
+      gridSize: 0,
+      filterDrawer: false,
+      chosenLabels: [] as string[],
+      chosenActors: [] as string[],
+      favoritesOnly: false,
+      bookmarksOnly: false,
+      ratingFilter: 0,
+      chosenSort: 0,
+    }
   },
   getters: {
     getAll(state: RootState): Image[] {
@@ -41,6 +52,10 @@ export default {
     }
   },
   mutations: {
+    setSearchParam(state: RootState, { key, value }: { key: string, value: any }) {
+      Vue.set(state.search, key, value);
+    },
+
     set(state: RootState, items: Image[]) {
       state.items = items;
     },

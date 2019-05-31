@@ -22,7 +22,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false
-    }
+    },
+    icon: process.cwd() + "/icon.ico"
   })
 
   win.setMenu(null);

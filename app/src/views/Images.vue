@@ -54,7 +54,7 @@
     </v-layout>
 
     <v-navigation-drawer
-      class="pa-3"
+      class="px-3 pt-1"
       v-model="filterDrawer"
       app
       right
@@ -147,18 +147,6 @@
 
     <transition name="fade">
       <div class="lightbox fill" v-if="currentImage > -1" @click="currentImage = -1">
-        <v-btn v-if="currentImage > 0" icon class="thumb-btn left" @click.stop="currentImage--">
-          <v-icon color="white">chevron_left</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="currentImage < items.length - 1"
-          icon
-          class="thumb-btn right"
-          @click.stop="currentImage++"
-        >
-          <v-icon color="white">chevron_right</v-icon>
-        </v-btn>
-
         <div class="topbar">
           <v-spacer></v-spacer>
           <v-btn @click.stop="showImageDetails = !showImageDetails" class="thumb-btn" icon>
@@ -166,15 +154,26 @@
           </v-btn>
         </div>
 
-        <img @click.stop class="image" :src="items[currentImage].path">
+        <div
+          style="display: flex; flex-direction: column; height: 100%; position: absolute; left: 0; top: 0; width: 100%"
+        >
+          <div style="position: relative; width: 100%; height: 100%;">
+            <img @click.stop class="image" :src="items[currentImage].path">
 
-        <transition name="fade">
-          <v-sheet
-            @click.stop
-            v-if="showImageDetails"
-            class="fixed"
-            style="overflow-y: auto; width: 100%; left:0; max-height: calc(50% - 40px); bottom: 0; z-index: 99999"
-          >
+            <v-btn v-if="currentImage > 0" icon class="thumb-btn left" @click.stop="currentImage--">
+              <v-icon color="white">chevron_left</v-icon>
+            </v-btn>
+            <v-btn
+              v-if="currentImage < items.length - 1"
+              icon
+              class="thumb-btn right"
+              @click.stop="currentImage++"
+            >
+              <v-icon color="white">chevron_right</v-icon>
+            </v-btn>
+          </div>
+
+          <v-sheet style="align-self: flex-end; width: 100%" @click.stop v-if="showImageDetails">
             <div class="topbar">
               <v-spacer></v-spacer>
             </div>
@@ -207,7 +206,7 @@
               </div>
             </v-container>
           </v-sheet>
-        </transition>
+        </div>
       </div>
     </transition>
   </v-container>
@@ -228,16 +227,7 @@ export default Vue.extend({
   },
   data() {
     return {
-      gridSize: 0,
       currentImage: -1,
-
-      filterDrawer: false,
-      chosenLabels: [] as string[],
-      chosenActors: [] as string[],
-      favoritesOnly: false,
-      bookmarksOnly: false,
-      ratingFilter: 0,
-      chosenSort: 0,
       sortModes: [
         {
           name: "Date added (newest)",
@@ -334,6 +324,106 @@ export default Vue.extend({
     }
   },
   computed: {
+    chosenSort: {
+      get(): number {
+        return this.$store.state.images.search.chosenSort;
+      },
+      set(value: number) {
+        this.$store.commit("images/setSearchParam", {
+          key: "chosenSort",
+          value
+        })
+      }
+    },
+    ratingFilter: {
+      get(): number {
+        return this.$store.state.images.search.ratingFilter;
+      },
+      set(value: number) {
+        this.$store.commit("images/setSearchParam", {
+          key: "ratingFilter",
+          value
+        })
+      }
+    },
+    bookmarksOnly: {
+      get(): boolean {
+        return this.$store.state.images.search.bookmarksOnly;
+      },
+      set(value: boolean) {
+        this.$store.commit("images/setSearchParam", {
+          key: "bookmarksOnly",
+          value
+        })
+      }
+    },
+    favoritesOnly: {
+      get(): boolean {
+        return this.$store.state.images.search.favoritesOnly;
+      },
+      set(value: boolean) {
+        this.$store.commit("images/setSearchParam", {
+          key: "favoritesOnly",
+          value
+        })
+      }
+    },
+    chosenActors: {
+      get(): string[] {
+        return this.$store.state.images.search.chosenActors;
+      },
+      set(value: string[]) {
+        this.$store.commit("images/setSearchParam", {
+          key: "chosenActors",
+          value
+        })
+      }
+    },
+    chosenLabels: {
+      get(): string[] {
+        return this.$store.state.images.search.chosenLabels;
+      },
+      set(value: string[]) {
+        this.$store.commit("images/setSearchParam", {
+          key: "chosenLabels",
+          value
+        })
+      }
+    },
+    search: {
+      get(): string {
+        return this.$store.state.images.search.search;
+      },
+      set(value: string) {
+        this.$store.commit("images/setSearchParam", {
+          key: "search",
+          value
+        })
+      }
+    },
+    gridSize: {
+      get(): number {
+        return this.$store.state.images.search.gridSize;
+      },
+      set(value: number) {
+        this.$store.commit("images/setSearchParam", {
+          key: "gridSize",
+          value
+        })
+      }
+    },
+    filterDrawer: {
+      get(): boolean {
+        return this.$store.state.images.search.filterDrawer;
+      },
+      set(value: boolean) {
+        this.$store.commit("images/setSearchParam", {
+          key: "filterDrawer",
+          value
+        })
+      }
+    },
+
     actors(): Actor[] {
       return this.items[this.currentImage].actors.map((id: string) => {
         return this.$store.state.actors.items.find((a: Actor) => a.id == id);
@@ -397,14 +487,6 @@ export default Vue.extend({
 </script>
 
 <style lang="scss" scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
-
 .topbar {
   position: absolute;
   width: 100%;
@@ -444,8 +526,8 @@ export default Vue.extend({
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    max-width: calc(100vw - 150px);
-    max-height: calc(100vh - 20px);
+    max-width: calc(100% - 150px);
+    max-height: calc(100% - 20px);
   }
 }
 </style>

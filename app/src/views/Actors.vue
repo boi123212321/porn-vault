@@ -20,7 +20,7 @@
       </v-flex>
 
       <v-container fluid>
-        <v-layout row wrap align-center v-if="gridSize == 0">
+        <v-layout row wrap v-if="gridSize == 0">
           <v-flex
             xs12
             sm6
@@ -35,7 +35,7 @@
           </v-flex>
         </v-layout>
 
-        <v-layout row wrap align-center v-if="gridSize == 1">
+        <v-layout row wrap v-if="gridSize == 1">
           <v-flex
             xs6
             sm3
@@ -53,7 +53,7 @@
     </v-layout>
 
     <v-navigation-drawer
-      class="pa-3"
+      class="px-3 pt-1"
       v-model="filterDrawer"
       app
       right
@@ -140,20 +140,10 @@ export default Vue.extend({
   },
   data() {
     return {
-      gridSize: 0,
       createDialog: false,
       creating: {
         name: ""
       },
-
-      // TODO: this should all go to store so it's persistent
-      filterDrawer: false,
-      search: "",
-      chosenLabels: [] as string[],
-      favoritesOnly: false,
-      bookmarksOnly: false,
-      ratingFilter: 0,
-      chosenSort: 0,
       sortModes: [
         {
           name: "Date added (newest)",
@@ -214,6 +204,95 @@ export default Vue.extend({
     }
   },
   computed: {
+    chosenSort: {
+      get(): number {
+        return this.$store.state.actors.search.chosenSort;
+      },
+      set(value: number) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "chosenSort",
+          value
+        })
+      }
+    },
+    ratingFilter: {
+      get(): number {
+        return this.$store.state.actors.search.ratingFilter;
+      },
+      set(value: number) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "ratingFilter",
+          value
+        })
+      }
+    },
+    bookmarksOnly: {
+      get(): boolean {
+        return this.$store.state.actors.search.bookmarksOnly;
+      },
+      set(value: boolean) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "bookmarksOnly",
+          value
+        })
+      }
+    },
+    favoritesOnly: {
+      get(): boolean {
+        return this.$store.state.actors.search.favoritesOnly;
+      },
+      set(value: boolean) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "favoritesOnly",
+          value
+        })
+      }
+    },
+    chosenLabels: {
+      get(): string[] {
+        return this.$store.state.actors.search.chosenLabels;
+      },
+      set(value: string[]) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "chosenLabels",
+          value
+        })
+      }
+    },
+    search: {
+      get(): string {
+        return this.$store.state.actors.search.search;
+      },
+      set(value: string) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "search",
+          value
+        })
+      }
+    },
+    gridSize: {
+      get(): number {
+        return this.$store.state.actors.search.gridSize;
+      },
+      set(value: number) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "gridSize",
+          value
+        })
+      }
+    },
+    filterDrawer: {
+      get(): boolean {
+        return this.$store.state.actors.search.filterDrawer;
+      },
+      set(value: boolean) {
+        this.$store.commit("actors/setSearchParam", {
+          key: "filterDrawer",
+          value
+        })
+      }
+    },
+
     labels(): string[] {
       return this.$store.getters["actors/getLabels"];
     },

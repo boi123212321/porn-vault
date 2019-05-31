@@ -177,16 +177,24 @@
             <div class="topbar">
               <v-spacer></v-spacer>
             </div>
-            <v-container>
-              <div class="mb-1 headline font-weight-light">
-                {{ items[currentImage].name }}
-                <v-btn icon @click="favorite">
-                  <v-icon>{{ items[currentImage].favorite ? 'favorite' : 'favorite_border' }}</v-icon>
-                </v-btn>
-                <v-btn icon @click="bookmark">
-                  <v-icon>{{ items[currentImage].bookmark ? 'bookmark' : 'bookmark_border' }}</v-icon>
-                </v-btn>
-              </div>
+            <v-sheet
+              color="primary"
+              style="display: flex"
+              class="px-2 mb-1 headline font-weight-light"
+            >
+              <v-btn icon @click="favorite">
+                <v-icon>{{ items[currentImage].favorite ? 'favorite' : 'favorite_border' }}</v-icon>
+              </v-btn>
+              <v-btn icon @click="bookmark">
+                <v-icon>{{ items[currentImage].bookmark ? 'bookmark' : 'bookmark_border' }}</v-icon>
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn icon @click="removeImage">
+                <v-icon>delete_forever</v-icon>
+              </v-btn>
+            </v-sheet>
+
+            <div class="pa-3">
               <p class="sec--text">{{ items[currentImage].path }}</p>
 
               <div class="mb-2">
@@ -204,7 +212,7 @@
                 >{{ label }}</v-chip>
                 <v-chip small @click color="primary white--text">+ Add</v-chip>
               </div>
-            </v-container>
+            </div>
           </v-sheet>
         </div>
       </div>
@@ -259,6 +267,28 @@ export default Vue.extend({
     };
   },
   methods: {
+    removeImage() {
+      let item = this.items[this.currentImage];
+
+      fs.unlinkSync(item.path);
+      this.$store.commit("images/remove", item.id);
+
+      if (item.video) {
+        this.$store.commit("videos/removeThumbnailById", {
+          id: item.video,
+          image: item.id
+        });
+      }
+
+      this.currentImage = -1;
+    },
+    setRatingFilter(i: number) {
+      if (this.ratingFilter === i) {
+        this.ratingFilter = 0;
+      } else {
+        this.ratingFilter = i;
+      }
+    },
     favorite() {
       this.$store.commit("images/favorite", this.items[this.currentImage].id);
     },
@@ -332,7 +362,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "chosenSort",
           value
-        })
+        });
       }
     },
     ratingFilter: {
@@ -343,7 +373,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "ratingFilter",
           value
-        })
+        });
       }
     },
     bookmarksOnly: {
@@ -354,7 +384,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "bookmarksOnly",
           value
-        })
+        });
       }
     },
     favoritesOnly: {
@@ -365,7 +395,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "favoritesOnly",
           value
-        })
+        });
       }
     },
     chosenActors: {
@@ -376,7 +406,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "chosenActors",
           value
-        })
+        });
       }
     },
     chosenLabels: {
@@ -387,7 +417,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "chosenLabels",
           value
-        })
+        });
       }
     },
     search: {
@@ -398,7 +428,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "search",
           value
-        })
+        });
       }
     },
     gridSize: {
@@ -409,7 +439,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "gridSize",
           value
-        })
+        });
       }
     },
     filterDrawer: {
@@ -420,7 +450,7 @@ export default Vue.extend({
         this.$store.commit("images/setSearchParam", {
           key: "filterDrawer",
           value
-        })
+        });
       }
     },
 

@@ -5,7 +5,9 @@ import CustomField from '@/classes/custom_field';
 
 type RootState = {
   items: Video[],
-  search: any
+  search: any,
+
+  generatingThumbnails: boolean
 }
 
 export default {
@@ -24,7 +26,9 @@ export default {
       bookmarksOnly: false,
       ratingFilter: 0,
       chosenSort: 0
-    }
+    },
+
+    generatingThumbnails: false
   },
   getters: {
     getAll(state: RootState): Video[] {
@@ -51,6 +55,9 @@ export default {
     }
   },
   mutations: {
+    generatingThumbnails(state: RootState, bool: boolean) {
+      state.generatingThumbnails = bool;
+    },
     setSearchParam(state: RootState, { key, value }: { key: string, value: any }) {
       Vue.set(state.search, key, value);
     },
@@ -86,6 +93,21 @@ export default {
         let video = state.items[_index] as Video;
 
         video.thumbnails.splice(index, 1)[0];
+
+        if (video.coverIndex >= video.thumbnails.length) {
+          video.coverIndex -= 1;
+        }
+
+        Vue.set(state.items, _index, video);
+      }
+    },
+    removeThumbnailById(state: RootState, { id, image }: { id: string, image: string }) {
+      let _index = state.items.findIndex((v: Video) => v.id == id) as number;
+
+      if (_index >= 0) {
+        let video = state.items[_index] as Video;
+
+        video.thumbnails = video.thumbnails.filter(id => id !== image)
 
         if (video.coverIndex >= video.thumbnails.length) {
           video.coverIndex -= 1;

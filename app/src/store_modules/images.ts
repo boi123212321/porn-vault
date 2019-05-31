@@ -95,6 +95,9 @@ export default {
         image.customFields[customField.name] = null;
         Vue.set(state.items, i, image);
       }
+    },
+    remove(state: RootState, id: string) {
+      state.items = state.items.filter(i => i.id !== id);
     }
   },
   actions: {

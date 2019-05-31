@@ -73,6 +73,21 @@
                     v-if="watches.length"
                   >Last view: {{ new Date(watches.slice(-1)[0]).toLocaleString() }}</p>
                 </div>
+
+                <v-container fluid>
+                  <v-layout
+                    row
+                    wrap
+                    align-center
+                    v-for="(value, key) in actor.customFields"
+                    :key="key"
+                  >
+                    <v-flex xs12 sm6>
+                      <v-subheader>{{ key }}</v-subheader>
+                    </v-flex>
+                    <v-flex xs12 sm6>{{ value }}</v-flex>
+                  </v-layout>
+                </v-container>
               </div>
             </v-container>
           </v-flex>
@@ -82,7 +97,6 @@
             <v-layout row wrap>
               <v-flex v-for="video in videos" :key="video.id" xs6 sm4 md4 lg3>
                 <Video :video="video"></Video>
-                <!-- @click = open actor page -->
               </v-flex>
             </v-layout>
           </v-flex>

@@ -25,7 +25,7 @@
       </v-toolbar>
       <v-container>
         <v-layout row wrap>
-          <v-flex xs6 sm4 md3 lg2>
+          <v-flex xs6 sm4 md3 lg3>
             <v-img
               v-if="video.thumbnails.length"
               class="clickable elevation-6"
@@ -44,7 +44,7 @@
             ></v-img>
             <input accept="image/*" multiple style="display:none" type="file" :data-id="video.id">
           </v-flex>
-          <v-flex xs6 sm8 md9 lg10>
+          <v-flex xs6 sm8 md9 lg9>
             <v-container fluid fill-height>
               <div class="fill">
                 <div>
@@ -76,6 +76,21 @@
                     v-if="video.watches.length"
                   >Last view: {{ new Date(video.watches.slice(-1)[0]).toLocaleString() }}</p>
                 </div>
+
+                <v-container fluid>
+                  <v-layout
+                    row
+                    wrap
+                    align-center
+                    v-for="(value, key) in video.customFields"
+                    :key="key"
+                  >
+                    <v-flex xs12 sm6>
+                      <v-subheader>{{ key }}</v-subheader>
+                    </v-flex>
+                    <v-flex xs12 sm6>{{ value }}</v-flex>
+                  </v-layout>
+                </v-container>
               </div>
             </v-container>
           </v-flex>
@@ -301,6 +316,9 @@ export default Vue.extend({
       this.editDialog = true;
       this.editing.title = this.video.title;
       this.editing.actors = this.video.actors;
+      this.editing.customFields = JSON.parse(
+        JSON.stringify(this.video.customFields)
+      );
     },
     removeThumbnail(index: number) {
       this.$store.commit("videos/removeThumbnail", {

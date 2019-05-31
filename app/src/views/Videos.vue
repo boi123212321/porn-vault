@@ -213,7 +213,6 @@ export default Vue.extend({
   },
   data() {
     return {
-      generatingThumbnails: false,
       current: null as Video | null,
       visible: false,
       sortModes: [
@@ -287,24 +286,48 @@ export default Vue.extend({
 
           this.generatingThumbnails = true;
 
+          if (!fs.existsSync("library/")) {
+            fs.mkdirSync("library/");
+          }
+
+          if (!fs.existsSync("library/images/")) {
+            fs.mkdirSync("library/images/");
+          }
+
+          const thumbnailPath = "library/images/thumbnails/";
+
+          if (!fs.existsSync(thumbnailPath)) {
+            fs.mkdirSync(thumbnailPath);
+          }
+
           await asyncPool(1, videos, video => {
             return new Promise(async (resolve, reject) => {
               customFieldNames.forEach(field => {
                 video.customFields[field] = null;
               });
 
-              const thumbnailPath = "library/images/thumbnails/";
+              let duration = (await new Promise((resolve, reject) => {
+                ffmpeg.ffprobe(video.path, (err, metadata) => {
+                  if (err) return reject(err);
+                  resolve(metadata.format.duration);
+                });
+              })) as number;
 
-              if (!fs.existsSync(thumbnailPath)) {
-                fs.mkdirSync(thumbnailPath);
-              }
+              let amount = Math.max(
+                1,
+                Math.floor(
+                  duration /
+                    this.$store.state.globals.settings
+                      .thumbnailsOnImportInterval
+                )
+              );
 
-              console.log("Creating thumbnails...");
+              console.log(`Generating ${amount} thumbnails...`);
 
               await takeScreenshots(
                 video.path,
                 `thumbnail-${video.id}-%s.jpg`,
-                this.$store.state.globals.settings.thumbnailsOnImport,
+                amount,
                 thumbnailPath,
                 0
               );
@@ -340,11 +363,12 @@ export default Vue.extend({
 
               video.thumbnails.push(...images.map(i => i.id));
 
+              this.$store.commit("videos/add", [video]);
+
               resolve();
             });
           });
-
-          this.$store.commit("videos/add", videos);
+          
           this.generatingThumbnails = false;
           el.value = "";
         }
@@ -353,6 +377,15 @@ export default Vue.extend({
     }
   },
   computed: {
+    generatingThumbnails: {
+      get(): boolean {
+        return this.$store.state.videos.generatingThumbnails;
+      },
+      set(value: boolean) {
+        this.$store.commit("videos/generatingThumbnails", value);
+      }
+    },
+
     chosenSort: {
       get(): number {
         return this.$store.state.videos.search.chosenSort;

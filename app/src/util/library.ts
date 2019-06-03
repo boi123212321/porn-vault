@@ -48,39 +48,73 @@ export function loadFromDisk(): Promise<void> {
       const settingsPath = path.resolve(libraryPath, "settings.json");
 
       if (fs.existsSync(videoPath)) {
-        var videos = JSON.parse(fs.readFileSync(videoPath, "utf-8"));
-        if (videos && Array.isArray(videos)) {
+        let fileContent = fs.readFileSync(videoPath, "utf-8");
+
+        if (fileContent) {
+          var videos = JSON.parse(fileContent);
+          if (videos && Array.isArray(videos)) {
+            store.commit(
+              "videos/set",
+              videos.map((o: any) => Object.assign(new Video(), o))
+            );
+          }
+        }
+        else {
           store.commit(
             "videos/set",
-            videos.map((o: any) => Object.assign(new Video(), o))
+            []
           );
         }
       }
 
       if (fs.existsSync(actorPath)) {
-        const actors = JSON.parse(fs.readFileSync(actorPath, "utf-8"));
-        if (actors && Array.isArray(actors)) {
+        let fileContent = fs.readFileSync(actorPath, "utf-8");
+
+        if (fileContent) {
+          const actors = JSON.parse(fileContent);
+          if (actors && Array.isArray(actors)) {
+            store.commit(
+              "actors/set",
+              actors.map((o: any) => Object.assign(new Actor(), o))
+            );
+          }
+        }
+        else {
           store.commit(
             "actors/set",
-            actors.map((o: any) => Object.assign(new Actor(), o))
+            []
           );
         }
       }
 
       if (fs.existsSync(imagePath)) {
-        const images = JSON.parse(fs.readFileSync(imagePath, "utf-8"));
-        if (images && Array.isArray(images)) {
+        let fileContent = fs.readFileSync(imagePath, "utf-8");
+
+        if (fileContent) {
+          const images = JSON.parse(fileContent);
+          if (images && Array.isArray(images)) {
+            store.commit(
+              "images/set",
+              images.map((o: any) => Object.assign(new Image(), o))
+            );
+          }
+        }
+        else {
           store.commit(
             "images/set",
-            images.map((o: any) => Object.assign(new Image(), o))
+            []
           );
         }
       }
 
       if (fs.existsSync(settingsPath)) {
-        const settings = JSON.parse(fs.readFileSync(settingsPath, "utf-8"));
-        if (settings) {
-          store.commit("globals/set", settings);
+        let fileContent = fs.readFileSync(settingsPath, "utf-8");
+
+        if (fileContent) {
+          const settings = JSON.parse(fileContent);
+          if (settings) {
+            store.commit("globals/set", settings);
+          }
         }
       }
     } else {

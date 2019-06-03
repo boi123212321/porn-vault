@@ -211,7 +211,7 @@
         </v-toolbar>
         <v-container>
           <v-combobox
-            v-model="chosenLabels"
+            v-model="editing.chosenLabels"
             :items="$store.getters['videos/getLabels']"
             label="Add or choose labels"
             multiple
@@ -241,7 +241,6 @@ import { toTitleCase } from "@/util/string";
 import { CustomFieldValue } from "@/classes/common";
 import CustomField from "@/components/CustomField.vue";
 
-
 export default Vue.extend({
   components: {
     Actor: ActorComponent,
@@ -256,10 +255,9 @@ export default Vue.extend({
       editing: {
         title: "",
         actors: [] as string[],
-        customFields: {} as CustomFieldValue
-      },
-
-      chosenLabels: [] as string[],
+        customFields: {} as CustomFieldValue,
+        chosenLabels: [] as string[]
+      }
     };
   },
   methods: {
@@ -272,13 +270,13 @@ export default Vue.extend({
     saveLabels() {
       this.$store.commit("videos/setLabels", {
         id: this.video.id,
-        labels: this.chosenLabels.map((label: string) => toTitleCase(label))
+        labels: this.editing.chosenLabels.map((label: string) => toTitleCase(label))
       });
       this.labelDialog = false;
     },
     openLabelDialog() {
       this.labelDialog = true;
-      this.chosenLabels = this.video.labels;
+      this.editing.chosenLabels = this.video.labels;
     },
     favorite() {
       this.$store.commit("videos/favorite", this.video.id);

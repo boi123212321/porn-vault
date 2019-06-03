@@ -1,5 +1,4 @@
 import ffmpeg from "fluent-ffmpeg";
-import path from "path";
 import asyncPool from "tiny-async-pool";
 
 export type ScreenShotOptions = {

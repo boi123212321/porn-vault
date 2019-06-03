@@ -191,14 +191,6 @@ export default Vue.extend({
             thumbnailPath,
           });
 
-          // await takeScreenshots(
-          //   video.path,
-          //   `thumbnail-${video.id}-%s.jpg`,
-          //   amount,
-          //   thumbnailPath,
-          //   0
-          // );
-
           let files = fs.readdirSync(thumbnailPath) as any[];
           files = files.filter(name => name.includes(`thumbnail-${video.id}`));
 

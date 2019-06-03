@@ -99,7 +99,27 @@ export default {
     },
     remove(state: RootState, id: string) {
       state.items = state.items.filter(i => i.id !== id);
-    }
+    },
+    setLabels(state: RootState, { id, labels }: { id: string, labels: string[] }) {
+      let _index = state.items.findIndex((v: Image) => v.id == id) as number;
+
+      if (_index >= 0) {
+        let video = state.items[_index] as Image;
+        video.labels = labels;
+        Vue.set(state.items, _index, video);
+      }
+    },
+    edit(state: RootState, { id, settings }: { id: string, settings: any }) {
+      let _index = state.items.findIndex((v: Image) => v.id == id) as number;
+
+      if (_index >= 0) {
+        let video = state.items[_index] as Image;
+        video.name = settings.name || video.name;
+        video.actors = settings.actors || video.actors;
+        video.customFields = settings.customFields || video.customFields;
+        Vue.set(state.items, _index, video);
+      }
+    },
   },
   actions: {
   },

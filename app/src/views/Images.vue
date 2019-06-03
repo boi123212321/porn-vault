@@ -176,13 +176,13 @@
             </v-btn>
           </div>
 
-          <v-sheet style="align-self: flex-end; width: 100%" @click.stop v-if="showImageDetails">
+          <v-sheet style="align-self: flex-end; width: 100%;" @click.stop v-if="showImageDetails">
             <div class="topbar">
               <v-spacer></v-spacer>
             </div>
-            <v-sheet
+            <v-card
               color="primary"
-              style="display: flex"
+              style="display: flex;"
               class="px-2 mb-1 headline font-weight-light"
             >
               <v-btn icon @click="favorite">
@@ -192,12 +192,15 @@
                 <v-icon>{{ items[currentImage].bookmark ? 'bookmark' : 'bookmark_border' }}</v-icon>
               </v-btn>
               <v-spacer></v-spacer>
-              <v-btn icon @click="removeImage">
-                <v-icon>delete_forever</v-icon>
+              <v-btn icon @click="openEditDialog">
+                <v-icon>edit</v-icon>
               </v-btn>
-            </v-sheet>
+              <v-btn icon @click="removeImage">
+                <v-icon color="warning">delete_forever</v-icon>
+              </v-btn>
+            </v-card>
 
-            <div class="pa-3">
+            <div class="pa-3" style="max-height: 33vh; overflow-y: auto;">
               <p class="sec--text">{{ items[currentImage].path }}</p>
 
               <div class="mb-2">
@@ -213,13 +216,125 @@
                   v-for="label in items[currentImage].labels.slice().sort()"
                   :key="label"
                 >{{ label }}</v-chip>
-                <v-chip small @click color="primary white--text">+ Add</v-chip>
+                <v-chip small @click="openLabelDialog" color="primary white--text">+ Add</v-chip>
               </div>
+
+              <v-container fluid>
+                  <v-layout
+                    row
+                    wrap
+                    align-center
+                    v-for="field in customFields"
+                    :key="field[0]"
+                  >
+                    <v-flex xs12 sm6>
+                      <v-subheader>{{ field[0] }}</v-subheader>
+                    </v-flex>
+                    <v-flex xs12 sm6>{{ Array.isArray(field[1]) ? field[1].join(", ") : field[1] }}</v-flex>
+                  </v-layout>
+                </v-container>
             </div>
           </v-sheet>
         </div>
       </div>
     </transition>
+
+    <v-dialog v-model="editDialog" max-width="600px">
+      <v-card>
+        <v-toolbar dark color="primary">
+          <v-toolbar-title>Edit image</v-toolbar-title>
+        </v-toolbar>
+        <v-container v-if="editDialog">
+          <v-layout row wrap align-center>
+            <v-flex xs6 sm4>
+              <v-subheader>Image name</v-subheader>
+            </v-flex>
+            <v-flex xs6 sm8>
+              <v-text-field single-line v-model="editing.title" label="Enter name (or leave blank)"></v-text-field>
+            </v-flex>
+
+            <v-flex xs6 sm4>
+              <v-subheader>Actors</v-subheader>
+            </v-flex>
+            <v-flex xs6 sm8>
+              <v-autocomplete
+                v-model="editing.actors"
+                :items="$store.state.actors.items"
+                chips
+                label="Select"
+                item-text="name"
+                item-value="id"
+                multiple
+                clearable
+              >
+                <template v-slot:selection="data">
+                  <v-chip
+                    :selected="data.selected"
+                    close
+                    class="chip--select-multi"
+                    @input="removeActor(data.item.id)"
+                  >
+                    <v-avatar>
+                      <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
+                    </v-avatar>
+                    {{ data.item.name }}
+                  </v-chip>
+                </template>
+                <template v-slot:item="data">
+                  <template v-if="typeof data.item !== 'object'">
+                    <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                  </template>
+                  <template v-else>
+                    <v-list-tile-avatar>
+                      <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                      <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
+                      <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
+                    </v-list-tile-content>
+                  </template>
+                </template>
+              </v-autocomplete>
+            </v-flex>
+
+            <v-flex xs12 v-for="field in $store.state.globals.customFields" :key="field.name">
+              <CustomField
+                :field="field"
+                :value="getFieldValue(field.name)"
+                v-on:change="setFieldValue"
+              />
+            </v-flex>
+          </v-layout>
+        </v-container>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="editDialog = false" flat>Cancel</v-btn>
+          <v-btn @click="saveSettings" color="primary">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="labelDialog" max-width="600px">
+      <v-card>
+        <v-toolbar dark color="primary">
+          <v-toolbar-title>Edit labels</v-toolbar-title>
+        </v-toolbar>
+        <v-container>
+          <v-combobox
+            v-model="editing.chosenLabels"
+            :items="$store.getters['images/getLabels']"
+            label="Add or choose labels"
+            multiple
+            chips
+          ></v-combobox>
+        </v-container>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="labelDialog = false" flat>Cancel</v-btn>
+          <v-btn @click="saveLabels" color="primary">Save</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -232,10 +347,14 @@ import fs from "fs";
 import Fuse from "fuse.js";
 import { hash, randomString } from "@/util/generator";
 import ActorComponent from "@/components/Actor.vue";
+import { CustomFieldValue } from '@/classes/common';
+import { toTitleCase } from '@/util/string';
+import CustomField from "@/components/CustomField.vue";
 
 export default Vue.extend({
   components: {
-    Actor: ActorComponent
+    Actor: ActorComponent,
+    CustomField
   },
   data() {
     return {
@@ -267,10 +386,56 @@ export default Vue.extend({
         }
       ],
 
+      editDialog: false,
+      labelDialog: false,
+      
+      editing: {
+        name: "",
+        actors: [] as string[],
+        customFields: {} as CustomFieldValue,
+        chosenLabels: [] as string[]
+      },
+
       showImageDetails: false
     };
   },
   methods: {
+    openEditDialog() {
+      this.editDialog = true;
+      this.editing.name = this.items[this.currentImage].name;
+      this.editing.actors = this.items[this.currentImage].actors;
+      this.editing.customFields = JSON.parse(
+        JSON.stringify(this.items[this.currentImage].customFields)
+      );
+    },
+    openLabelDialog() {
+      this.labelDialog = true;
+      this.editing.chosenLabels = this.items[this.currentImage].labels;
+    },
+    saveLabels() {
+      this.$store.commit("images/setLabels", {
+        id: this.items[this.currentImage].id,
+        labels: this.editing.chosenLabels.map((label: string) => toTitleCase(label))
+      });
+      this.labelDialog = false;
+    },
+    saveSettings() {
+      this.$store.commit("images/edit", {
+        id: this.items[this.currentImage].id,
+        settings: {
+          name: toTitleCase(this.editing.name),
+          actors: this.editing.actors,
+          customFields: JSON.parse(JSON.stringify(this.editing.customFields))
+        }
+      });
+      this.editDialog = false;
+    },
+    setFieldValue({ key, value }: { key: string; value: string }) {
+      this.editing.customFields[key] = value;
+    },
+    getFieldValue(name: string): string | number | boolean | null {
+      return this.editing.customFields[name];
+    },
     removeImage() {
       let item = this.items[this.currentImage];
 
@@ -458,6 +623,11 @@ export default Vue.extend({
       }
     },
 
+    customFields() {
+      let array = Object.entries((this.items[this.currentImage] as unknown as Image).customFields);
+      array = array.filter((a: any) => a[1] !== null);
+      return array;
+    },
     actors(): Actor[] {
       return this.items[this.currentImage].actors.map((id: string) => {
         return this.$store.state.actors.items.find((a: Actor) => a.id == id);
@@ -551,7 +721,7 @@ export default Vue.extend({
 
 .thumb-btn {
   background: rgba(0, 0, 0, 0.5);
-  z-index: 10000;
+  z-index: 50;
 
   &.left {
     position: absolute;
@@ -572,7 +742,7 @@ export default Vue.extend({
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 9999;
+  z-index: 10;
   background: rgba(0, 0, 0, 0.5);
 
   .image {

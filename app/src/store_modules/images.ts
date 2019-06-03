@@ -15,6 +15,7 @@ export default {
     search: {
       gridSize: 0,
       filterDrawer: false,
+      search: "",
       chosenLabels: [] as string[],
       chosenActors: [] as string[],
       favoritesOnly: false,

@@ -65,6 +65,9 @@
     >
       <v-layout row wrap>
         <v-flex xs12>
+          <v-text-field v-model="search" single-line label="Search..." clearable></v-text-field>
+        </v-flex>
+        <v-flex xs12>
           <v-divider></v-divider>
           <v-subheader>Filter</v-subheader>
           <v-autocomplete
@@ -226,6 +229,7 @@ import Image from "@/classes/image";
 import Actor from "@/classes/actor";
 import path from "path";
 import fs from "fs";
+import Fuse from "fuse.js";
 import { hash, randomString } from "@/util/generator";
 import ActorComponent from "@/components/Actor.vue";
 
@@ -463,7 +467,7 @@ export default Vue.extend({
       return this.$store.getters["images/getLabels"];
     },
     items() {
-      let images = this.$store.state.images.items as Image[];
+      let images = JSON.parse(JSON.stringify(this.$store.state.images.items)) as Image[];
 
       if (this.favoritesOnly) {
         images = images.filter(image => image.favorite);
@@ -487,6 +491,26 @@ export default Vue.extend({
 
       if (this.ratingFilter > 0) {
         images = images.filter(i => i.rating >= this.ratingFilter);
+      }
+
+      images.forEach(image => {
+        image.actors = image.actors.map((id: string) => {
+          return this.$store.getters["actors/getById"](id);
+        });
+      });
+
+      if (this.search && this.search.length) {
+        var options = {
+          shouldSort: true,
+          threshold: 0.25,
+          location: 0,
+          distance: 100,
+          maxPatternLength: 32,
+          minMatchCharLength: 1,
+          keys: ["name", "path", "labels", "actors.name"],
+        };
+        var fuse = new Fuse(images, options);
+        images = fuse.search(this.search);
       }
 
       switch (this.chosenSort) {

@@ -69,6 +69,17 @@
         </v-flex>
         <v-flex xs12>
           <v-divider></v-divider>
+          <v-subheader>Sort</v-subheader>
+          <v-select
+            :items="sortModes"
+            single-line
+            v-model="chosenSort"
+            item-text="name"
+            item-value="value"
+          ></v-select>
+        </v-flex>
+        <v-flex xs12>
+          <v-divider></v-divider>
           <v-subheader>Filter</v-subheader>
           <v-autocomplete
             v-model="chosenActors"
@@ -134,16 +145,9 @@
           <v-checkbox hide-details v-model="favoritesOnly" label="Show favorites only"></v-checkbox>
           <v-checkbox hide-details v-model="bookmarksOnly" label="Show bookmarks only"></v-checkbox>
         </v-flex>
-        <v-flex xs12 class="mt-3">
-          <v-divider></v-divider>
-          <v-subheader>Sort</v-subheader>
-          <v-select
-            :items="sortModes"
-            single-line
-            v-model="chosenSort"
-            item-text="name"
-            item-value="value"
-          ></v-select>
+
+        <v-flex class="mt-2" xs12 v-for="field in fieldFilters" :key="field.name">
+          <CustomField :field="field" :value="field.value" v-on:change="setFieldFilterValue"/>
         </v-flex>
       </v-layout>
     </v-navigation-drawer>
@@ -220,19 +224,13 @@
               </div>
 
               <v-container fluid>
-                  <v-layout
-                    row
-                    wrap
-                    align-center
-                    v-for="field in customFields"
-                    :key="field[0]"
-                  >
-                    <v-flex xs12 sm6>
-                      <v-subheader>{{ field[0] }}</v-subheader>
-                    </v-flex>
-                    <v-flex xs12 sm6>{{ Array.isArray(field[1]) ? field[1].join(", ") : field[1] }}</v-flex>
-                  </v-layout>
-                </v-container>
+                <v-layout row wrap align-center v-for="field in customFields" :key="field[0]">
+                  <v-flex xs12 sm6>
+                    <v-subheader>{{ field[0] }}</v-subheader>
+                  </v-flex>
+                  <v-flex xs12 sm6>{{ Array.isArray(field[1]) ? field[1].join(", ") : field[1] }}</v-flex>
+                </v-layout>
+              </v-container>
             </div>
           </v-sheet>
         </div>
@@ -347,14 +345,32 @@ import fs from "fs";
 import Fuse from "fuse.js";
 import { hash, randomString } from "@/util/generator";
 import ActorComponent from "@/components/Actor.vue";
-import { CustomFieldValue } from '@/classes/common';
-import { toTitleCase } from '@/util/string';
-import CustomField from "@/components/CustomField.vue";
+import { CustomFieldValue } from "@/classes/common";
+import { toTitleCase } from "@/util/string";
+import CustomFieldComponent from "@/components/CustomField.vue";
+import CustomField, { CustomFieldType } from "../classes/custom_field";
+
+enum FilterMode {
+  NONE,
+  EQUALS,
+  INCLUDES,
+  GREATER_THAN,
+  LESSER_THAN,
+  INCLUDES_SOME
+}
+
+type FieldFilter = {
+  name: string;
+  values: string[] | null;
+  type: CustomFieldType;
+  mode: FilterMode;
+  value: string | number | boolean | null | string[];
+};
 
 export default Vue.extend({
   components: {
     Actor: ActorComponent,
-    CustomField
+    CustomField: CustomFieldComponent
   },
   data() {
     return {
@@ -385,10 +401,11 @@ export default Vue.extend({
           value: 5
         }
       ],
+      fieldFilters: [] as FieldFilter[],
 
       editDialog: false,
       labelDialog: false,
-      
+
       editing: {
         name: "",
         actors: [] as string[],
@@ -399,7 +416,35 @@ export default Vue.extend({
       showImageDetails: false
     };
   },
+  mounted() {
+    this.fieldFilters = (<CustomField[]>this.$store.state.globals.customFields)
+      .slice()
+      .map(field => {
+        return {
+          name: field.name,
+          values: field.values,
+          type: field.type,
+          mode: FilterMode.NONE,
+          value: field.type >= 3 ? [] : null
+        };
+      }) as FieldFilter[];
+  },
   methods: {
+    setFieldFilterValue({
+      key,
+      value,
+      mode
+    }: {
+      key: string;
+      value: string;
+      mode: FilterMode;
+    }) {
+      let field = (<FieldFilter[]>this.fieldFilters).find(f => f.name == key);
+
+      field.value = value;
+      field.mode = mode;
+    },
+
     openEditDialog() {
       this.editDialog = true;
       this.editing.name = this.items[this.currentImage].name;
@@ -415,7 +460,9 @@ export default Vue.extend({
     saveLabels() {
       this.$store.commit("images/setLabels", {
         id: this.items[this.currentImage].id,
-        labels: this.editing.chosenLabels.map((label: string) => toTitleCase(label))
+        labels: this.editing.chosenLabels.map((label: string) =>
+          toTitleCase(label)
+        )
       });
       this.labelDialog = false;
     },
@@ -471,7 +518,9 @@ export default Vue.extend({
       });
     },
     removeActor(id: string) {
-      this.chosenActors = this.chosenActors.filter((actor: string) => actor != id);
+      this.chosenActors = this.chosenActors.filter(
+        (actor: string) => actor != id
+      );
     },
     openFileInput() {
       let el = document.getElementById(`file-input-images`) as any;
@@ -624,7 +673,9 @@ export default Vue.extend({
     },
 
     customFields() {
-      let array = Object.entries((this.items[this.currentImage] as unknown as Image).customFields);
+      let array = Object.entries(
+        ((this.items[this.currentImage] as unknown) as Image).customFields
+      );
       array = array.filter((a: any) => a[1] !== null);
       return array;
     },
@@ -637,7 +688,9 @@ export default Vue.extend({
       return this.$store.getters["images/getLabels"];
     },
     items() {
-      let images = JSON.parse(JSON.stringify(this.$store.state.images.items)) as Image[];
+      let images = JSON.parse(
+        JSON.stringify(this.$store.state.images.items)
+      ) as Image[];
 
       if (this.favoritesOnly) {
         images = images.filter(image => image.favorite);
@@ -649,18 +702,98 @@ export default Vue.extend({
 
       if (this.chosenLabels.length) {
         images = images.filter(image =>
-          this.chosenLabels.every((label: string) => image.labels.includes(label))
+          this.chosenLabels.every((label: string) =>
+            image.labels.includes(label)
+          )
         );
       }
 
       if (this.chosenActors.length) {
         images = images.filter(image =>
-          this.chosenActors.every((actor: string) => image.actors.includes(actor))
+          this.chosenActors.every((actor: string) =>
+            image.actors.includes(actor)
+          )
         );
       }
 
       if (this.ratingFilter > 0) {
         images = images.filter(i => i.rating >= this.ratingFilter);
+      }
+
+      for (const field of JSON.parse(JSON.stringify(this.fieldFilters))) {
+        if (field.value === null || field.mode === FilterMode.NONE) {
+          continue;
+        }
+
+        if (field.type === CustomFieldType.STRING && field.value.length) {
+          field.value = field.value.toLowerCase();
+
+          if (field.mode === FilterMode.EQUALS) {
+            images = images.filter(i => {
+              let value = i.customFields[field.name];
+              return value.toString().toLowerCase() == field.value;
+            });
+          } else if (field.mode === FilterMode.INCLUDES) {
+            images = images.filter(i => {
+              let value = i.customFields[field.name];
+              return value
+                .toString()
+                .toLowerCase()
+                .includes(field.value);
+            });
+          }
+        } else if (field.type === CustomFieldType.NUMBER) {
+          if (field.mode === FilterMode.EQUALS) {
+            images = images.filter(i => {
+              let value = i.customFields[field.name];
+              return value == field.value;
+            });
+          } else if (field.mode == FilterMode.GREATER_THAN) {
+            images = images.filter(i => {
+              let value = i.customFields[field.name];
+              return value > field.value;
+            });
+          } else if (field.mode == FilterMode.LESSER_THAN) {
+            images = images.filter(i => {
+              let value = i.customFields[field.name];
+              return value < field.value;
+            });
+          }
+        } 
+        else if (field.type === CustomFieldType.BOOLEAN) {
+          images = images.filter(i => {
+            let value = i.customFields[field.name];
+            return value == field.value;
+          });
+        }
+        else if (field.type === CustomFieldType.SELECT && field.value) {
+          if (Array.isArray(field.value))
+            continue;
+            
+          images = images.filter(i => {
+            let value = i.customFields[field.name];
+            return value == field.value;
+          });
+        } else if (
+          field.type === CustomFieldType.MULTI_SELECT &&
+          field.value.length
+        ) {
+          if (field.mode === FilterMode.INCLUDES) {
+            images = images.filter(i => {
+              let values = (i.customFields[field.name] as unknown) as string[];
+              return field.value.every((value: string) =>
+                values.includes(value)
+              );
+            });
+          } else if (field.mode === FilterMode.INCLUDES_SOME) {
+            images = images.filter(i => {
+              let values = (i.customFields[field.name] as unknown) as string[];
+              return field.value.some((value: string) =>
+                values.includes(value)
+              );
+            });
+          }
+        }
       }
 
       images.forEach(image => {
@@ -677,7 +810,7 @@ export default Vue.extend({
           distance: 100,
           maxPatternLength: 32,
           minMatchCharLength: 1,
-          keys: ["name", "path", "labels", "actors.name"],
+          keys: ["name", "path", "labels", "actors.name"]
         };
         var fuse = new Fuse(images, options);
         images = fuse.search(this.search);

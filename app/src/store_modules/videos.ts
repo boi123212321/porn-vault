@@ -166,6 +166,9 @@ export default {
 
       if (_index >= 0) {
         let video = state.items[_index] as Video;
+
+        if (settings.description !== undefined)
+          video.description = settings.description;
         video.title = settings.title || video.title;
         video.actors = settings.actors || video.actors;
         video.customFields = settings.customFields || video.customFields;

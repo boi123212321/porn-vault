@@ -197,6 +197,7 @@ import VideoComponent from "@/components/Video.vue";
 import { toTitleCase } from "@/util/string";
 import { CustomFieldValue } from "@/classes/common";
 import CustomField from "@/components/CustomField.vue";
+import { exportToDisk } from '@/util/library';
 
 export default Vue.extend({
   components: {
@@ -236,6 +237,8 @@ export default Vue.extend({
         }
       });
       this.editDialog = false;
+
+      exportToDisk();
     },
     saveLabels() {
       this.$store.commit("actors/setLabels", {
@@ -244,6 +247,8 @@ export default Vue.extend({
         
       });
       this.labelDialog = false;
+
+      exportToDisk();
     },
     openLabelDialog() {
       this.labelDialog = true;
@@ -259,21 +264,25 @@ export default Vue.extend({
     },
     favorite() {
       this.$store.commit("actors/favorite", this.actor.id);
+      exportToDisk();
     },
     bookmark() {
       this.$store.commit("actors/bookmark", this.actor.id);
+      exportToDisk();
     },
     rateActor(rating: number) {
       this.$store.commit("actors/rate", {
         id: this.actor.id,
         rating
       });
+      exportToDisk();
     },
     setCoverIndex(index: number) {
       this.$store.commit("actors/setCoverIndex", {
         id: this.actor.id,
         index
       });
+      exportToDisk();
     },
     openFileInput() {
       let el = document.querySelector(
@@ -312,6 +321,7 @@ export default Vue.extend({
         images.forEach(image => {
           image.actors.push(this.actor.id);
           image.labels.push(...this.actor.labels);
+          image.customFields = JSON.parse(JSON.stringify(this.actor.customFields));
         });
 
         this.$store.commit("images/add", images);
@@ -321,6 +331,8 @@ export default Vue.extend({
             id: this.actor.id,
             images: images.map(i => i.id)
           });
+
+        exportToDisk();
 
         el.value = "";
       });

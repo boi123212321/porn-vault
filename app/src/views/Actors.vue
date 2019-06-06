@@ -135,6 +135,7 @@ import Actor from "@/classes/actor";
 import ActorComponent from "@/components/Actor.vue";
 import { toTitleCase } from "@/util/string";
 import Fuse from "fuse.js";
+import { exportToDisk } from '@/util/library';
 
 export default Vue.extend({
   components: {
@@ -203,6 +204,8 @@ export default Vue.extend({
 
       this.$store.commit("actors/add", actor);
       this.createDialog = false;
+
+      exportToDisk();
     }
   },
   computed: {

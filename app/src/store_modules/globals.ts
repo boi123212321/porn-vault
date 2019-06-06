@@ -20,7 +20,27 @@ export default {
       darkMode: false,
       thumbnailsOnImportInterval: 60
     },
-    customFields: []
+    customFields: [
+      {
+        name: "Nationality",
+        values: [
+          "United States",
+          "United Kingdom",
+          "Russia",
+          "Ukraine",
+          "Czech Republic",
+          "France",
+          "Spain",
+          "Germany"
+        ],
+        type: CustomFieldType.SELECT
+      },
+      {
+        name: "Year of birth",
+        values: null,
+        type: CustomFieldType.NUMBER
+      },
+    ]
   },
   mutations: {
     set(state: RootState, newState: RootState) {

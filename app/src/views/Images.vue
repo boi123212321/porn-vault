@@ -349,6 +349,7 @@ import { CustomFieldValue } from "@/classes/common";
 import { toTitleCase } from "@/util/string";
 import CustomFieldComponent from "@/components/CustomField.vue";
 import CustomField, { CustomFieldType } from "../classes/custom_field";
+import { exportToDisk } from '@/util/library';
 
 enum FilterMode {
   NONE,
@@ -465,6 +466,8 @@ export default Vue.extend({
         )
       });
       this.labelDialog = false;
+
+      exportToDisk();
     },
     saveSettings() {
       this.$store.commit("images/edit", {
@@ -476,6 +479,8 @@ export default Vue.extend({
         }
       });
       this.editDialog = false;
+
+      exportToDisk();
     },
     setFieldValue({ key, value }: { key: string; value: string }) {
       this.editing.customFields[key] = value;
@@ -497,6 +502,7 @@ export default Vue.extend({
       }
 
       this.currentImage = -1;
+      exportToDisk();
     },
     setRatingFilter(i: number) {
       if (this.ratingFilter === i) {
@@ -507,16 +513,20 @@ export default Vue.extend({
     },
     favorite() {
       this.$store.commit("images/favorite", this.items[this.currentImage].id);
+      exportToDisk();
     },
     bookmark() {
       this.$store.commit("images/bookmark", this.items[this.currentImage].id);
+      exportToDisk();
     },
     rateImage(rating: number) {
       this.$store.commit("images/rate", {
         id: this.items[this.currentImage].id,
         rating
       });
+      exportToDisk();
     },
+    // Remove actor from filter, not library
     removeActor(id: string) {
       this.chosenActors = this.chosenActors.filter(
         (actor: string) => actor != id
@@ -565,6 +575,8 @@ export default Vue.extend({
         });
 
         this.$store.commit("images/add", images);
+
+        exportToDisk();
 
         el.value = "";
       });

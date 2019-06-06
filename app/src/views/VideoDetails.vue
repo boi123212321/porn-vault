@@ -48,6 +48,11 @@
             <v-container fluid fill-height>
               <div class="fill">
                 <div>
+                  <p class="sec--text">{{ video.description }}</p>
+                </div>
+
+
+                <div>
                   <span v-for="i in 5" :key="i">
                     <v-icon @click="rateVideo(i)" v-if="i > video.rating">star_border</v-icon>
                     <v-icon color="amber" @click="rateVideo(i)" v-else>star</v-icon>
@@ -142,6 +147,15 @@
             <v-flex xs6 sm8>
               <v-text-field single-line v-model="editing.title" label="Enter title"></v-text-field>
             </v-flex>
+
+             <v-flex xs6 sm4>
+              <v-subheader>Description</v-subheader>
+            </v-flex>
+            <v-flex xs6 sm8>
+              <v-textarea label="Enter description" v-model="editing.description"></v-textarea>
+            </v-flex>
+
+            
 
             <v-flex xs6 sm4>
               <v-subheader>Actors</v-subheader>
@@ -240,6 +254,7 @@ import Video from "@/classes/video";
 import { toTitleCase } from "@/util/string";
 import { CustomFieldValue } from "@/classes/common";
 import CustomField from "@/components/CustomField.vue";
+import { exportToDisk } from '@/util/library';
 
 export default Vue.extend({
   components: {
@@ -254,6 +269,7 @@ export default Vue.extend({
 
       editing: {
         title: "",
+        description: "",
         actors: [] as string[],
         customFields: {} as CustomFieldValue,
         chosenLabels: [] as string[]
@@ -273,6 +289,8 @@ export default Vue.extend({
         labels: this.editing.chosenLabels.map((label: string) => toTitleCase(label))
       });
       this.labelDialog = false;
+
+      exportToDisk();
     },
     openLabelDialog() {
       this.labelDialog = true;
@@ -280,16 +298,20 @@ export default Vue.extend({
     },
     favorite() {
       this.$store.commit("videos/favorite", this.video.id);
+      exportToDisk();
     },
     bookmark() {
       this.$store.commit("videos/bookmark", this.video.id);
+      exportToDisk();
     },
     rateVideo(rating: number) {
       this.$store.commit("videos/rate", {
         id: this.video.id,
         rating
       });
+      exportToDisk();
     },
+    // Remove actor from filter, not library
     removeActor(id: string) {
       this.editing.actors = this.editing.actors.filter((a: string) => a != id);
     },
@@ -298,15 +320,19 @@ export default Vue.extend({
         id: this.video.id,
         settings: {
           title: toTitleCase(this.editing.title),
+          description: this.editing.description || null,
           actors: this.editing.actors,
           customFields: JSON.parse(JSON.stringify(this.editing.customFields))
         }
       });
       this.editDialog = false;
+
+      exportToDisk();
     },
     openEditDialog() {
       this.editDialog = true;
       this.editing.title = this.video.title;
+      this.editing.description = this.video.description;
       this.editing.actors = this.video.actors;
       this.editing.customFields = JSON.parse(
         JSON.stringify(this.video.customFields)
@@ -317,12 +343,16 @@ export default Vue.extend({
         id: this.video.id,
         index
       });
+
+      exportToDisk();
     },
     setCoverIndex(index: number) {
       this.$store.commit("videos/setCoverIndex", {
         id: this.video.id,
         index
       });
+
+      exportToDisk();
     },
     openFileInput() {
       let el = document.querySelector(
@@ -372,6 +402,8 @@ export default Vue.extend({
             images: images.map(i => i.id)
           });
         }
+
+        exportToDisk();
 
         el.value = "";
       });

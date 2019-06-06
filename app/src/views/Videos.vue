@@ -165,6 +165,7 @@ import path from "path";
 import { takeScreenshots } from "@/util/thumbnails";
 import VideoImporter from "@/components/VideoImporter.vue";
 import { toTitleCase } from '@/util/string';
+import { exportToDisk } from '../util/library';
 
 
 export default Vue.extend({
@@ -220,14 +221,11 @@ export default Vue.extend({
         this.ratingFilter = i;
       }
     },
+    // Removes actor from filter, not library
     removeActor(id: string) {
       this.chosenActors = this.chosenActors.filter(
         (actor: string) => actor != id
       );
-    },
-    expand(video: Video) {
-      this.current = video;
-      this.visible = true;
     },
     openFileInput() {
       let el = document.getElementById(`file-input-videos`) as any;

@@ -43,6 +43,7 @@
 import Vue from "vue";
 import CustomField, { CustomFieldType } from "@/classes/custom_field";
 import { toTitleCase } from '../util/string';
+import { exportToDisk } from '@/util/library';
 
 // Turn enum into array
 function toArray(enumme: any) {
@@ -90,6 +91,8 @@ export default Vue.extend({
       },
       set(val: boolean) {
         this.$store.commit("globals/setDarkMode", val);
+
+        exportToDisk(5000);
       }
     }
   },
@@ -105,6 +108,8 @@ export default Vue.extend({
       this.$store.commit("actors/addCustomField", field);
       this.$store.commit("images/addCustomField", field);
       this.$store.commit("videos/addCustomField", field);
+
+      exportToDisk();
     }
   }
 });

@@ -7,32 +7,42 @@ import Video from "@/classes/video";
 import Actor from "@/classes/actor";
 import Image from "@/classes/image";
 
-export function exportToDisk(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    try {
-      const cwd = process.cwd();
-      const libraryPath = path.resolve(cwd, "library/");
+let exportTimeout: NodeJS.Timeout | null = null;
 
-      if (!fs.existsSync(libraryPath))
-        fs.mkdirSync(libraryPath);
+export async function exportToDisk(timeout?: number): Promise<void> {
+  return new Promise(async (resolve, reject) => {
 
-      const videoPath = path.resolve(libraryPath, "videos.json");
-      fs.writeFileSync(videoPath, JSON.stringify(store.getters["videos/getAll"]), "utf-8");
+    if (exportTimeout !== null)
+      clearTimeout(exportTimeout);
 
-      const actorPath = path.resolve(libraryPath, "actors.json");
-      fs.writeFileSync(actorPath, JSON.stringify(store.getters["actors/getAll"]), "utf-8");
+    exportTimeout = setTimeout(() => {
+      try {
+        const cwd = process.cwd();
+        const libraryPath = path.resolve(cwd, "library/");
 
-      const imagePath = path.resolve(libraryPath, "images.json");
-      fs.writeFileSync(imagePath, JSON.stringify(store.getters["images/getAll"]), "utf-8");
+        if (!fs.existsSync(libraryPath))
+          fs.mkdirSync(libraryPath);
 
-      const settingsPath = path.resolve(libraryPath, "settings.json");
-      fs.writeFileSync(settingsPath, JSON.stringify(store.getters["globals/get"]), "utf-8");
+        const videoPath = path.resolve(libraryPath, "videos.json");
+        fs.writeFileSync(videoPath, JSON.stringify(store.getters["videos/getAll"]), "utf-8");
 
-      resolve();
-    }
-    catch (err) {
-      reject(err);
-    }
+        const actorPath = path.resolve(libraryPath, "actors.json");
+        fs.writeFileSync(actorPath, JSON.stringify(store.getters["actors/getAll"]), "utf-8");
+
+        const imagePath = path.resolve(libraryPath, "images.json");
+        fs.writeFileSync(imagePath, JSON.stringify(store.getters["images/getAll"]), "utf-8");
+
+        const settingsPath = path.resolve(libraryPath, "settings.json");
+        fs.writeFileSync(settingsPath, JSON.stringify(store.getters["globals/get"]), "utf-8");
+
+        console.log("Saved to disk.");
+
+        resolve();
+      }
+      catch (err) {
+        reject(err);
+      }
+    }, timeout || 2000);
   })
 }
 

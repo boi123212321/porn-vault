@@ -15,7 +15,7 @@ export default {
       library.loadFromDisk();
     },
     exportLibrary() {
-      library.exportToDisk();
+      library.exportToDisk(1);
     }
   }
 }

@@ -6,6 +6,7 @@ export default class Video {
   id: string = hash();
   title: string = "";
   path: string = "";
+  description: string | null = null;
   addedOn: number = +new Date();
   actors: string[] = [];
   releaseDate: string | null = null;

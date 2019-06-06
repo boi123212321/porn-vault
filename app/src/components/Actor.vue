@@ -1,12 +1,13 @@
 <template>
   <div class="pa-2" v-if="actor" style="word-break: break-word">
-    <v-card v-ripple class="actor" @click="goToActor">
+    <v-card flat v-ripple class="actor" @click="goToActor">
       <v-img
         v-if="actor.thumbnails.length"
         class="thumb"
         :aspect-ratio="1"
         v-ripple
         :src="thumbnails[actor.coverIndex]"
+        contain
       ></v-img>
       <v-img v-else class="thumb" :aspect-ratio="1" v-ripple src style="background: grey"></v-img>
     </v-card>

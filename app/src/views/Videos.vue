@@ -68,6 +68,19 @@
         <v-flex xs12>
           <v-text-field v-model="search" single-line label="Search..." clearable></v-text-field>
         </v-flex>
+
+        <v-flex xs12 class="mt-3">
+          <v-divider></v-divider>
+          <v-subheader>Sort</v-subheader>
+          <v-select
+            :items="sortModes"
+            single-line
+            v-model="chosenSort"
+            item-text="name"
+            item-value="value"
+          ></v-select>
+        </v-flex>
+
         <v-flex xs12>
           <v-divider></v-divider>
           <v-subheader>Filter</v-subheader>
@@ -135,21 +148,14 @@
           <v-checkbox hide-details v-model="favoritesOnly" label="Show favorites only"></v-checkbox>
           <v-checkbox hide-details v-model="bookmarksOnly" label="Show bookmarks only"></v-checkbox>
         </v-flex>
-        <v-flex xs12 class="mt-3">
-          <v-divider></v-divider>
-          <v-subheader>Sort</v-subheader>
-          <v-select
-            :items="sortModes"
-            single-line
-            v-model="chosenSort"
-            item-text="name"
-            item-value="value"
-          ></v-select>
+
+        <v-flex class="mt-2" xs12 v-for="field in fieldFilters" :key="field.name">
+          <CustomField :field="field" :value="field.value" v-on:change="setFieldFilterValue"/>
         </v-flex>
       </v-layout>
     </v-navigation-drawer>
 
-    <VideoImporter ref="video-importer" />
+    <VideoImporter ref="video-importer"/>
   </v-container>
 </template>
 
@@ -161,17 +167,35 @@ import Video from "@/classes/video";
 import Fuse from "fuse.js";
 import fs from "fs";
 import path from "path";
-
 import { takeScreenshots } from "@/util/thumbnails";
 import VideoImporter from "@/components/VideoImporter.vue";
-import { toTitleCase } from '@/util/string';
-import { exportToDisk } from '../util/library';
+import { toTitleCase } from "@/util/string";
+import { exportToDisk } from "../util/library";
+import CustomField, { CustomFieldType } from "@/classes/custom_field";
+import CustomFieldComponent from "@/components/CustomField.vue";
 
+enum FilterMode {
+  NONE,
+  EQUALS,
+  INCLUDES,
+  GREATER_THAN,
+  LESSER_THAN,
+  INCLUDES_SOME
+}
+
+type FieldFilter = {
+  name: string;
+  values: string[] | null;
+  type: CustomFieldType;
+  mode: FilterMode;
+  value: string | number | boolean | null | string[];
+};
 
 export default Vue.extend({
   components: {
     Video: VideoComponent,
-    VideoImporter
+    VideoImporter,
+    CustomField: CustomFieldComponent
   },
   data() {
     return {
@@ -210,10 +234,39 @@ export default Vue.extend({
           name: "Least viewed",
           value: 7
         }
-      ]
+      ],
+      fieldFilters: [] as FieldFilter[]
     };
   },
+  mounted() {
+    this.fieldFilters = (<CustomField[]>this.$store.state.globals.customFields)
+      .slice()
+      .map(field => {
+        return {
+          name: field.name,
+          values: field.values,
+          type: field.type,
+          mode: FilterMode.NONE,
+          value: field.type >= 3 ? [] : null
+        };
+      }) as FieldFilter[];
+  },
   methods: {
+    setFieldFilterValue({
+      key,
+      value,
+      mode
+    }: {
+      key: string;
+      value: string;
+      mode: FilterMode;
+    }) {
+      let field = (<FieldFilter[]>this.fieldFilters).find(f => f.name == key);
+
+      field.value = value;
+      field.mode = mode;
+    },
+    
     setRatingFilter(i: number) {
       if (this.ratingFilter === i) {
         this.ratingFilter = 0;
@@ -390,6 +443,79 @@ export default Vue.extend({
 
       if (this.ratingFilter > 0) {
         videos = videos.filter(v => v.rating >= this.ratingFilter);
+      }
+
+      for (const field of JSON.parse(JSON.stringify(this.fieldFilters))) {
+        if (field.value === null || field.mode === FilterMode.NONE) {
+          continue;
+        }
+
+        if (field.type === CustomFieldType.STRING && field.value.length) {
+          field.value = field.value.toLowerCase();
+
+          if (field.mode === FilterMode.EQUALS) {
+            videos = videos.filter(i => {
+              let value = i.customFields[field.name];
+              return value.toString().toLowerCase() == field.value;
+            });
+          } else if (field.mode === FilterMode.INCLUDES) {
+            videos = videos.filter(i => {
+              let value = i.customFields[field.name];
+              return value
+                .toString()
+                .toLowerCase()
+                .includes(field.value);
+            });
+          }
+        } else if (field.type === CustomFieldType.NUMBER) {
+          if (field.mode === FilterMode.EQUALS) {
+            videos = videos.filter(i => {
+              let value = i.customFields[field.name];
+              return value == field.value;
+            });
+          } else if (field.mode == FilterMode.GREATER_THAN) {
+            videos = videos.filter(i => {
+              let value = i.customFields[field.name];
+              return value > field.value;
+            });
+          } else if (field.mode == FilterMode.LESSER_THAN) {
+            videos = videos.filter(i => {
+              let value = i.customFields[field.name];
+              return value < field.value;
+            });
+          }
+        } else if (field.type === CustomFieldType.BOOLEAN) {
+          videos = videos.filter(i => {
+            let value = i.customFields[field.name];
+            return value == field.value;
+          });
+        } else if (field.type === CustomFieldType.SELECT && field.value) {
+          if (Array.isArray(field.value)) continue;
+
+          videos = videos.filter(i => {
+            let value = i.customFields[field.name];
+            return value == field.value;
+          });
+        } else if (
+          field.type === CustomFieldType.MULTI_SELECT &&
+          field.value.length
+        ) {
+          if (field.mode === FilterMode.INCLUDES) {
+            videos = videos.filter(i => {
+              let values = (i.customFields[field.name] as unknown) as string[];
+              return field.value.every((value: string) =>
+                values.includes(value)
+              );
+            });
+          } else if (field.mode === FilterMode.INCLUDES_SOME) {
+            videos = videos.filter(i => {
+              let values = (i.customFields[field.name] as unknown) as string[];
+              return field.value.some((value: string) =>
+                values.includes(value)
+              );
+            });
+          }
+        }
       }
 
       videos.forEach(video => {

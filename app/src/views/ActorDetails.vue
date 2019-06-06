@@ -25,10 +25,11 @@
           <v-flex xs6 sm4 md3 lg2>
             <v-img
               v-if="actor.thumbnails.length"
-              class="clickable elevation-6"
+              class="clickable"
               v-ripple
               :aspect-ratio="1"
               :src="thumbnails[actor.coverIndex]"
+              contain
               @click="openFileInput"
             ></v-img>
             <v-img
@@ -51,9 +52,9 @@
                   </span>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 mb-1">
                   <v-icon class="mr-1" style="vertical-align: bottom">label</v-icon>
-                  <span class="subheading">Labels</span>
+                  <span class="body-2">Labels</span>
                 </div>
                 <div class="mt-1">
                   <v-chip

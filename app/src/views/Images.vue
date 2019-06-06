@@ -7,7 +7,7 @@
     </div>
     <input accept="image/*" type="file" multiple id="file-input-images" style="display: none">
 
-    <v-layout row wrap align-center>
+    <v-layout row wrap align-center v-if="$store.state.images.items.length">
       <v-flex xs12>
         <v-checkbox hide-details v-model="filterDrawer" label="Advanced options"></v-checkbox>
       </v-flex>
@@ -204,8 +204,7 @@
               </v-btn>
             </v-card>
 
-            <div class="pa-3" style="max-height: 33vh; overflow-y: auto;">
-              <p class="sec--text">{{ items[currentImage].path }}</p>
+            <div class="pa-3" style="height: 33vh; overflow-y: auto;">
 
               <div class="mb-2">
                 <span v-for="i in 5" :key="i">
@@ -214,6 +213,10 @@
                 </span>
               </div>
 
+              <div class="mt-4 mb-1">
+                <v-icon class="mr-1" style="vertical-align: bottom">label</v-icon>
+                <span class="body-2">Labels</span>
+              </div>
               <div class="mb-2">
                 <v-chip
                   small
@@ -503,7 +506,9 @@ export default Vue.extend({
     removeImage() {
       let item = this.items[this.currentImage];
 
-      fs.unlinkSync(item.path);
+      if (item.path.includes("library/"))
+        fs.unlinkSync(item.path);
+        
       this.$store.commit("images/remove", item.id);
 
       if (item.video) {

@@ -67,6 +67,19 @@
         <v-flex xs12>
           <v-text-field v-model="search" single-line label="Search..." clearable></v-text-field>
         </v-flex>
+
+        <v-flex xs12 class="mt-3">
+          <v-divider></v-divider>
+          <v-subheader>Sort</v-subheader>
+          <v-select
+            :items="sortModes"
+            single-line
+            v-model="chosenSort"
+            item-text="name"
+            item-value="value"
+          ></v-select>
+        </v-flex>
+
         <v-flex xs12 class="mt-2">
           <v-divider></v-divider>
           <v-subheader>Filter</v-subheader>
@@ -92,16 +105,9 @@
           <v-checkbox hide-details v-model="favoritesOnly" label="Show favorites only"></v-checkbox>
           <v-checkbox hide-details v-model="bookmarksOnly" label="Show bookmarks only"></v-checkbox>
         </v-flex>
-        <v-flex xs12 class="mt-3">
-          <v-divider></v-divider>
-          <v-subheader>Sort</v-subheader>
-          <v-select
-            :items="sortModes"
-            single-line
-            v-model="chosenSort"
-            item-text="name"
-            item-value="value"
-          ></v-select>
+
+        <v-flex class="mt-2" xs12 v-for="field in fieldFilters" :key="field.name">
+          <CustomField :field="field" :value="field.value" v-on:change="setFieldFilterValue"/>
         </v-flex>
       </v-layout>
     </v-navigation-drawer>
@@ -135,11 +141,31 @@ import Actor from "@/classes/actor";
 import ActorComponent from "@/components/Actor.vue";
 import { toTitleCase } from "@/util/string";
 import Fuse from "fuse.js";
-import { exportToDisk } from '@/util/library';
+import { exportToDisk } from "@/util/library";
+import CustomField, { CustomFieldType } from "@/classes/custom_field";
+import CustomFieldComponent from "@/components/CustomField.vue";
+
+enum FilterMode {
+  NONE,
+  EQUALS,
+  INCLUDES,
+  GREATER_THAN,
+  LESSER_THAN,
+  INCLUDES_SOME
+}
+
+type FieldFilter = {
+  name: string;
+  values: string[] | null;
+  type: CustomFieldType;
+  mode: FilterMode;
+  value: string | number | boolean | null | string[];
+};
 
 export default Vue.extend({
   components: {
-    Actor: ActorComponent
+    Actor: ActorComponent,
+    CustomField: CustomFieldComponent
   },
   data() {
     return {
@@ -180,10 +206,39 @@ export default Vue.extend({
           name: "Least viewed",
           value: 7
         }
-      ]
+      ],
+      fieldFilters: [] as FieldFilter[]
     };
   },
+  mounted() {
+    this.fieldFilters = (<CustomField[]>this.$store.state.globals.customFields)
+      .slice()
+      .map(field => {
+        return {
+          name: field.name,
+          values: field.values,
+          type: field.type,
+          mode: FilterMode.NONE,
+          value: field.type >= 3 ? [] : null
+        };
+      }) as FieldFilter[];
+  },
   methods: {
+    setFieldFilterValue({
+      key,
+      value,
+      mode
+    }: {
+      key: string;
+      value: string;
+      mode: FilterMode;
+    }) {
+      let field = (<FieldFilter[]>this.fieldFilters).find(f => f.name == key);
+
+      field.value = value;
+      field.mode = mode;
+    },
+
     setRatingFilter(i: number) {
       if (this.ratingFilter === i) {
         this.ratingFilter = 0;
@@ -217,7 +272,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "chosenSort",
           value
-        })
+        });
       }
     },
     ratingFilter: {
@@ -228,7 +283,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "ratingFilter",
           value
-        })
+        });
       }
     },
     bookmarksOnly: {
@@ -239,7 +294,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "bookmarksOnly",
           value
-        })
+        });
       }
     },
     favoritesOnly: {
@@ -250,7 +305,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "favoritesOnly",
           value
-        })
+        });
       }
     },
     chosenLabels: {
@@ -261,7 +316,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "chosenLabels",
           value
-        })
+        });
       }
     },
     search: {
@@ -272,7 +327,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "search",
           value
-        })
+        });
       }
     },
     gridSize: {
@@ -283,7 +338,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "gridSize",
           value
-        })
+        });
       }
     },
     filterDrawer: {
@@ -294,7 +349,7 @@ export default Vue.extend({
         this.$store.commit("actors/setSearchParam", {
           key: "filterDrawer",
           value
-        })
+        });
       }
     },
 
@@ -316,12 +371,90 @@ export default Vue.extend({
 
       if (this.chosenLabels.length) {
         actors = actors.filter(actor =>
-          this.chosenLabels.every((label: string) => actor.labels.includes(label))
+          this.chosenLabels.every((label: string) =>
+            actor.labels.includes(label)
+          )
         );
       }
 
       if (this.ratingFilter > 0) {
         actors = actors.filter(v => v.rating >= this.ratingFilter);
+      }
+
+      for (const field of JSON.parse(JSON.stringify(this.fieldFilters))) {
+        if (field.value === null || field.mode === FilterMode.NONE) {
+          continue;
+        }
+
+        if (field.type === CustomFieldType.STRING && field.value.length) {
+          field.value = field.value.toLowerCase();
+
+          if (field.mode === FilterMode.EQUALS) {
+            actors = actors.filter(i => {
+              let value = i.customFields[field.name];
+              return value.toString().toLowerCase() == field.value;
+            });
+          } else if (field.mode === FilterMode.INCLUDES) {
+            actors = actors.filter(i => {
+              let value = i.customFields[field.name];
+              return value
+                .toString()
+                .toLowerCase()
+                .includes(field.value);
+            });
+          }
+        } else if (field.type === CustomFieldType.NUMBER) {
+          if (field.mode === FilterMode.EQUALS) {
+            actors = actors.filter(i => {
+              let value = i.customFields[field.name];
+              return value == field.value;
+            });
+          } else if (field.mode == FilterMode.GREATER_THAN) {
+            actors = actors.filter(i => {
+              let value = i.customFields[field.name];
+              return value > field.value;
+            });
+          } else if (field.mode == FilterMode.LESSER_THAN) {
+            actors = actors.filter(i => {
+              let value = i.customFields[field.name];
+              return value < field.value;
+            });
+          }
+        } 
+        else if (field.type === CustomFieldType.BOOLEAN) {
+          actors = actors.filter(i => {
+            let value = i.customFields[field.name];
+            return value == field.value;
+          });
+        }
+        else if (field.type === CustomFieldType.SELECT && field.value) {
+          if (Array.isArray(field.value))
+            continue;
+            
+          actors = actors.filter(i => {
+            let value = i.customFields[field.name];
+            return value == field.value;
+          });
+        } else if (
+          field.type === CustomFieldType.MULTI_SELECT &&
+          field.value.length
+        ) {
+          if (field.mode === FilterMode.INCLUDES) {
+            actors = actors.filter(i => {
+              let values = (i.customFields[field.name] as unknown) as string[];
+              return field.value.every((value: string) =>
+                values.includes(value)
+              );
+            });
+          } else if (field.mode === FilterMode.INCLUDES_SOME) {
+            actors = actors.filter(i => {
+              let values = (i.customFields[field.name] as unknown) as string[];
+              return field.value.some((value: string) =>
+                values.includes(value)
+              );
+            });
+          }
+        }
       }
 
       if (this.search && this.search.length) {
@@ -332,7 +465,7 @@ export default Vue.extend({
           distance: 100,
           maxPatternLength: 32,
           minMatchCharLength: 1,
-          keys: ["name", "labels", "aliases"],
+          keys: ["name", "labels", "aliases"]
         };
         var fuse = new Fuse(actors, options); // "list" is the item array
         actors = fuse.search(this.search);

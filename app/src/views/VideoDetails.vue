@@ -47,10 +47,6 @@
           <v-flex xs6 sm8 md9 lg9>
             <v-container fluid fill-height>
               <div class="fill">
-                <div>
-                  <p class="sec--text">{{ video.description }}</p>
-                </div>
-
 
                 <div>
                   <span v-for="i in 5" :key="i">
@@ -59,9 +55,13 @@
                   </span>
                 </div>
 
-                <div class="mt-3">
+                <div>
+                  <p class="sec--text">{{ video.description }}</p>
+                </div>
+
+                <div class="mt-4 mb-1">
                   <v-icon class="mr-1" style="vertical-align: bottom">label</v-icon>
-                  <span class="subheading">Labels</span>
+                  <span class="body-2">Labels</span>
                 </div>
                 <div class="mt-1">
                   <v-chip
@@ -71,6 +71,23 @@
                   >{{ label }}</v-chip>
                   <v-chip small @click="openLabelDialog" color="primary white--text">+ Add</v-chip>
                 </div>
+
+                <v-container fluid>
+                  <v-layout row wrap class="sec--text">
+                    <v-flex xs4>
+                      <v-icon class="mr-1" style="vertical-align: middle">album</v-icon>
+                      {{ new Date(video.duration * 1000).toISOString().substr(11, 8) }}
+                    </v-flex>
+                    <v-flex xs4>
+                      <v-icon class="mr-1" style="vertical-align: middle">featured_video</v-icon>
+                      {{ video.dimensions.width }}x{{ video.dimensions.height }}
+                    </v-flex>
+                    <v-flex xs4>
+                      <v-icon class="mr-1" style="vertical-align: middle">storage</v-icon>
+                      {{ parseInt(video.size /1000 / 1000) }} MB
+                    </v-flex>
+                  </v-layout>
+                </v-container>
 
                 <div class="mt-3">
                   <p
@@ -148,12 +165,12 @@
               <v-text-field single-line v-model="editing.title" label="Enter title"></v-text-field>
             </v-flex>
 
-             <v-flex xs6 sm4>
+            <v-flex xs6 sm4>
               <v-subheader>Description</v-subheader>
             </v-flex>
             <v-flex xs6 sm8>
               <v-textarea label="Enter description" v-model="editing.description"></v-textarea>
-            </v-flex>            
+            </v-flex>
 
             <v-flex xs6 sm4>
               <v-subheader>Actors</v-subheader>
@@ -200,9 +217,10 @@
             </v-flex>
 
             <v-flex xs12>
-              <v-btn flat @click="editing.showCustomFields = !editing.showCustomFields">
-                {{ editing.showCustomFields ? 'Hide custom data fields' : 'Show custom data fields'}}
-              </v-btn>
+              <v-btn
+                flat
+                @click="editing.showCustomFields = !editing.showCustomFields"
+              >{{ editing.showCustomFields ? 'Hide custom data fields' : 'Show custom data fields'}}</v-btn>
             </v-flex>
 
             <v-container fluid v-if="editing.showCustomFields">
@@ -262,7 +280,7 @@ import Video from "@/classes/video";
 import { toTitleCase } from "@/util/string";
 import { CustomFieldValue } from "@/classes/common";
 import CustomField from "@/components/CustomField.vue";
-import { exportToDisk } from '@/util/library';
+import { exportToDisk } from "@/util/library";
 
 export default Vue.extend({
   components: {
@@ -296,7 +314,9 @@ export default Vue.extend({
     saveLabels() {
       this.$store.commit("videos/setLabels", {
         id: this.video.id,
-        labels: this.editing.chosenLabels.map((label: string) => toTitleCase(label))
+        labels: this.editing.chosenLabels.map((label: string) =>
+          toTitleCase(label)
+        )
       });
       this.labelDialog = false;
 

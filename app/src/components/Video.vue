@@ -7,6 +7,7 @@
         :aspect-ratio="1"
         v-ripple
         :src="thumbnails[video.coverIndex]"
+        cover
       ></v-img>
       <v-img v-else class="thumb" :aspect-ratio="1" v-ripple src style="background: grey"></v-img>
     </v-card>

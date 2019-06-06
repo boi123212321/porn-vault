@@ -36,7 +36,45 @@ export default {
         type: CustomFieldType.SELECT
       },
       {
+        name: "Ethnicity",
+        values: [
+          "Caucasian",
+          "Black",
+          "Asian",
+          "Hispanic"
+        ],
+        type: CustomFieldType.SELECT
+      },
+      {
+        name: "Hair Color",
+        values: [
+          "Brown",
+          "Black",
+          "Blonde",
+          "Red",
+          "Colored"
+        ],
+        type: CustomFieldType.SELECT
+      },
+      {
+        name: "Eye Color",
+        values: [
+          "Amber",
+          "Brown",
+          "Blue",
+          "Green",
+          "Gray",
+          "Hazel"
+        ],
+        type: CustomFieldType.SELECT
+      },
+      {
         name: "Year of birth",
+        values: null,
+        type: CustomFieldType.NUMBER
+      },
+      {
+        name: "Height",
         values: null,
         type: CustomFieldType.NUMBER
       },

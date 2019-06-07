@@ -13,6 +13,45 @@
             chips
             @change="video.labels = $event"
           ></v-combobox>
+          <v-autocomplete
+            :value="video.actors"
+            :items="$store.state.actors.items"
+            chips
+            label="Select"
+            item-text="name"
+            item-value="id"
+            multiple
+            clearable
+            @change="video.actors = $event"
+          >
+            <template v-slot:selection="data">
+              <v-chip
+                :selected="data.selected"
+                close
+                class="chip--select-multi"
+                @input="removeActor(data.item.id)"
+              >
+                <v-avatar>
+                  <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
+                </v-avatar>
+                {{ data.item.name }}
+              </v-chip>
+            </template>
+            <template v-slot:item="data">
+              <template v-if="typeof data.item !== 'object'">
+                <v-list-tile-content v-text="data.item"></v-list-tile-content>
+              </template>
+              <template v-else>
+                <v-list-tile-avatar>
+                  <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
+                  <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
+                </v-list-tile-content>
+              </template>
+            </template>
+          </v-autocomplete>
         </v-card>
         <div v-if="processing.length" class="text-xs-center">
           <v-progress-circular indeterminate :size="80" :width="5" color="primary"></v-progress-circular>
@@ -41,6 +80,7 @@ import Video from "@/classes/video";
 import Image from "@/classes/image";
 import { takeScreenshots } from "@/util/thumbnails";
 import { toTitleCase } from "../util/string";
+import { exportToDisk } from '../util/library';
 
 var os = require("os");
 
@@ -97,12 +137,14 @@ export default Vue.extend({
         path: string;
         size: number;
         labels?: string[];
+        actors?: string[];
       }[],
       processing: [] as {
         name: string;
         path: string;
         size: number;
         labels?: string[];
+        actors?: string[];
       }[]
     };
   },
@@ -124,15 +166,17 @@ export default Vue.extend({
       )).map(file => Video.create(file));
 
       videos.forEach(video => {
-        let labels = this.processing.find(
+        let extraInfo = this.processing.find(
           (v: { path: string }) => v.path == video.path
-        ).labels as string[];
+        );
+        let labels = extraInfo.labels as string[];
 
         if (labels && labels.length) {
           labels = labels.map(label => toTitleCase(label));
         }
 
         video.labels = labels || [];
+        video.actors = extraInfo.actors;
       });
 
       let customFieldNames = this.$store.getters[
@@ -180,7 +224,7 @@ export default Vue.extend({
           video.dimensions = {
             width: metadata.streams[0].width,
             height: metadata.streams[0].height
-          }
+          };
 
           console.log(`Generating ${amount} thumbnails...`);
 
@@ -188,7 +232,7 @@ export default Vue.extend({
             file: video.path,
             pattern: `thumbnail-${video.id}-%s.jpg`,
             count: amount,
-            thumbnailPath,
+            thumbnailPath
           });
 
           let files = fs.readdirSync(thumbnailPath) as any[];
@@ -215,6 +259,7 @@ export default Vue.extend({
           images.forEach(image => {
             image.video = video.id;
             image.labels = video.labels;
+            image.actors = video.actors;
           });
 
           this.$store.commit("images/add", images);
@@ -232,6 +277,8 @@ export default Vue.extend({
       });
 
       this.generatingThumbnails = false;
+
+      exportToDisk();
     }
   },
   computed: {

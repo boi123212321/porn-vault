@@ -205,15 +205,22 @@
             </v-card>
 
             <div class="pa-3" style="height: 33vh; overflow-y: auto;">
+              <div v-if="actors.length">
+                <span>{{ "Featuring " }}</span>
+                <span v-for="(actor, index) in actors" :key="actor.id">
+                  <a class="blue--text" :href="`#/actor/${actor.id}`">{{ actor.name }}</a>
+                  <span v-if="index < actors.length - 1">{{ " + " }}</span>
+                </span>
+              </div>
 
-              <div class="mb-2">
+              <div class="mt-3">
                 <span v-for="i in 5" :key="i">
                   <v-icon @click="rateImage(i)" v-if="i > items[currentImage].rating">star_border</v-icon>
                   <v-icon color="amber" @click="rateImage(i)" v-else>star</v-icon>
                 </span>
               </div>
 
-              <div class="mt-4 mb-1">
+              <div class="mt-3 mb-1">
                 <v-icon class="mr-1" style="vertical-align: bottom">label</v-icon>
                 <span class="body-2">Labels</span>
               </div>
@@ -299,9 +306,10 @@
             </v-flex>
 
             <v-flex xs12>
-              <v-btn flat @click="editing.showCustomFields = !editing.showCustomFields">
-                {{ editing.showCustomFields ? 'Hide custom data fields' : 'Show custom data fields'}}
-              </v-btn>
+              <v-btn
+                flat
+                @click="editing.showCustomFields = !editing.showCustomFields"
+              >{{ editing.showCustomFields ? 'Hide custom data fields' : 'Show custom data fields'}}</v-btn>
             </v-flex>
 
             <v-container fluid v-if="editing.showCustomFields">
@@ -362,7 +370,7 @@ import { CustomFieldValue } from "@/classes/common";
 import { toTitleCase } from "@/util/string";
 import CustomFieldComponent from "@/components/CustomField.vue";
 import CustomField, { CustomFieldType } from "../classes/custom_field";
-import { exportToDisk } from '@/util/library';
+import { exportToDisk } from "@/util/library";
 
 enum FilterMode {
   NONE,
@@ -422,7 +430,7 @@ export default Vue.extend({
 
       editing: {
         showCustomFields: false,
-        
+
         name: "",
         actors: [] as string[],
         customFields: {} as CustomFieldValue,
@@ -506,9 +514,8 @@ export default Vue.extend({
     removeImage() {
       let item = this.items[this.currentImage];
 
-      if (item.path.includes("library/"))
-        fs.unlinkSync(item.path);
-        
+      if (item.path.includes("library/")) fs.unlinkSync(item.path);
+
       this.$store.commit("images/remove", item.id);
 
       if (item.video) {
@@ -709,9 +716,7 @@ export default Vue.extend({
       return array;
     },
     actors(): Actor[] {
-      return this.items[this.currentImage].actors.map((id: string) => {
-        return this.$store.state.actors.items.find((a: Actor) => a.id == id);
-      });
+      return this.items[this.currentImage].actors;
     },
     labels(): string[] {
       return this.$store.getters["images/getLabels"];
@@ -788,17 +793,14 @@ export default Vue.extend({
               return value < field.value;
             });
           }
-        } 
-        else if (field.type === CustomFieldType.BOOLEAN) {
+        } else if (field.type === CustomFieldType.BOOLEAN) {
           images = images.filter(i => {
             let value = i.customFields[field.name];
             return value == field.value;
           });
-        }
-        else if (field.type === CustomFieldType.SELECT && field.value) {
-          if (Array.isArray(field.value))
-            continue;
-            
+        } else if (field.type === CustomFieldType.SELECT && field.value) {
+          if (Array.isArray(field.value)) continue;
+
           images = images.filter(i => {
             let value = i.customFields[field.name];
             return value == field.value;

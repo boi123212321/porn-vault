@@ -1,5 +1,8 @@
 <template>
   <v-container>
+    <v-btn color="primary" @click="openGithub">
+        <span>GitHub</span>
+      </v-btn>
     <v-subheader>Settings</v-subheader>
     {{ $store.state.globals.settings }}
     <v-checkbox v-model="darkMode" label="Dark Mode"></v-checkbox>
@@ -54,6 +57,7 @@ import { ncp } from "ncp";
 import path from "path";
 import fs from "fs";
 import rimraf from "rimraf";
+const { shell } = require("electron");
 
 // Turn enum into array
 function toArray(enumme: any) {
@@ -109,6 +113,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    openGithub() {
+      shell.openExternal("https://github.com/boi123212321/porn-manager")
+    },
     exportBackup() {
       const cwd = process.cwd();
       const libraryPath = path.resolve(cwd, "library/");

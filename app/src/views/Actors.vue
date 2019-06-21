@@ -1,21 +1,25 @@
 <template>
   <v-container>
-    <div color="primary" class="mb-3 text-xs-center">
-      <v-btn large @click="createDialog = true">
-        <v-icon left>add</v-icon>Add Actor
-      </v-btn>
-    </div>
-
     <v-layout row wrap v-if="$store.state.actors.items.length">
-      <v-flex xs12>
-        <v-checkbox hide-details v-model="filterDrawer" label="Advanced options"></v-checkbox>
-      </v-flex>
-
-      <v-flex xs12>
-        <v-subheader>Grid size</v-subheader>
+      
+      <v-flex xs12 style="display: flex">
+        <v-btn-toggle :value="true">
+          <v-btn :value="true" flat @click="createDialog = true">
+            <span>Add</span>
+            <v-icon>add</v-icon>
+          </v-btn>
+        </v-btn-toggle>
+        <v-spacer></v-spacer>
+        <v-btn-toggle class="mr-2" v-model="filterDrawer">
+          <v-btn :value="true" flat @click="filterDrawer = !filterDrawer"><span>Filter</span><v-icon>filter_list</v-icon></v-btn>
+        </v-btn-toggle>
         <v-btn-toggle v-model="gridSize" mandatory>
-          <v-btn flat :value="0">Big</v-btn>
-          <v-btn flat :value="1">Small</v-btn>
+          <v-btn flat :value="0">
+            <v-icon>view_stream</v-icon>
+          </v-btn>
+          <v-btn flat :value="1">
+            <v-icon>view_module</v-icon>
+          </v-btn>
         </v-btn-toggle>
       </v-flex>
 

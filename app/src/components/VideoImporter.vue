@@ -176,7 +176,7 @@ export default Vue.extend({
         }
 
         video.labels = labels || [];
-        video.actors = extraInfo.actors;
+        video.actors = extraInfo.actors || [];
       });
 
       let customFieldNames = this.$store.getters[
@@ -265,6 +265,8 @@ export default Vue.extend({
           this.$store.commit("images/add", images);
 
           video.thumbnails.push(...images.map(i => i.id));
+          
+          video.coverIndex = Math.floor(images.length / 2);
 
           this.$store.commit("videos/add", [video]);
 

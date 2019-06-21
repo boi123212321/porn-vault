@@ -16,10 +16,6 @@
       <v-btn flat to="/settings">
         <span class="mr-2">Settings</span>
       </v-btn>
-      <v-spacer></v-spacer>
-      <v-btn flat @click="openGithub">
-        <span class="mr-2">GitHub</span>
-      </v-btn>
     </v-toolbar>
 
     <v-content>
@@ -64,9 +60,7 @@ export default {
     return {};
   },
   methods: {
-    openGithub() {
-      shell.openExternal("https://github.com/boi123212321/porn-manager")
-    },
+    
     minimize() {
       remote.BrowserWindow.getFocusedWindow().minimize();
     },

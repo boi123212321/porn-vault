@@ -7,43 +7,41 @@
         :aspect-ratio="1"
         v-ripple
         :src="thumbnails[video.coverIndex]"
-        cover
       ></v-img>
       <v-img v-else class="thumb" :aspect-ratio="1" v-ripple src style="background: grey"></v-img>
     </v-card>
-    <div class="mt-3 text-xs-center">
+    <div class="mt-3 text-center">
       <span class="subheading">{{ video.title }}</span>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import fs from "fs";
 import Vue from "vue";
+import Component from "vue-class-component";
+import fs from "fs";
 import path from "path";
 import { hash } from "@/util/generator";
 import Video from "@/classes/video";
 
-export default Vue.extend({
-  props: ["video"],
-  methods: {
-    goToVideo() {
-      this.$router.push("/video/" + this.video.id);
-    }
-  },
-  data() {
-    return {
-      current: null
-    };
-  },
-  computed: {
-    thumbnails(): string[] {
-      return (<Video>this.video).thumbnails.map(id =>
-        this.$store.getters["images/idToPath"](id)
-      );
-    }
+const Props = Vue.extend({
+  props: {
+    video: Object as () => Video
   }
 });
+
+@Component
+export default class VideoComponent extends Props {
+  goToVideo() {
+    this.$router.push("/video/" + this.video.id);
+  }
+
+  get thumbnails(): string[] {
+    return (<Video>this.video).thumbnails.map(id =>
+      this.$store.getters["images/idToPath"](id)
+    );
+  }
+}
 </script>
 
 <style lang="scss" scoped>

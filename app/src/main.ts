@@ -3,21 +3,13 @@ import './plugins/vuetify'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import Vuetify from "vuetify";
-
-Vue.use(Vuetify, {
-  theme: {
-    primary: '#9F2F4A',
-    secondary: '#b0bec5',
-    accent: '#8c9eff',
-    error: '#b71c1c'
-  }
-})
+import vuetify from '@/plugins/vuetify' // path to vuetify export
 
 Vue.config.productionTip = false
 
 new Vue({
   router,
   store,
+  vuetify,
   render: h => h(App)
 }).$mount('#app')

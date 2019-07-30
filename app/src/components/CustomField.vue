@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-layout row wrap>
+    <v-layout wrap>
       <v-flex xs6 sm4>
         <v-subheader class="pl-0">{{ field.name }}</v-subheader>
       </v-flex>
@@ -62,100 +62,106 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Component from "vue-class-component";
 import CustomField, { CustomFieldType } from "@/classes/custom_field";
 
-export default Vue.extend({
-  props: ["field", "value"],
-  data() {
-    return {
-      internalValue: this.value
-    };
-  },
-  computed: {
-    filterModes() {
-      switch (this.field.type) {
-        case CustomFieldType.STRING:
-          return [
-            {
-              name: "None",
-              value: 0
-            },
-            {
-              name: "Equals",
-              value: 1
-            },
-            {
-              name: "Includes",
-              value: 2
-            }
-          ];
-          break;
-        case CustomFieldType.NUMBER:
-          return [
-            {
-              name: "None",
-              value: 0
-            },
-            {
-              name: "Equals",
-              value: 1
-            },
-            {
-              name: "Greater",
-              value: 3
-            },
-            {
-              name: "Lesser",
-              value: 4
-            }
-          ];
-          break;
-        case CustomFieldType.BOOLEAN:
-          return [
-            {
-              name: "None",
-              value: 0
-            },
-            {
-              name: "Equals",
-              value: 2
-            }
-          ];
-          break;
-        case CustomFieldType.SELECT:
-          return [
-            {
-              name: "None",
-              value: 0
-            },
-            {
-              name: "Equals",
-              value: 2
-            }
-          ];
-          break;
-        case CustomFieldType.MULTI_SELECT:
-          return [
-            {
-              name: "None",
-              value: 0
-            },
-            {
-              name: "Includes",
-              value: 2
-            },
-            {
-              name: "Includes some",
-              value: 5
-            }
-          ];
-          break;
-        default:
-          return [];
-      }
-    }
+type FieldValue = any;
+
+const Props = Vue.extend({
+  props: {
+    field: Object as () => CustomField,
+    value: [String, Number, Array]
   }
 });
+
+@Component({
+})
+export default class CustomFieldComponent extends Props {
+  internalValue = this.value;
+
+  get filterModes() {
+    switch (this.field.type) {
+      case CustomFieldType.STRING:
+        return [
+          {
+            name: "None",
+            value: 0
+          },
+          {
+            name: "Equals",
+            value: 1
+          },
+          {
+            name: "Includes",
+            value: 2
+          }
+        ];
+        break;
+      case CustomFieldType.NUMBER:
+        return [
+          {
+            name: "None",
+            value: 0
+          },
+          {
+            name: "Equals",
+            value: 1
+          },
+          {
+            name: "Greater",
+            value: 3
+          },
+          {
+            name: "Lesser",
+            value: 4
+          }
+        ];
+        break;
+      case CustomFieldType.BOOLEAN:
+        return [
+          {
+            name: "None",
+            value: 0
+          },
+          {
+            name: "Equals",
+            value: 2
+          }
+        ];
+        break;
+      case CustomFieldType.SELECT:
+        return [
+          {
+            name: "None",
+            value: 0
+          },
+          {
+            name: "Equals",
+            value: 2
+          }
+        ];
+        break;
+      case CustomFieldType.MULTI_SELECT:
+        return [
+          {
+            name: "None",
+            value: 0
+          },
+          {
+            name: "Includes",
+            value: 2
+          },
+          {
+            name: "Includes some",
+            value: 5
+          }
+        ];
+        break;
+      default:
+        return [];
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

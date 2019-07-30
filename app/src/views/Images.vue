@@ -1,32 +1,34 @@
 <template>
   <v-container>
-    <input accept="image/*" type="file" multiple id="file-input-images" style="display: none">
+    <v-layout wrap>
+      <input accept="image/*" type="file" multiple id="file-input-images" style="display: none" />
 
-    <v-layout row wrap align-center v-if="$store.state.images.items.length">
-      
       <v-flex xs12 style="display: flex">
-        <v-btn-toggle :value="true">
-          <v-btn :value="true" flat @click="openFileInput">
-            <span>Add</span>
-            <v-icon>add</v-icon>
-          </v-btn>
-        </v-btn-toggle>
+        <v-btn text @click="openFileInput">
+          <span>Add</span>
+          <v-icon>mdi-add</v-icon>
+        </v-btn>
         <v-spacer></v-spacer>
-        <v-btn-toggle class="mr-2" v-model="filterDrawer">
-          <v-btn :value="true" flat @click="filterDrawer = !filterDrawer"><span>Filter</span><v-icon>filter_list</v-icon></v-btn>
-        </v-btn-toggle>
-        <v-btn-toggle v-model="gridSize" mandatory>
-          <v-btn flat :value="0">
-            <v-icon>view_stream</v-icon>
+        <v-btn-toggle v-if="$store.state.images.items.length" class="mr-2" v-model="filterDrawer">
+          <v-btn :value="true" text @click="filterDrawer = !filterDrawer">
+            <span>Filter</span>
+            <v-icon>mdi-filter-variant</v-icon>
           </v-btn>
-          <v-btn flat :value="1">
-            <v-icon>view_module</v-icon>
+        </v-btn-toggle>
+        <v-btn-toggle v-if="$store.state.images.items.length" v-model="gridSize" mandatory>
+          <v-btn text :value="0">
+            <v-icon>mdi-view-stream</v-icon>
+          </v-btn>
+          <v-btn text :value="1">
+            <v-icon>mdi-view-module</v-icon>
           </v-btn>
         </v-btn-toggle>
       </v-flex>
+    </v-layout>
 
+    <v-layout wrap align-center v-if="$store.state.images.items.length">
       <v-container fluid>
-        <v-layout row wrap align-center v-if="gridSize == 0">
+        <v-layout wrap align-center v-if="gridSize == 0">
           <v-flex
             xs12
             sm6
@@ -41,7 +43,7 @@
           </v-flex>
         </v-layout>
 
-        <v-layout row wrap align-center v-if="gridSize == 1">
+        <v-layout wrap align-center v-if="gridSize == 1">
           <v-flex
             xs6
             sm3
@@ -68,7 +70,7 @@
       disable-resize-watcher
       hide-overlay
     >
-      <v-layout row wrap>
+      <v-layout wrap>
         <v-flex xs12>
           <v-text-field v-model="search" single-line label="Search..." clearable></v-text-field>
         </v-flex>
@@ -99,30 +101,25 @@
             single-line
           >
             <template v-slot:selection="data">
-              <v-chip
-                :selected="data.selected"
-                close
-                class="chip--select-multi"
-                @input="removeActor(data.item.id)"
-              >
-                <v-avatar>
-                  <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
+              <v-chip pill>
+                <v-avatar left>
+                  <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])" />
                 </v-avatar>
                 {{ data.item.name }}
               </v-chip>
             </template>
             <template v-slot:item="data">
               <template v-if="typeof data.item !== 'object'">
-                <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                <v-list-item-content v-text="data.item"></v-list-item-content>
               </template>
               <template v-else>
-                <v-list-tile-avatar>
-                  <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                  <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
-                  <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
-                </v-list-tile-content>
+                <v-list-item-avatar>
+                  <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])" />
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                  <v-list-item-subtitle v-html="data.item.group"></v-list-item-subtitle>
+                </v-list-item-content>
               </template>
             </template>
           </v-autocomplete>
@@ -141,10 +138,14 @@
         </v-flex>
         <v-flex xs12 class="mt-3">
           Filter by rating
-          <span v-for="i in 5" :key="i">
-            <v-icon @click="setRatingFilter(i)" v-if="i > ratingFilter">star_border</v-icon>
-            <v-icon color="amber" @click="setRatingFilter(i)" v-else>star</v-icon>
-          </span>
+          <v-rating
+            background-color="grey"
+            color="amber"
+            dense
+            :value="ratingFilter"
+            @input="setRatingFilter($event)"
+            clearable
+          ></v-rating>
         </v-flex>
         <v-flex xs12>
           <v-checkbox hide-details v-model="favoritesOnly" label="Show favorites only"></v-checkbox>
@@ -152,7 +153,7 @@
         </v-flex>
 
         <v-flex class="mt-2" xs12 v-for="field in fieldFilters" :key="field.name">
-          <CustomField :field="field" :value="field.value" v-on:change="setFieldFilterValue"/>
+          <CustomField :field="field" :value="field.value" v-on:change="setFieldFilterValue" />
         </v-flex>
       </v-layout>
     </v-navigation-drawer>
@@ -161,8 +162,14 @@
       <div class="lightbox fill" v-if="currentImage > -1" @click="currentImage = -1">
         <div class="topbar">
           <v-spacer></v-spacer>
-          <v-btn @click.stop="showImageDetails = !showImageDetails" class="thumb-btn" icon>
-            <v-icon>info_outline</v-icon>
+          <v-btn
+            style="top: 10px; right: 10px;"
+            dark
+            @click.stop="showImageDetails = !showImageDetails"
+            class="thumb-btn"
+            icon
+          >
+            <v-icon>mdi-information-outline</v-icon>
           </v-btn>
         </div>
 
@@ -170,10 +177,10 @@
           style="display: flex; flex-direction: column; height: 100%; position: absolute; left: 0; top: 0; width: 100%"
         >
           <div style="position: relative; width: 100%; height: 100%;">
-            <img @click.stop class="image" :src="items[currentImage].path">
+            <img @click.stop class="image" :src="items[currentImage].path" />
 
             <v-btn v-if="currentImage > 0" icon class="thumb-btn left" @click.stop="currentImage--">
-              <v-icon color="white">chevron_left</v-icon>
+              <v-icon color="white">mdi-chevron-left</v-icon>
             </v-btn>
             <v-btn
               v-if="currentImage < items.length - 1"
@@ -181,7 +188,7 @@
               class="thumb-btn right"
               @click.stop="currentImage++"
             >
-              <v-icon color="white">chevron_right</v-icon>
+              <v-icon color="white">mdi-chevron-right</v-icon>
             </v-btn>
           </div>
 
@@ -193,19 +200,20 @@
               color="primary"
               style="display: flex;"
               class="px-2 mb-1 headline font-weight-light"
+              dark
             >
               <v-btn icon @click="favorite">
-                <v-icon>{{ items[currentImage].favorite ? 'favorite' : 'favorite_border' }}</v-icon>
+                <v-icon>{{ items[currentImage].favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
               </v-btn>
               <v-btn icon @click="bookmark">
-                <v-icon>{{ items[currentImage].bookmark ? 'bookmark' : 'bookmark_border' }}</v-icon>
+                <v-icon>{{ items[currentImage].bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
               </v-btn>
               <v-spacer></v-spacer>
               <v-btn icon @click="openEditDialog">
-                <v-icon>edit</v-icon>
+                <v-icon>mdi-pencil</v-icon>
               </v-btn>
               <v-btn icon @click="removeImage">
-                <v-icon color="warning">delete_forever</v-icon>
+                <v-icon color="warning">mdi-delete</v-icon>
               </v-btn>
             </v-card>
 
@@ -219,14 +227,18 @@
               </div>
 
               <div class="mt-3">
-                <span v-for="i in 5" :key="i">
-                  <v-icon @click="rateImage(i)" v-if="i > items[currentImage].rating">star_border</v-icon>
-                  <v-icon color="amber" @click="rateImage(i)" v-else>star</v-icon>
-                </span>
+                <v-rating
+                  background-color="grey"
+                  color="amber"
+                  dense
+                  :value="items[currentImage].rating"
+                  @input="rateImage($event)"
+                  clearable
+                ></v-rating>
               </div>
 
               <div class="mt-3 mb-1">
-                <v-icon class="mr-1" style="vertical-align: bottom">label</v-icon>
+                <v-icon class="mr-1" style="vertical-align: bottom">mdi-label</v-icon>
                 <span class="body-2">Labels</span>
               </div>
               <div class="mb-2">
@@ -234,12 +246,13 @@
                   small
                   v-for="label in items[currentImage].labels.slice().sort()"
                   :key="label"
+                  class="mr-1 mb-1"
                 >{{ label }}</v-chip>
                 <v-chip small @click="openLabelDialog" color="primary white--text">+ Add</v-chip>
               </div>
 
               <v-container fluid>
-                <v-layout row wrap align-center v-for="field in customFields" :key="field[0]">
+                <v-layout wrap align-center v-for="field in customFields" :key="field[0]">
                   <v-flex xs12 sm6>
                     <v-subheader>{{ field[0] }}</v-subheader>
                   </v-flex>
@@ -258,7 +271,7 @@
           <v-toolbar-title>Edit image</v-toolbar-title>
         </v-toolbar>
         <v-container v-if="editDialog">
-          <v-layout row wrap align-center>
+          <v-layout wrap align-center>
             <v-flex xs6 sm4>
               <v-subheader>Image name</v-subheader>
             </v-flex>
@@ -281,30 +294,25 @@
                 clearable
               >
                 <template v-slot:selection="data">
-                  <v-chip
-                    :selected="data.selected"
-                    close
-                    class="chip--select-multi"
-                    @input="removeActor(data.item.id)"
-                  >
-                    <v-avatar>
-                      <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
+                  <v-chip pill>
+                    <v-avatar left>
+                      <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])" />
                     </v-avatar>
                     {{ data.item.name }}
                   </v-chip>
                 </template>
                 <template v-slot:item="data">
                   <template v-if="typeof data.item !== 'object'">
-                    <v-list-tile-content v-text="data.item"></v-list-tile-content>
+                    <v-list-item-content v-text="data.item"></v-list-item-content>
                   </template>
                   <template v-else>
-                    <v-list-tile-avatar>
-                      <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])">
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                      <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
-                      <v-list-tile-sub-title v-html="data.item.group"></v-list-tile-sub-title>
-                    </v-list-tile-content>
+                    <v-list-item-avatar>
+                      <img :src="$store.getters['images/idToPath'](data.item.thumbnails[0])" />
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                      <v-list-item-title v-html="data.item.name"></v-list-item-title>
+                      <v-list-item-subtitle v-html="data.item.group"></v-list-item-subtitle>
+                    </v-list-item-content>
                   </template>
                 </template>
               </v-autocomplete>
@@ -312,13 +320,13 @@
 
             <v-flex xs12>
               <v-btn
-                flat
+                text
                 @click="editing.showCustomFields = !editing.showCustomFields"
               >{{ editing.showCustomFields ? 'Hide custom data fields' : 'Show custom data fields'}}</v-btn>
             </v-flex>
 
             <v-container fluid v-if="editing.showCustomFields">
-              <v-layout row wrap>
+              <v-layout wrap>
                 <v-flex xs12 v-for="field in $store.state.globals.customFields" :key="field.name">
                   <CustomField
                     :field="field"
@@ -332,7 +340,7 @@
         </v-container>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="editDialog = false" flat>Cancel</v-btn>
+          <v-btn @click="editDialog = false" text>Cancel</v-btn>
           <v-btn @click="saveSettings" color="primary">Save</v-btn>
         </v-card-actions>
       </v-card>
@@ -354,7 +362,7 @@
         </v-container>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="labelDialog = false" flat>Cancel</v-btn>
+          <v-btn @click="labelDialog = false" text>Cancel</v-btn>
           <v-btn @click="saveLabels" color="primary">Save</v-btn>
         </v-card-actions>
       </v-card>
@@ -364,6 +372,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import Component from "vue-class-component";
 import Image from "@/classes/image";
 import Actor from "@/classes/actor";
 import path from "path";
@@ -394,57 +403,58 @@ type FieldFilter = {
   value: string | number | boolean | null | string[];
 };
 
-export default Vue.extend({
+@Component({
   components: {
     Actor: ActorComponent,
     CustomField: CustomFieldComponent
-  },
-  data() {
-    return {
-      currentImage: -1,
-      sortModes: [
-        {
-          name: "Date added (newest)",
-          value: 0
-        },
-        {
-          name: "Date added (oldest)",
-          value: 1
-        },
-        {
-          name: "Name - A to Z",
-          value: 2
-        },
-        {
-          name: "Name - Z to A",
-          value: 3
-        },
-        {
-          name: "Highest rated",
-          value: 4
-        },
-        {
-          name: "Lowest rated",
-          value: 5
-        }
-      ],
-      fieldFilters: [] as FieldFilter[],
+  }
+})
+export default class Images extends Vue {
+  currentImage = -1;
 
-      editDialog: false,
-      labelDialog: false,
+  sortModes = [
+    {
+      name: "Date added (newest)",
+      value: 0
+    },
+    {
+      name: "Date added (oldest)",
+      value: 1
+    },
+    {
+      name: "Name - A to Z",
+      value: 2
+    },
+    {
+      name: "Name - Z to A",
+      value: 3
+    },
+    {
+      name: "Highest rated",
+      value: 4
+    },
+    {
+      name: "Lowest rated",
+      value: 5
+    }
+  ];
 
-      editing: {
-        showCustomFields: false,
+  fieldFilters = [] as FieldFilter[];
 
-        name: "",
-        actors: [] as string[],
-        customFields: {} as CustomFieldValue,
-        chosenLabels: [] as string[]
-      },
+  editDialog = false;
+  labelDialog = false;
 
-      showImageDetails: false
-    };
-  },
+  editing = {
+    showCustomFields: false,
+
+    name: "",
+    actors: [] as string[],
+    customFields: {} as CustomFieldValue,
+    chosenLabels: [] as string[]
+  };
+
+  showImageDetails = false;
+
   mounted() {
     this.fieldFilters = (<CustomField[]>this.$store.state.globals.customFields)
       .slice()
@@ -457,426 +467,431 @@ export default Vue.extend({
           value: field.type >= 3 ? [] : null
         };
       }) as FieldFilter[];
-  },
-  methods: {
-    setFieldFilterValue({
-      key,
-      value,
-      mode
-    }: {
-      key: string;
-      value: string;
-      mode: FilterMode;
-    }) {
-      let field = (<FieldFilter[]>this.fieldFilters).find(f => f.name == key);
+  }
 
-      field.value = value;
-      field.mode = mode;
-    },
+  setFieldFilterValue({
+    key,
+    value,
+    mode
+  }: {
+    key: string;
+    value: string;
+    mode: FilterMode;
+  }) {
+    let field = (<FieldFilter[]>this.fieldFilters).find(f => f.name == key);
 
-    openEditDialog() {
-      this.editDialog = true;
-      this.editing.name = this.items[this.currentImage].name;
-      this.editing.actors = this.items[this.currentImage].actors;
-      this.editing.customFields = JSON.parse(
-        JSON.stringify(this.items[this.currentImage].customFields)
-      );
-    },
-    openLabelDialog() {
-      this.labelDialog = true;
-      this.editing.chosenLabels = this.items[this.currentImage].labels;
-    },
-    saveLabels() {
-      this.$store.commit("images/setLabels", {
-        id: this.items[this.currentImage].id,
-        labels: this.editing.chosenLabels.map((label: string) =>
-          toTitleCase(label)
-        )
-      });
-      this.labelDialog = false;
+    field.value = value;
+    field.mode = mode;
+  }
 
-      exportToDisk();
-    },
-    saveSettings() {
-      this.$store.commit("images/edit", {
-        id: this.items[this.currentImage].id,
-        settings: {
-          name: toTitleCase(this.editing.name),
-          actors: this.editing.actors,
-          customFields: JSON.parse(JSON.stringify(this.editing.customFields))
-        }
-      });
-      this.editDialog = false;
+  openEditDialog() {
+    this.editDialog = true;
+    this.editing.name = this.items[this.currentImage].name;
+    this.editing.actors = this.items[this.currentImage].actors;
+    this.editing.customFields = JSON.parse(
+      JSON.stringify(this.items[this.currentImage].customFields)
+    );
+  }
 
-      exportToDisk();
-    },
-    setFieldValue({ key, value }: { key: string; value: string }) {
-      this.editing.customFields[key] = value;
-    },
-    getFieldValue(name: string): string | number | boolean | null {
-      return this.editing.customFields[name];
-    },
-    removeImage() {
-      let item = this.items[this.currentImage];
+  openLabelDialog() {
+    this.labelDialog = true;
+    this.editing.chosenLabels = this.items[this.currentImage].labels;
+  }
 
-      if (item.path.includes("library/")) fs.unlinkSync(item.path);
+  saveLabels() {
+    this.$store.commit("images/setLabels", {
+      id: this.items[this.currentImage].id,
+      labels: this.editing.chosenLabels.map((label: string) =>
+        toTitleCase(label)
+      )
+    });
+    this.labelDialog = false;
 
-      this.$store.commit("images/remove", item.id);
+    exportToDisk();
+  }
 
-      if (item.video) {
-        this.$store.commit("videos/removeThumbnailById", {
-          id: item.video,
-          image: item.id
-        });
+  saveSettings() {
+    this.$store.commit("images/edit", {
+      id: this.items[this.currentImage].id,
+      settings: {
+        name: toTitleCase(this.editing.name),
+        actors: this.editing.actors,
+        customFields: JSON.parse(JSON.stringify(this.editing.customFields))
       }
+    });
+    this.editDialog = false;
 
-      this.currentImage = -1;
-      exportToDisk();
-    },
-    setRatingFilter(i: number) {
-      if (this.ratingFilter === i) {
-        this.ratingFilter = 0;
-      } else {
-        this.ratingFilter = i;
-      }
-    },
-    favorite() {
-      this.$store.commit("images/favorite", this.items[this.currentImage].id);
-      exportToDisk();
-    },
-    bookmark() {
-      this.$store.commit("images/bookmark", this.items[this.currentImage].id);
-      exportToDisk();
-    },
-    rateImage(rating: number) {
-      this.$store.commit("images/rate", {
-        id: this.items[this.currentImage].id,
-        rating
+    exportToDisk();
+  }
+
+  setFieldValue({ key, value }: { key: string; value: string }) {
+    this.editing.customFields[key] = value;
+  }
+
+  getFieldValue(name: string): string | number | boolean | null {
+    return this.editing.customFields[name];
+  }
+
+  removeImage() {
+    let item = this.items[this.currentImage];
+
+    if (item.path.includes("library/")) fs.unlinkSync(item.path);
+
+    this.$store.commit("images/remove", item.id);
+
+    if (item.video) {
+      this.$store.commit("videos/removeThumbnailById", {
+        id: item.video,
+        image: item.id
       });
-      exportToDisk();
-    },
-    // Remove actor from filter, not library
-    removeActor(id: string) {
-      this.chosenActors = this.chosenActors.filter(
-        (actor: string) => actor != id
-      );
-    },
-    openFileInput() {
-      let el = document.getElementById(`file-input-images`) as any;
-
-      el.addEventListener("change", (ev: Event) => {
-        let fileArray = Array.from(el.files) as File[];
-        let files = fileArray.map(file => {
-          return {
-            name: file.name,
-            path: file.path,
-            size: file.size
-          };
-        }) as { name: string; path: string; size: number }[];
-
-        if (this.$store.state.globals.settings.copyThumbnails) {
-          if (!fs.existsSync(path.resolve(process.cwd(), "library/images/"))) {
-            fs.mkdirSync(path.resolve(process.cwd(), "library/images/"));
-          }
-
-          files.forEach(file => {
-            let p = file.path;
-            let imagePath = path.resolve(
-              process.cwd(),
-              "library/images/",
-              `image-${hash()}${path.extname(p)}`
-            );
-            fs.copyFileSync(p, imagePath);
-            file.path = imagePath;
-          });
-        }
-
-        let images = files.map(file => Image.create(file));
-
-        let customFieldNames = this.$store.getters[
-          "globals/getCustomFieldNames"
-        ] as string[];
-
-        images.forEach(image => {
-          customFieldNames.forEach(field => {
-            image.customFields[field] = null;
-          });
-        });
-
-        this.$store.commit("images/add", images);
-
-        exportToDisk();
-
-        el.value = "";
-      });
-      el.click();
     }
-  },
-  computed: {
-    chosenSort: {
-      get(): number {
-        return this.$store.state.images.search.chosenSort;
-      },
-      set(value: number) {
-        this.$store.commit("images/setSearchParam", {
-          key: "chosenSort",
-          value
-        });
-      }
-    },
-    ratingFilter: {
-      get(): number {
-        return this.$store.state.images.search.ratingFilter;
-      },
-      set(value: number) {
-        this.$store.commit("images/setSearchParam", {
-          key: "ratingFilter",
-          value
-        });
-      }
-    },
-    bookmarksOnly: {
-      get(): boolean {
-        return this.$store.state.images.search.bookmarksOnly;
-      },
-      set(value: boolean) {
-        this.$store.commit("images/setSearchParam", {
-          key: "bookmarksOnly",
-          value
-        });
-      }
-    },
-    favoritesOnly: {
-      get(): boolean {
-        return this.$store.state.images.search.favoritesOnly;
-      },
-      set(value: boolean) {
-        this.$store.commit("images/setSearchParam", {
-          key: "favoritesOnly",
-          value
-        });
-      }
-    },
-    chosenActors: {
-      get(): string[] {
-        return this.$store.state.images.search.chosenActors;
-      },
-      set(value: string[]) {
-        this.$store.commit("images/setSearchParam", {
-          key: "chosenActors",
-          value
-        });
-      }
-    },
-    chosenLabels: {
-      get(): string[] {
-        return this.$store.state.images.search.chosenLabels;
-      },
-      set(value: string[]) {
-        this.$store.commit("images/setSearchParam", {
-          key: "chosenLabels",
-          value
-        });
-      }
-    },
-    search: {
-      get(): string {
-        return this.$store.state.images.search.search;
-      },
-      set(value: string) {
-        this.$store.commit("images/setSearchParam", {
-          key: "search",
-          value
-        });
-      }
-    },
-    gridSize: {
-      get(): number {
-        return this.$store.state.images.search.gridSize;
-      },
-      set(value: number) {
-        this.$store.commit("images/setSearchParam", {
-          key: "gridSize",
-          value
-        });
-      }
-    },
-    filterDrawer: {
-      get(): boolean {
-        return this.$store.state.images.search.filterDrawer;
-      },
-      set(value: boolean) {
-        this.$store.commit("images/setSearchParam", {
-          key: "filterDrawer",
-          value
-        });
-      }
-    },
 
-    customFields() {
-      let array = Object.entries(
-        ((this.items[this.currentImage] as unknown) as Image).customFields
-      );
-      array = array.filter((a: any) => a[1] !== null);
-      return array;
-    },
-    actors(): Actor[] {
-      return this.items[this.currentImage].actors;
-    },
-    labels(): string[] {
-      return this.$store.getters["images/getLabels"];
-    },
-    items() {
-      let images = JSON.parse(
-        JSON.stringify(this.$store.state.images.items)
-      ) as Image[];
+    this.currentImage = -1;
+    exportToDisk();
+  }
 
-      if (this.favoritesOnly) {
-        images = images.filter(image => image.favorite);
-      }
-
-      if (this.bookmarksOnly) {
-        images = images.filter(image => image.bookmark);
-      }
-
-      if (this.chosenLabels.length) {
-        images = images.filter(image =>
-          this.chosenLabels.every((label: string) =>
-            image.labels.includes(label)
-          )
-        );
-      }
-
-      if (this.chosenActors.length) {
-        images = images.filter(image =>
-          this.chosenActors.every((actor: string) =>
-            image.actors.includes(actor)
-          )
-        );
-      }
-
-      if (this.ratingFilter > 0) {
-        images = images.filter(i => i.rating >= this.ratingFilter);
-      }
-
-      for (const field of JSON.parse(JSON.stringify(this.fieldFilters))) {
-        if (field.value === null || field.mode === FilterMode.NONE) {
-          continue;
-        }
-
-        if (field.type === CustomFieldType.STRING && field.value.length) {
-          field.value = field.value.toLowerCase();
-
-          if (field.mode === FilterMode.EQUALS) {
-            images = images.filter(i => {
-              let value = i.customFields[field.name];
-              return value.toString().toLowerCase() == field.value;
-            });
-          } else if (field.mode === FilterMode.INCLUDES) {
-            images = images.filter(i => {
-              let value = i.customFields[field.name];
-              return value
-                .toString()
-                .toLowerCase()
-                .includes(field.value);
-            });
-          }
-        } else if (field.type === CustomFieldType.NUMBER) {
-          if (field.mode === FilterMode.EQUALS) {
-            images = images.filter(i => {
-              let value = i.customFields[field.name];
-              return value == field.value;
-            });
-          } else if (field.mode == FilterMode.GREATER_THAN) {
-            images = images.filter(i => {
-              let value = i.customFields[field.name];
-              return value > field.value;
-            });
-          } else if (field.mode == FilterMode.LESSER_THAN) {
-            images = images.filter(i => {
-              let value = i.customFields[field.name];
-              return value < field.value;
-            });
-          }
-        } else if (field.type === CustomFieldType.BOOLEAN) {
-          images = images.filter(i => {
-            let value = i.customFields[field.name];
-            return value == field.value;
-          });
-        } else if (field.type === CustomFieldType.SELECT && field.value) {
-          if (Array.isArray(field.value)) continue;
-
-          images = images.filter(i => {
-            let value = i.customFields[field.name];
-            return value == field.value;
-          });
-        } else if (
-          field.type === CustomFieldType.MULTI_SELECT &&
-          field.value.length
-        ) {
-          if (field.mode === FilterMode.INCLUDES) {
-            images = images.filter(i => {
-              let values = (i.customFields[field.name] as unknown) as string[];
-              return field.value.every((value: string) =>
-                values.includes(value)
-              );
-            });
-          } else if (field.mode === FilterMode.INCLUDES_SOME) {
-            images = images.filter(i => {
-              let values = (i.customFields[field.name] as unknown) as string[];
-              return field.value.some((value: string) =>
-                values.includes(value)
-              );
-            });
-          }
-        }
-      }
-
-      images.forEach(image => {
-        image.actors = image.actors.map((id: string) => {
-          return this.$store.getters["actors/getById"](id);
-        });
-      });
-
-      if (this.search && this.search.length) {
-        var options = {
-          shouldSort: true,
-          threshold: 0.25,
-          location: 0,
-          distance: 100,
-          maxPatternLength: 32,
-          minMatchCharLength: 1,
-          keys: ["name", "path", "labels", "actors.name"]
-        };
-        var fuse = new Fuse(images, options);
-        images = fuse.search(this.search);
-      }
-
-      switch (this.chosenSort) {
-        case 0:
-          images.sort((a, b) => b.addedOn - a.addedOn);
-          break;
-        case 1:
-          images.sort((a, b) => a.addedOn - b.addedOn);
-          break;
-        case 2:
-          images.sort((a, b) => a.name.localeCompare(b.name));
-          break;
-        case 3:
-          images.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-        case 4:
-          images.sort((a, b) => b.rating - a.rating);
-          break;
-        case 5:
-          images.sort((a, b) => a.rating - b.rating);
-          break;
-      }
-
-      return images;
+  setRatingFilter(i: number) {
+    if (this.ratingFilter === i) {
+      this.ratingFilter = 0;
+    } else {
+      this.ratingFilter = i;
     }
   }
-});
+
+  favorite() {
+    this.$store.commit("images/favorite", this.items[this.currentImage].id);
+    exportToDisk();
+  }
+
+  bookmark() {
+    this.$store.commit("images/bookmark", this.items[this.currentImage].id);
+    exportToDisk();
+  }
+
+  rateImage(rating: number) {
+    this.$store.commit("images/rate", {
+      id: this.items[this.currentImage].id,
+      rating
+    });
+    exportToDisk();
+  }
+
+  // Remove actor from filter, not library
+  removeActor(id: string) {
+    this.chosenActors = this.chosenActors.filter(
+      (actor: string) => actor != id
+    );
+  }
+
+  openFileInput() {
+    let el = document.getElementById(`file-input-images`) as any;
+
+    el.addEventListener("change", (ev: Event) => {
+      let fileArray = Array.from(el.files) as File[];
+      let files = fileArray.map(file => {
+        return {
+          name: file.name,
+          path: file.path,
+          size: file.size
+        };
+      }) as { name: string; path: string; size: number }[];
+
+      if (this.$store.state.globals.settings.copyThumbnails) {
+        if (!fs.existsSync(path.resolve(process.cwd(), "library/images/"))) {
+          fs.mkdirSync(path.resolve(process.cwd(), "library/images/"));
+        }
+
+        files.forEach(file => {
+          let p = file.path;
+          let imagePath = path.resolve(
+            process.cwd(),
+            "library/images/",
+            `image-${hash()}${path.extname(p)}`
+          );
+          fs.copyFileSync(p, imagePath);
+          file.path = imagePath;
+        });
+      }
+
+      let images = files.map(file => Image.create(file));
+
+      let customFieldNames = this.$store.getters[
+        "globals/getCustomFieldNames"
+      ] as string[];
+
+      images.forEach(image => {
+        customFieldNames.forEach(field => {
+          image.customFields[field] = null;
+        });
+      });
+
+      this.$store.commit("images/add", images);
+
+      exportToDisk();
+
+      el.value = "";
+    });
+    el.click();
+  }
+
+  get customFields() {
+    let array = Object.entries(
+      ((this.items[this.currentImage] as unknown) as Image).customFields
+    );
+    array = array.filter((a: any) => a[1] !== null);
+    return array;
+  }
+
+  get actors(): Actor[] {
+    // This is an Actor array because the items are modified in "get items()"
+    return this.items[this.currentImage].actors as unknown as Actor[];
+  }
+
+  get labels(): string[] {
+    return this.$store.getters["images/getLabels"];
+  }
+
+  get items() {
+    let images = JSON.parse(
+      JSON.stringify(this.$store.state.images.items)
+    ) as Image[];
+
+    if (this.favoritesOnly) {
+      images = images.filter(image => image.favorite);
+    }
+
+    if (this.bookmarksOnly) {
+      images = images.filter(image => image.bookmark);
+    }
+
+    if (this.chosenLabels.length) {
+      images = images.filter(image =>
+        this.chosenLabels.every((label: string) => image.labels.includes(label))
+      );
+    }
+
+    if (this.chosenActors.length) {
+      images = images.filter(image =>
+        this.chosenActors.every((actor: string) => image.actors.includes(actor))
+      );
+    }
+
+    if (this.ratingFilter > 0) {
+      images = images.filter(i => i.rating >= this.ratingFilter);
+    }
+
+    for (const field of JSON.parse(JSON.stringify(this.fieldFilters))) {
+      if (field.value === null || field.mode === FilterMode.NONE) {
+        continue;
+      }
+
+      if (field.type === CustomFieldType.STRING && field.value.length) {
+        field.value = field.value.toLowerCase();
+
+        if (field.mode === FilterMode.EQUALS) {
+          images = images.filter(i => {
+            let value = i.customFields[field.name];
+            return value.toString().toLowerCase() == field.value;
+          });
+        } else if (field.mode === FilterMode.INCLUDES) {
+          images = images.filter(i => {
+            let value = i.customFields[field.name];
+            return value
+              .toString()
+              .toLowerCase()
+              .includes(field.value);
+          });
+        }
+      } else if (field.type === CustomFieldType.NUMBER) {
+        if (field.mode === FilterMode.EQUALS) {
+          images = images.filter(i => {
+            let value = i.customFields[field.name];
+            return value == field.value;
+          });
+        } else if (field.mode == FilterMode.GREATER_THAN) {
+          images = images.filter(i => {
+            let value = i.customFields[field.name];
+            return value > field.value;
+          });
+        } else if (field.mode == FilterMode.LESSER_THAN) {
+          images = images.filter(i => {
+            let value = i.customFields[field.name];
+            return value < field.value;
+          });
+        }
+      } else if (field.type === CustomFieldType.BOOLEAN) {
+        images = images.filter(i => {
+          let value = i.customFields[field.name];
+          return value == field.value;
+        });
+      } else if (field.type === CustomFieldType.SELECT && field.value) {
+        if (Array.isArray(field.value)) continue;
+
+        images = images.filter(i => {
+          let value = i.customFields[field.name];
+          return value == field.value;
+        });
+      } else if (
+        field.type === CustomFieldType.MULTI_SELECT &&
+        field.value.length
+      ) {
+        if (field.mode === FilterMode.INCLUDES) {
+          images = images.filter(i => {
+            let values = (i.customFields[field.name] as unknown) as string[];
+            return field.value.every((value: string) => values.includes(value));
+          });
+        } else if (field.mode === FilterMode.INCLUDES_SOME) {
+          images = images.filter(i => {
+            let values = (i.customFields[field.name] as unknown) as string[];
+            return field.value.some((value: string) => values.includes(value));
+          });
+        }
+      }
+    }
+
+    images.forEach(image => {
+      image.actors = image.actors.map((id: string) => {
+        return this.$store.getters["actors/getById"](id);
+      });
+    });
+
+    if (this.search && this.search.length) {
+      var options = {
+        shouldSort: true,
+        threshold: 0.25,
+        location: 0,
+        distance: 100,
+        maxPatternLength: 32,
+        minMatchCharLength: 1,
+        keys: ["name", "path", "labels", "actors.name"]
+      };
+      var fuse = new Fuse(images, options);
+      images = fuse.search(this.search);
+    }
+
+    switch (this.chosenSort) {
+      case 0:
+        images.sort((a, b) => b.addedOn - a.addedOn);
+        break;
+      case 1:
+        images.sort((a, b) => a.addedOn - b.addedOn);
+        break;
+      case 2:
+        images.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 3:
+        images.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 4:
+        images.sort((a, b) => b.rating - a.rating);
+        break;
+      case 5:
+        images.sort((a, b) => a.rating - b.rating);
+        break;
+    }
+
+    return images;
+  }
+
+  get chosenSort(): number {
+    return this.$store.state.images.search.chosenSort;
+  }
+
+  set chosenSort(value: number) {
+    this.$store.commit("images/setSearchParam", {
+      key: "chosenSort",
+      value
+    });
+  }
+
+  get ratingFilter(): number {
+    return this.$store.state.images.search.ratingFilter;
+  }
+
+  set ratingFilter(value: number) {
+    this.$store.commit("images/setSearchParam", {
+      key: "ratingFilter",
+      value
+    });
+  }
+
+  get bookmarksOnly(): boolean {
+    return this.$store.state.images.search.bookmarksOnly;
+  }
+
+  set bookmarksOnly(value: boolean) {
+    this.$store.commit("images/setSearchParam", {
+      key: "bookmarksOnly",
+      value
+    });
+  }
+
+  get favoritesOnly(): boolean {
+    return this.$store.state.images.search.favoritesOnly;
+  }
+
+  set favoritesOnly(value: boolean) {
+    this.$store.commit("images/setSearchParam", {
+      key: "favoritesOnly",
+      value
+    });
+  }
+
+  get chosenActors(): string[] {
+    return this.$store.state.images.search.chosenActors;
+  }
+
+  set chosenActors(value: string[]) {
+    this.$store.commit("images/setSearchParam", {
+      key: "chosenActors",
+      value
+    });
+  }
+
+  get chosenLabels(): string[] {
+    return this.$store.state.images.search.chosenLabels;
+  }
+
+  set chosenLabels(value: string[]) {
+    this.$store.commit("images/setSearchParam", {
+      key: "chosenLabels",
+      value
+    });
+  }
+
+  get search(): string {
+    return this.$store.state.images.search.search;
+  }
+
+  set search(value: string) {
+    this.$store.commit("images/setSearchParam", {
+      key: "search",
+      value
+    });
+  }
+
+  get gridSize(): number {
+    return this.$store.state.images.search.gridSize;
+  }
+
+  set gridSize(value: number) {
+    this.$store.commit("images/setSearchParam", {
+      key: "gridSize",
+      value
+    });
+  }
+
+  get filterDrawer(): boolean {
+    return this.$store.state.images.search.filterDrawer;
+  }
+
+  set filterDrawer(value: boolean) {
+    this.$store.commit("images/setSearchParam", {
+      key: "filterDrawer",
+      value
+    });
+  }
+}
 </script>
 
 <style lang="scss" scoped>

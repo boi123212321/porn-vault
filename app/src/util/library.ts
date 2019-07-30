@@ -1,3 +1,4 @@
+import Vue from "vue";
 import path from "path";
 import fs from "fs";
 

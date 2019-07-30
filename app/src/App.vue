@@ -1,43 +1,41 @@
 <template>
-  <v-app :dark="$store.getters['globals/darkMode']">
-    <v-toolbar clipped-right dense style="-webkit-app-region: drag;" dark color="primary" :flat="flatToolbar" app>
-      <!-- <v-btn flat to="/">
-        <span class="mr-2">Home</span>
-      </v-btn>-->
-      <v-btn flat to="/videos">
-        <span class="mr-2">Videos</span>
+  <v-app :dark="$vuetify.theme.dark">
+    <v-app-bar
+      elevate-on-scroll
+      clipped-right
+      dense
+      style="-webkit-app-region: drag;"
+      dark
+      color="primary"
+      app
+    >
+      <v-btn v-for="btn in toolbarItems" :key="btn.label" class="mr-2" text :to="btn.to">
+        <span>{{ btn.label }}</span>
       </v-btn>
-      <v-btn flat to="/actors">
-        <span class="mr-2">Actors</span>
-      </v-btn>
-      <v-btn flat to="/images">
-        <span class="mr-2">Images</span>
-      </v-btn>
-      <v-btn flat to="/settings">
-        <span class="mr-2">Settings</span>
-      </v-btn>
-    </v-toolbar>
+    </v-app-bar>
 
     <v-content>
-      <router-view/>
+      <router-view />
     </v-content>
   </v-app>
 </template>
 
-<script>
+<script lang="ts">
+import Vue from "vue";
+import Component from "vue-class-component";
 import * as library from "@/util/library";
 import { remote } from "electron";
 const { shell } = require("electron");
 
 // DEBUG RIGHT-CLICK
-let rightClickPosition = null;
+let rightClickPosition = null as null | { x: number; y: number };
 const menu = new remote.Menu();
 const menuItem = new remote.MenuItem({
   label: "Inspect Element",
   click: () => {
     remote
       .getCurrentWindow()
-      .inspectElement(rightClickPosition.x, rightClickPosition.y);
+      .webContents.inspectElement(rightClickPosition.x, rightClickPosition.y);
   }
 });
 menu.append(menuItem);
@@ -47,41 +45,53 @@ window.addEventListener(
   e => {
     e.preventDefault();
     rightClickPosition = { x: e.x, y: e.y };
-    menu.popup(remote.getCurrentWindow());
+    menu.popup({ window: remote.getCurrentWindow() });
   },
   false
 );
-//
 
-export default {
-  name: "App",
-  components: {},
-  data() {
-    return {};
-  },
-  methods: {
-    
-    minimize() {
-      remote.BrowserWindow.getFocusedWindow().minimize();
+@Component({
+  components: {}
+})
+export default class App extends Vue {
+  toolbarItems = [
+    /*{
+      to: "/",
+      label: "Home"
+    },*/
+    {
+      to: "/videos",
+      label: "Videos"
     },
-    maximize() {
-      remote.BrowserWindow.getFocusedWindow().isMaximized()
-        ? remote.BrowserWindow.getFocusedWindow().unmaximize()
-        : remote.BrowserWindow.getFocusedWindow().maximize();
+    {
+      to: "/actors",
+      label: "Actors"
+    },
+    {
+      to: "/images",
+      label: "Images"
+    },
+    {
+      to: "/settings",
+      label: "Settings"
     }
-  },
-  computed: {
-    flatToolbar() {
-      return (
-        this.$route.path.includes("/video/") ||
-        this.$route.path.includes("/actor/")
-      );
-    }
-  },
-  async beforeMount() {
-    library.loadFromDisk();
+  ];
+
+  minimize() {
+    remote.BrowserWindow.getFocusedWindow().minimize();
   }
-};
+
+  maximize() {
+    remote.BrowserWindow.getFocusedWindow().isMaximized()
+      ? remote.BrowserWindow.getFocusedWindow().unmaximize()
+      : remote.BrowserWindow.getFocusedWindow().maximize();
+  }
+
+  async beforeMount() {
+    await library.loadFromDisk();
+    this.$vuetify.theme.dark = this.$store.state.globals.settings.darkMode;
+  }
+}
 </script>
 
 <style lang="scss">

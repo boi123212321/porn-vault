@@ -43,15 +43,12 @@ export default {
     getLabels(state: RootState) {
       return [
         ...new Set(
-          (<Video[]>state.items).reduce(
-            (acc: string[], video) => acc.concat(video.labels),
-            []
-          )
+          (<Video[]>state.items).map(v => v.labels).flat()
         )
       ];
     },
     getActorWatches: (state: RootState) => (actor: string): number[] => {
-      return state.items.filter(v => v.actors.includes(actor)).reduce((acc: number[], video) => acc.concat(video.watches), []);
+      return state.items.filter(v => v.actors.includes(actor)).map(v => v.watches).flat();
     }
   },
   mutations: {

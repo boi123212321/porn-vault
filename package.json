@@ -1,0 +1,36 @@
+{
+  "name": "porn-manager",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/",
+  "scripts": {
+    "watch": "tsc -w",
+    "serve": "nodemon build/",
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boi123212321/porn-manager.git"
+  },
+  "author": "boi123212321",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/boi123212321/porn-manager/issues"
+  },
+  "homepage": "https://github.com/boi123212321/porn-manager#readme",
+  "dependencies": {
+    "@types/graphql": "^14.5.0",
+    "@types/node": "^12.7.9",
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "lowdb": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.1",
+    "@types/lowdb": "^1.0.9",
+    "nodemon": "^1.19.3"
+  },
+  "nodemonConfig": {
+    "ignore": ["./**/db.json"]
+  }
+}

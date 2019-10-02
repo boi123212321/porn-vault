@@ -2,10 +2,11 @@ import { database } from "../../database";
 import Actor from "../../types/actor";
 import Label from "../../types/label";
 import { ReadStream, createWriteStream, statSync } from "fs";
-import { extname } from "path";
+import path, { extname } from "path";
 import Scene from "../../types/scene";
 import ffmpeg from "fluent-ffmpeg";
 import * as logger from "../../logger";
+import Image from "../../types/image";
 
 interface HashMap<T> {
   [key: string]: T;
@@ -17,16 +18,26 @@ export default {
   async uploadScene(parent, args: AnyMap) {
     const { filename, mimetype, createReadStream } = await args.file;
     const ext = extname(filename);
+    const fileNameWithoutExtension = filename.split(".")[0];
+
+    let sceneName = fileNameWithoutExtension;
+
+    if (args.name)
+      sceneName = args.name;
 
     // !TODO check mimetype
     // !TODO check if ffmpeg/ffprobe exist
 
-    const scene = new Scene(filename.split(".")[0]);
-    const path = `./library/scenes/${scene.id}${ext}`;
-    scene.path = path;
+    const scene = new Scene(sceneName);
+
+    const sourcePath = path.resolve(
+      process.cwd(),
+      `./library/scenes/${scene.id}${ext}`
+    );
+    scene.path = sourcePath;
 
     const read = createReadStream() as ReadStream;
-    const write = createWriteStream(path);
+    const write = createWriteStream(sourcePath);
 
     const pipe = read.pipe(write);
 
@@ -35,12 +46,12 @@ export default {
     });
 
     // File written, now process
-    logger.SUCCESS(`SUCCESS: File written to ${path}`);
+    logger.SUCCESS(`SUCCESS: File written to ${sourcePath}.`);
 
     await new Promise((resolve, reject) => {
-      ffmpeg.ffprobe(path, (err, data) => {
+      ffmpeg.ffprobe(sourcePath, (err, data) => {
         const meta = data.streams[0];
-        const { size } = statSync(path);
+        const { size } = statSync(sourcePath);
 
         if (meta) {
           scene.meta.dimensions = {
@@ -58,15 +69,31 @@ export default {
       })
     })
 
-    const thumbnailFiles = await scene.generateThumbnails();
-
-    for(const file of thumbnailFiles) {
-      // !TODO create image in library
-    }
-
     if (args.actors) {
       scene.actors = args.actors;
     }
+
+    /* if (args.labels) {
+      scene.labels = args.labels;
+    } */
+
+    const thumbnailFiles = await scene.generateThumbnails();
+
+    for (let i = 0; i < thumbnailFiles.length; i++) {
+      const file = thumbnailFiles[i];
+      const image = new Image(`${sceneName} ${i}`, file.path, scene.id);
+      image.meta.size = file.size;
+      image.actors = scene.actors;
+      /* image.labels = scene.labels; */
+      database
+        .get('images')
+        .push(image)
+        .write();
+
+      scene.images.push(image.id);
+    }
+
+    logger.SUCCESS(`SUCCESS: Created ${thumbnailFiles.length} images.`);
 
     database
       .get('scenes')
@@ -74,6 +101,8 @@ export default {
       .write();
 
     // Done
+
+    logger.SUCCESS(`SUCCESS: Scene '${sceneName}' done.`);
 
     return scene;
   },

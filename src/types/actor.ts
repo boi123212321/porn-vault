@@ -7,7 +7,7 @@ export default class Actor {
   aliases: string[] = [];
   addedOn = +new Date();
   bornOn: number | null = null;
-  thumbnails: string[] = [];
+  images: string[] = [];
   coverIndex: number = 0;
   favorite: boolean = false;
   bookmark: boolean = false;

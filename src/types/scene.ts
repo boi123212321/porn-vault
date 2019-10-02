@@ -37,7 +37,7 @@ export default class Scene {
   name: string;
   addedOn = +new Date();
   releaseDate: string | null = null;
-  thumbnails: string[] = [];
+  images: string[] = [];
   coverIndex: number = 0;
   favorite: boolean = false;
   bookmark: boolean = false;
@@ -45,12 +45,10 @@ export default class Scene {
   customFields: any = {};
   labels: string[] = [];
   actors: string[] = [];
-  movies: string[] = [];
   path: string | null = null;
   streamLinks: string[] = [];
   watches: number[] = []; // Array of timestamps of watches
   meta = new SceneMeta();
-  studio: string | null = null;
 
   static getByActor(id: string): Scene[] {
     return Scene

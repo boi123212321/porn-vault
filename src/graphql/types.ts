@@ -6,6 +6,10 @@ type VideoDimensions {
   height: Long
 }
 
+type ImageMeta {
+  size: Long
+}
+
 type SceneMeta {
   size: Long
   duration: Int
@@ -32,7 +36,7 @@ type Actor {
   aliases: [String!]!
   addedOn: Long!
   bornOn: Long
-  thumbnails: [String!]!
+  images: [String!]!
   coverIndex: Int!
   favorite: Boolean!
   bookmark: Boolean!
@@ -54,7 +58,7 @@ type Scene {
   name: String!
   addedOn: Long!
   releaseDate: String
-  thumbnails: [String!]!
+  images: [String!]!
   coverIndex: Int!
   favorite: Boolean!
   bookmark: Boolean!
@@ -67,13 +71,28 @@ type Scene {
   watches: [Long!]!
   meta: SceneMeta!
   #customFields
-  studio: String
+}
+
+type Image {
+  id: String!
+  name: String!
+  path: String!
+  addedOn: Long!
+  favorite: Boolean!
+  bookmark: Boolean!
+  rating: Int
+  #customFields
+  labels: [String!]!
+  size: ImageMeta!
+  scene: String
+  actors: [String!]!
+  movies: [String!]!
 }
 
 type Mutation {
   addActor(name: String!, aliases: [String!]): Actor
   addLabel(name: String!, aliases: [String!]): Label
 
-  uploadScene(file: Upload!, actors: [String!]): Scene
+  uploadScene(file: Upload!, name: String, actors: [String!], labels: [String!]): Scene
 }
 `;

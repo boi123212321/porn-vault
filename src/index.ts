@@ -12,8 +12,6 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
 import types from "./graphql/types"
 import resolvers from "./graphql/resolvers"
 
-console.log(resolvers);
-
 const server = new ApolloServer({ typeDefs: gql(types), resolvers });
 server.applyMiddleware({ app, path: "/ql"  });
 

@@ -3,9 +3,30 @@ import Actor from "../../types/actor";
 import Label from "../../types/label";
 import Scene from "../../types/scene";
 import Image from "../../types/image";
-import { Dictionary} from "../../types/utility";
+import { Dictionary } from "../../types/utility";
 
 export default {
+  setLabelThumbnail(parent, args: Dictionary<any>) {
+    const label = Label.getById(args.id);
+
+    const imageInDb = Image.getById(args.image);
+
+    if (!imageInDb)
+      throw new Error(`Image ${args.image} not found`);
+
+    if (label) {
+      label.thumbnail = args.image;
+      database.get('labels')
+        .find({ id: label.id })
+        .assign({ thumbnail: args.image })
+        .write();
+      return label;
+    }
+    else {
+      throw new Error(`Label ${args.id} not found`);
+    }
+  },
+
   addLabel(parent, args: Dictionary<any>) {
     const label = new Label(args.name, args.aliases);
 
@@ -16,7 +37,7 @@ export default {
 
     return label;
   },
-  
+
   updateLabel(parent, args: Dictionary<any>) {
     const label = Label.getById(args.id);
 

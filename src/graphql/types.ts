@@ -86,6 +86,7 @@ type Image {
   meta: ImageMeta!
   scene: Scene
   actors: [Actor!]!
+  thumbnail: Image
 }
 
 type Mutation {
@@ -106,6 +107,7 @@ type Mutation {
   setImageRating(id: String!, rating: String!): Image
   setImageLabels(id: String!, labels: [String!]!): Image
   setImageActors(id: String!, actors: [String!]!): Image
+  setImageThumbnail(id: String!, image: String!): Image
   removeImage(id: String!): Boolean
   
   addLabel(name: String!, aliases: [String!]): Label

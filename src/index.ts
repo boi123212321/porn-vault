@@ -8,8 +8,16 @@ import Image from "./types/image";
 import types from "./graphql/types"
 import resolvers from "./graphql/resolvers"
 import Scene from "./types/scene";
+import * as path from "path";
 
 const app = express();
+
+app.use('/js', express.static('./app/dist/js'));
+app.use('/css', express.static('./app/dist/css'));
+app.get("/", (req, res) => {
+  const file = path.join(process.cwd(), "app/dist/index.html");
+  res.sendFile(file);
+})
 
 /* app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.log(`${req.method} ${req.originalUrl}: ${new Date().toLocaleString()}`);
@@ -40,9 +48,8 @@ const server = new ApolloServer({ typeDefs: gql(types), resolvers });
 server.applyMiddleware({ app, path: "/ql" });
 
 app.use((err: number, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  if (typeof err == "number") {
+  if (typeof err == "number")
     return res.sendStatus(err);
-  }
   return res.sendStatus(500);
 });
 

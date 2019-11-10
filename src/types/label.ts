@@ -6,7 +6,7 @@ export default class Label {
   name: string;
   aliases: string[] = [];
   addedOn = +new Date();
-  image: string | null = null;
+  thumbnail: string | null = null; // TODO:
 
   static remove(id: string) {
     database.get('labels')

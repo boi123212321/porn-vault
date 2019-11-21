@@ -4,7 +4,7 @@ Manage your ever-growing porn collection
 Note: this is by no means finished, but useable.
 
 ## Features
-- EASY installation
+- EASY installation (see. 'How to run')
 - Cross-platform (Win, Linux, Mac)
 - Works on any somewhat-modern device including tablets and smartphones
 - Self hosted, fully open source
@@ -31,8 +31,12 @@ Note: this is by no means finished, but useable.
 - Statistics?
 - visit [Issues](https://github.com/boi123212321/porn-manager/issues) to see what's up
 
-## How to
-Visit the [Releases](https://github.com/boi123212321/porn-manager/releases) page and download the latest version, for the platform of your choice. Run the application (if no terminal shows up, start a terminal and execute the file there) and follow the on-screen instructions. Once your app is setup you can visit it on http://localhost:3000 (or your LAN IP equivalent) in your web browser of choice.
+## How to run
+- Visit the [Releases](https://github.com/boi123212321/porn-manager/releases) page and download the latest version, for the platform of your choice.
+- Unzip the file
+- Run the application and follow the on-screen instructions.
+  - (if no terminal shows up, start a terminal and execute the file there instead)
+- Once your app is setup you can visit it on http://localhost:3000 (or your LAN IP equivalent) in your web browser of choice.
 
 ## Images
 

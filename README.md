@@ -39,18 +39,18 @@ Visit the [Releases](https://github.com/boi123212321/porn-manager/releases) page
 ### Scene collection
 ![Scenes](/doc/img/scene_collection.jpg)
 
-## Scene details
+### Scene details
 ![Scene details](/doc/img/scene_details.jpg)
 
-## Actor collection
+### Actor collection
 ![Actors](/doc/img/actor_collection.jpg)
 
-## Actor details
+### Actor details
 ![Actor details](/doc/img/actor_details.jpg)
 
-## Image details
+### Image details
 ![Image details](/doc/img/image.jpg)
 
-## Image collection
+### Image collection
 You can do everything you can do with scenes (e.g. rate/favorite/bookmark/label) with images as well - useful if you run an image collection only.
 ![Scene details](/doc/img/image_collection.jpg)

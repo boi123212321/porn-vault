@@ -4,13 +4,14 @@ Manage your ever-growing porn collection
 Note: this is by no means finished, but useable.
 
 ## Features
-- Crossplatform (Win, Linux, Mac)
+- EASY installation
+- Cross-platform (Win, Linux, Mac)
 - Works on any somewhat-modern device including tablets and smartphones
 - Self hosted, fully open source
 - Serves image and video to your device
-- Manage video scenes
-- Manage actors
-- Manage images
+- Browse, manage & watch scenes
+- Browse & manage actors, including actor aliases
+- Browse, manage & view images
 - Label your collection, including sub-labels
   - Automatic label extraction from scene titles & file names
   - Search, filter and sort your collection

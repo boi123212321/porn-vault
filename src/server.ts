@@ -14,6 +14,10 @@ import ProcessingQueue from "./queue/index";
 import { checkVideoFolders, checkImageFolders } from "./queue/check";
 import * as database from "./database/index";
 
+logger.warn(
+  "Check https://github.com/boi123212321/porn-manager for discussion & updates"
+);
+
 export default async () => {
   const app = express();
   app.use(cors({ origin: "*" }));

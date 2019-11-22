@@ -1,6 +1,5 @@
 <template>
   <div class="text-center">
-    <VersionChecker class="my-3" />
     <div class="pa-3 d-inline-block" style="border: 1px solid #ddd">
       <div class="title">porn-manager (name TBD)</div>
 
@@ -23,11 +22,9 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import QueueInfo from "../components/QueueInfo.vue";
-import VersionChecker from "../components/VersionChecker.vue";
 
 @Component({
   components: {
-    VersionChecker,
     QueueInfo
   }
 })

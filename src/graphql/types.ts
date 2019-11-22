@@ -38,7 +38,6 @@ type Query {
   getMovies: [Movie!]
 
   getQueueInfo: QueueInfo!
-  newerVersionAvailable: Boolean!
 }
 
 type Actor {

@@ -1,4 +1,3 @@
-import "./version"
 import "./database";
 import startServer from "./server";
 import { checkConfig, getConfig } from "./config/index";

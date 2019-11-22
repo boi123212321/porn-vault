@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as logger from "./logger/index";
 
-const LOCAL_VERSION = "0.2.2";
+const LOCAL_VERSION = "0.2.4";
 
 export async function newerVersionAvailable() {
   const originVersion = await getOriginVersion();

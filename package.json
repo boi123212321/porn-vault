@@ -16,7 +16,7 @@
     "build:server": "tsc && pkg . --targets node8 --out-path ./release",
     "build:all": "npm run build:app && tsc && npm run build:linux && npm run build:win && npm run build:mac",
     "build:linux": "mkdir -p releases/linux/app/dist && pkg . --out-path ./releases/linux --targets node8-linux-x64 && cp -r ./views ./releases/linux && cp -r ./app/dist ./releases/linux/app && npm run zip:linux",
-    "build:win": "mkdir -p releases/win/app/dist && pkg . --out-path ./releases/win --targets node8-win-x86 && cp -r ./views ./releases/win && cp -r ./app/dist ./releases/win/app && npm run zip:win",
+    "build:win": "mkdir -p releases/win/app/dist && pkg . --out-path ./releases/win --targets node8-win-x64 && cp -r ./views ./releases/win && cp -r ./app/dist ./releases/win/app && npm run zip:win",
     "build:mac": "mkdir -p releases/mac/app/dist && pkg . --out-path ./releases/mac --targets node8-macos-x64 && cp -r ./views ./releases/mac && cp -r ./app/dist ./releases/mac/app && npm run zip:mac",
     "zip:linux": "zip -r ./releases/linux.zip ./releases/linux",
     "zip:win": "zip -r ./releases/win.zip ./releases/win",

@@ -10,19 +10,18 @@ export const readFileAsync = promisify(readFile);
 export const writeFileAsync = promisify(writeFile);
 
 export async function walk(dir: string, exts = [] as string[]) {
-  let files = await readdirAsync(dir);
-  // @ts-ignore
-  files = await Promise.all(
-    files.map(async file => {
-      const filePath = join(dir, file);
-      const stats = await statAsync(filePath);
-      if (stats.isDirectory()) return walk(filePath);
-      else if (stats.isFile()) return filePath;
-    })
-  );
+  const files = [] as string[];
 
-  return files
-  // @ts-ignore
-    .reduce((all, folderContents) => all.concat(folderContents), [])
-    .filter(file => exts.includes(extname(file)));
+  const filesInDir = await readdirAsync(dir);
+
+  for (const file of filesInDir) {
+    const path = join(dir, file);
+    const stat = await statAsync(path);
+
+    if (stat.isDirectory()) {
+      files.push(...(await walk(path, exts)));
+    } else files.push(path);
+  }
+
+  return files.filter(file => exts.includes(extname(file)));
 }

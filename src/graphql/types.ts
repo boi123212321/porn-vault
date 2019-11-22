@@ -19,7 +19,6 @@ type ImageMeta {
 
 type QueueInfo {
   length: Int!
-  isProcessing: Boolean!
 }
 
 type Query {
@@ -39,6 +38,7 @@ type Query {
   getMovies: [Movie!]
 
   getQueueInfo: QueueInfo!
+  newerVersionAvailable: Boolean!
 }
 
 type Actor {

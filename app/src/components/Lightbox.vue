@@ -71,7 +71,12 @@
             background-color="grey"
             color="amber"
             dense
+            hide-details
           ></v-rating>
+          <div
+            @click="rate(0)"
+            class="d-inline-block pl-3 mt-1 med--text caption hover"
+          >Reset rating</div>
         </div>
         <div class="pa-2">
           <v-chip
@@ -340,7 +345,9 @@ export default class Lightbox extends Vue {
       variables: {
         ids: [this.currentImage._id],
         opts: {
-          labels: this.selectedLabels.map(i => this.allLabels[i]).map(l => l._id)
+          labels: this.selectedLabels
+            .map(i => this.allLabels[i])
+            .map(l => l._id)
         }
       }
     })

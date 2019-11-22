@@ -55,15 +55,15 @@
     <div v-if="!fetchLoader">
       <div class="d-flex align-center">
         <h1 class="font-weight-light mr-3">Scenes</h1>
-       <!--  <v-btn class="mr-3" @click="openCreateDialog" icon>
+        <!--  <v-btn class="mr-3" @click="openCreateDialog" icon>
           <v-icon>mdi-plus</v-icon>
-        </v-btn> -->
+        </v-btn>-->
         <v-btn @click="openUploadDialog" icon>
           <v-icon>mdi-upload</v-icon>
         </v-btn>
       </div>
       <v-row>
-        <v-col v-for="scene in scenes" :key="scene._id" cols="12" sm="6" md="4" lg="3">
+        <v-col class="pa-1" v-for="scene in scenes" :key="scene._id" cols="12" sm="6" md="4" lg="3">
           <scene-card
             @rate="rate(scene._id, $event)"
             @bookmark="bookmark(scene._id, $event)"

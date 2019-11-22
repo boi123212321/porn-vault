@@ -48,7 +48,6 @@ export default async () => {
     const scene = await Scene.getById(req.params.scene);
 
     if (scene && scene.path) {
-      Scene.watch(scene);
       res.sendFile(scene.path);
     } else next(404);
   });

@@ -49,7 +49,12 @@
             background-color="grey"
             color="amber"
             dense
+            hide-details
           ></v-rating>
+          <div
+            @click="rate(0)"
+            class="d-inline-block pl-3 mt-1 med--text caption hover"
+          >Reset rating</div>
           <div class="d-flex align-center">
             <v-icon>mdi-label</v-icon>
             <v-subheader>Labels</v-subheader>
@@ -79,7 +84,7 @@
           <div class="headline text-center">Scenes</div>
 
           <v-row>
-            <v-col v-for="scene in scenes" :key="scene._id" cols="12" sm="6" md="4" lg="3">
+            <v-col class="pa-1" v-for="scene in scenes" :key="scene._id" cols="12" sm="6" md="4" lg="3">
               <scene-card
                 @rate="rateScene(scene._id, $event)"
                 @bookmark="bookmarkScene(scene._id, $event)"
@@ -102,7 +107,7 @@
         </div>
         <v-container fluid>
           <v-row>
-            <v-col v-for="(image, index) in images" :key="image._id" cols="6" sm="4">
+            <v-col class="pa-1" v-for="(image, index) in images" :key="image._id" cols="6" sm="4">
               <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
                 <template v-slot:action>
                   <v-tooltip top>
@@ -332,7 +337,13 @@ export default class ActorDetails extends Vue {
           $actors: [String!]
           $labels: [String!]
         ) {
-          uploadImage(file: $file, name: $name, crop: $crop, actors: $actors, labels: $labels) {
+          uploadImage(
+            file: $file
+            name: $name
+            crop: $crop
+            actors: $actors
+            labels: $labels
+          ) {
             ...ImageFragment
           }
         }
@@ -490,7 +501,9 @@ export default class ActorDetails extends Vue {
       variables: {
         ids: [this.currentActor._id],
         opts: {
-          labels: this.selectedLabels.map(i => this.allLabels[i]).map(l => l._id)
+          labels: this.selectedLabels
+            .map(i => this.allLabels[i])
+            .map(l => l._id)
         }
       }
     })

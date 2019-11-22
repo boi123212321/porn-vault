@@ -60,7 +60,7 @@
         </v-btn>
       </div>
       <v-row>
-        <v-col v-for="actor in actors" :key="actor._id" cols="12" sm="6" md="4" lg="3">
+        <v-col class="pa-1" v-for="actor in actors" :key="actor._id" cols="12" sm="6" md="4" lg="3">
           <actor-card
             @rate="rate(actor._id, $event)"
             @bookmark="bookmark(actor._id, $event)"

@@ -56,7 +56,12 @@
             background-color="grey"
             color="amber"
             dense
+            hide-details
           ></v-rating>
+          <div
+            @click="rate(0)"
+            class="d-inline-block pl-3 mt-1 med--text caption hover"
+          >Reset rating</div>
           <div class="d-flex align-center">
             <v-icon>mdi-label</v-icon>
             <v-subheader>Labels</v-subheader>
@@ -111,8 +116,8 @@
           <h1 class="font-weight-light text-center">Starring</h1>
 
           <v-row>
-            <v-col v-for="actor in actors" :key="actor._id" cols="12" sm="6" md="4" lg="3">
-              <actor-card
+            <v-col class="pa-1" v-for="actor in actors" :key="actor._id" cols="12" sm="6" md="4" lg="3">
+              <actor-card 
                 @rate="rateActor(actor._id, $event)"
                 @bookmark="bookmarkActor(actor._id, $event)"
                 @favorite="favoriteActor(actor._id, $event)"
@@ -135,7 +140,7 @@
         </div>
         <v-container fluid>
           <v-row>
-            <v-col v-for="(image, index) in images" :key="image._id" cols="6" sm="4">
+            <v-col class="pa-1" v-for="(image, index) in images" :key="image._id" cols="6" sm="4">
               <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
                 <template v-slot:action>
                   <v-tooltip top>

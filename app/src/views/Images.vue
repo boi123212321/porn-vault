@@ -63,6 +63,7 @@
     <v-container fluid>
       <v-row v-if="!waiting">
         <v-col
+          class="pa-1"
           v-for="(image, index) in images"
           :key="image._id"
           :cols="largeThumbs ? 12 : 6"

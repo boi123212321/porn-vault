@@ -3,7 +3,7 @@ import { walk } from "../fs/async";
 import filterAsync from "node-filter-async";
 import Scene from "../types/scene";
 import Image from "../types/image";
-import { basename, extname } from "path";
+import { basename } from "path";
 import ProcessingQueue from "../queue/index";
 import * as logger from "../logger/index";
 import * as database from "../database";
@@ -25,7 +25,7 @@ export async function checkVideoFolders() {
     return !scene;
   });
 
-  logger.log(`Found ${unknownVideos.length} videos.`);
+  logger.log(`Found ${unknownVideos.length} new videos.`);
 
   for (const videoPath of unknownVideos) {
     const _id = new Scene("")._id;
@@ -39,6 +39,8 @@ export async function checkVideoFolders() {
       name: basename(videoPath)
     });
   }
+
+  logger.warn(`Added ${unknownVideos.length} new videos.`);
 }
 
 export async function checkImageFolders() {
@@ -85,4 +87,6 @@ export async function checkImageFolders() {
     await database.insert(database.store.images, image);
     logger.success(`Image '${imageName}' done.`);
   }
+
+  logger.warn(`Added ${unknownImages.length} new images`);
 }

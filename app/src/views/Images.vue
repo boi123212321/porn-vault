@@ -159,6 +159,7 @@ import actorFragment from "../fragments/actor";
 import imageFragment from "../fragments/image";
 import ImageUploader from "../components/ImageUploader.vue";
 import IImage from "../types/image";
+import ILabel from "../types/label";
 
 @Component({
   components: {
@@ -174,7 +175,7 @@ export default class ImagesView extends Vue {
   lightboxIndex = null as number | null;
 
   waiting = false;
-  allLabels = [] as any[];
+  allLabels = [] as ILabel[];
   selectedLabels = [] as number[];
 
   largeThumbs = false;
@@ -215,7 +216,7 @@ export default class ImagesView extends Vue {
   ratingFilter = 0;
 
   infiniteId = 0;
-  resetTimeout = null as any;
+  resetTimeout = null as NodeJS.Timeout | null;
 
   uploadDialog = false;
   isUploading = false;

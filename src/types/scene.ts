@@ -63,8 +63,8 @@ export default class Scene {
     );
   }
 
-  static async remove(_id: string) {
-    await database.remove(database.store.scenes, { _id });
+  static async remove(scene: Scene) {
+    await database.remove(database.store.scenes, { _id: scene._id });
   }
 
   static async filterImage(thumbnail: string) {

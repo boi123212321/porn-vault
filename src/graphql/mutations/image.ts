@@ -189,13 +189,15 @@ export default {
     return updatedImages;
   },
 
-  async removeImages(_, { ids }: { ids: string[] }) {
+  async removeImages(
+    _,
+    { ids }: { ids: string[] }
+  ) {
     for (const id of ids) {
       const image = await Image.getById(id);
 
       if (image) {
-        await Image.remove(image._id);
-
+        await Image.remove(image);
         await Actor.filterImage(image._id);
         await Scene.filterImage(image._id);
         await Label.filterImage(image._id);

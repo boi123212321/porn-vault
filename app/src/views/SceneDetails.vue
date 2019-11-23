@@ -291,6 +291,7 @@ import ImageUploader from "../components/ImageUploader.vue";
 import { actorModule } from "../store/actor";
 import IActor from "../types/actor";
 import IImage from "../types/image";
+import ILabel from "../types/label";
 
 interface ICropCoordinates {
   left: number;
@@ -324,8 +325,8 @@ export default class SceneDetails extends Vue {
   lightboxIndex = null as number | null;
 
   labelSelectorDialog = false;
-  allLabels = [] as any[];
-  selectedLabels = [] as any[];
+  allLabels = [] as ILabel[];
+  selectedLabels = [] as number[];
   labelEditLoader = false;
 
   infiniteId = 0;

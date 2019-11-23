@@ -6,7 +6,7 @@
       <v-list v-for="(actor, i) in value" :key="'selected-' + actor._id">
         <v-list-item @click="value.splice(i, 1)">
           <v-list-item-icon>
-            <v-avatar>
+            <v-avatar color="grey">
               <v-img :src="thumbnail(actor)"></v-img>
             </v-avatar>
           </v-list-item-icon>

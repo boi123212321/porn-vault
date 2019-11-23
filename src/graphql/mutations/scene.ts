@@ -188,13 +188,15 @@ export default {
     return updatedScenes;
   },
 
-  async removeScenes(_, { ids }: { ids: string[] }) {
+  async removeScenes(
+    _,
+    { ids }: { ids: string[] }
+  ) {
     for (const id of ids) {
       const scene = await Scene.getById(id);
 
       if (scene) {
-        await Scene.remove(scene._id);
-
+        await Scene.remove(scene);
         await Image.filterScene(scene._id);
         await Movie.filterScene(scene._id);
       }

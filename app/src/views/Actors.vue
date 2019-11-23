@@ -181,6 +181,7 @@ import actorFragment from "../fragments/actor";
 import { contextModule } from "../store/context";
 import InfiniteLoading from "vue-infinite-loading";
 import IActor from "../types/actor";
+import ILabel from "../types/label";
 
 @Component({
   components: {
@@ -194,7 +195,7 @@ export default class SceneList extends Vue {
   fetchLoader = false;
 
   waiting = false;
-  allLabels = [] as any[];
+  allLabels = [] as ILabel[];
   selectedLabels = [] as number[];
 
   validCreation = false;
@@ -243,7 +244,7 @@ export default class SceneList extends Vue {
   ratingFilter = 0;
 
   infiniteId = 0;
-  resetTimeout = null as any;
+  resetTimeout = null as NodeJS.Timeout | null;
 
   get drawer() {
     return contextModule.showFilters;

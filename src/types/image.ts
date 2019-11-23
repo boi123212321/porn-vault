@@ -29,8 +29,8 @@ export default class Image {
   studio: string | null = null;
   hash: string | null = null;
 
-  static async remove(_id: string) {
-    await database.remove(database.store.images, { _id });
+  static async remove(image: Image) {
+    await database.remove(database.store.images, { _id: image._id });
   }
 
   static async filterScene(scene: string) {

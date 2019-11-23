@@ -50,10 +50,10 @@
       <v-icon color="black">mdi-delete-forever</v-icon>
     </v-btn>
 
-    <v-dialog scrollable v-model="editDialog" max-width="400px">
+    <v-dialog scrollable v-model="editDialog" max-width="600px">
       <v-card>
         <v-card-title>Edit '{{ currentScene.name }}'</v-card-title>
-        <v-card-text style="max-height: 400px">
+        <v-card-text style="max-height: 600px">
           <v-form v-model="validEdit">
             <v-text-field
               :rules="sceneNameRules"
@@ -114,6 +114,7 @@ import { sceneModule } from "../../store/scene";
 import ApolloClient, { serverBase } from "../../apollo";
 import gql from "graphql-tag";
 import ActorSelector from "../ActorSelector.vue";
+import IActor from "../../types/actor";
 
 @Component({
   components: {
@@ -126,7 +127,7 @@ export default class App extends Vue {
   editName = "";
   editDescription = "";
   editStreamLinks = null as string | null;
-  editActors = [] as any[];
+  editActors = [] as IActor[];
 
   sceneNameRules = [v => (!!v && !!v.length) || "Invalid scene name"];
 

@@ -1,7 +1,5 @@
 import Scene from "../../types/scene";
 import Image from "../../types/image";
-import Actor from "../../types/actor";
-import Label from "../../types/label";
 
 export default {
   async actors(scene: Scene) {

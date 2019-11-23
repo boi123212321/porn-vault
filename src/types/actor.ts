@@ -24,8 +24,8 @@ export default class Actor {
     );
   }
 
-  static async remove(_id: string) {
-    await database.remove(database.store.actors, { _id });
+  static async remove(actor: Actor) {
+    await database.remove(database.store.actors, { _id: actor._id });
   }
 
   static async filterLabel(label: string) {

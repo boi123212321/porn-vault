@@ -4,6 +4,7 @@ export default gql`
   fragment ActorFragment on Actor {
     _id
     name
+    bornOn
     aliases
     rating
     favorite

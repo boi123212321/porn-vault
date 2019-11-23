@@ -12,6 +12,7 @@ type IActorUpdateOpts = Partial<{
   thumbnail: string;
   favorite: boolean;
   bookmark: boolean;
+  bornOn: number;
 }>;
 
 export default {
@@ -24,7 +25,10 @@ export default {
     return actor;
   },
 
-  async updateActors(_, { ids, opts }: { ids: string[]; opts: IActorUpdateOpts }) {
+  async updateActors(
+    _,
+    { ids, opts }: { ids: string[]; opts: IActorUpdateOpts }
+  ) {
     const updatedActors = [] as Actor[];
 
     for (const id of ids) {
@@ -45,6 +49,8 @@ export default {
 
         if (typeof opts.rating == "number") actor.rating = opts.rating;
 
+        if (typeof opts.bornOn == "number") actor.bornOn = opts.bornOn;
+
         await database.update(database.store.actors, { _id: actor._id }, actor);
 
         updatedActors.push(actor);
@@ -61,11 +67,10 @@ export default {
       const actor = await Actor.getById(id);
 
       if (actor) {
-        await Actor.remove(actor._id);
+        await Actor.remove(actor);
 
         await Image.filterActor(actor._id);
         await Scene.filterActor(actor._id);
-
       }
     }
     return true;

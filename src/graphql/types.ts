@@ -124,6 +124,7 @@ input ActorUpdateOpts {
   thumbnail: String
   favorite: Boolean
   bookmark: Boolean
+  bornOn: Long
 }
 
 input ImageUpdateOpts {
@@ -176,27 +177,27 @@ input Crop {
 type Mutation {
   addActor(name: String!, aliases: [String!], labels: [String!]): Actor!
   updateActors(ids: [String!]!, opts: ActorUpdateOpts!): [Actor!]!
-  removeActors(ids: [String!]!): Boolean
+  removeActors(ids: [String!]!): Boolean!
 
   uploadImage(file: Upload!, name: String, actors: [String!], labels: [String!], scene: String, crop: Crop): Image!
   addActorsToImage(id: String!, actors: [String!]!): Image!
   updateImages(ids: [String!]!, opts: ImageUpdateOpts!): [Image!]!
-  removeImages(ids: [String!]!): Boolean
+  removeImages(ids: [String!]!): Boolean!
   
   addLabel(name: String!, aliases: [String!]): Label!
   updateLabels(ids: [String!]!, opts: LabelUpdateOpts!): [Label!]!
-  removeLabels(ids: [String!]!): Boolean
+  removeLabels(ids: [String!]!): Boolean!
   
   addScene(name: String!, actors: [String!], labels: [String!]): Scene!
   addActorsToScene(id: String!, actors: [String!]!): Scene!
   watchScene(id: String!): Scene!
   uploadScene(file: Upload!, name: String, actors: [String!], labels: [String!]): Boolean!
   updateScenes(ids: [String!]!, opts: SceneUpdateOpts!): [Scene!]!
-  removeScenes(ids: [String!]!): Boolean
+  removeScenes(ids: [String!]!): Boolean!
 
   addMovie(name: String!, scenes: [String!]): Movie!
   addScenesToMovie(id: String!, scenes: [String!]!): Movie!
   updateMovies(ids: [String!]!, opts: MovieUpdateOpts!): [Movie!]!
-  removeMovies(ids: [String!]!): Boolean
+  removeMovies(ids: [String!]!): Boolean!
 }
 `;

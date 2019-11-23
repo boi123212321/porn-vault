@@ -1,6 +1,7 @@
 export default interface IActor {
   _id: string;
   name: string;
+  bornOn: number | null;
   aliases: string[];
   rating: number | null;
   favorite: boolean;

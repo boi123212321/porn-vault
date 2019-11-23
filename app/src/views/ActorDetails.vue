@@ -257,6 +257,7 @@ import { Cropper } from "vue-advanced-cropper";
 import ImageUploader from "../components/ImageUploader.vue";
 import IScene from "../types/scene";
 import IImage from "../types/image";
+import ILabel from "../types/label";
 
 interface ICropCoordinates {
   left: number;
@@ -290,8 +291,8 @@ export default class ActorDetails extends Vue {
   lightboxIndex = null as number | null;
 
   labelSelectorDialog = false;
-  allLabels = [] as any[];
-  selectedLabels = [] as any[];
+  allLabels = [] as ILabel[];
+  selectedLabels = [] as number[];
   labelEditLoader = false;
 
   infiniteId = 0;
@@ -336,6 +337,8 @@ export default class ActorDetails extends Vue {
   }
 
   uploadThumbnail() {
+    if (!this.currentActor) return;
+
     this.thumbnailLoader = true;
 
     ApolloClient.mutate({
@@ -411,6 +414,8 @@ export default class ActorDetails extends Vue {
   }
 
   async fetchPage() {
+    if (!this.currentActor) return;
+
     try {
       const query = `page:${this.page} sortDir:asc sortBy:addedOn actors:${this.currentActor._id}`;
 
@@ -473,6 +478,8 @@ export default class ActorDetails extends Vue {
   }
 
   setAsThumbnail(id: string) {
+    if (!this.currentActor) return;
+
     ApolloClient.mutate({
       mutation: gql`
         mutation($ids: [String!]!, $opts: ActorUpdateOpts!) {
@@ -499,6 +506,8 @@ export default class ActorDetails extends Vue {
   }
 
   editLabels() {
+    if (!this.currentActor) return;
+
     this.labelEditLoader = true;
     ApolloClient.mutate({
       mutation: gql`
@@ -534,6 +543,8 @@ export default class ActorDetails extends Vue {
   }
 
   openLabelSelector() {
+    if (!this.currentActor) return;
+
     if (!this.allLabels.length) {
       ApolloClient.query({
         query: gql`
@@ -547,6 +558,8 @@ export default class ActorDetails extends Vue {
         `
       })
         .then(res => {
+          if (!this.currentActor) return;
+
           this.allLabels = res.data.getLabels;
           this.selectedLabels = this.currentActor.labels.map(l =>
             this.allLabels.findIndex(k => k._id == l._id)
@@ -568,6 +581,8 @@ export default class ActorDetails extends Vue {
   }
 
   rate(rating: number) {
+    if (!this.currentActor) return;
+
     rating = rating * 2;
 
     ApolloClient.mutate({
@@ -590,11 +605,12 @@ export default class ActorDetails extends Vue {
   }
 
   get labelNames() {
+    if (!this.currentActor) return "";
     return this.currentActor.labels.map(l => l.name).sort();
   }
 
   get thumbnail() {
-    if (this.currentActor.thumbnail)
+    if (this.currentActor && this.currentActor.thumbnail)
       return `${serverBase}/image/${
         this.currentActor.thumbnail._id
       }?password=${localStorage.getItem("password")}`;

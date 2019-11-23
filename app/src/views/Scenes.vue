@@ -184,6 +184,8 @@ import InfiniteLoading from "vue-infinite-loading";
 import ActorSelector from "../components/ActorSelector.vue";
 import SceneUploader from "../components/SceneUploader.vue";
 import IScene from "../types/scene";
+import IActor from "../types/actor";
+import ILabel from "../types/label";
 
 @Component({
   components: {
@@ -199,13 +201,13 @@ export default class SceneList extends Vue {
   fetchLoader = false;
 
   waiting = false;
-  allLabels = [] as any[];
+  allLabels = [] as ILabel[];
   selectedLabels = [] as number[];
 
   validCreation = false;
   createSceneDialog = false;
   createSceneName = "";
-  createSceneActors = [] as any[];
+  createSceneActors = [] as IActor[];
   createSelectedLabels = [] as number[];
   labelSelectorDialog = false;
   addSceneLoader = false;
@@ -248,7 +250,7 @@ export default class SceneList extends Vue {
   ratingFilter = 0;
 
   infiniteId = 0;
-  resetTimeout = null as any;
+  resetTimeout = null as NodeJS.Timeout | null;
 
   uploadDialog = false;
   isUploadingScene = false;

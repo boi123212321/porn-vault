@@ -10,7 +10,7 @@
         href="https://github.com/boi123212321/porn-manager"
         target="_blank"
         color="accent mt-3"
-        class="text-none"
+        :class="`text-none ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
       >
         <v-icon left>mdi-github-circle</v-icon>GitHub
       </v-btn>

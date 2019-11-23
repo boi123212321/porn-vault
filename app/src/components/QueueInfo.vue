@@ -22,7 +22,7 @@ export default class QueueInfo extends Vue {
     this.getInfo();
     this.infoInterval = setInterval(() => {
       this.getInfo();
-    }, 15000);
+    }, 5000);
   }
 
   destroyed() {

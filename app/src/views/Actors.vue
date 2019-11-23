@@ -109,7 +109,7 @@
             >{{ name }}</v-chip>
             <v-chip
               label
-              class="mr-1 mb-1"
+              :class="`mr-1 mb-1 ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
               @click="openLabelSelectorDialog"
               color="accent"
               dark
@@ -121,10 +121,10 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            depressed
-            class="black--text text-none"
+            text
+            class="text-none"
             :disabled="!validCreation"
-            color="primary"
+            color="accent"
             @click="addActor"
           >Add</v-btn>
         </v-card-actions>
@@ -144,9 +144,9 @@
           <v-spacer></v-spacer>
           <v-btn
             @click="labelSelectorDialog = false"
-            depressed
-            color="primary"
-            class="black--text text-none"
+            text
+            color="accent"
+            class="text-none"
           >OK</v-btn>
         </v-card-actions>
       </v-card>

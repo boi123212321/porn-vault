@@ -1,30 +1,28 @@
 <template>
   <div v-if="currentActor" style="width:100%" class="d-flex align-center">
-    <v-btn color="black" class="mr-1" icon @click="$router.go(-1)">
+    <v-btn class="mr-1" icon @click="$router.go(-1)">
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
     <v-toolbar-title class="mr-1 title">{{ currentActor.name }}</v-toolbar-title>
 
     <v-btn @click="favorite" class="mr-1" icon>
       <v-icon
-        :color="currentActor.favorite ? 'red' : 'black'"
+        :color="currentActor.favorite ? 'error' : undefined"
       >{{ currentActor.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
     </v-btn>
 
     <v-btn @click="bookmark" icon>
-      <v-icon
-        color="black"
-      >{{ currentActor.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+      <v-icon>{{ currentActor.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
 
     <v-btn icon @click="openEditDialog">
-      <v-icon color="black">mdi-pencil</v-icon>
+      <v-icon>mdi-pencil</v-icon>
     </v-btn>
 
     <v-btn @click="openRemoveDialog" icon>
-      <v-icon color="black">mdi-delete-forever</v-icon>
+      <v-icon>mdi-delete-forever</v-icon>
     </v-btn>
 
     <v-dialog scrollable v-model="editDialog" max-width="400px">
@@ -52,10 +50,10 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            depressed
+            text
             @click="editActor"
-            color="primary"
-            class="black--text"
+            color="accent"
+            class="text-none"
             :disabled="!validEdit"
           >Edit</v-btn>
         </v-card-actions>
@@ -68,7 +66,7 @@
         <v-card-text>Scene and images featuring {{ currentActor.name }} will stay in your collection.</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text color="error" @click="remove">Delete</v-btn>
+          <v-btn class="text-none" text color="error" @click="remove">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

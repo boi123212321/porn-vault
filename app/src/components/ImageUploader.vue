@@ -27,7 +27,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn @click="addToQueue" depressed color="primary" class="black--text">Add</v-btn>
+      <v-btn @click="addToQueue" text color="accent" class="text-none">Add</v-btn>
     </v-card-actions>
   </v-card>
 </template>

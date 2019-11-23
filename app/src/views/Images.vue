@@ -1,5 +1,18 @@
 <template>
   <div>
+    <v-banner sticky v-if="selectedImages.length">
+      {{ selectedImages.length }} images selected
+      <template v-slot:actions>
+        <v-btn text @click="selectedImages = []" class="text-none">Deselect</v-btn>
+        <v-btn
+          @click="deleteSelectedImagesDialog = true"
+          text
+          class="text-none"
+          color="error"
+        >Delete</v-btn>
+      </template>
+    </v-banner>
+
     <v-navigation-drawer v-model="drawer" :permanent="$vuetify.breakpoint.mdAndUp" clipped app>
       <v-container>
         <v-checkbox hide-details v-model="largeThumbs" label="Large thumbnails"></v-checkbox>
@@ -72,7 +85,18 @@
           :lg="largeThumbs ? 12 : 3"
           :xl="largeThumbs ? 12 : 3"
         >
-          <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image" />
+          <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
+            <template v-slot:action>
+              <v-checkbox
+                color="accent"
+                :input-value="selectedImages.includes(image._id)"
+                @change="selectImage(image._id)"
+                @click.native.stop
+                class="mt-0"
+                hide-details
+              ></v-checkbox>
+            </template>
+          </ImageCard>
         </v-col>
       </v-row>
       <div class="text-center" v-else>Keep on writing...</div>
@@ -97,6 +121,17 @@
 
     <v-dialog :persistent="isUploading" scrollable v-model="uploadDialog" max-width="400px">
       <ImageUploader @update-state="isUploading = $event" @uploaded="images.unshift($event)" />
+    </v-dialog>
+
+    <v-dialog v-model="deleteSelectedImagesDialog" max-width="400px">
+      <v-card>
+        <v-card-title>Really delete {{ selectedImages.length }} images?</v-card-title>
+        <v-card-text></v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn class="text-none" color="error" text @click="deleteSelection">Delete</v-btn>
+        </v-card-actions>
+      </v-card>
     </v-dialog>
 
     <transition name="fade">
@@ -183,6 +218,39 @@ export default class ImagesView extends Vue {
 
   uploadDialog = false;
   isUploading = false;
+
+  selectedImages = [] as string[];
+  deleteSelectedImagesDialog = false;
+
+  selectImage(id: string) {
+    if (this.selectedImages.includes(id))
+      this.selectedImages = this.selectedImages.filter(i => i != id);
+    else this.selectedImages.push(id);
+  }
+
+  deleteSelection() {
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!) {
+          removeImages(ids: $ids)
+        }
+      `,
+      variables: {
+        ids: this.selectedImages
+      }
+    })
+      .then(res => {
+        for (const id of this.selectedImages) {
+          this.images = this.images.filter(image => image._id != id);
+        }
+        this.selectedImages = [];
+        this.deleteSelectedImagesDialog = false;
+      })
+      .catch(err => {
+        console.error(err);
+      })
+      .finally(() => {});
+  }
 
   removeImage(index: number) {
     ApolloClient.mutate({

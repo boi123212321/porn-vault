@@ -84,12 +84,21 @@
           <div class="headline text-center">Scenes</div>
 
           <v-row>
-            <v-col class="pa-1" v-for="scene in scenes" :key="scene._id" cols="12" sm="6" md="4" lg="3">
+            <v-col
+              class="pa-1"
+              v-for="scene in scenes"
+              :key="scene._id"
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+            >
               <scene-card
                 @rate="rateScene(scene._id, $event)"
                 @bookmark="bookmarkScene(scene._id, $event)"
                 @favorite="favoriteScene(scene._id, $event)"
                 :scene="scene"
+                style="height: 100%"
               />
             </v-col>
           </v-row>

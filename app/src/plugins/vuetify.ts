@@ -18,6 +18,15 @@ export default new Vuetify({
         info: colors.blue.darken2,
         success: colors.green.base,
         warning: colors.amber.accent3
+      },
+      dark: {
+        primary: "#42031e",
+        secondary: colors.deepOrange.lighten4,
+        accent: colors.blue.lighten1,
+        error: colors.red.accent2,
+        info: colors.blue.darken2,
+        success: colors.green.base,
+        warning: colors.amber.accent3
       }
     }
   }

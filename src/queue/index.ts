@@ -172,7 +172,7 @@ class Queue {
       }
 
       scene.thumbnail = images[Math.floor(images.length / 2)]._id;
-      loader.succeed(`Creating ${thumbnailFiles.length} thumbnails.`);
+      loader.succeed(`Created ${thumbnailFiles.length} thumbnails.`);
     }
 
     logger.log(`Creating scene with id ${scene._id}...`);

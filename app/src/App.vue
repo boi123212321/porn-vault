@@ -75,6 +75,12 @@ export default class App extends Vue {
     if ((<any>this).$route.query.password) {
       localStorage.setItem("password", (<any>this).$route.query.password);
     }
+
+    const darkModeLocalStorage = localStorage.getItem("pm_darkMode");
+    if (darkModeLocalStorage) {
+      // @ts-ignore
+      this.$vuetify.theme.dark = darkModeLocalStorage == "true";
+    }
   }
 
   navItems = [

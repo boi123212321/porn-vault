@@ -116,12 +116,20 @@
           <h1 class="font-weight-light text-center">Starring</h1>
 
           <v-row>
-            <v-col class="pa-1" v-for="actor in actors" :key="actor._id" cols="12" sm="6" md="4" lg="3">
-              <actor-card 
+            <v-col
+              class="pa-1"
+              v-for="actor in actors"
+              :key="actor._id"
+              cols="12"
+              sm="6"
+              md="4"
+              lg="3"
+            >
+              <actor-card
+                style="height: 100%"
                 @rate="rateActor(actor._id, $event)"
                 @bookmark="bookmarkActor(actor._id, $event)"
                 @favorite="favoriteActor(actor._id, $event)"
-                style="height: 100%"
                 :actor="actor"
               />
             </v-col>

@@ -17,13 +17,47 @@
 
     <v-spacer></v-spacer>
 
-    <!-- <v-btn icon @click="openEditDialog">
+    <v-btn icon @click="openEditDialog">
       <v-icon>mdi-pencil</v-icon>
-    </v-btn> -->
+    </v-btn>
 
     <v-btn @click="openRemoveDialog" icon>
       <v-icon>mdi-delete-forever</v-icon>
     </v-btn>
+
+    <v-dialog v-model="editDialog" max-width="600px">
+      <v-card>
+        <v-form v-model="validEdit">
+          <v-card-title>Edit '{{ currentMovie.name }}'</v-card-title>
+          <v-card-text style="max-width: 600px">
+            <v-text-field
+              color="accent"
+              :rules="movieNameRules"
+              v-model="editName"
+              placeholder="Movie name"
+            />
+            <v-textarea
+              auto-grow
+              :rows="2"
+              color="accent"
+              v-model="editDescription"
+              placeholder="Movie description"
+            />
+            <SceneSelector :multiple="true" v-model="editScenes" />
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="accent"
+              class="text-none"
+              text
+              :disabled="!validEdit"
+              @click="editMovie"
+            >Edit</v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-dialog>
 
     <v-dialog v-model="removeDialog" max-width="400px">
       <v-card :loading="removeLoader">
@@ -43,26 +77,84 @@ import { Component, Vue } from "vue-property-decorator";
 import { movieModule } from "../../store/movie";
 import ApolloClient, { serverBase } from "../../apollo";
 import gql from "graphql-tag";
-import ActorSelector from "../ActorSelector.vue";
+import SceneSelector from "../SceneSelector.vue";
 import IActor from "../../types/actor";
+import IScene from "../../types/scene";
+import actorFragment from "../../fragments/actor";
+import sceneFragment from "../../fragments/scene";
 
 @Component({
   components: {
-    ActorSelector
+    SceneSelector
   }
 })
 export default class MovieToolbar extends Vue {
   editDialog = false;
-  /* validEdit = false;
+  validEdit = false;
   editName = "";
   editDescription = "";
-  editStreamLinks = null as string | null;
-  editActors = [] as IActor[];
+  editScenes = [] as IScene[];
 
-  sceneNameRules = [v => (!!v && !!v.length) || "Invalid scene name"]; */
+  movieNameRules = [v => (!!v && !!v.length) || "Invalid movie name"];
 
   removeDialog = false;
   removeLoader = false;
+
+  editMovie() {
+    if (!this.currentMovie) return;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!, $opts: MovieUpdateOpts!) {
+          updateMovies(ids: $ids, opts: $opts) {
+            _id
+            scenes {
+              ...SceneFragment
+              actors {
+                ...ActorFragment
+              }
+            }
+            actors {
+              ...ActorFragment
+            }
+            duration
+            size
+          }
+        }
+        ${sceneFragment}
+        ${actorFragment}
+      `,
+      variables: {
+        ids: [this.currentMovie._id],
+        opts: {
+          name: this.editName,
+          description: this.editDescription,
+          scenes: this.editScenes.map(a => a._id)
+        }
+      }
+    })
+      .then(res => {
+        movieModule.setName(this.editName);
+        movieModule.setDescription(this.editDescription);
+        movieModule.setActors(res.data.updateMovies[0].actors);
+        movieModule.setScenes(res.data.updateMovies[0].scenes);
+        movieModule.setDuration(res.data.updateMovies[0].duration);
+        movieModule.setSize(res.data.updateMovies[0].size);
+        this.editDialog = false;
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  openEditDialog() {
+    if (!this.currentMovie) return;
+
+    this.editName = this.currentMovie.name;
+    this.editDescription = this.currentMovie.description || "";
+    this.editScenes = JSON.parse(JSON.stringify(this.currentMovie.scenes));
+    this.editDialog = true;
+  }
 
   remove() {
     if (!this.currentMovie) return;

@@ -1,17 +1,17 @@
 <template>
   <v-card v-if="movie" outlined>
-      <v-hover v-slot:default="{ hover }">
-        <a :href="`#/movie/${movie._id}`">
-          <v-img
-            contain
-            aspect-ratio="0.71"
-            class="hover"
-            v-ripple
-            eager
-            :src="hover ? backCover : frontCover"
-          ></v-img>
-        </a>
-      </v-hover>
+    <v-hover v-slot:default="{ hover }">
+      <a :href="`#/movie/${movie._id}`">
+        <v-img
+          contain
+          :aspect-ratio="ratio"
+          class="hover"
+          v-ripple
+          eager
+          :src="hover ? backCover : frontCover"
+        ></v-img>
+      </a>
+    </v-hover>
 
     <div class="corner-actions">
       <v-btn class="elevation-2 mb-2" @click="favorite" icon style="background: #fafafa;">
@@ -55,6 +55,7 @@ import gql from "graphql-tag";
 @Component
 export default class SceneCard extends Vue {
   @Prop(Object) movie!: any;
+  @Prop({ default: 0.71 }) ratio!: number;
 
   /* rate($event) {
     const rating = $event * 2;

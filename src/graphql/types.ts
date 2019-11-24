@@ -117,8 +117,8 @@ type Movie {
   actors: [Actor!]!
   labels: [Label!]!
 
-  duration: Long!
-  size: Long!
+  duration: Long
+  size: Long
 }
 
 input ActorUpdateOpts {

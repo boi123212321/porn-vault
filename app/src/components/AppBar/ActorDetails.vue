@@ -25,10 +25,10 @@
       <v-icon>mdi-delete-forever</v-icon>
     </v-btn>
 
-    <v-dialog scrollable v-model="editDialog" max-width="400px">
+    <v-dialog scrollable v-model="editDialog" max-width="600px">
       <v-card>
         <v-card-title>Edit '{{ currentActor.name }}'</v-card-title>
-        <v-card-text style="max-height: 400px">
+        <v-card-text style="max-height: 600px">
           <v-form v-model="validEdit">
             <v-text-field
               :rules="actorNameRules"

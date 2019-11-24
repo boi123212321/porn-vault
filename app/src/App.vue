@@ -75,7 +75,7 @@ export default class App extends Vue {
       this.$route.name == "scenes" ||
       this.$route.name == "actors" ||
       this.$route.name == "images" ||
-      this.$route.name == "movie"
+      this.$route.name == "movies"
     );
   }
 

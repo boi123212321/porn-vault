@@ -2,6 +2,7 @@
   <div>
     <v-navigation-drawer v-model="drawer" :permanent="$vuetify.breakpoint.mdAndUp" clipped app>
       <v-container>
+        <v-checkbox v-model="useDVDCoverRatio" label="Use DVD Cover ratio"></v-checkbox>
         <v-text-field clearable color="accent" v-model="query" label="Search query"></v-text-field>
 
         <v-subheader>Labels</v-subheader>
@@ -62,6 +63,7 @@
       <v-row>
         <v-col class="pa-1" v-for="movie in movies" :key="movie._id" cols="6" sm="6" md="4" lg="3">
           <MovieCard
+            :ratio="useDVDCoverRatio ? undefined : 1"
             :movie="movie"
             style="height: 100%"
             @bookmark="bookmark(scene._id, $event)"
@@ -201,6 +203,8 @@ export default class MovieList extends Vue {
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
 
+  useDVDCoverRatio = true;
+
   get drawer() {
     return contextModule.showFilters;
   }
@@ -221,6 +225,7 @@ export default class MovieList extends Vue {
           addMovie(name: $name, scenes: $scenes) {
             _id
             name
+            description
             favorite
             bookmark
             rating

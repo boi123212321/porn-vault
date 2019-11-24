@@ -246,11 +246,10 @@ import imageFragment from "../fragments/image";
 import SceneCard from "../components/SceneCard.vue";
 import ActorCard from "../components/ActorCard.vue";
 import moment from "moment";
-import LabelSelector from "../components/LabelSelector.vue";
+import SceneSelector from "../components/SceneSelector.vue";
 import Lightbox from "../components/Lightbox.vue";
 import ImageCard from "../components/ImageCard.vue";
 import InfiniteLoading from "vue-infinite-loading";
-import ImageUploader from "../components/ImageUploader.vue";
 import { sceneModule } from "../store/scene";
 import { actorModule } from "../store/actor";
 import IActor from "../types/actor";
@@ -263,11 +262,9 @@ import { movieModule } from "../store/movie";
   components: {
     ActorCard,
     SceneCard,
-    LabelSelector,
     Lightbox,
     ImageCard,
-    InfiniteLoading,
-    ImageUploader
+    InfiniteLoading
   },
   beforeRouteLeave(_to, _from, next) {
     movieModule.setCurrent(null);
@@ -288,6 +285,16 @@ export default class SceneDetails extends Vue {
 
   backCoverFile = null as File | null;
   backCoverDialog = false;
+
+  @Watch("currentMovie.actors", { deep: true })
+  onActorChange(newVal: any[]) {
+    this.actors = newVal;
+  }
+
+  @Watch("currentMovie.scenes", { deep: true })
+  onSceneChange(newVal: any[]) {
+    this.scenes = newVal;
+  }
 
   uploadFrontCover() {
     if (!this.currentMovie) return;
@@ -413,11 +420,6 @@ export default class SceneDetails extends Vue {
         this.currentMovie.backCover._id
       }?password=${localStorage.getItem("password")}`;
     return this.frontCover;
-  }
-
-  @Watch("currentMovie.actors", { deep: true })
-  onActorChange(newVal: any[]) {
-    this.actors = newVal;
   }
 
   readImage(file: File): Promise<string> {
@@ -626,6 +628,7 @@ export default class SceneDetails extends Vue {
           getMovieById(id: $id) {
             _id
             name
+            description
             favorite
             bookmark
             rating

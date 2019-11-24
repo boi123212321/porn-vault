@@ -56,6 +56,16 @@ class MovieModule extends VuexModule {
   setScenes(scenes: IScene[]) {
     if (this.current) this.current.scenes = scenes;
   }
+
+  @Mutation
+  setDuration(dur: number) {
+    if (this.current) this.current.duration = dur;
+  }
+
+  @Mutation
+  setSize(size: number) {
+    if (this.current) this.current.size = size;
+  }
 }
 
 import store from "./index";

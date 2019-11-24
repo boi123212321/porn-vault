@@ -27,26 +27,19 @@
     </div>
 
     <QueueInfo />
-
-    <SceneSelector v-model="scenes" />
-    {{ scenes }}
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import QueueInfo from "../components/QueueInfo.vue";
-import SceneSelector from "../components/SceneSelector.vue";
 
 @Component({
   components: {
-    QueueInfo,
-    SceneSelector
+    QueueInfo
   }
 })
 export default class About extends Vue {
-  scenes = [];
-
   toggleDarkMode() {
     this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     localStorage.setItem(

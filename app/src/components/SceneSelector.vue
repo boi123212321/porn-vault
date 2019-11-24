@@ -4,12 +4,13 @@
       color="accent"
       v-model="innerValue"
       :loading="loading"
-      :items="actors"
+      :items="scenes"
       :search-input.sync="searchQuery"
       cache-items
       hide-no-data
-       hint="Search for actors by typing something"
-      :label="multiple ? 'Select actors' : 'Select actor'"
+      hint="Search for scenes by typing something"
+      persistent-hint
+       :label="multiple ? 'Select scenes' : 'Select scene'"
       :multiple="multiple"
       item-text="name"
       item-value="_id"
@@ -35,36 +36,37 @@ import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import ApolloClient, { serverBase } from "../apollo";
 import gql from "graphql-tag";
 import actorFragment from "../fragments/actor";
-import IActor from "../types/actor";
+import sceneFragment from "../fragments/scene";
+import IScene from "../types/scene";
 
 @Component
-export default class ActorSelector extends Vue {
-  @Prop() value!: IActor[];
-  @Prop({ default: true }) multiple!: boolean;
+export default class SceneSelector extends Vue {
+  @Prop() value!: IScene[];
+  @Prop({ default: false }) multiple!: boolean;
 
   innerValue = JSON.parse(JSON.stringify(this.value)) || [];
 
-  actors: IActor[] = JSON.parse(JSON.stringify(this.value)) || [];
+  scenes: IScene[] = JSON.parse(JSON.stringify(this.value)) || [];
   searchQuery = "";
 
   loading = false;
   resetTimeout = null as NodeJS.Timeout | null;
 
   @Watch("value", { deep: true })
-  onValueChange(newVal: IActor[]) {
+  onValueChange(newVal: IScene[]) {
     this.innerValue = newVal;
   }
 
   onInnerValueChange(newVal: string[]) {
     this.$emit("input", newVal
-      .map(id => this.actors.find(a => a._id == id))
-      .filter(Boolean) as IActor[]);
+      .map(id => this.scenes.find(a => a._id == id))
+      .filter(Boolean) as IScene[]);
   }
 
-  thumbnail(actor: IActor) {
-    if (actor.thumbnail)
+  thumbnail(scene: IScene) {
+    if (scene.thumbnail)
       return `${serverBase}/image/${
-        actor.thumbnail._id
+        scene.thumbnail._id
       }?password=${localStorage.getItem("password")}`;
     return "";
   }
@@ -89,10 +91,14 @@ export default class ActorSelector extends Vue {
       const result = await ApolloClient.query({
         query: gql`
           query($query: String) {
-            getActors(query: $query) {
-              ...ActorFragment
+            getScenes(query: $query) {
+              ...SceneFragment
+              actors {
+                ...ActorFragment
+              }
             }
           }
+          ${sceneFragment}
           ${actorFragment}
         `,
         variables: {
@@ -101,13 +107,13 @@ export default class ActorSelector extends Vue {
       });
 
       this.loading = false;
-      this.actors.push(...result.data.getActors);
+      this.scenes.push(...result.data.getScenes);
 
-      const ids = [...new Set(this.actors.map(a => a._id))];
+      const ids = [...new Set(this.scenes.map(a => a._id))];
 
-      this.actors = ids
-        .map(id => this.actors.find(a => a._id == id))
-        .filter(Boolean) as IActor[];
+      this.scenes = ids
+        .map(id => this.scenes.find(a => a._id == id))
+        .filter(Boolean) as IScene[];
     } catch (err) {
       throw err;
     }

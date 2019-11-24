@@ -4,8 +4,10 @@ import Home from "../views/Home.vue";
 import About from "../views/About.vue";
 import Scenes from "../views/Scenes.vue";
 import Actors from "../views/Actors.vue";
+import Movies from "../views/Movies.vue";
 import SceneDetails from "../views/SceneDetails.vue";
 import ActorDetails from "../views/ActorDetails.vue";
+import MovieDetails from "../views/MovieDetails.vue";
 import Labels from "../views/Labels.vue";
 import Images from "../views/Images.vue";
 
@@ -34,6 +36,11 @@ const routes = [
     component: Actors
   },
   {
+    path: "/movies",
+    name: "movies",
+    component: Movies
+  },
+  {
     path: "/scene/:id",
     name: "scene-details",
     component: SceneDetails
@@ -42,6 +49,11 @@ const routes = [
     path: "/actor/:id",
     name: "actor-details",
     component: ActorDetails
+  },
+  {
+    path: "/movie/:id",
+    name: "movie-details",
+    component: MovieDetails
   },
   {
     path: "/labels",

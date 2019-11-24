@@ -2,7 +2,8 @@ export enum SortTarget {
   RELEVANCE = "relevance",
   RATING = "rating",
   DATE = "date",
-  ADDED_ON = "addedOn"
+  ADDED_ON = "addedOn",
+  VIEWS = "views"
 }
 
 interface IQueryOptions {
@@ -16,7 +17,7 @@ interface IQueryOptions {
   sortBy: SortTarget;
   sortDir: "asc" | "desc";
   page: number;
-  scene: string | null;
+  scene: string[];
 }
 
 export default (query?: string) => {
@@ -28,7 +29,7 @@ export default (query?: string) => {
     sortBy: SortTarget.ADDED_ON,
     sortDir: "desc",
     page: 0,
-    scene: null
+    scene: []
   };
 
   if (!query) return options;
@@ -55,7 +56,7 @@ export default (query?: string) => {
         options[operation] = value.split(",");
         break;
       case "scene":
-        options[operation] = value;
+        options[operation] = value.split(",");
         break;
       case "rating":
         options[operation] = parseInt(value);

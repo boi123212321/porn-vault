@@ -52,7 +52,7 @@ export default class Movie {
   }
 
   static async getAll() {
-    return (await database.find(database.store.movies, {})) as Scene[];
+    return (await database.find(database.store.movies, {})) as Movie[];
   }
 
   static async getLabels(movie: Movie) {

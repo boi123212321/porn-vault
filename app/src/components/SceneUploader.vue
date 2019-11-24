@@ -11,7 +11,11 @@
         placeholder="Select file(s)"
       ></v-file-input>
       <div>
-        <div class="mb-2 d-flex align-center" v-for="(item, i) in uploadItems" :key="item.file.name">
+        <div
+          class="mb-2 d-flex align-center"
+          v-for="(item, i) in uploadItems"
+          :key="item.file.name"
+        >
           <v-text-field color="accent" class="ml-2" hide-details v-model="uploadItems[i].name"></v-text-field>
           <v-spacer></v-spacer>
           <v-btn icon @click="uploadItems.splice(i, 1)">
@@ -24,7 +28,7 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn @click="addToQueue" depressed color="primary" class="black--text">Add</v-btn>
+      <v-btn @click="addToQueue" text color="accent" class="text-none">Add</v-btn>
     </v-card-actions>
   </v-card>
 </template>

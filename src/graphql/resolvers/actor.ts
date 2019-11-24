@@ -16,5 +16,8 @@ export default {
   async thumbnail(actor: Actor) {
     if (actor.thumbnail) return await Image.getById(actor.thumbnail);
     return null;
+  },
+  async watches(actor: Actor) {
+    return await Actor.getWatches(actor);
   }
 };

@@ -44,7 +44,7 @@
           <v-rating
             half-increments
             @input="rate"
-            class="pa-2 pb-0"
+            class="px-2"
             :value="currentActor.rating / 2"
             background-color="grey"
             color="amber"
@@ -74,7 +74,7 @@
               v-ripple
               @click="openLabelSelector"
               small
-              class="hover mr-1 mb-1"
+              :class="`hover mr-1 mb-1 ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
             >+ Add</v-chip>
           </div>
         </v-col>
@@ -166,7 +166,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="editLabels" depressed color="primary" class="black--text text-none">Edit</v-btn>
+          <v-btn @click="editLabels" text color="accent" class="text-none">Edit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -228,9 +228,9 @@
           <v-spacer></v-spacer>
           <v-btn
             :disabled="!thumbnailDisplay"
-            class="black--text"
-            color="primary"
-            depressed
+            color="accent"
+            text
+            class="text-none"
             @click="uploadThumbnail"
           >Upload</v-btn>
         </v-card-actions>

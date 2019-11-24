@@ -1,21 +1,8 @@
 <template>
   <div>
-    <v-banner sticky v-if="selectedImages.length">
-      {{ selectedImages.length }} images selected
-      <template v-slot:actions>
-        <v-btn text @click="selectedImages = []" class="text-none">Deselect</v-btn>
-        <v-btn
-          @click="deleteSelectedImagesDialog = true"
-          text
-          class="text-none"
-          color="error"
-        >Delete</v-btn>
-      </template>
-    </v-banner>
-
     <v-navigation-drawer v-model="drawer" :permanent="$vuetify.breakpoint.mdAndUp" clipped app>
       <v-container>
-        <v-checkbox hide-details v-model="largeThumbs" label="Large thumbnails"></v-checkbox>
+        <v-checkbox v-model="useDVDCoverRatio" label="Use DVD Cover ratio"></v-checkbox>
         <v-text-field clearable color="accent" v-model="query" label="Search query"></v-text-field>
 
         <v-subheader>Labels</v-subheader>
@@ -66,41 +53,57 @@
       </v-container>
     </v-navigation-drawer>
 
-    <div class="d-flex align-center">
-      <h1 class="font-weight-light mr-3">Images</h1>
-      <v-btn @click="openUploadDialog" icon>
-        <v-icon>mdi-upload</v-icon>
-      </v-btn>
-    </div>
-
-    <v-container fluid>
-      <v-row v-if="!waiting">
-        <v-col
-          class="pa-1"
-          v-for="(image, index) in images"
-          :key="image._id"
-          :cols="largeThumbs ? 12 : 6"
-          :sm="largeThumbs ? 12 : 4"
-          :md="largeThumbs ? 12 : 3"
-          :lg="largeThumbs ? 12 : 3"
-          :xl="largeThumbs ? 12 : 3"
-        >
-          <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
-            <template v-slot:action>
-              <v-checkbox
-                color="accent"
-                :input-value="selectedImages.includes(image._id)"
-                @change="selectImage(image._id)"
-                @click.native.stop
-                class="mt-0"
-                hide-details
-              ></v-checkbox>
-            </template>
-          </ImageCard>
+    <div v-if="!fetchLoader">
+      <div class="d-flex align-center">
+        <h1 class="font-weight-light mr-3">Movies</h1>
+        <v-btn class="mr-3" @click="openCreateDialog" icon>
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+      </div>
+      <v-row>
+        <v-col class="pa-1" v-for="movie in movies" :key="movie._id" cols="6" sm="6" md="4" lg="3">
+          <MovieCard
+            :ratio="useDVDCoverRatio ? undefined : 1"
+            :movie="movie"
+            style="height: 100%"
+            @bookmark="bookmark(movie._id, $event)"
+            @favorite="favorite(movie._id, $event)"
+          />
         </v-col>
       </v-row>
-      <div class="text-center" v-else>Keep on writing...</div>
-    </v-container>
+    </div>
+    <div v-else class="text-center">
+      <p>Loading...</p>
+      <v-progress-circular indeterminate></v-progress-circular>
+    </div>
+
+    <v-dialog scrollable v-model="createMovieDialog" max-width="400px">
+      <v-card :loading="addMovieLoader">
+        <v-card-title>Add new movie</v-card-title>
+        <v-card-text style="max-height: 90vh">
+          <v-form v-model="validCreation">
+            <v-text-field
+              :rules="movieNameRules"
+              color="accent"
+              v-model="createMovieName"
+              placeholder="Name"
+            />
+            <SceneSelector :multiple="true" class="mb-2" v-model="createMovieScenes" />
+          </v-form>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            text
+            class="text-none"
+            :disabled="!validCreation"
+            color="accent"
+            @click="addMovie"
+          >Add</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <infinite-loading :identifier="infiniteId" @infinite="infiniteHandler">
       <div slot="no-results">
@@ -118,31 +121,6 @@
         <div>That's all!</div>
       </div>
     </infinite-loading>
-
-    <v-dialog :persistent="isUploading" scrollable v-model="uploadDialog" max-width="400px">
-      <ImageUploader @update-state="isUploading = $event" @uploaded="images.unshift($event)" />
-    </v-dialog>
-
-    <v-dialog v-model="deleteSelectedImagesDialog" max-width="400px">
-      <v-card>
-        <v-card-title>Really delete {{ selectedImages.length }} images?</v-card-title>
-        <v-card-text></v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn class="text-none" color="error" text @click="deleteSelection">Delete</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <transition name="fade">
-      <Lightbox
-        @update="updateImage"
-        @delete="removeImage"
-        :items="images"
-        :index="lightboxIndex"
-        @index="lightboxIndex = $event"
-      />
-    </transition>
   </div>
 </template>
 
@@ -150,35 +128,40 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ApolloClient, { serverBase } from "../apollo";
 import gql from "graphql-tag";
-import LabelSelector from "../components/LabelSelector.vue";
-import InfiniteLoading from "vue-infinite-loading";
-import { contextModule } from "../store/context";
-import ImageCard from "../components/ImageCard.vue";
-import Lightbox from "../components/Lightbox.vue";
+import sceneFragment from "../fragments/scene";
 import actorFragment from "../fragments/actor";
-import imageFragment from "../fragments/image";
-import ImageUploader from "../components/ImageUploader.vue";
-import IImage from "../types/image";
+import { contextModule } from "../store/context";
+import InfiniteLoading from "vue-infinite-loading";
+import SceneSelector from "../components/SceneSelector.vue";
+import IScene from "../types/scene";
+import IActor from "../types/actor";
 import ILabel from "../types/label";
+import MovieCard from "../components/MovieCard.vue";
+import IMovie from "../types/movie";
+import movieFragment from "../fragments/movie";
 
 @Component({
   components: {
-    LabelSelector,
     InfiniteLoading,
-    ImageCard,
-    Lightbox,
-    ImageUploader
+    SceneSelector,
+    MovieCard
   }
 })
-export default class ImagesView extends Vue {
-  images = [] as IImage[];
-  lightboxIndex = null as number | null;
+export default class MovieList extends Vue {
+  movies = [] as IMovie[];
+  fetchLoader = false;
 
   waiting = false;
   allLabels = [] as ILabel[];
   selectedLabels = [] as number[];
 
-  largeThumbs = false;
+  validCreation = false;
+  createMovieDialog = false;
+  createMovieName = "";
+  createMovieScenes = [] as IScene[];
+  addMovieLoader = false;
+
+  movieNameRules = [v => (!!v && !!v.length) || "Invalid scene name"];
 
   query = "";
   page = 0;
@@ -208,6 +191,10 @@ export default class ImagesView extends Vue {
     {
       text: "Rating",
       value: "rating"
+    },
+    {
+      text: "Views",
+      value: "views"
     }
   ];
 
@@ -218,80 +205,7 @@ export default class ImagesView extends Vue {
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
 
-  uploadDialog = false;
-  isUploading = false;
-
-  selectedImages = [] as string[];
-  deleteSelectedImagesDialog = false;
-
-  selectImage(id: string) {
-    if (this.selectedImages.includes(id))
-      this.selectedImages = this.selectedImages.filter(i => i != id);
-    else this.selectedImages.push(id);
-  }
-
-  deleteSelection() {
-    ApolloClient.mutate({
-      mutation: gql`
-        mutation($ids: [String!]!) {
-          removeImages(ids: $ids)
-        }
-      `,
-      variables: {
-        ids: this.selectedImages
-      }
-    })
-      .then(res => {
-        for (const id of this.selectedImages) {
-          this.images = this.images.filter(image => image._id != id);
-        }
-        this.selectedImages = [];
-        this.deleteSelectedImagesDialog = false;
-      })
-      .catch(err => {
-        console.error(err);
-      })
-      .finally(() => {});
-  }
-
-  removeImage(index: number) {
-    ApolloClient.mutate({
-      mutation: gql`
-        mutation($ids: [String!]!) {
-          removeImages(ids: $ids)
-        }
-      `,
-      variables: {
-        ids: [this.images[index]._id]
-      }
-    })
-      .then(res => {
-        this.images.splice(index, 1);
-        this.lightboxIndex = null;
-      })
-      .catch(err => {
-        console.error(err);
-      })
-      .finally(() => {});
-  }
-
-  updateImage({
-    index,
-    key,
-    value
-  }: {
-    index: number;
-    key: string;
-    value: any;
-  }) {
-    const images = this.images[index];
-    images[key] = value;
-    Vue.set(this.images, index, images);
-  }
-
-  openUploadDialog() {
-    this.uploadDialog = true;
-  }
+  useDVDCoverRatio = true;
 
   get drawer() {
     return contextModule.showFilters;
@@ -301,45 +215,117 @@ export default class ImagesView extends Vue {
     contextModule.toggleFilters(val);
   }
 
+  openCreateDialog() {
+    this.createMovieDialog = true;
+  }
+
+  addMovie() {
+    this.addMovieLoader = true;
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($name: String!, $scenes: [String!]) {
+          addMovie(name: $name, scenes: $scenes) {
+            ...MovieFragment
+            actors {
+              ...ActorFragment
+            }
+            scenes {
+              ...SceneFragment
+              actors {
+                ...ActorFragment
+              }
+            }
+          }
+        }
+        ${movieFragment}
+        ${sceneFragment}
+        ${actorFragment}
+      `,
+      variables: {
+        name: this.createMovieName,
+        scenes: this.createMovieScenes.map(a => a._id)
+      }
+    })
+      .then(res => {
+        this.movies.unshift(res.data.addMovie);
+        this.createMovieDialog = false;
+        this.createMovieName = "";
+        this.createMovieScenes = [];
+        this.selectedLabels = [];
+      })
+      .catch(() => {})
+      .finally(() => {
+        this.addMovieLoader = false;
+      });
+  }
+
+  favorite(id: any, favorite: boolean) {
+    const index = this.movies.findIndex(sc => sc._id == id);
+
+    if (index > -1) {
+      const movie = this.movies[index];
+      movie.favorite = favorite;
+      Vue.set(this.movies, index, movie);
+    }
+  }
+
+  bookmark(id: any, bookmark: boolean) {
+    const index = this.movies.findIndex(sc => sc._id == id);
+
+    if (index > -1) {
+      const movie = this.movies[index];
+      movie.bookmark = bookmark;
+      Vue.set(this.movies, index, movie);
+    }
+  }
+
+  movieLabels(movie: any) {
+    return movie.labels.map(l => l.name).sort();
+  }
+
+  movieActorNames(movie: any) {
+    return movie.actors.map(a => a.name).join(", ");
+  }
+
   @Watch("ratingFilter", {})
   onRatingChange(newVal: number) {
     this.page = 0;
-    this.images = [];
+    this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("favoritesOnly")
   onFavoriteChange() {
     this.page = 0;
-    this.images = [];
+    this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("bookmarksOnly")
   onBookmarkChange() {
     this.page = 0;
-    this.images = [];
+    this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("sortDir")
   onSortDirChange() {
     this.page = 0;
-    this.images = [];
+    this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("sortBy")
   onSortChange() {
     this.page = 0;
-    this.images = [];
+    this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("selectedLabels")
   onLabelChange() {
     this.page = 0;
-    this.images = [];
+    this.movies = [];
     this.infiniteId++;
   }
 
@@ -351,7 +337,7 @@ export default class ImagesView extends Vue {
 
     this.waiting = true;
     this.page = 0;
-    this.images = [];
+    this.movies = [];
 
     this.resetTimeout = setTimeout(() => {
       this.waiting = false;
@@ -363,7 +349,7 @@ export default class ImagesView extends Vue {
     this.fetchPage().then(items => {
       if (items.length) {
         this.page++;
-        this.images.push(...items);
+        this.movies.push(...items);
         $state.loaded();
       } else {
         $state.complete();
@@ -391,18 +377,21 @@ export default class ImagesView extends Vue {
       const result = await ApolloClient.query({
         query: gql`
           query($query: String) {
-            getImages(query: $query) {
-              ...ImageFragment
+            getMovies(query: $query) {
+              ...MovieFragment
               actors {
                 ...ActorFragment
               }
-              scene {
-                _id
-                name
+              scenes {
+                ...SceneFragment
+                actors {
+                  ...ActorFragment
+                }
               }
             }
           }
-          ${imageFragment}
+          ${movieFragment}
+          ${sceneFragment}
           ${actorFragment}
         `,
         variables: {
@@ -410,23 +399,10 @@ export default class ImagesView extends Vue {
         }
       });
 
-      return result.data.getImages;
+      return result.data.getMovies;
     } catch (err) {
       throw err;
     }
-  }
-
-  imageLink(image: any) {
-    return `${serverBase}/image/${image._id}?password=${localStorage.getItem(
-      "password"
-    )}`;
-  }
-
-  labelAliases(label: any) {
-    return label.aliases
-      .slice()
-      .sort()
-      .join(", ");
   }
 
   beforeMount() {
@@ -436,6 +412,7 @@ export default class ImagesView extends Vue {
           getLabels {
             _id
             name
+            aliases
           }
         }
       `

@@ -17,7 +17,10 @@
     </div>
 
     <v-card-title>{{ scene.name }}</v-card-title>
-    <v-card-subtitle v-if="scene.actors.length" class="pb-1">Featuring {{ actorNames }}</v-card-subtitle>
+    <v-card-subtitle v-if="scene.actors.length" class="pb-1">
+      Featuring
+      <span v-html="actorLinks"></span>
+    </v-card-subtitle>
     <v-rating
       half-increments
       @input="rate"
@@ -28,13 +31,7 @@
       dense
     ></v-rating>
     <div class="pa-2">
-      <v-chip
-        class="mr-1 mb-1"
-        small
-        outlined
-        v-for="label in labelNames"
-        :key="label"
-      >{{ label }}</v-chip>
+      <v-chip class="mr-1 mb-1" small outlined v-for="label in labelNames" :key="label">{{ label }}</v-chip>
     </div>
   </v-card>
 </template>
@@ -115,8 +112,10 @@ export default class SceneCard extends Vue {
     return this.scene.labels.map(l => l.name).sort();
   }
 
-  get actorNames() {
-    const names = this.scene.actors.map(a => a.name);
+  get actorLinks() {
+    const names = this.scene.actors.map(
+      a => `<a class="accent--text" href="#/actor/${a._id}">${a.name}</a>`
+    );
     names.sort();
     return names.join(", ");
   }

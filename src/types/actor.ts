@@ -1,6 +1,7 @@
 import * as database from "../database";
 import { generateHash } from "../hash";
 import Label from "./label";
+import Scene from "./scene";
 
 export default class Actor {
   _id: string;
@@ -65,6 +66,14 @@ export default class Actor {
 
   static async getAll(): Promise<Actor[]> {
     return (await database.find(database.store.actors, {})) as Actor[];
+  }
+
+  static async getWatches(actor: Actor) {
+    const scenes = await Scene.getByActor(actor._id);
+    return scenes
+      .map(s => s.watches)
+      .flat()
+      .sort();
   }
 
   constructor(name: string, aliases: string[] = []) {

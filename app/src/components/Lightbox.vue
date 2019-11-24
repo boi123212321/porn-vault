@@ -10,7 +10,6 @@
 
       <v-btn
         outlined
-        color="white"
         large
         v-if="index > 0"
         icon
@@ -21,7 +20,6 @@
       </v-btn>
       <v-btn
         outlined
-        color="white"
         large
         v-if="index < items.length - 1"
         icon
@@ -40,14 +38,12 @@
       <v-toolbar>
         <v-btn @click="favorite" class="mr-1" icon>
           <v-icon
-            :color="currentImage.favorite ? 'red' : 'black'"
+            :color="currentImage.favorite ? 'red' : undefined"
           >{{ currentImage.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
         </v-btn>
 
         <v-btn @click="bookmark" icon>
-          <v-icon
-            color="black"
-          >{{ currentImage.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+          <v-icon>{{ currentImage.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
         </v-btn>
         <v-spacer></v-spacer>
         <v-btn @click="showImageDetails = false" class="mr-1" icon>
@@ -57,14 +53,14 @@
           <v-icon>mdi-link</v-icon>
         </v-btn>
         <v-btn @click="openRemoveDialog" icon>
-          <v-icon color="black">mdi-delete-forever</v-icon>
+          <v-icon>mdi-delete-forever</v-icon>
         </v-btn>
       </v-toolbar>
       <v-card-title class="pb-0 subtitle-1">{{ currentImage.name }}</v-card-title>
       <v-card-text>
         <div v-if="currentImage.scene">
           Part of scene
-          <a :href="`#/scene/${currentImage.scene._id}`">{{ currentImage.scene.name }}</a>
+          <a class="accent--text" :href="`#/scene/${currentImage.scene._id}`">{{ currentImage.scene.name }}</a>
         </div>
         <div>
           <v-rating
@@ -97,7 +93,7 @@
             v-ripple
             @click="openLabelSelector"
             small
-            class="mr-1 mb-1 hover"
+            :class="`mr-1 mb-1 hover ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
           >+ Add</v-chip>
         </div>
         <div class="d-flex mt-2">
@@ -131,7 +127,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="editLabels" depressed color="primary" class="black--text text-none">Edit</v-btn>
+          <v-btn @click="editLabels" text color="accent" class="text-none">Edit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -155,12 +151,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            @click="editImageActors"
-            color="primary"
-            class="black--text text-none"
-            depressed
-          >Edit</v-btn>
+          <v-btn @click="editImageActors" color="accent" class="text-none" text>Edit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

@@ -64,9 +64,9 @@
             <v-btn
               @click="editLabel"
               :disabled="!validEditing"
-              depressed
-              color="primary"
-              class="black--text text-none"
+              text
+              color="accent"
+              class="text-none"
             >Edit</v-btn>
           </v-card-actions>
         </v-card>
@@ -103,9 +103,9 @@
             <v-btn
               @click="addLabel"
               :disabled="!validCreation"
-              depressed
-              color="primary"
-              class="black--text text-none"
+              text
+              color="accent"
+              class="text-none"
             >Add</v-btn>
           </v-card-actions>
         </v-card>

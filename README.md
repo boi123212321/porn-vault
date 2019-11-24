@@ -42,14 +42,17 @@ Note: this is by no means finished, but useable.
 ### Scene collection
 ![Scenes](/doc/img/scene_collection.jpg)
 
-### Scene details
-![Scene details](/doc/img/scene_details.jpg)
+### Scene page
+![Scene page](/doc/img/scene_details.jpg)
 
 ### Actor collection
 ![Actors](/doc/img/actor_collection.jpg)
 
-### Actor details
-![Actor details](/doc/img/actor_details.jpg)
+### Actor page
+![Actor page](/doc/img/actor_details.jpg)
+
+### Movie page
+![Movie page](/doc/img/movie_details.jpg)
 
 ### Image details
 ![Image details](/doc/img/image.jpg)
@@ -57,3 +60,6 @@ Note: this is by no means finished, but useable.
 ### Image collection
 You can do everything you can do with scenes (e.g. rate/favorite/bookmark/label) with images as well - useful if you run an image collection only.
 ![Scene details](/doc/img/image_collection.jpg)
+
+### Dark mode
+![Dark mode](/doc/img/darkmode.jpg)

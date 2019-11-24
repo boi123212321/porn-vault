@@ -12,16 +12,21 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn v-if="showFilterButton && $vuetify.breakpoint.smAndDown" icon @click="filterDrawer = !filterDrawer">
+      <v-btn
+        v-if="showFilterButton && $vuetify.breakpoint.smAndDown"
+        icon
+        @click="filterDrawer = !filterDrawer"
+      >
         <v-icon>mdi-filter</v-icon>
       </v-btn>
 
       <template
         v-slot:extension
-        v-if="$route.name == 'scene-details' || $route.name == 'actor-details'"
+        v-if="$route.name == 'scene-details' || $route.name == 'actor-details'  || $route.name == 'movie-details'"
       >
         <scene-details-bar v-if="$route.name == 'scene-details'" />
-        <actor-details-bar v-if="$route.name == 'actor-details'" />
+        <actor-details-bar v-else-if="$route.name == 'actor-details'" />
+        <movie-details-bar v-else-if="$route.name == 'movie-details'" />
       </template>
     </v-app-bar>
 
@@ -52,12 +57,14 @@ import { actorModule } from "./store/actor";
 import { serverBase } from "./apollo";
 import SceneDetailsBar from "./components/AppBar/SceneDetails.vue";
 import ActorDetailsBar from "./components/AppBar/ActorDetails.vue";
+import MovieDetailsBar from "./components/AppBar/MovieDetails.vue";
 import { contextModule } from "./store/context";
 
 @Component({
   components: {
     SceneDetailsBar,
-    ActorDetailsBar
+    ActorDetailsBar,
+    MovieDetailsBar
   }
 })
 export default class App extends Vue {
@@ -67,7 +74,8 @@ export default class App extends Vue {
     return (
       this.$route.name == "scenes" ||
       this.$route.name == "actors" ||
-      this.$route.name == "images"
+      this.$route.name == "images" ||
+      this.$route.name == "movies"
     );
   }
 
@@ -100,6 +108,11 @@ export default class App extends Vue {
       icon: "mdi-account-multiple",
       text: "Actors",
       url: "/actors"
+    },
+    {
+      icon: "mdi-filmstrip",
+      text: "Movies",
+      url: "/movies"
     },
     {
       icon: "mdi-label",

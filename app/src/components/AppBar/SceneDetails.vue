@@ -1,13 +1,13 @@
 <template>
   <div style="width:100%" v-if="currentScene" class="d-flex align-center">
-    <v-btn color="black" class="mr-1" icon @click="$router.go(-1)">
+    <v-btn class="mr-1" icon @click="$router.go(-1)">
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
     <v-toolbar-title class="mr-1 title">{{ currentScene.name }}</v-toolbar-title>
 
     <v-menu v-if="currentScene.path || currentScene.streamLinks.length">
       <template v-slot:activator="{ on }">
-        <v-btn v-on="on" color="black" class="mr-1" icon>
+        <v-btn v-on="on" class="mr-1" icon>
           <v-icon>mdi-play</v-icon>
         </v-btn>
       </template>
@@ -30,24 +30,22 @@
 
     <v-btn @click="favorite" class="mr-1" icon>
       <v-icon
-        :color="currentScene.favorite ? 'red' : 'black'"
+        :color="currentScene.favorite ? 'error' : undefined"
       >{{ currentScene.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
     </v-btn>
 
     <v-btn @click="bookmark" icon>
-      <v-icon
-        color="black"
-      >{{ currentScene.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+      <v-icon>{{ currentScene.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
 
     <v-btn icon @click="openEditDialog">
-      <v-icon color="black">mdi-pencil</v-icon>
+      <v-icon>mdi-pencil</v-icon>
     </v-btn>
 
     <v-btn @click="openRemoveDialog" icon>
-      <v-icon color="black">mdi-delete-forever</v-icon>
+      <v-icon>mdi-delete-forever</v-icon>
     </v-btn>
 
     <v-dialog scrollable v-model="editDialog" max-width="600px">
@@ -85,10 +83,10 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            depressed
+            text
+            class="text-none"
             @click="editScene"
-            color="primary"
-            class="black--text"
+            color="accent"
             :disabled="!validEdit"
           >Edit</v-btn>
         </v-card-actions>
@@ -101,7 +99,7 @@
         <v-card-text>Images of {{ currentScene.name }} will stay in your collection.</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text color="error" @click="remove">Delete</v-btn>
+          <v-btn class="text-none" text color="error" @click="remove">Delete</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -121,7 +119,7 @@ import IActor from "../../types/actor";
     ActorSelector
   }
 })
-export default class App extends Vue {
+export default class SceneToolbar extends Vue {
   editDialog = false;
   validEdit = false;
   editName = "";

@@ -37,6 +37,7 @@ export class SceneMeta {
 
 export default class Scene {
   _id: string;
+  hash: string | null = null;
   name: string;
   description: string | null = null;
   addedOn = +new Date();

@@ -10,6 +10,7 @@ import { getConfig } from "../config";
 import { extractLabels, extractActors } from "../extractor";
 import ora from "ora";
 import { existsAsync, unlinkAsync, statAsync } from "../fs/async";
+import { fileHash } from "../hash";
 
 export interface IQueueItem {
   _id: string;
@@ -70,6 +71,10 @@ class Queue {
     const scene = new Scene(sceneName);
     scene._id = item._id;
     scene.path = sourcePath;
+
+    logger.log("Generating file checksum...");
+
+    scene.hash = await fileHash(sourcePath);
 
     try {
       await new Promise(async (resolve, reject) => {

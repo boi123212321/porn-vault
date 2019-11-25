@@ -6,8 +6,7 @@
           <v-container>
             <v-hover>
               <template v-slot:default="{ hover }">
-                <v-img contain aspect-ratio="1" :src="hover ? backCover : frontCover">
-                </v-img>
+                <v-img contain aspect-ratio="1" :src="hover ? backCover : frontCover"></v-img>
               </template>
             </v-hover>
             <div class="mt-2 text-center">
@@ -100,6 +99,7 @@
               sm="6"
               md="4"
               lg="3"
+              xl="2"
             >
               <scene-card
                 style="height: 100%"
@@ -126,6 +126,7 @@
               sm="6"
               md="4"
               lg="3"
+              xl="2"
             >
               <actor-card
                 style="height: 100%"
@@ -147,9 +148,17 @@
         </div>
         <v-container fluid>
           <v-row>
-            <v-col class="pa-1" v-for="(image, index) in images" :key="image._id" cols="6" sm="4">
-              <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
-              </ImageCard>
+            <v-col
+              class="pa-1"
+              v-for="(image, index) in images"
+              :key="image._id"
+              cols="6"
+              sm="4"
+              md="3"
+              lg="3"
+              xl="2"
+            >
+              <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image"></ImageCard>
             </v-col>
           </v-row>
 
@@ -390,7 +399,7 @@ export default class SceneDetails extends Vue {
   }
 
   get frontCover() {
-     if (!this.currentMovie) return "";
+    if (!this.currentMovie) return "";
 
     if (this.currentMovie.frontCover)
       return `${serverBase}/image/${
@@ -401,7 +410,7 @@ export default class SceneDetails extends Vue {
 
   get backCover() {
     if (!this.currentMovie) return "";
-    
+
     if (this.currentMovie.backCover)
       return `${serverBase}/image/${
         this.currentMovie.backCover._id

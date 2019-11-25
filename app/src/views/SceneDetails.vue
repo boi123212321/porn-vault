@@ -152,7 +152,16 @@
         </div>
         <v-container fluid>
           <v-row>
-            <v-col class="pa-1" v-for="(image, index) in images" :key="image._id" cols="6" sm="4">
+            <v-col
+              class="pa-1"
+              v-for="(image, index) in images"
+              :key="image._id"
+              cols="6"
+              sm="4"
+              md="3"
+              lg="3"
+              xl="2"
+            >
               <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
                 <template v-slot:action>
                   <v-tooltip top>

@@ -62,10 +62,10 @@ export default {
       const movie = await Movie.getById(id);
 
       if (movie) {
-        if (typeof opts.name == "string") movie.name = opts.name;
+        if (typeof opts.name == "string") movie.name = opts.name.trim();
 
         if (typeof opts.description == "string")
-          movie.description = opts.description;
+          movie.description = opts.description.trim();
 
         if (typeof opts.backCover == "string") movie.backCover = opts.backCover;
 

@@ -196,7 +196,7 @@ export default {
 
         if (typeof opts.favorite == "boolean") image.favorite = opts.favorite;
 
-        if (typeof opts.name == "string") image.name = opts.name;
+        if (typeof opts.name == "string") image.name = opts.name.trim();
 
         if (typeof opts.rating == "number") image.rating = opts.rating;
 

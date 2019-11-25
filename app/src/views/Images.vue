@@ -82,8 +82,8 @@
           :cols="largeThumbs ? 12 : 6"
           :sm="largeThumbs ? 12 : 4"
           :md="largeThumbs ? 12 : 3"
-          :lg="largeThumbs ? 12 : 3"
-          :xl="largeThumbs ? 12 : 3"
+          :lg="largeThumbs ? 6 : 3"
+          :xl="largeThumbs ? 6 : 2"
         >
           <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
             <template v-slot:action>

@@ -5,14 +5,14 @@
     </a>
 
     <div class="corner-actions">
-      <v-btn class="elevation-2 mb-2" @click="favorite" icon style="background: #fafafa;">
+      <v-btn light class="elevation-2 mb-2" @click="favorite" icon style="background: #fafafa;">
         <v-icon
-          :color="actor.favorite ? 'red' : 'black'"
+          :color="actor.favorite ? 'red' : undefined"
         >{{ actor.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
       </v-btn>
       <br />
-      <v-btn class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
-        <v-icon color="black">{{ actor.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+      <v-btn light class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
+        <v-icon>{{ actor.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
       </v-btn>
     </div>
 

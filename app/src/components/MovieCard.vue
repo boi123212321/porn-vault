@@ -14,14 +14,14 @@
     </v-hover>
 
     <div class="corner-actions">
-      <v-btn class="elevation-2 mb-2" @click="favorite" icon style="background: #fafafa;">
+      <v-btn light class="elevation-2 mb-2" @click="favorite" icon style="background: #fafafa;">
         <v-icon
-          :color="movie.favorite ? 'red' : 'black'"
+          :color="movie.favorite ? 'red' : undefined"
         >{{ movie.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
       </v-btn>
       <br />
-      <v-btn class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
-        <v-icon color="black">{{ movie.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+      <v-btn light class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
+        <v-icon>{{ movie.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
       </v-btn>
     </div>
 

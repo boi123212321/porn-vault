@@ -157,10 +157,10 @@ export default {
       const scene = await Scene.getById(id);
 
       if (scene) {
-        if (typeof opts.name == "string") scene.name = opts.name;
+        if (typeof opts.name == "string") scene.name = opts.name.trim();
 
         if (typeof opts.description == "string")
-          scene.description = opts.description;
+          scene.description = opts.description.trim();
 
         if (typeof opts.thumbnail == "string") scene.thumbnail = opts.thumbnail;
 

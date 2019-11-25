@@ -46,7 +46,7 @@ export default {
         if (Array.isArray(opts.aliases))
           label.aliases = [...new Set(opts.aliases)];
 
-        if (typeof opts.name == "string") label.name = opts.name;
+        if (typeof opts.name == "string") label.name = opts.name.trim();
 
         if (typeof opts.thumbnail == "string") label.thumbnail = opts.thumbnail;
 

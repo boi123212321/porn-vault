@@ -45,7 +45,7 @@ export default {
 
         if (typeof opts.favorite == "boolean") actor.favorite = opts.favorite;
 
-        if (typeof opts.name == "string") actor.name = opts.name;
+        if (typeof opts.name == "string") actor.name = opts.name.trim();
 
         if (typeof opts.thumbnail == "string") actor.thumbnail = opts.thumbnail;
 

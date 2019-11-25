@@ -63,7 +63,7 @@
         </v-btn>
       </div>
       <v-row>
-        <v-col class="pa-1" v-for="scene in scenes" :key="scene._id" cols="12" sm="6" md="4" lg="3">
+        <v-col class="pa-1" v-for="scene in scenes" :key="scene._id" cols="12" sm="6" md="4" lg="3" xl="2">
           <scene-card
             @rate="rate(scene._id, $event)"
             @bookmark="bookmark(scene._id, $event)"

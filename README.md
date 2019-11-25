@@ -11,6 +11,7 @@ Note: this is by no means finished, but useable.
 - Serves image and video to your device
 - Browse, manage & watch scenes
 - Browse & manage actors, including actor aliases
+- Browse & manage movies
 - Browse, manage & view images
 - Label your collection, including sub-labels
   - Automatic label extraction from scene titles & file names
@@ -25,8 +26,8 @@ Note: this is by no means finished, but useable.
 - Fork & create a new branch, give it the name of your feature you're implementing (e.g. "my-new-feature") & submit a pull request!
 
 ## Roadmap
-- Movies (collections of scenes/DVDs)
 - Studios
+- Image albums
 - Recommend similar scenes/actors/images
 - Statistics?
 - visit [Issues](https://github.com/boi123212321/porn-manager/issues) to see what's up

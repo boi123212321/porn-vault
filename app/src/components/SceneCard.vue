@@ -6,20 +6,19 @@
           class="white--text body-2 duration-stamp"
           v-if="scene.meta.duration"
         >{{ videoDuration }}</div>
+
+        <div class="corner-actions">
+          <v-btn light class="elevation-2 mr-1" @click="favorite" icon style="background: #fafafa;">
+            <v-icon
+              :color="scene.favorite ? 'red' : undefined"
+            >{{ scene.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+          </v-btn>
+          <v-btn light class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
+            <v-icon>{{ scene.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+          </v-btn>
+        </div>
       </v-img>
     </a>
-
-    <div class="corner-actions">
-      <v-btn light class="elevation-2 mb-2" @click="favorite" icon style="background: #fafafa;">
-        <v-icon
-          :color="scene.favorite ? 'red' : undefined"
-        >{{ scene.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
-      </v-btn>
-      <br />
-      <v-btn light class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
-        <v-icon>{{ scene.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
-      </v-btn>
-    </div>
 
     <v-card-title>{{ scene.name }}</v-card-title>
     <v-card-subtitle v-if="scene.actors.length" class="pb-1">
@@ -157,7 +156,7 @@ export default class SceneCard extends Vue {
 
 .corner-actions {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  bottom: 5px;
+  left: 5px;
 }
 </style>

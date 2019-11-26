@@ -172,6 +172,7 @@
                         class="elevation-2 mb-2"
                         icon
                         style="background: #fafafa;"
+                        light
                       >
                         <v-icon>mdi-image</v-icon>
                       </v-btn>

@@ -132,7 +132,7 @@
                   <v-tooltip top>
                     <template v-slot:activator="{ on }">
                       <v-btn
-                      light
+                        light
                         v-on="on"
                         @click.native.stop="setAsThumbnail(image._id)"
                         class="elevation-2 mb-2"

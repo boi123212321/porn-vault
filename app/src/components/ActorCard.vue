@@ -1,23 +1,24 @@
 <template>
   <v-card v-if="actor" outlined>
     <a :href="`#/actor/${actor._id}`">
-      <v-img aspect-ratio="1" class="hover" v-ripple eager :src="thumbnail"></v-img>
+      <v-img aspect-ratio="1" class="hover" v-ripple eager :src="thumbnail">
+        <div class="corner-actions">
+          <v-btn light class="elevation-2 mr-1" @click="favorite" icon style="background: #fafafa;">
+            <v-icon
+              :color="actor.favorite ? 'red' : undefined"
+            >{{ actor.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+          </v-btn>
+          <v-btn light class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
+            <v-icon>{{ actor.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+          </v-btn>
+        </div>
+      </v-img>
     </a>
 
-    <div class="corner-actions">
-      <v-btn light class="elevation-2 mb-2" @click="favorite" icon style="background: #fafafa;">
-        <v-icon
-          :color="actor.favorite ? 'red' : undefined"
-        >{{ actor.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
-      </v-btn>
-      <br />
-      <v-btn light class="elevation-2" @click="bookmark" icon style="background: #fafafa;">
-        <v-icon>{{ actor.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
-      </v-btn>
-    </div>
-
     <v-card-title>{{ actor.name }}</v-card-title>
-    <v-card-subtitle class="pb-0">{{ actor.numScenes }} {{ actor.numScenes == 1 ? 'scene' : 'scenes' }}</v-card-subtitle>
+    <v-card-subtitle
+      class="pb-0"
+    >{{ actor.numScenes }} {{ actor.numScenes == 1 ? 'scene' : 'scenes' }}</v-card-subtitle>
     <v-rating
       half-increments
       @input="rate"
@@ -129,7 +130,7 @@ export default class ActorCard extends Vue {
 <style lang="scss" scoped>
 .corner-actions {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  bottom: 5px;
+  left: 5px;
 }
 </style>

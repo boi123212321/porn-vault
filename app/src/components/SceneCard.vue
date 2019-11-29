@@ -1,19 +1,31 @@
 <template>
   <v-card v-if="scene" outlined>
     <a :href="`#/scene/${scene._id}`">
-      <v-img aspect-ratio="1" class="hover" v-ripple eager :src="thumbnail">
+      <v-img :aspect-ratio="aspectRatio" class="hover" v-ripple eager :src="thumbnail">
         <div
           class="white--text body-2 duration-stamp"
           v-if="scene.meta.duration"
         >{{ videoDuration }}</div>
 
         <div class="corner-actions">
-          <v-btn light class="elevation-2 mr-1" @click.stop.prevent="favorite" icon style="background: #fafafa;">
+          <v-btn
+            light
+            class="elevation-2 mr-1"
+            @click.stop.prevent="favorite"
+            icon
+            style="background: #fafafa;"
+          >
             <v-icon
               :color="scene.favorite ? 'red' : undefined"
             >{{ scene.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
           </v-btn>
-          <v-btn light class="elevation-2" @click.stop.prevent="bookmark" icon style="background: #fafafa;">
+          <v-btn
+            light
+            class="elevation-2"
+            @click.stop.prevent="bookmark"
+            icon
+            style="background: #fafafa;"
+          >
             <v-icon>{{ scene.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
           </v-btn>
         </div>
@@ -46,10 +58,15 @@ import ApolloClient, { serverBase } from "../apollo";
 import gql from "graphql-tag";
 import IScene from "../types/scene";
 import moment from "moment";
+import { contextModule } from "../store/context";
 
 @Component
 export default class SceneCard extends Vue {
   @Prop(Object) scene!: IScene;
+
+  get aspectRatio() {
+    return contextModule.sceneAspectRatio;
+  }
 
   get videoDuration() {
     if (this.scene)

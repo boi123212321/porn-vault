@@ -141,6 +141,16 @@ export default class App extends Vue {
     if (darkModeLocalStorage) {
       this.$vuetify.theme.dark = darkModeLocalStorage == "true";
     }
+
+    const sceneRatioLocalStorage = localStorage.getItem("pm_sceneRatio");
+    if (sceneRatioLocalStorage) {
+      contextModule.setSceneAspectRatio(parseFloat(sceneRatioLocalStorage));
+    }
+
+    const actorRatioLocalStorage = localStorage.getItem("pm_actorRatio");
+    if (actorRatioLocalStorage) {
+      contextModule.setActorAspectRatio(parseFloat(actorRatioLocalStorage));
+    }
   }
 
   navItems = [

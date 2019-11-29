@@ -1,7 +1,7 @@
 <template>
   <v-card v-if="actor" outlined>
     <a :href="`#/actor/${actor._id}`">
-      <v-img aspect-ratio="1" class="hover" v-ripple eager :src="thumbnail">
+      <v-img :aspect-ratio="aspectRatio" class="hover" v-ripple eager :src="thumbnail">
         <div class="corner-actions">
           <v-btn light class="elevation-2 mr-1" @click.stop.prevent="favorite" icon style="background: #fafafa;">
             <v-icon
@@ -46,10 +46,15 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 import ApolloClient, { serverBase } from "../apollo";
 import gql from "graphql-tag";
 import IActor from "../types/actor";
+import { contextModule } from "../store/context";
 
 @Component
 export default class ActorCard extends Vue {
   @Prop(Object) actor!: IActor;
+
+  get aspectRatio() {
+    return contextModule.actorAspectRatio;
+  }
 
   rate($event) {
     const rating = $event * 2;

@@ -10,7 +10,7 @@
                   v-ripple
                   @click="openThumbnailDialog"
                   class="elevation-4 hover"
-                  aspect-ratio="1"
+                  :aspect-ratio="aspectRatio"
                   cover
                   :src="thumbnail"
                 >
@@ -272,7 +272,7 @@
               style="height: 400px"
               class="cropper"
               :src="thumbnailDisplay"
-              :stencilProps="{ aspectRatio: 1 }"
+              :stencilProps="{ aspectRatio: aspectRatio }"
               @change="changeCrop"
             ></cropper>
           </div>
@@ -313,6 +313,7 @@ import { actorModule } from "../store/actor";
 import IActor from "../types/actor";
 import IImage from "../types/image";
 import ILabel from "../types/label";
+import { contextModule } from "../store/context";
 
 interface ICropCoordinates {
   left: number;
@@ -361,6 +362,10 @@ export default class SceneDetails extends Vue {
 
   uploadDialog = false;
   isUploading = false;
+
+  get aspectRatio() {
+    return contextModule.sceneAspectRatio;
+  }
 
   @Watch("currentScene.actors", { deep: true })
   onActorChange(newVal: any[]) {

@@ -55,7 +55,7 @@
     "node-filter-async": "^1.1.3",
     "ora": "^4.0.3",
     "pug": "^2.0.4",
-    "tiny-async-pool": "^1.0.4"
+    "tiny-async-pool": "^1.1.0"
   },
   "devDependencies": {
     "@types/checksum": "^0.1.30",

@@ -176,14 +176,14 @@ export default class ImagesView extends Vue {
 
   waiting = false;
   allLabels = [] as ILabel[];
-  selectedLabels = [] as number[];
+  selectedLabels = [] as number[]; // TODO: try to retrieve from localStorage
 
-  largeThumbs = false;
+  largeThumbs = localStorage.getItem("pm_imageLargeThumbs") == "true" || false;
 
-  query = "";
+  query = localStorage.getItem("pm_imageQuery") || "";
   page = 0;
 
-  sortDir = "desc";
+  sortDir = localStorage.getItem("pm_imageSortDir") || "desc";
   sortDirItems = [
     {
       text: "Ascending",
@@ -195,7 +195,7 @@ export default class ImagesView extends Vue {
     }
   ];
 
-  sortBy = "relevance";
+  sortBy = localStorage.getItem("pm_imageSortBy") || "relevance";
   sortByItems = [
     {
       text: "Relevance",
@@ -211,9 +211,9 @@ export default class ImagesView extends Vue {
     }
   ];
 
-  favoritesOnly = false;
-  bookmarksOnly = false;
-  ratingFilter = 0;
+  favoritesOnly = localStorage.getItem("pm_imageFavorite") == "true";
+  bookmarksOnly = localStorage.getItem("pm_imageBookmark") == "true";
+  ratingFilter = parseInt(localStorage.getItem("pm_imageRating") || "0");
 
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
@@ -303,34 +303,39 @@ export default class ImagesView extends Vue {
 
   @Watch("ratingFilter", {})
   onRatingChange(newVal: number) {
+    localStorage.setItem("pm_imageRating", newVal.toString());
     this.page = 0;
     this.images = [];
     this.infiniteId++;
   }
 
   @Watch("favoritesOnly")
-  onFavoriteChange() {
+  onFavoriteChange(newVal: boolean) {
+    localStorage.setItem("pm_imageFavorite", "" + newVal);
     this.page = 0;
     this.images = [];
     this.infiniteId++;
   }
 
   @Watch("bookmarksOnly")
-  onBookmarkChange() {
+  onBookmarkChange(newVal: boolean) {
+    localStorage.setItem("pm_imageBookmark", "" + newVal);
     this.page = 0;
     this.images = [];
     this.infiniteId++;
   }
 
   @Watch("sortDir")
-  onSortDirChange() {
+  onSortDirChange(newVal: string) {
+    localStorage.setItem("pm_imageSortDir", newVal);
     this.page = 0;
     this.images = [];
     this.infiniteId++;
   }
 
   @Watch("sortBy")
-  onSortChange() {
+  onSortChange(newVal: string) {
+    localStorage.setItem("pm_imageSortBy", newVal);
     this.page = 0;
     this.images = [];
     this.infiniteId++;
@@ -344,10 +349,12 @@ export default class ImagesView extends Vue {
   }
 
   @Watch("query")
-  onQueryChange() {
+  onQueryChange(newVal: string | null) {
     if (this.resetTimeout) {
       clearTimeout(this.resetTimeout);
     }
+
+    localStorage.setItem("pm_imageQuery", newVal || "");
 
     this.waiting = true;
     this.page = 0;
@@ -446,6 +453,7 @@ export default class ImagesView extends Vue {
       .catch(err => {
         console.error(err);
       });
+    document.title = "Images";
   }
 }
 </script>

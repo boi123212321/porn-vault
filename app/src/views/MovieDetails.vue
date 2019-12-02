@@ -684,6 +684,7 @@ export default class SceneDetails extends Vue {
       movieModule.setCurrent(res.data.getMovieById);
       this.scenes = res.data.getMovieById.scenes;
       this.actors = res.data.getMovieById.actors;
+      document.title = res.data.getMovieById.name;
     });
   }
 }

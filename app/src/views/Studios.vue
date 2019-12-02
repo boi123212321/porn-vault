@@ -147,7 +147,7 @@ export default class StudioList extends Vue {
 
   waiting = false;
   allLabels = [] as ILabel[];
-  selectedLabels = [] as number[];
+  selectedLabels = [] as number[]; // TODO: try to retrieve from localStorage
 
   validCreation = false;
   createStudioDialog = false;
@@ -157,10 +157,11 @@ export default class StudioList extends Vue {
 
   studioNameRules = [v => (!!v && !!v.length) || "Invalid studio name"];
 
-  query = "";
+  query = localStorage.getItem("pm_studioQuery") || "";
+
   page = 0;
 
-  sortDir = "desc";
+  sortDir = localStorage.getItem("pm_studioSortDir") || "desc";
   sortDirItems = [
     {
       text: "Ascending",
@@ -172,7 +173,7 @@ export default class StudioList extends Vue {
     }
   ];
 
-  sortBy = "relevance";
+  sortBy = localStorage.getItem("pm_studioSortBy") || "relevance";
   sortByItems = [
     {
       text: "Relevance",
@@ -196,9 +197,9 @@ export default class StudioList extends Vue {
     }
   ];
 
-  favoritesOnly = false;
-  bookmarksOnly = false;
-  ratingFilter = 0;
+  favoritesOnly = localStorage.getItem("pm_studioFavorite") == "true";
+  bookmarksOnly = localStorage.getItem("pm_studioBookmark") == "true";
+  ratingFilter = parseInt(localStorage.getItem("pm_studioRating") || "0");
 
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
@@ -275,34 +276,39 @@ export default class StudioList extends Vue {
 
   @Watch("ratingFilter", {})
   onRatingChange(newVal: number) {
+    localStorage.setItem("pm_studioRating", newVal.toString());
     this.page = 0;
     this.studios = [];
     this.infiniteId++;
   }
 
   @Watch("favoritesOnly")
-  onFavoriteChange() {
+  onFavoriteChange(newVal: boolean) {
+    localStorage.setItem("pm_studioFavorite", "" + newVal);
     this.page = 0;
     this.studios = [];
     this.infiniteId++;
   }
 
   @Watch("bookmarksOnly")
-  onBookmarkChange() {
+  onBookmarkChange(newVal: boolean) {
+    localStorage.setItem("pm_studioBookmark", "" + newVal);
     this.page = 0;
     this.studios = [];
     this.infiniteId++;
   }
 
   @Watch("sortDir")
-  onSortDirChange() {
+  onSortDirChange(newVal: string) {
+    localStorage.setItem("pm_studioSortDir", newVal);
     this.page = 0;
     this.studios = [];
     this.infiniteId++;
   }
 
   @Watch("sortBy")
-  onSortChange() {
+  onSortChange(newVal: string) {
+    localStorage.setItem("pm_studioSortBy", newVal);
     this.page = 0;
     this.studios = [];
     this.infiniteId++;
@@ -316,10 +322,12 @@ export default class StudioList extends Vue {
   }
 
   @Watch("query")
-  onQueryChange() {
+  onQueryChange(newVal: string | null) {
     if (this.resetTimeout) {
       clearTimeout(this.resetTimeout);
     }
+
+    localStorage.setItem("pm_studioQuery", newVal || "");
 
     this.waiting = true;
     this.page = 0;
@@ -398,6 +406,7 @@ export default class StudioList extends Vue {
       .catch(err => {
         console.error(err);
       });
+    document.title = "Studios";
   }
 }
 </script>

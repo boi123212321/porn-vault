@@ -301,6 +301,7 @@ export default class Home extends Vue {
       .finally(() => {
         this.fetchLoader = false;
       });
+    document.title = "Labels";
   }
 
   beforeMount() {

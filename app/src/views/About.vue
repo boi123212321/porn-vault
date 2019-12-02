@@ -59,6 +59,10 @@ import { contextModule } from "../store/context";
   }
 })
 export default class About extends Vue {
+  beforeMount() {
+    document.title = "About";
+  }
+
   set actorRatio(val: number) {
     localStorage.setItem("pm_actorRatio", val.toString());
     contextModule.setActorAspectRatio(val);

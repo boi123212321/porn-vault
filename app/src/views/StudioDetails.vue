@@ -458,6 +458,7 @@ export default class StudioDetails extends Vue {
     }).then(res => {
       studioModule.setCurrent(res.data.getStudioById);
       this.movies = res.data.getStudioById.movies;
+      document.title = res.data.getStudioById.name;
     });
   }
 }

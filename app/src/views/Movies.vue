@@ -61,7 +61,16 @@
         </v-btn>
       </div>
       <v-row>
-        <v-col class="pa-1" v-for="movie in movies" :key="movie._id" cols="6" sm="6" md="4" lg="3" xl="2">
+        <v-col
+          class="pa-1"
+          v-for="movie in movies"
+          :key="movie._id"
+          cols="6"
+          sm="6"
+          md="4"
+          lg="3"
+          xl="2"
+        >
           <MovieCard
             :ratio="useDVDCoverRatio ? undefined : 1"
             :movie="movie"
@@ -153,7 +162,7 @@ export default class MovieList extends Vue {
 
   waiting = false;
   allLabels = [] as ILabel[];
-  selectedLabels = [] as number[];
+  selectedLabels = [] as number[]; // TODO: try to retrieve from localStorage
 
   validCreation = false;
   createMovieDialog = false;
@@ -163,10 +172,10 @@ export default class MovieList extends Vue {
 
   movieNameRules = [v => (!!v && !!v.length) || "Invalid scene name"];
 
-  query = "";
+  query = localStorage.getItem("pm_movieQuery") || "";
   page = 0;
 
-  sortDir = "desc";
+  sortDir = localStorage.getItem("pm_movieSortDir") || "desc";
   sortDirItems = [
     {
       text: "Ascending",
@@ -178,7 +187,7 @@ export default class MovieList extends Vue {
     }
   ];
 
-  sortBy = "relevance";
+  sortBy = localStorage.getItem("pm_movieSortBy") || "relevance";
   sortByItems = [
     {
       text: "Relevance",
@@ -202,14 +211,23 @@ export default class MovieList extends Vue {
     }
   ];
 
-  favoritesOnly = false;
-  bookmarksOnly = false;
-  ratingFilter = 0;
+  favoritesOnly = localStorage.getItem("pm_movieFavorite") == "true";
+  bookmarksOnly = localStorage.getItem("pm_movieBookmark") == "true";
+  ratingFilter = parseInt(localStorage.getItem("pm_movieRating") || "0");
 
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
 
-  useDVDCoverRatio = true;
+  useDVDCoverRatio = (() => {
+    const fromLocalStorage = localStorage.getItem("pm_movieDVDRatio");
+    if (fromLocalStorage) return fromLocalStorage == "true";
+    return true;
+  })();
+
+  @Watch("useDVDCoverRatio")
+  onRatioChange(newVal: boolean) {
+    localStorage.setItem("pm_movieDVDRatio", "" + newVal);
+  }
 
   get drawer() {
     return contextModule.showFilters;
@@ -292,34 +310,39 @@ export default class MovieList extends Vue {
 
   @Watch("ratingFilter", {})
   onRatingChange(newVal: number) {
+    localStorage.setItem("pm_movieRating", newVal.toString());
     this.page = 0;
     this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("favoritesOnly")
-  onFavoriteChange() {
+  onFavoriteChange(newVal: boolean) {
+    localStorage.setItem("pm_movieFavorite", "" + newVal);
     this.page = 0;
     this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("bookmarksOnly")
-  onBookmarkChange() {
+  onBookmarkChange(newVal: boolean) {
+    localStorage.setItem("pm_movieBookmark", "" + newVal);
     this.page = 0;
     this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("sortDir")
-  onSortDirChange() {
+  onSortDirChange(newVal: string) {
+    localStorage.setItem("pm_movieSortDir", newVal);
     this.page = 0;
     this.movies = [];
     this.infiniteId++;
   }
 
   @Watch("sortBy")
-  onSortChange() {
+  onSortChange(newVal: string) {
+    localStorage.setItem("pm_movieSortBy", newVal);
     this.page = 0;
     this.movies = [];
     this.infiniteId++;
@@ -333,10 +356,12 @@ export default class MovieList extends Vue {
   }
 
   @Watch("query")
-  onQueryChange() {
+  onQueryChange(newVal: string | null) {
     if (this.resetTimeout) {
       clearTimeout(this.resetTimeout);
     }
+
+    localStorage.setItem("pm_movieQuery", newVal || "");
 
     this.waiting = true;
     this.page = 0;
@@ -426,6 +451,7 @@ export default class MovieList extends Vue {
       .catch(err => {
         console.error(err);
       });
+    document.title = "Movies";
   }
 }
 </script>

@@ -692,6 +692,7 @@ export default class ActorDetails extends Vue {
       this.scenes = res.data.getActorById.scenes;
       delete res.data.getActorById.scenes;
       actorModule.setCurrent(res.data.getActorById);
+      document.title = res.data.getActorById.name;
     });
   }
 }

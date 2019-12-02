@@ -31,6 +31,9 @@ export interface IConfig {
   PORT: number;
 
   APPLY_ACTOR_LABELS: boolean;
+
+  USE_FUZZY_SEARCH: boolean;
+  FUZZINESS: number;
 }
 
 export const defaultConfig: IConfig = {
@@ -45,7 +48,9 @@ export const defaultConfig: IConfig = {
   THUMBNAIL_INTERVAL: 60,
   PASSWORD: null,
   PORT: 3000,
-  APPLY_ACTOR_LABELS: true
+  APPLY_ACTOR_LABELS: true,
+  USE_FUZZY_SEARCH: true,
+  FUZZINESS: 0.25
 };
 
 let config = JSON.parse(JSON.stringify(defaultConfig)) as IConfig;

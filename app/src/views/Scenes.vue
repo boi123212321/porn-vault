@@ -207,7 +207,7 @@ export default class SceneList extends Vue {
 
   waiting = false;
   allLabels = [] as ILabel[];
-  selectedLabels = [] as number[];
+  selectedLabels = [] as number[]; // TODO: try to retrieve from localStorage
 
   validCreation = false;
   createSceneDialog = false;
@@ -219,10 +219,10 @@ export default class SceneList extends Vue {
 
   sceneNameRules = [v => (!!v && !!v.length) || "Invalid scene name"];
 
-  query = "";
+  query = localStorage.getItem("pm_sceneQuery") || "";
   page = 0;
 
-  sortDir = "desc";
+  sortDir = localStorage.getItem("pm_sceneSortDir") || "desc";
   sortDirItems = [
     {
       text: "Ascending",
@@ -234,7 +234,7 @@ export default class SceneList extends Vue {
     }
   ];
 
-  sortBy = "relevance";
+  sortBy = localStorage.getItem("pm_sceneSortBy") || "relevance";
   sortByItems = [
     {
       text: "Relevance",
@@ -258,9 +258,9 @@ export default class SceneList extends Vue {
     }
   ];
 
-  favoritesOnly = false;
-  bookmarksOnly = false;
-  ratingFilter = 0;
+  favoritesOnly = localStorage.getItem("pm_sceneFavorite") == "true";
+  bookmarksOnly = localStorage.getItem("pm_sceneBookmark") == "true";
+  ratingFilter = parseInt(localStorage.getItem("pm_sceneRating") || "0");
 
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
@@ -403,34 +403,39 @@ export default class SceneList extends Vue {
 
   @Watch("ratingFilter", {})
   onRatingChange(newVal: number) {
+    localStorage.setItem("pm_sceneRating", newVal.toString());
     this.page = 0;
     this.scenes = [];
     this.infiniteId++;
   }
 
   @Watch("favoritesOnly")
-  onFavoriteChange() {
+  onFavoriteChange(newVal: boolean) {
+    localStorage.setItem("pm_sceneFavorite", "" + newVal);
     this.page = 0;
     this.scenes = [];
     this.infiniteId++;
   }
 
   @Watch("bookmarksOnly")
-  onBookmarkChange() {
+  onBookmarkChange(newVal: boolean) {
+    localStorage.setItem("pm_sceneBookmark", "" + newVal);
     this.page = 0;
     this.scenes = [];
     this.infiniteId++;
   }
 
   @Watch("sortDir")
-  onSortDirChange() {
+  onSortDirChange(newVal: string) {
+    localStorage.setItem("pm_sceneSortDir", newVal);
     this.page = 0;
     this.scenes = [];
     this.infiniteId++;
   }
 
   @Watch("sortBy")
-  onSortChange() {
+  onSortChange(newVal: string) {
+    localStorage.setItem("pm_sceneSortBy", newVal);
     this.page = 0;
     this.scenes = [];
     this.infiniteId++;
@@ -444,10 +449,12 @@ export default class SceneList extends Vue {
   }
 
   @Watch("query")
-  onQueryChange() {
+  onQueryChange(newVal: string | null) {
     if (this.resetTimeout) {
       clearTimeout(this.resetTimeout);
     }
+
+    localStorage.setItem("pm_sceneQuery", newVal || "");
 
     this.waiting = true;
     this.page = 0;
@@ -534,6 +541,7 @@ export default class SceneList extends Vue {
       .catch(err => {
         console.error(err);
       });
+    document.title = "Scenes";
   }
 }
 </script>

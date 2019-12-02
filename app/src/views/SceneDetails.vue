@@ -766,6 +766,7 @@ export default class SceneDetails extends Vue {
     }).then(res => {
       sceneModule.setCurrent(res.data.getSceneById);
       this.actors = res.data.getSceneById.actors;
+      document.title = res.data.getSceneById.name;
     });
   }
 }

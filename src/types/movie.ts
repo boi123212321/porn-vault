@@ -79,13 +79,13 @@ export default class Movie {
   static async getByScene(id: string) {
     return (await database.find(database.store.movies, {
       scenes: id
-    })) as Scene[];
+    })) as Movie[];
   }
 
   static async getByStudio(id: string) {
     return (await database.find(database.store.movies, {
       studio: id
-    })) as Scene[];
+    })) as Movie[];
   }
 
   static async getLabels(movie: Movie) {

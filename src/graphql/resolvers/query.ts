@@ -6,7 +6,7 @@ import Movie from "../../types/movie";
 import extractQueryOptions, { SortTarget } from "../../query_extractor";
 import Fuse from "fuse.js";
 import * as logger from "../../logger/index";
-import { Dictionary } from "../../types/utility";
+import { Dictionary, filterAsync } from "../../types/utility";
 import ProcessingQueue from "../../queue/index";
 import Studio from "../../types/studio";
 import { getConfig } from "../../config";
@@ -462,9 +462,22 @@ export default {
     }
 
     if (options.studios.length) {
-      searchDocs = searchDocs.filter(scene =>
-        options.studios.includes(scene.studio || "none")
-      );
+      searchDocs = await filterAsync(searchDocs, async scene => {
+        if (!scene.studio) return false;
+        if (options.studios.includes(scene.studio)) return true;
+
+        const studio = await Studio.getById(scene.studio);
+
+        if (!studio) return false;
+
+        if (!studio.parent) return false;
+
+        const parentStudio = await Studio.getById(studio.parent);
+
+        if (!parentStudio) return false;
+
+        return options.studios.includes(parentStudio._id);
+      });
     }
 
     const config = await getConfig();
@@ -559,7 +572,9 @@ export default {
         break;
     }
 
-    const slice = Promise.all(
+    console.log("PAGE", options.page);
+
+    const slice = await Promise.all(
       searchDocs
         .slice(options.page * PAGE_SIZE, options.page * PAGE_SIZE + PAGE_SIZE)
         .map(image => Scene.getById(image._id))

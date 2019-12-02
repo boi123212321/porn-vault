@@ -59,12 +59,30 @@ export default class Studio {
     return (await database.find(database.store.studios, {})) as Studio[];
   }
 
-  static async getScenes(studio: Studio) {
-    return await Scene.getByStudio(studio._id);
+  static async getScenes(studio: Studio): Promise<Scene[]> {
+    const scenes = await Scene.getByStudio(studio._id);
+
+    const subStudios = await Studio.getSubStudios(studio._id);
+
+    const scenesOfSubStudios = (
+      await Promise.all(subStudios.map(child => Studio.getScenes(child)))
+    ).flat();
+
+    return scenes.concat(scenesOfSubStudios);
   }
 
-  static async getMovies(studio: Studio) {
-    return await Movie.getByStudio(studio._id);
+  static async getMovies(studio: Studio): Promise<Movie[]> {
+    const movies = await Movie.getByStudio(studio._id);
+
+    const moviesOfSubStudios = (
+      await Promise.all(
+        (await Studio.getSubStudios(studio._id)).map(child =>
+          Studio.getMovies(child)
+        )
+      )
+    ).flat();
+
+    return movies.concat(moviesOfSubStudios);
   }
 
   static async getSubStudios(studioId: string) {

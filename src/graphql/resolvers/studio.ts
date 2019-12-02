@@ -47,6 +47,6 @@ export default {
   },
 
   async numScenes(studio: Studio) {
-    return (await Scene.getByStudio(studio._id)).length;
+    return (await Studio.getScenes(studio)).length;
   }
 };

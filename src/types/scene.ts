@@ -168,14 +168,14 @@ export default class Scene {
   static async generateThumbnails(scene: Scene): Promise<ThumbnailFile[]> {
     return new Promise(async (resolve, reject) => {
       if (!scene.path || !scene.meta.duration) {
-        logger.error("Error while generating thumbnails");
+        logger.warn("No scene path or duration, aborting thumbnail generation");
         return resolve([]);
       }
 
       const config = await getConfig();
 
       const amount = Math.max(
-        1,
+        2,
         Math.floor((scene.meta.duration || 30) / config.THUMBNAIL_INTERVAL)
       );
 
@@ -199,15 +199,27 @@ export default class Scene {
           i++;
         }
 
+        logger.log("Timestamps: ", timestamps);
+        logger.log("Creating thumbnails with options: ", options);
+
         await asyncPool(4, timestamps, timestamp => {
           const index = timestamps.findIndex(s => s == timestamp);
           return new Promise((resolve, reject) => {
-            logger.log(`Creating thumbnail ${index}`);
+            logger.log(`Creating thumbnail ${index}...`);
             ffmpeg(options.file)
               .on("end", async () => {
+                logger.success("Created thumbnail " + index);
                 resolve();
               })
               .on("error", (err: Error) => {
+                logger.error(
+                  "Thumbnail generation failed for thumbnail " + index
+                );
+                logger.error({
+                  options,
+                  duration: scene.meta.duration,
+                  timestamps
+                });
                 reject(err);
               })
               .screenshots({
@@ -218,6 +230,8 @@ export default class Scene {
               });
           });
         });
+
+        logger.success("Thumbnail generation done.");
 
         const thumbnailFilenames = (
           await readdirAsync(options.thumbnailPath)
@@ -240,8 +254,11 @@ export default class Scene {
           a.name.localeCompare(b.name, undefined, { numeric: true })
         );
 
+        logger.success(`Generated ${thumbnailFiles.length} thumbnails.`);
+
         resolve(thumbnailFiles);
       } catch (err) {
+        logger.error(err);
         reject(err);
       }
     });

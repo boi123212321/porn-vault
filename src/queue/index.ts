@@ -156,7 +156,6 @@ class Queue {
     if (scene.studio) logger.log("Found studio in scene path");
 
     // Thumbnails
-
     if (config.GENERATE_THUMBNAILS) {
       const loader = ora("Generating thumbnails...").start();
 
@@ -178,14 +177,14 @@ class Queue {
           await database.insert(database.store.images, image);
           images.push(image);
         }
+
+        scene.thumbnail = images[Math.floor(images.length / 2)]._id;
+        loader.succeed(`Created ${thumbnailFiles.length} thumbnails.`);
       } catch (error) {
         logger.error(error);
-        loader.fail(`Error generating thumbnails.`);
+        loader.warn(`Error generating thumbnails.`);
         throw error;
       }
-
-      scene.thumbnail = images[Math.floor(images.length / 2)]._id;
-      loader.succeed(`Created ${thumbnailFiles.length} thumbnails.`);
     }
 
     logger.log(`Creating scene with id ${scene._id}...`);
@@ -209,7 +208,7 @@ class Queue {
       logger.success("Processing done");
     } catch (error) {
       logger.error(error);
-      logger.error("Error processing stuff");
+      logger.error("Error processing scene");
     }
     this.isProcessing = false;
   }

@@ -85,7 +85,7 @@
           :lg="largeThumbs ? 6 : 3"
           :xl="largeThumbs ? 6 : 2"
         >
-          <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
+          <ImageCard width="100%" height="100%" @open="lightboxIndex = index" :image="image">
             <template v-slot:action>
               <v-checkbox
                 color="accent"
@@ -94,6 +94,7 @@
                 @click.native.stop
                 class="mt-0"
                 hide-details
+                :contain="true"
               ></v-checkbox>
             </template>
           </ImageCard>

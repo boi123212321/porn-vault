@@ -572,8 +572,6 @@ export default {
         break;
     }
 
-    console.log("PAGE", options.page);
-
     const slice = await Promise.all(
       searchDocs
         .slice(options.page * PAGE_SIZE, options.page * PAGE_SIZE + PAGE_SIZE)

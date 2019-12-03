@@ -11,6 +11,7 @@
       min-height="100px"
       @click="$emit('open')"
       v-ripple
+      :contain="contain"
     >
       <div class="corner-actions">
         <slot name="action"></slot>
@@ -32,6 +33,7 @@ import IImage from "../types/image";
 @Component
 export default class ImageCard extends Vue {
   @Prop(Object) image!: IImage;
+  @Prop({ default: false }) contain!: boolean;
 
   imageLink(image: IImage) {
     return `${serverBase}/image/${image._id}?password=${localStorage.getItem(

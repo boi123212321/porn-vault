@@ -65,6 +65,11 @@ class SceneModule extends VuexModule {
   }
 
   @Mutation
+  setReleaseDate(val: number | null) {
+    if (this.current) this.current.releaseDate = val;
+  }
+
+  @Mutation
   setActors(actors: IActor[]) {
     if (this.current) this.current.actors = actors;
   }

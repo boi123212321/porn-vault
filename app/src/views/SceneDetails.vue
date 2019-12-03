@@ -36,7 +36,7 @@
               <v-icon>mdi-calendar</v-icon>
               <v-subheader>Release Date</v-subheader>
             </div>
-            <div class="med--text pa-2">{{ releaseDate }}</div>
+            <div class="med--text pa-2">{{ new Date(currentScene.releaseDate).toDateString() }}</div>
           </div>
 
           <div v-if="currentScene.description">
@@ -640,12 +640,6 @@ export default class SceneDetails extends Vue {
     } else {
       this.labelSelectorDialog = true;
     }
-  }
-
-  get releaseDate() {
-    if (this.currentScene && this.currentScene.releaseDate)
-      return new Date(this.currentScene.releaseDate).toDateString();
-    return "";
   }
 
   get videoDuration() {

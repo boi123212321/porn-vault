@@ -84,7 +84,7 @@ export default {
 
         if (typeof opts.rating == "number") movie.rating = opts.rating;
 
-        if (typeof opts.releaseDate == "number")
+        if (opts.releaseDate !== undefined)
           movie.releaseDate = opts.releaseDate;
 
         await database.update(database.store.movies, { _id: movie._id }, movie);

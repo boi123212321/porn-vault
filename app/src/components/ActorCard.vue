@@ -28,7 +28,10 @@
     </a>
 
     <v-card-title>
-      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ actor.name }}</span>
+      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">
+        {{ actor.name }}
+        <span class="subtitle-1 med--text" v-if="actor.bornOn">({{ age }})</span>
+      </span>
     </v-card-title>
     <v-card-subtitle
       class="pb-0"
@@ -61,10 +64,17 @@ import ApolloClient, { serverBase } from "../apollo";
 import gql from "graphql-tag";
 import IActor from "../types/actor";
 import { contextModule } from "../store/context";
+import moment from "moment";
 
 @Component
 export default class ActorCard extends Vue {
   @Prop(Object) actor!: IActor;
+
+  get age() {
+    if (this.actor.bornOn) {
+      return moment().diff(this.actor.bornOn, "years");
+    }
+  }
 
   get aspectRatio() {
     return contextModule.actorAspectRatio;

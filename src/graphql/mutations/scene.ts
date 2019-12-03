@@ -182,7 +182,7 @@ export default {
 
         if (typeof opts.rating == "number") scene.rating = opts.rating;
 
-        if (typeof opts.releaseDate == "number")
+        if (opts.releaseDate !== undefined)
           scene.releaseDate = opts.releaseDate;
 
         await database.update(database.store.scenes, { _id: scene._id }, scene);

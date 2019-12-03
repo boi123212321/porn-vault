@@ -3,7 +3,13 @@
     <v-btn class="mr-1" icon @click="$router.go(-1)">
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
-    <v-toolbar-title v-if="$vuetify.breakpoint.smAndUp" class="mr-1 title">{{ currentActor.name }}</v-toolbar-title>
+    <v-toolbar-title v-if="$vuetify.breakpoint.smAndUp" class="mr-1 title">
+      {{ currentActor.name }}
+      <span
+        class="subtitle-1 med--text"
+        v-if="currentActor.bornOn"
+      >({{ age }})</span>
+    </v-toolbar-title>
 
     <v-btn @click="favorite" class="mr-1" icon>
       <v-icon
@@ -36,6 +42,8 @@
               v-model="editName"
               placeholder="Name"
             />
+
+            <DateInput v-if="editDialog" v-model="editBirthDate" />
 
             <v-combobox
               color="accent"
@@ -78,20 +86,33 @@ import { Component, Vue } from "vue-property-decorator";
 import { actorModule } from "../../store/actor";
 import ApolloClient, { serverBase } from "../../apollo";
 import gql from "graphql-tag";
+import DateInput from "../DateInput.vue";
+import IActor from "../../types/actor";
+import moment from "moment";
 
 @Component({
-  components: {}
+  components: {
+    DateInput
+  }
 })
 export default class ActorToolbar extends Vue {
   validEdit = false;
   editDialog = false;
   editName = "";
   editAliases = [] as string[];
+  editBirthDate = null as number | null;
 
   actorNameRules = [v => (!!v && !!v.length) || "Invalid actor name"];
 
   removeDialog = false;
   removeLoader = false;
+
+  get age() {
+    if (this.currentActor && this.currentActor.bornOn) {
+      return moment().diff(this.currentActor.bornOn, "years");
+    }
+    return -1;
+  }
 
   remove() {
     if (!this.currentActor) return;
@@ -139,13 +160,15 @@ export default class ActorToolbar extends Vue {
         ids: [this.currentActor._id],
         opts: {
           name: this.editName,
-          aliases: this.editAliases
+          aliases: this.editAliases,
+          bornOn: this.editBirthDate
         }
       }
     })
       .then(res => {
         actorModule.setName(this.editName);
         actorModule.setAliases(this.editAliases);
+        actorModule.setBornOn(this.editBirthDate);
         this.editDialog = false;
       })
       .catch(err => {
@@ -158,6 +181,7 @@ export default class ActorToolbar extends Vue {
     this.editName = this.currentActor.name;
     this.editAliases = this.currentActor.aliases;
     this.editDialog = true;
+    this.editBirthDate = this.currentActor.bornOn;
   }
 
   favorite() {

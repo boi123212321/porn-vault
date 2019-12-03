@@ -183,7 +183,6 @@ class Queue {
       } catch (error) {
         logger.error(error);
         loader.warn(`Error generating thumbnails.`);
-        throw error;
       }
     }
 

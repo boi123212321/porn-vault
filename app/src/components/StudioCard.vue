@@ -5,7 +5,9 @@
         <v-img contain aspect-ratio="2" :src="thumbnail"></v-img>
       </div>
     </router-link>
-    <v-card-title class="pb-3">{{ studio.name }}</v-card-title>
+    <v-card-title class="pb-3">
+      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ studio.name }}</span>
+    </v-card-title>
     <v-card-subtitle
       class="py-0"
     >{{ studio.numScenes }} {{ studio.numScenes == 1 ? 'scene' : 'scenes' }}</v-card-subtitle>

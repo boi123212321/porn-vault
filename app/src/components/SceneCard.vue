@@ -3,7 +3,7 @@
     <a :href="`#/scene/${scene._id}`">
       <v-img :aspect-ratio="aspectRatio" class="hover" v-ripple eager :src="thumbnail">
         <div
-          class="white--text body-2 duration-stamp"
+          class="white--text body-2 font-weight-bold duration-stamp"
           v-if="scene.meta.duration"
         >{{ videoDuration }}</div>
 
@@ -32,7 +32,9 @@
       </v-img>
     </a>
 
-    <v-card-title>{{ scene.name }}</v-card-title>
+    <v-card-title>
+      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ scene.name }}</span>
+    </v-card-title>
     <v-card-subtitle v-if="scene.actors.length" class="pb-1">
       Featuring
       <span v-html="actorLinks"></span>
@@ -47,7 +49,14 @@
       dense
     ></v-rating>
     <div class="pa-2">
-      <v-chip class="mr-1 mb-1" small outlined v-for="label in labelNames" :key="label">{{ label }}</v-chip>
+      <v-chip
+        label
+        class="mr-1 mb-1"
+        small
+        outlined
+        v-for="label in labelNames"
+        :key="label"
+      >{{ label }}</v-chip>
     </div>
   </v-card>
 </template>
@@ -165,7 +174,7 @@ export default class SceneCard extends Vue {
 .duration-stamp {
   padding: 4px;
   border-radius: 4px;
-  background: #00000080;
+  background: #000000a0;
   position: absolute;
   bottom: 5px;
   right: 5px;

@@ -22,7 +22,13 @@
                 :color="movie.favorite ? 'red' : undefined"
               >{{ movie.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
             </v-btn>
-            <v-btn light class="elevation-2" @click.stop.prevent="bookmark" icon style="background: #fafafa;">
+            <v-btn
+              light
+              class="elevation-2"
+              @click.stop.prevent="bookmark"
+              icon
+              style="background: #fafafa;"
+            >
               <v-icon>{{ movie.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
             </v-btn>
           </div>
@@ -30,7 +36,9 @@
       </a>
     </v-hover>
 
-    <v-card-title>{{ movie.name }}</v-card-title>
+    <v-card-title>
+      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ movie.name }}</span>
+    </v-card-title>
     <v-card-subtitle v-if="movie.actors.length" class="pt-0 pb-0">
       Featuring
       <span v-html="actorLinks"></span>

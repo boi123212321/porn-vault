@@ -36,6 +36,9 @@
               v-model="editName"
               placeholder="Movie name"
             />
+
+            <DateInput v-if="editDialog" v-model="editReleaseDate" />
+
             <v-textarea
               auto-grow
               :rows="2"
@@ -43,6 +46,7 @@
               v-model="editDescription"
               placeholder="Movie description"
             />
+
             <SceneSelector :multiple="true" v-model="editScenes" />
 
             <StudioSelector v-model="editStudio" />
@@ -86,11 +90,13 @@ import actorFragment from "../../fragments/actor";
 import sceneFragment from "../../fragments/scene";
 import movieFragment from "../../fragments/movie";
 import StudioSelector from "../../components/StudioSelector.vue";
+import DateInput from "../DateInput.vue";
 
 @Component({
   components: {
     SceneSelector,
-    StudioSelector
+    StudioSelector,
+    DateInput
   }
 })
 export default class MovieToolbar extends Vue {
@@ -100,6 +106,7 @@ export default class MovieToolbar extends Vue {
   editDescription = "";
   editScenes = [] as IScene[];
   editStudio = null as any;
+  editReleaseDate = null as number | null;
 
   movieNameRules = [v => (!!v && !!v.length) || "Invalid movie name"];
 
@@ -142,7 +149,8 @@ export default class MovieToolbar extends Vue {
           name: this.editName,
           description: this.editDescription,
           scenes: this.editScenes.map(a => a._id),
-          studio: this.editStudio ? this.editStudio._id : null
+          studio: this.editStudio ? this.editStudio._id : null,
+          releaseDate: this.editReleaseDate
         }
       }
     })
@@ -154,6 +162,7 @@ export default class MovieToolbar extends Vue {
         movieModule.setDuration(res.data.updateMovies[0].duration);
         movieModule.setSize(res.data.updateMovies[0].size);
         movieModule.setStudio(res.data.updateMovies[0].studio);
+        movieModule.setReleaseDate(this.editReleaseDate);
         this.editDialog = false;
       })
       .catch(err => {

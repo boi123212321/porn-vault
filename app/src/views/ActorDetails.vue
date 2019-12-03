@@ -34,7 +34,7 @@
               <v-icon>mdi-calendar</v-icon>
               <v-subheader>Birthday</v-subheader>
             </div>
-            <div class="med--text pa-2">{{ bornOn }}</div>
+            <div class="med--text pa-2">{{ new Date(currentActor.bornOn).toLocaleDateString() }}</div>
           </div>
 
           <div class="d-flex align-center">

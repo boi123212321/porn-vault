@@ -51,7 +51,7 @@ export default {
 
         if (typeof opts.rating == "number") actor.rating = opts.rating;
 
-        if (typeof opts.bornOn == "number") actor.bornOn = opts.bornOn;
+        if (opts.bornOn !== undefined) actor.bornOn = opts.bornOn;
 
         await database.update(database.store.actors, { _id: actor._id }, actor);
 

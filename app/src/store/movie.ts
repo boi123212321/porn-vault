@@ -77,6 +77,11 @@ class MovieModule extends VuexModule {
   setSize(size: number) {
     if (this.current) this.current.size = size;
   }
+
+  @Mutation
+  setReleaseDate(val: number | null) {
+    if (this.current) this.current.releaseDate = val;
+  }
 }
 
 import store from "./index";

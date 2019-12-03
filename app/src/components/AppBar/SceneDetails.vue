@@ -60,6 +60,8 @@
               placeholder="Name"
             />
 
+            <DateInput v-if="editDialog" v-model="editReleaseDate" />
+
             <v-textarea
               auto-grow
               color="accent"
@@ -118,11 +120,14 @@ import gql from "graphql-tag";
 import ActorSelector from "../ActorSelector.vue";
 import IActor from "../../types/actor";
 import StudioSelector from "../../components/StudioSelector.vue";
+import IScene from "../../types/scene";
+import DateInput from "../DateInput.vue";
 
 @Component({
   components: {
     ActorSelector,
-    StudioSelector
+    StudioSelector,
+    DateInput
   }
 })
 export default class SceneToolbar extends Vue {
@@ -133,6 +138,7 @@ export default class SceneToolbar extends Vue {
   editStreamLinks = null as string | null;
   editActors = [] as IActor[];
   editStudio = null as any;
+  editReleaseDate = null as number | null;
 
   sceneNameRules = [v => (!!v && !!v.length) || "Invalid scene name"];
 
@@ -233,7 +239,8 @@ export default class SceneToolbar extends Vue {
           description: this.editDescription,
           streamLinks,
           actors: this.editActors.map(a => a._id),
-          studio: this.editStudio ? this.editStudio._id : null
+          studio: this.editStudio ? this.editStudio._id : null,
+          releaseDate: this.editReleaseDate
         }
       }
     })
@@ -243,6 +250,7 @@ export default class SceneToolbar extends Vue {
         sceneModule.setStreamLinks(streamLinks);
         sceneModule.setActors(this.editActors);
         sceneModule.setStudio(res.data.updateScenes[0].studio);
+        sceneModule.setReleaseDate(this.editReleaseDate);
         this.editDialog = false;
       })
       .catch(err => {
@@ -259,6 +267,7 @@ export default class SceneToolbar extends Vue {
     this.editActors = JSON.parse(JSON.stringify(this.currentScene.actors));
     this.editDialog = true;
     this.editStudio = this.currentScene.studio;
+    this.editReleaseDate = this.currentScene.releaseDate;
   }
 
   favorite() {

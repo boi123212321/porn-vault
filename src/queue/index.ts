@@ -179,9 +179,9 @@ class Queue {
           images.push(image);
         }
 
-        if (thumbnailFiles.length > 0) {
+        if (images.length > 0) {
           scene.thumbnail = images[Math.floor(images.length / 2)]._id;
-          loader.succeed(`Created ${thumbnailFiles.length} thumbnails.`);
+          loader.succeed(`Created ${images.length} thumbnails.`);
         } else loader.warn(`Created 0 thumbnails.`);
       } catch (error) {
         logger.error(error);

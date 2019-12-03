@@ -174,7 +174,7 @@ export default class Scene {
 
       const config = await getConfig();
 
-      let amount;
+      let amount: number;
 
       if (scene.meta.duration) {
         amount = Math.max(

@@ -31,7 +31,7 @@
               <v-icon>mdi-calendar</v-icon>
               <v-subheader>Release Date</v-subheader>
             </div>
-            <div class="med--text pa-2">{{ releaseDate }}</div>
+            <div class="med--text pa-2">{{ new Date(currentMovie.releaseDate).toDateString() }}</div>
           </div>
 
           <div v-if="currentMovie.description">
@@ -537,12 +537,6 @@ export default class SceneDetails extends Vue {
         $state.complete();
       }
     });
-  }
-
-  get releaseDate() {
-    if (this.currentMovie && this.currentMovie.releaseDate)
-      return new Date(this.currentMovie.releaseDate).toDateString();
-    return "";
   }
 
   imageLink(image: any) {

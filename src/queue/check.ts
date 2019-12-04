@@ -22,14 +22,14 @@ async function getItemByPath(path: string) {
 export async function checkVideoFolders() {
   const config = await getConfig();
 
-  let files = [] as string[];
+  const allFiles = [] as string[];
 
   for (const folder of config.VIDEO_PATHS) {
-    let _files = await walk(folder, [".mp4"]);
-    files.push(..._files);
+    const filesInFolder = await walk(folder, [".mp4"]);
+    for (const file of filesInFolder) allFiles.push(file);
   }
 
-  const unknownVideos = await filterAsync(files, async (path: string) => {
+  const unknownVideos = await filterAsync(allFiles, async (path: string) => {
     const scene = await Scene.getSceneByPath(path);
     const item = await getItemByPath(path);
     return !scene && !item;
@@ -56,15 +56,15 @@ export async function checkVideoFolders() {
 export async function checkImageFolders() {
   const config = await getConfig();
 
-  let files = [] as string[];
+  const allFiles = [] as string[];
 
   logger.log("Checking image folders...");
   for (const folder of config.IMAGE_PATHS) {
-    let _files = await walk(folder, [".jpg", ".jpeg", ".png"]);
-    files.push(..._files);
+    const filesInFolder = await walk(folder, [".jpg", ".jpeg", ".png"]);
+    for (const file of filesInFolder) allFiles.push(file);
   }
 
-  const unknownImages = await filterAsync(files, async (path: string) => {
+  const unknownImages = await filterAsync(allFiles, async (path: string) => {
     const image = await Image.getImageByPath(path);
     return !image;
   });

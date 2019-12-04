@@ -13,14 +13,13 @@ export const writeFileAsync = promisify(writeFile);
 export async function walk(dir: string, exts = [] as string[]) {
   const files = [] as string[];
 
-  logger.log("Walking folder " + dir + "...");
-
   let folderStack = [] as string[];
   folderStack.push(dir);
 
   while (folderStack.length) {
     const top = folderStack.pop();
     if (!top) break;
+    logger.log("Walking folder " + top + "...");
     const filesInDir = await readdirAsync(top);
 
     for (const file of filesInDir) {

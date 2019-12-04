@@ -10,9 +10,11 @@ export const readdirAsync = promisify(readdir);
 export const readFileAsync = promisify(readFile);
 export const writeFileAsync = promisify(writeFile);
 
-export async function walk(dir: string, exts = [] as string[]) {
-  const files = [] as string[];
-
+export async function walk(
+  dir: string,
+  exts = [] as string[],
+  cb: (file: string) => Promise<void>
+) {
   let folderStack = [] as string[];
   folderStack.push(dir);
 
@@ -30,10 +32,8 @@ export async function walk(dir: string, exts = [] as string[]) {
         logger.log("Pushed folder " + path);
         folderStack.push(path);
       } else if (exts.includes(extname(file))) {
-        files.push(path);
+        await cb(path);
       }
     }
   }
-
-  return files;
 }

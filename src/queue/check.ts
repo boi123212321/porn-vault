@@ -49,7 +49,7 @@ export async function checkVideoFolders() {
     });
   }
 
-  logger.warn(`Added ${unknownVideos.length} new videos.`);
+  logger.warn(`Queued ${unknownVideos.length} new videos.`);
 }
 
 export async function checkImageFolders() {
@@ -69,33 +69,41 @@ export async function checkImageFolders() {
 
   logger.log(`Found ${unknownImages.length} images.`);
 
+  let numAddedImages = 0;
+
   for (const imagePath of unknownImages) {
-    const imageName = basename(imagePath);
-    const image = new Image(imageName);
-    image.path = imagePath;
+    try {
+      const imageName = basename(imagePath);
+      const image = new Image(imageName);
+      image.path = imagePath;
 
-    const jimpImage = await Jimp.read(imagePath);
-    image.meta.dimensions.width = jimpImage.bitmap.width;
-    image.meta.dimensions.height = jimpImage.bitmap.height;
-    image.hash = jimpImage.hash();
+      const jimpImage = await Jimp.read(imagePath);
+      image.meta.dimensions.width = jimpImage.bitmap.width;
+      image.meta.dimensions.height = jimpImage.bitmap.height;
+      image.hash = jimpImage.hash();
 
-    // Extract actors
-    const extractedActors = await extractActors(image.path);
-    logger.log(`Found ${extractedActors.length} actors in image path.`);
-    image.actors.push(...extractedActors);
-    image.actors = [...new Set(image.actors)];
+      // Extract actors
+      const extractedActors = await extractActors(image.path);
+      logger.log(`Found ${extractedActors.length} actors in image path.`);
+      image.actors.push(...extractedActors);
+      image.actors = [...new Set(image.actors)];
 
-    // Extract labels
-    const extractedLabels = await extractLabels(image.path);
-    logger.log(`Found ${extractedLabels.length} labels in image path.`);
-    image.labels.push(...extractedLabels);
-    image.labels = [...new Set(image.labels)];
+      // Extract labels
+      const extractedLabels = await extractLabels(image.path);
+      logger.log(`Found ${extractedLabels.length} labels in image path.`);
+      image.labels.push(...extractedLabels);
+      image.labels = [...new Set(image.labels)];
 
-    logger.log(`Creating image with id ${image._id}...`);
+      logger.log(`Creating image with id ${image._id}...`);
 
-    await database.insert(database.store.images, image);
-    logger.success(`Image '${imageName}' done.`);
+      await database.insert(database.store.images, image);
+      logger.success(`Image '${imageName}' done.`);
+      numAddedImages++;
+    } catch (error) {
+      logger.error(error);
+      logger.error(`Failed to add image '${imagePath}'`);
+    }
   }
 
-  logger.warn(`Added ${unknownImages.length} new images`);
+  logger.warn(`Added ${numAddedImages} new images`);
 }

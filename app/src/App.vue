@@ -8,7 +8,13 @@
       >
         <v-app-bar-nav-icon class="mr-2" @click="navDrawer = true"></v-app-bar-nav-icon>
         <v-toolbar-title v-if="currentScene" class="mr-1 title">{{ currentScene.name }}</v-toolbar-title>
-        <v-toolbar-title v-if="currentActor" class="mr-1 title">{{ currentActor.name }}</v-toolbar-title>
+        <v-toolbar-title v-if="currentActor" class="mr-1 title">
+          {{ currentActor.name }}
+          <span
+            class="subtitle-1 med--text"
+            v-if="currentActor.bornOn"
+          >({{ age }})</span>
+        </v-toolbar-title>
         <v-toolbar-title v-if="currentMovie" class="mr-1 title">{{ currentMovie.name }}</v-toolbar-title>
         <v-toolbar-title v-if="currentStudio" class="mr-1 title">{{ currentStudio.name }}</v-toolbar-title>
       </div>
@@ -77,6 +83,7 @@ import ActorDetailsBar from "./components/AppBar/ActorDetails.vue";
 import MovieDetailsBar from "./components/AppBar/MovieDetails.vue";
 import StudioDetailsBar from "./components/AppBar/StudioDetails.vue";
 import { contextModule } from "./store/context";
+import moment from "moment";
 
 @Component({
   components: {
@@ -88,6 +95,13 @@ import { contextModule } from "./store/context";
 })
 export default class App extends Vue {
   navDrawer = false;
+
+  get age() {
+    if (this.currentActor && this.currentActor.bornOn) {
+      return moment().diff(this.currentActor.bornOn, "years");
+    }
+    return -1;
+  }
 
   get showDetailsBar() {
     return (

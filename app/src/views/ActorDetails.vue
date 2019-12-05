@@ -251,7 +251,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Watch } from "vue-property-decorator";
 import ApolloClient, { serverBase } from "../apollo";
 import gql from "graphql-tag";
 import sceneFragment from "../fragments/scene";
@@ -664,7 +664,13 @@ export default class ActorDetails extends Vue {
     }
   }
 
-  beforeMount() {
+  @Watch("$route.params.id")
+  onRouteChange() {
+    actorModule.setCurrent(null);
+    this.onLoad();
+  }
+
+  onLoad() {
     ApolloClient.query({
       query: gql`
         query($id: String!) {
@@ -694,6 +700,10 @@ export default class ActorDetails extends Vue {
       actorModule.setCurrent(res.data.getActorById);
       document.title = res.data.getActorById.name;
     });
+  }
+
+  beforeMount() {
+    this.onLoad();
   }
 }
 </script>

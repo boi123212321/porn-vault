@@ -6,7 +6,7 @@ import Scene from "../../types/scene";
 import * as logger from "../../logger";
 import Image from "../../types/image";
 import { extractLabels, extractActors } from "../../extractor";
-import { Dictionary, libraryPath } from "../../types/utility";
+import { Dictionary, libraryPath, mapAsync } from "../../types/utility";
 import Movie from "../../types/movie";
 import { unlinkAsync } from "../../fs/async";
 import ProcessingQueue from "../../queue/index";
@@ -167,11 +167,23 @@ export default {
 
         if (opts.studio !== undefined) scene.studio = opts.studio;
 
-        if (Array.isArray(opts.actors))
-          scene.actors = [...new Set(opts.actors)];
-
         if (Array.isArray(opts.labels))
           scene.labels = [...new Set(opts.labels)];
+
+        if (Array.isArray(opts.actors)) {
+          const actorIds = [...new Set(opts.actors)];
+
+          scene.actors = actorIds;
+
+          const actors = (await mapAsync(actorIds, Actor.getById)).filter(
+            Boolean
+          ) as Actor[];
+          const labelIds = actors.map(ac => ac.labels).flat();
+
+          logger.log("Applying actor labels to scene");
+          logger.log(labelIds);
+          scene.labels = [...new Set(scene.labels.concat(labelIds))];
+        }
 
         if (Array.isArray(opts.streamLinks))
           scene.streamLinks = [...new Set(opts.streamLinks)];

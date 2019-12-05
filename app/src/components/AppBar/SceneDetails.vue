@@ -222,6 +222,10 @@ export default class SceneToolbar extends Vue {
         mutation($ids: [String!]!, $opts: SceneUpdateOpts!) {
           updateScenes(ids: $ids, opts: $opts) {
             _id
+            labels {
+              _id
+              name
+            }
             studio {
               _id
               name
@@ -251,6 +255,7 @@ export default class SceneToolbar extends Vue {
         sceneModule.setActors(this.editActors);
         sceneModule.setStudio(res.data.updateScenes[0].studio);
         sceneModule.setReleaseDate(this.editReleaseDate);
+        sceneModule.setLabels(res.data.updateScenes[0].labels);
         this.editDialog = false;
       })
       .catch(err => {

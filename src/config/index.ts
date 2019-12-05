@@ -34,6 +34,8 @@ export interface IConfig {
 
   USE_FUZZY_SEARCH: boolean;
   FUZZINESS: number;
+
+  READ_IMAGES_ON_IMPORT: boolean;
 }
 
 export const defaultConfig: IConfig = {
@@ -50,7 +52,8 @@ export const defaultConfig: IConfig = {
   PORT: 3000,
   APPLY_ACTOR_LABELS: true,
   USE_FUZZY_SEARCH: true,
-  FUZZINESS: 0.25
+  FUZZINESS: 0.25,
+  READ_IMAGES_ON_IMPORT: true
 };
 
 let config = JSON.parse(JSON.stringify(defaultConfig)) as IConfig;

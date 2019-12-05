@@ -9,7 +9,6 @@ import * as logger from "../logger/index";
 import * as database from "../database";
 import { extractLabels, extractActors } from "../extractor";
 import Jimp from "jimp";
-import asyncPool = require("tiny-async-pool");
 
 async function getAll() {
   return (await database.find(database.store.queue, {})) as IQueueItem[];
@@ -59,16 +58,18 @@ async function imageWithPathExists(path: string) {
   return !!image;
 }
 
-async function processImage(imagePath: string) {
+async function processImage(imagePath: string, readImage = true) {
   try {
     const imageName = basename(imagePath);
     const image = new Image(imageName);
     image.path = imagePath;
 
-    const jimpImage = await Jimp.read(imagePath);
-    image.meta.dimensions.width = jimpImage.bitmap.width;
-    image.meta.dimensions.height = jimpImage.bitmap.height;
-    image.hash = jimpImage.hash();
+    if (readImage) {
+      const jimpImage = await Jimp.read(imagePath);
+      image.meta.dimensions.width = jimpImage.bitmap.width;
+      image.meta.dimensions.height = jimpImage.bitmap.height;
+      image.hash = jimpImage.hash();
+    }
 
     // Extract actors
     const extractedActors = await extractActors(image.path);
@@ -96,10 +97,14 @@ export async function checkImageFolders() {
   logger.log("Checking image folders...");
 
   let numAddedImages = 0;
+
+  if (!config.READ_IMAGES_ON_IMPORT)
+    logger.warn("Reading images on import is disabled.");
+
   for (const folder of config.IMAGE_PATHS) {
     await walk(folder, [".jpg", ".jpeg", ".png"], async path => {
       if (!(await imageWithPathExists(path))) {
-        await processImage(path);
+        await processImage(path, config.READ_IMAGES_ON_IMPORT);
         numAddedImages++;
         logger.message(`Added image '${path}'.`);
       } else {

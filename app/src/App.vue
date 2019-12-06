@@ -64,7 +64,7 @@
     </v-navigation-drawer>
 
     <v-content>
-      <v-container>
+      <v-container :fluid="$vuetify.breakpoint.xlOnly">
         <router-view />
       </v-container>
     </v-content>

@@ -94,7 +94,7 @@ export async function loadStores() {
   await Actor.checkIntegrity();
   await Label.checkIntegrity();
   await Image.checkIntegrity();
-  // await Studio.checkIntegrity();
+  await Studio.checkIntegrity();
   await Movie.checkIntegrity();
   loader.succeed("Integrity check done.");
 }

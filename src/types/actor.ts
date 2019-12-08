@@ -28,24 +28,6 @@ export default class Actor {
         ? actor._id
         : `ac_${actor._id}`;
 
-      if (actor.thumbnail) {
-        const thumbnailId = actor.thumbnail.startsWith("im_")
-          ? actor.thumbnail
-          : `im_${actor.thumbnail}`;
-
-        if (!!(await CrossReference.get(actorId, thumbnailId))) {
-          logger.log(
-            `Cross reference ${actorId} -> ${thumbnailId} already exists.`
-          );
-        } else {
-          const cr = new CrossReference(actorId, thumbnailId);
-          await database.insert(database.store.cross_references, cr);
-          logger.log(
-            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
-          );
-        }
-      }
-
       if (actor.labels && actor.labels.length) {
         for (const label of actor.labels) {
           const labelId = label.startsWith("la_") ? label : `la_${label}`;

@@ -23,27 +23,9 @@ export default class Studio {
     const allStudios = await Studio.getAll();
 
     for (const studio of allStudios) {
-      const studioId = studio._id.startsWith("sc_")
+      const studioId = studio._id.startsWith("st_")
         ? studio._id
-        : `sc_${studio._id}`;
-
-      if (studio.thumbnail) {
-        const thumbnailId = studio.thumbnail.startsWith("im_")
-          ? studio.thumbnail
-          : `im_${studio.thumbnail}`;
-
-        if (!!(await CrossReference.get(studioId, thumbnailId))) {
-          logger.log(
-            `Cross reference ${studioId} -> ${thumbnailId} already exists.`
-          );
-        } else {
-          const cr = new CrossReference(studioId, thumbnailId);
-          await database.insert(database.store.cross_references, cr);
-          logger.log(
-            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
-          );
-        }
-      }
+        : `st_${studio._id}`;
 
       if (studio.labels && studio.labels.length) {
         for (const label of studio.labels) {
@@ -63,7 +45,7 @@ export default class Studio {
         }
       }
 
-      if (!studio._id.startsWith("sc_")) {
+      if (!studio._id.startsWith("st_")) {
         const newStudio = JSON.parse(JSON.stringify(studio)) as Studio;
         newStudio._id = studioId;
         if (newStudio.labels) delete newStudio.labels;

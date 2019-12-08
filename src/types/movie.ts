@@ -30,42 +30,6 @@ export default class Movie {
         ? movie._id
         : `mo_${movie._id}`;
 
-      if (movie.frontCover) {
-        const thumbnailId = movie.frontCover.startsWith("im_")
-          ? movie.frontCover
-          : `im_${movie.frontCover}`;
-
-        if (!!(await CrossReference.get(movieId, thumbnailId))) {
-          logger.log(
-            `Cross reference ${movieId} -> ${thumbnailId} already exists.`
-          );
-        } else {
-          const cr = new CrossReference(movieId, thumbnailId);
-          await database.insert(database.store.cross_references, cr);
-          logger.log(
-            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
-          );
-        }
-      }
-
-      if (movie.backCover) {
-        const thumbnailId = movie.backCover.startsWith("im_")
-          ? movie.backCover
-          : `im_${movie.backCover}`;
-
-        if (!!(await CrossReference.get(movieId, thumbnailId))) {
-          logger.log(
-            `Cross reference ${movieId} -> ${thumbnailId} already exists.`
-          );
-        } else {
-          const cr = new CrossReference(movieId, thumbnailId);
-          await database.insert(database.store.cross_references, cr);
-          logger.log(
-            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
-          );
-        }
-      }
-
       if (movie.scenes && movie.scenes.length) {
         for (const actor of movie.scenes) {
           const actorId = actor.startsWith("sc_") ? actor : `sc_${actor}`;

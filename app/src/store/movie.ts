@@ -82,6 +82,11 @@ class MovieModule extends VuexModule {
   setReleaseDate(val: number | null) {
     if (this.current) this.current.releaseDate = val;
   }
+
+  @Mutation
+  setLabels(labels: any) {
+    if (this.current) this.current.labels = labels;
+  }
 }
 
 import store from "./index";

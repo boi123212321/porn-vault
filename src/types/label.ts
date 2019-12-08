@@ -1,5 +1,7 @@
 import * as database from "../database";
 import { generateHash } from "../hash";
+import CrossReference from "./cross_references";
+import * as logger from "../logger";
 
 export default class Label {
   _id: string;
@@ -7,6 +9,24 @@ export default class Label {
   aliases: string[] = [];
   addedOn = +new Date();
   thumbnail: string | null = null;
+
+  static async checkIntegrity() {
+    const allLabels = await Label.getAll();
+
+    for (const label of allLabels) {
+      const labelId = label._id.startsWith("la_")
+        ? label._id
+        : `la_${label._id}`;
+
+      if (!label._id.startsWith("la_")) {
+        const newLabel = JSON.parse(JSON.stringify(label)) as Label;
+        newLabel._id = labelId;
+        await database.insert(database.store.labels, newLabel);
+        await database.remove(database.store.labels, { _id: label._id });
+        logger.log(`Changed label ID: ${label._id} -> ${labelId}`);
+      }
+    }
+  }
 
   static async filterImage(thumbnail: string) {
     await database.update(
@@ -43,7 +63,7 @@ export default class Label {
   }
 
   constructor(name: string, aliases: string[] = []) {
-    this._id = generateHash();
+    this._id = "la_" + generateHash();
     this.name = name.trim();
     this.aliases = aliases.map(alias => alias.toLowerCase().trim());
   }

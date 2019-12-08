@@ -42,39 +42,56 @@ export default {
   async addScene(_, args: Dictionary<any>) {
     for (const actor of args.actors || []) {
       const actorInDb = await Actor.getById(actor);
-
       if (!actorInDb) throw new Error(`Actor ${actor} not found`);
     }
 
     for (const label of args.labels || []) {
       const labelInDb = await Label.getById(label);
-
       if (!labelInDb) throw new Error(`Label ${label} not found`);
     }
+
+    const config = await getConfig();
 
     const sceneName = args.name;
     const scene = new Scene(sceneName);
 
+    let actors = [] as string[];
     if (args.actors) {
-      scene.actors = args.actors;
+      actors = args.actors;
     }
 
     // Extract actors
     const extractedActors = await extractActors(scene.name);
     logger.log(`Found ${extractedActors.length} actors in scene title.`);
-    scene.actors.push(...extractedActors);
-    scene.actors = [...new Set(scene.actors)];
+    actors.push(...extractedActors);
+    await Scene.setActors(scene, actors);
 
+    let labels = [] as string[];
     if (args.labels) {
-      scene.labels = args.labels;
+      labels = args.labels;
     }
 
     // Extract labels
     const extractedLabels = await extractLabels(scene.name);
     logger.log(`Found ${extractedLabels.length} labels in scene title.`);
-    scene.labels.push(...extractedLabels);
-    scene.labels = [...new Set(scene.labels)];
+    labels.push(...extractedLabels);
 
+    if (config.APPLY_ACTOR_LABELS === true) {
+      logger.log("Applying actor labels to scene");
+      labels.push(
+        ...(
+          await Promise.all(
+            extractedActors.map(async id => {
+              const actor = await Actor.getById(id);
+              if (!actor) return [];
+              return (await Actor.getLabels(actor)).map(l => l._id);
+            })
+          )
+        ).flat()
+      );
+    }
+
+    await Scene.setLabels(scene, labels);
     await database.insert(database.store.scenes, scene);
     logger.success(`Scene '${sceneName}' done.`);
     return scene;
@@ -133,23 +150,6 @@ export default {
     return true;
   },
 
-  async addActorsToScene(_, { id, actors }: { id: string; actors: string[] }) {
-    const scene = await Scene.getById(id);
-
-    if (scene) {
-      if (Array.isArray(actors)) scene.actors.push(...actors);
-      scene.actors = [...new Set(scene.actors)];
-      await database.update(
-        database.store.scenes,
-        { _id: scene._id },
-        { $set: { actors: scene.actors } }
-      );
-      return scene;
-    } else {
-      throw new Error(`Scene ${id} not found`);
-    }
-  },
-
   async updateScenes(
     _,
     { ids, opts }: { ids: string[]; opts: ISceneUpdateOpts }
@@ -161,6 +161,7 @@ export default {
       const scene = await Scene.getById(id);
 
       if (scene) {
+        const sceneLabels = (await Scene.getLabels(scene)).map(l => l._id);
         if (typeof opts.name == "string") scene.name = opts.name.trim();
 
         if (typeof opts.description == "string")
@@ -175,28 +176,35 @@ export default {
             const studio = await Studio.getById(opts.studio);
 
             if (studio) {
+              const studioLabels = (await Studio.getLabels(studio)).map(
+                l => l._id
+              );
               logger.log("Applying studio labels to scene");
-              scene.labels = [...new Set(scene.labels.concat(studio.labels))];
+              await Scene.setLabels(scene, sceneLabels.concat(studioLabels));
             }
           }
         }
 
-        if (Array.isArray(opts.labels))
-          scene.labels = [...new Set(opts.labels)];
-
         if (Array.isArray(opts.actors)) {
           const actorIds = [...new Set(opts.actors)];
-          scene.actors = actorIds;
+          await Scene.setActors(scene, actorIds);
+
+          const existingLabels = (await Scene.getLabels(scene)).map(l => l._id);
 
           if (config.APPLY_ACTOR_LABELS === true) {
             const actors = (await mapAsync(actorIds, Actor.getById)).filter(
               Boolean
             ) as Actor[];
-            const labelIds = actors.map(ac => ac.labels).flat();
+            const labelIds = (await mapAsync(actors, Actor.getLabels))
+              .flat()
+              .map(l => l._id);
 
             logger.log("Applying actor labels to scene");
-            scene.labels = [...new Set(scene.labels.concat(labelIds))];
+            await Scene.setLabels(scene, existingLabels.concat(labelIds));
           }
+        } else {
+          if (Array.isArray(opts.labels))
+            await Scene.setLabels(scene, opts.labels);
         }
 
         if (Array.isArray(opts.streamLinks))
@@ -234,10 +242,23 @@ export default {
         if (deleteImages === true) {
           for (const image of await Image.getByScene(scene._id)) {
             await Image.remove(image);
+            await database.remove(database.store.cross_references, {
+              from: image._id
+            });
+            await database.remove(database.store.cross_references, {
+              to: image._id
+            });
           }
           logger.success("Deleted images of scene " + scene._id);
         }
         logger.success("Deleted scene " + scene._id);
+
+        await database.remove(database.store.cross_references, {
+          from: scene._id
+        });
+        await database.remove(database.store.cross_references, {
+          to: scene._id
+        });
       }
     }
     return true;

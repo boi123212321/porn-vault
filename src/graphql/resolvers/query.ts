@@ -609,7 +609,14 @@ export default {
 
     const options = extractQueryOptions(query);
 
-    const allImages = await Image.getAll();
+    let allImages = [] as Image[];
+    if (options.scenes.length) {
+      for (const sceneId of options.scenes) {
+        allImages.push(...(await Image.getByScene(sceneId)));
+      }
+    } else {
+      allImages = await Image.getAll();
+    }
 
     let searchDocs = await Promise.all(
       allImages.map(async image => ({

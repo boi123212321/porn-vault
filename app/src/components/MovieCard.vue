@@ -57,7 +57,14 @@
       readonly
     ></v-rating>
     <div class="pa-2">
-      <v-chip label class="mr-1 mb-1" small outlined v-for="label in labelNames" :key="label">{{ label }}</v-chip>
+      <v-chip
+        label
+        class="mr-1 mb-1"
+        small
+        outlined
+        v-for="label in labelNames"
+        :key="label"
+      >{{ label }}</v-chip>
     </div>
   </v-card>
 </template>
@@ -130,7 +137,7 @@ export default class MovieCard extends Vue {
       return `${serverBase}/image/${
         this.movie.frontCover._id
       }?password=${localStorage.getItem("password")}`;
-    return "";
+    return ``;
   }
 
   get backCover() {

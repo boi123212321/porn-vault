@@ -20,10 +20,9 @@ export default {
 
       if (label) {
         await Label.remove(label._id);
-
-        await Actor.filterLabel(label._id);
-        await Scene.filterLabel(label._id);
-        await Image.filterLabel(label._id);
+        await database.remove(database.store.cross_references, {
+          to: label._id
+        });
       }
     }
     return true;
@@ -39,12 +38,10 @@ export default {
         perms.includes(label.name.toLowerCase()) ||
         label.aliases.some(alias => perms.includes(alias.toLowerCase()))
       ) {
-        await database.update(
-          database.store.scenes,
-          { _id: scene._id },
-          { $push: { labels: label._id } }
-        );
-        logger.log(`Updated labels of ${scene._id}`);
+        const labels = (await Scene.getLabels(scene)).map(l => l._id);
+        labels.push(label._id);
+        Scene.setLabels(scene, labels);
+        logger.log(`Updated labels of ${scene._id}.`);
       }
     }
 

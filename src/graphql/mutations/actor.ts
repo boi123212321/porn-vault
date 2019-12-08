@@ -21,8 +21,13 @@ type IActorUpdateOpts = Partial<{
 export default {
   async addActor(_, args: Dictionary<any>) {
     const actor = new Actor(args.name, args.aliases);
+    const config = await getConfig();
 
-    if (args.labels) actor.labels = args.labels;
+    let actorLabels = [] as string[];
+    if (args.labels) {
+      await Actor.setLabels(actor, args.labels);
+      actorLabels = args.labels;
+    }
 
     for (const scene of await Scene.getAll()) {
       const perms = tokenPerms(scene.path || scene.name);
@@ -31,25 +36,11 @@ export default {
         perms.includes(actor.name.toLowerCase()) ||
         actor.aliases.some(alias => perms.includes(alias.toLowerCase()))
       ) {
-        const config = await getConfig();
-
-        let newLabels = scene.labels;
         if (config.APPLY_ACTOR_LABELS === true) {
-          newLabels = [...new Set(scene.labels.concat(actor.labels))];
+          const sceneLabels = (await Scene.getLabels(scene)).map(l => l._id);
+          Scene.setLabels(scene, sceneLabels.concat(actorLabels));
         }
 
-        await database.update(
-          database.store.scenes,
-          { _id: scene._id },
-          {
-            $push: {
-              actors: actor._id
-            },
-            $set: {
-              labels: newLabels
-            }
-          }
-        );
         logger.log(`Updated actors of ${scene._id}`);
       }
     }
@@ -72,7 +63,7 @@ export default {
           actor.aliases = [...new Set(opts.aliases)];
 
         if (Array.isArray(opts.labels))
-          actor.labels = [...new Set(opts.labels)];
+          await Actor.setLabels(actor, opts.labels);
 
         if (typeof opts.bookmark == "boolean") actor.bookmark = opts.bookmark;
 
@@ -103,9 +94,12 @@ export default {
 
       if (actor) {
         await Actor.remove(actor);
-
-        await Image.filterActor(actor._id);
-        await Scene.filterActor(actor._id);
+        await database.remove(database.store.cross_references, {
+          from: actor._id
+        });
+        await database.remove(database.store.cross_references, {
+          to: actor._id
+        });
       }
     }
     return true;

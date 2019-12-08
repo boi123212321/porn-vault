@@ -151,7 +151,7 @@ export default class ActorCard extends Vue {
       return `${serverBase}/image/${
         this.actor.thumbnail._id
       }?password=${localStorage.getItem("password")}`;
-    return "";
+    return ``;
   }
 }
 </script>

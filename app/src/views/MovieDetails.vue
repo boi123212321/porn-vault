@@ -297,6 +297,7 @@ export default class SceneDetails extends Vue {
     this.images = [];
     this.infiniteId++;
     this.refreshRating();
+    this.refreshLabels();
   }
 
   uploadFrontCover() {
@@ -573,6 +574,28 @@ export default class SceneDetails extends Vue {
       actor.bookmark = bookmark;
       Vue.set(this.actors, index, actor);
     }
+  }
+
+  refreshLabels() {
+    if (!this.currentMovie) return;
+
+    ApolloClient.query({
+      query: gql`
+        query($id: String!) {
+          getMovieById(id: $id) {
+            labels {
+              _id
+              name
+            }
+          }
+        }
+      `,
+      variables: {
+        id: this.currentMovie._id
+      }
+    }).then(res => {
+      movieModule.setLabels(res.data.getMovieById.labels);
+    });
   }
 
   refreshRating() {

@@ -25,23 +25,16 @@ export default {
       const perms = tokenPerms(scene.path || scene.name);
 
       if (scene.studio === null && perms.includes(studio.name.toLowerCase())) {
-        const config = await getConfig();
-
-        let newLabels = scene.labels;
-        if (config.APPLY_STUDIO_LABELS === true) {
-          newLabels = [...new Set(scene.labels.concat(studio.labels))];
-        }
-
         await database.update(
           database.store.scenes,
           { _id: scene._id },
           {
             $set: {
-              studio: studio._id,
-              labels: newLabels
+              studio: studio._id
             }
           }
         );
+
         logger.log(`Updated studio of ${scene._id}`);
       }
     }
@@ -75,7 +68,7 @@ export default {
         if (typeof opts.favorite == "boolean") studio.favorite = opts.favorite;
 
         if (Array.isArray(opts.labels))
-          studio.labels = [...new Set(opts.labels)];
+          await Studio.setLabels(studio, opts.labels);
 
         await database.update(
           database.store.studios,
@@ -99,6 +92,13 @@ export default {
         await Scene.filterStudio(studio._id);
         await Movie.filterStudio(studio._id);
         await Image.filterStudio(studio._id);
+
+        await database.remove(database.store.cross_references, {
+          from: studio._id
+        });
+        await database.remove(database.store.cross_references, {
+          to: studio._id
+        });
       }
     }
     return true;

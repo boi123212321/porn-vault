@@ -5,6 +5,8 @@ import Actor from "./actor";
 import Scene from "./scene";
 import Movie from "./movie";
 import { mapAsync } from "./utility";
+import * as logger from "../logger";
+import CrossReference from "./cross_references";
 
 export default class Studio {
   _id: string;
@@ -15,10 +17,82 @@ export default class Studio {
   favorite: boolean = false;
   bookmark: boolean = false;
   parent: string | null = null;
-  labels: string[] = [];
+  labels?: string[];
+
+  static async checkIntegrity() {
+    const allStudios = await Studio.getAll();
+
+    for (const studio of allStudios) {
+      const studioId = studio._id.startsWith("sc_")
+        ? studio._id
+        : `sc_${studio._id}`;
+
+      if (studio.thumbnail) {
+        const thumbnailId = studio.thumbnail.startsWith("im_")
+          ? studio.thumbnail
+          : `im_${studio.thumbnail}`;
+
+        if (!!(await CrossReference.get(studioId, thumbnailId))) {
+          logger.log(
+            `Cross reference ${studioId} -> ${thumbnailId} already exists.`
+          );
+        } else {
+          const cr = new CrossReference(studioId, thumbnailId);
+          await database.insert(database.store.cross_references, cr);
+          logger.log(
+            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+          );
+        }
+      }
+
+      if (studio.labels && studio.labels.length) {
+        for (const label of studio.labels) {
+          const labelId = label.startsWith("la_") ? label : `la_${label}`;
+
+          if (!!(await CrossReference.get(studioId, labelId))) {
+            logger.log(
+              `Cross reference ${studioId} -> ${labelId} already exists.`
+            );
+          } else {
+            const cr = new CrossReference(studioId, labelId);
+            await database.insert(database.store.cross_references, cr);
+            logger.log(
+              `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+            );
+          }
+        }
+      }
+
+      if (!studio._id.startsWith("sc_")) {
+        const newStudio = JSON.parse(JSON.stringify(studio)) as Studio;
+        newStudio._id = studioId;
+        if (newStudio.labels) delete newStudio.labels;
+        if (studio.thumbnail && !studio.thumbnail.startsWith("im_")) {
+          newStudio.thumbnail = "im_" + studio.thumbnail;
+        }
+        await database.insert(database.store.studios, newStudio);
+        await database.remove(database.store.studios, { _id: studio._id });
+        logger.log(`Changed studio ID: ${studio._id} -> ${studioId}`);
+      } else {
+        if (studio.thumbnail && !studio.thumbnail.startsWith("im_")) {
+          await database.update(
+            database.store.studios,
+            { _id: studioId },
+            { $set: { thumbnail: "im_" + studio.thumbnail } }
+          );
+        }
+        if (studio.labels)
+          await database.update(
+            database.store.studios,
+            { _id: studioId },
+            { $unset: { labels: true } }
+          );
+      }
+    }
+  }
 
   constructor(name: string) {
-    this._id = generateHash();
+    this._id = "st_" + generateHash();
     this.name = name;
   }
 
@@ -39,14 +113,6 @@ export default class Studio {
       database.store.studios,
       { thumbnail },
       { $set: { thumbnail: null } }
-    );
-  }
-
-  static async filterLabel(label: string) {
-    await database.update(
-      database.store.scenes,
-      {},
-      { $pull: { labels: label } }
     );
   }
 
@@ -97,10 +163,32 @@ export default class Studio {
     return (await mapAsync(actorIds, Actor.getById)).filter(Boolean) as Actor[];
   }
 
+  static async setLabels(studio: Studio, labelIds: string[]) {
+    const references = await CrossReference.getBySource(studio._id);
+
+    const oldLabelReferences = references
+      .filter(r => r.to.startsWith("la_"))
+      .map(r => r._id);
+
+    for (const id of oldLabelReferences) {
+      await database.remove(database.store.cross_references, { _id: id });
+    }
+
+    for (const id of [...new Set(labelIds)]) {
+      const crossReference = new CrossReference(studio._id, id);
+      logger.log("Adding actor to scene: " + JSON.stringify(crossReference));
+      await database.insert(database.store.cross_references, crossReference);
+    }
+  }
+
   static async getLabels(studio: Studio) {
-    return (await mapAsync(studio.labels, Label.getById)).filter(
-      Boolean
-    ) as Label[];
+    const references = await CrossReference.getBySource(studio._id);
+    return (
+      await mapAsync(
+        references.filter(r => r.to.startsWith("la_")),
+        r => Label.getById(r.to)
+      )
+    ).filter(Boolean) as Label[];
   }
 
   static async inferLabels(studio: Studio) {

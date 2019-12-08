@@ -5,6 +5,7 @@ import Label from "./label";
 import * as logger from "../logger/index";
 import { unlinkAsync } from "../fs/async";
 import { mapAsync } from "./utility";
+import CrossReference from "./cross_references";
 
 export class ImageDimensions {
   width: number | null = null;
@@ -26,11 +27,118 @@ export default class Image {
   bookmark: boolean = false;
   rating: number = 0;
   customFields: any = {};
-  labels: string[] = [];
+  labels?: string[];
   meta = new ImageMeta();
-  actors: string[] = [];
+  actors?: string[];
   studio: string | null = null;
   hash: string | null = null;
+
+  static async checkIntegrity() {
+    const allImages = await Image.getAll();
+
+    for (const image of allImages) {
+      const imageId = image._id.startsWith("im_")
+        ? image._id
+        : `im_${image._id}`;
+
+      if (image.scene) {
+        const sceneId = image.scene.startsWith("sc_")
+          ? image.scene
+          : `sc_${image.scene}`;
+
+        if (!!(await CrossReference.get(imageId, sceneId))) {
+          logger.log(
+            `Cross reference ${imageId} -> ${sceneId} already exists.`
+          );
+        } else {
+          const cr = new CrossReference(imageId, sceneId);
+          await database.insert(database.store.cross_references, cr);
+          logger.log(
+            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+          );
+        }
+      }
+
+      if (image.actors && image.actors.length) {
+        for (const actor of image.actors) {
+          const actorId = actor.startsWith("ac_") ? actor : `ac_${actor}`;
+
+          if (!!(await CrossReference.get(imageId, actorId))) {
+            logger.log(
+              `Cross reference ${imageId} -> ${actorId} already exists.`
+            );
+          } else {
+            const cr = new CrossReference(imageId, actorId);
+            await database.insert(database.store.cross_references, cr);
+            logger.log(
+              `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+            );
+          }
+        }
+      }
+
+      if (image.labels && image.labels.length) {
+        for (const label of image.labels) {
+          const labelId = label.startsWith("la_") ? label : `la_${label}`;
+
+          if (!!(await CrossReference.get(imageId, labelId))) {
+            logger.log(
+              `Cross reference ${imageId} -> ${labelId} already exists.`
+            );
+          } else {
+            const cr = new CrossReference(imageId, labelId);
+            await database.insert(database.store.cross_references, cr);
+            logger.log(
+              `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+            );
+          }
+        }
+      }
+
+      if (!image._id.startsWith("im_")) {
+        const newImage = JSON.parse(JSON.stringify(image)) as Image;
+        newImage._id = imageId;
+        if (newImage.actors) delete newImage.actors;
+        if (newImage.labels) delete newImage.labels;
+        if (image.scene && !image.scene.startsWith("sc_")) {
+          newImage.scene = "sc_" + image.scene;
+        }
+        if (image.studio && !image.studio.startsWith("st_")) {
+          newImage.studio = "st_" + image.studio;
+        }
+        await database.insert(database.store.images, newImage);
+        await database.remove(database.store.images, { _id: image._id });
+        logger.log(`Changed image ID: ${image._id} -> ${imageId}`);
+      } else {
+        if (image.studio && !image.studio.startsWith("st_")) {
+          await database.update(
+            database.store.images,
+            { _id: imageId },
+            { $set: { studio: "st_" + image.studio } }
+          );
+        }
+        if (image.scene && !image.scene.startsWith("sc_")) {
+          await database.update(
+            database.store.images,
+            { _id: imageId },
+            { $set: { scene: "sc_" + image.scene } }
+          );
+        }
+        if (image.actors)
+          await database.update(
+            database.store.images,
+            { _id: imageId },
+            { $unset: { actors: true } }
+          );
+        if (image.labels)
+          await database.update(
+            database.store.images,
+            { _id: imageId },
+            { $unset: { labels: true } }
+          );
+      }
+    }
+  }
 
   static async remove(image: Image) {
     await database.remove(database.store.images, { _id: image._id });
@@ -75,7 +183,7 @@ export default class Image {
 
   static async getByScene(id: string) {
     return (await database.find(database.store.images, {
-      scenes: id
+      scene: id
     })) as Image[];
   }
 
@@ -96,15 +204,59 @@ export default class Image {
   }
 
   static async getActors(image: Image) {
-    return (await mapAsync(image.actors, Actor.getById)).filter(
-      Boolean
-    ) as Actor[];
+    const references = await CrossReference.getBySource(image._id);
+    return (
+      await mapAsync(
+        references.filter(r => r.to.startsWith("ac_")),
+        r => Actor.getById(r.to)
+      )
+    ).filter(Boolean) as Actor[];
+  }
+
+  static async setActors(image: Image, actorIds: string[]) {
+    const references = await CrossReference.getBySource(image._id);
+
+    const oldActorReferences = references
+      .filter(r => r.to.startsWith("ac_"))
+      .map(r => r._id);
+
+    for (const id of oldActorReferences) {
+      await database.remove(database.store.cross_references, { _id: id });
+    }
+
+    for (const id of [...new Set(actorIds)]) {
+      const crossReference = new CrossReference(image._id, id);
+      logger.log("Adding label to image: " + JSON.stringify(crossReference));
+      await database.insert(database.store.cross_references, crossReference);
+    }
+  }
+
+  static async setLabels(image: Image, labelIds: string[]) {
+    const references = await CrossReference.getBySource(image._id);
+
+    const oldLabelReferences = references
+      .filter(r => r.to.startsWith("la_"))
+      .map(r => r._id);
+
+    for (const id of oldLabelReferences) {
+      await database.remove(database.store.cross_references, { _id: id });
+    }
+
+    for (const id of [...new Set(labelIds)]) {
+      const crossReference = new CrossReference(image._id, id);
+      logger.log("Adding label to scene: " + JSON.stringify(crossReference));
+      await database.insert(database.store.cross_references, crossReference);
+    }
   }
 
   static async getLabels(image: Image) {
-    return (await mapAsync(image.labels, Label.getById)).filter(
-      Boolean
-    ) as Label[];
+    const references = await CrossReference.getBySource(image._id);
+    return (
+      await mapAsync(
+        references.filter(r => r.to.startsWith("la_")),
+        r => Label.getById(r.to)
+      )
+    ).filter(Boolean) as Label[];
   }
 
   static async getImageByPath(path: string) {
@@ -114,7 +266,7 @@ export default class Image {
   }
 
   constructor(name: string) {
-    this._id = generateHash();
+    this._id = "im_" + generateHash();
     this.name = name.trim();
   }
 }

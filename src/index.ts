@@ -1,10 +1,17 @@
 import "./database";
 import startServer from "./server";
-import { checkConfig, getConfig } from "./config/index";
+import { checkConfig } from "./config/index";
 import inquirer from "inquirer";
 import { existsAsync } from "./fs/async";
 const sha = require("js-sha512").sha512;
 import * as logger from "./logger/index";
+import v8 from "v8";
+
+logger.message(
+  `Max. memory: ${Math.round(
+    v8.getHeapStatistics().total_available_size / 1024 / 1024
+  )} MB`
+);
 
 (async () => {
   let config = await checkConfig();

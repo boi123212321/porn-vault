@@ -4,6 +4,8 @@ import Scene from "./scene";
 import Actor from "./actor";
 import Label from "./label";
 import { mapAsync } from "./utility";
+import CrossReference from "./cross_references";
+import * as logger from "../logger";
 
 export default class Movie {
   _id: string;
@@ -16,9 +18,119 @@ export default class Movie {
   favorite: boolean = false;
   bookmark: boolean = false;
   rating: number = 0;
-  scenes: string[] = [];
+  scenes?: string[];
   customFields: any = {};
   studio: string | null = null;
+
+  static async checkIntegrity() {
+    const allMovies = await Movie.getAll();
+
+    for (const movie of allMovies) {
+      const movieId = movie._id.startsWith("mo_")
+        ? movie._id
+        : `mo_${movie._id}`;
+
+      if (movie.frontCover) {
+        const thumbnailId = movie.frontCover.startsWith("im_")
+          ? movie.frontCover
+          : `im_${movie.frontCover}`;
+
+        if (!!(await CrossReference.get(movieId, thumbnailId))) {
+          logger.log(
+            `Cross reference ${movieId} -> ${thumbnailId} already exists.`
+          );
+        } else {
+          const cr = new CrossReference(movieId, thumbnailId);
+          await database.insert(database.store.cross_references, cr);
+          logger.log(
+            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+          );
+        }
+      }
+
+      if (movie.backCover) {
+        const thumbnailId = movie.backCover.startsWith("im_")
+          ? movie.backCover
+          : `im_${movie.backCover}`;
+
+        if (!!(await CrossReference.get(movieId, thumbnailId))) {
+          logger.log(
+            `Cross reference ${movieId} -> ${thumbnailId} already exists.`
+          );
+        } else {
+          const cr = new CrossReference(movieId, thumbnailId);
+          await database.insert(database.store.cross_references, cr);
+          logger.log(
+            `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+          );
+        }
+      }
+
+      if (movie.scenes && movie.scenes.length) {
+        for (const actor of movie.scenes) {
+          const actorId = actor.startsWith("sc_") ? actor : `sc_${actor}`;
+
+          if (!!(await CrossReference.get(movieId, actorId))) {
+            logger.log(
+              `Cross reference ${movieId} -> ${actorId} already exists.`
+            );
+          } else {
+            const cr = new CrossReference(movieId, actorId);
+            await database.insert(database.store.cross_references, cr);
+            logger.log(
+              `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
+            );
+          }
+        }
+      }
+
+      if (!movie._id.startsWith("mo_")) {
+        const newMovie = JSON.parse(JSON.stringify(movie)) as Movie;
+        newMovie._id = movieId;
+        if (newMovie.scenes) delete newMovie.scenes;
+        if (movie.frontCover && !movie.frontCover.startsWith("im_")) {
+          newMovie.frontCover = "im_" + movie.frontCover;
+        }
+        if (movie.backCover && !movie.backCover.startsWith("im_")) {
+          newMovie.backCover = "im_" + movie.backCover;
+        }
+        if (movie.studio && !movie.studio.startsWith("st_")) {
+          newMovie.studio = "st_" + movie.studio;
+        }
+        await database.insert(database.store.movies, newMovie);
+        await database.remove(database.store.movies, { _id: movie._id });
+        logger.log(`Changed movie ID: ${movie._id} -> ${movieId}`);
+      } else {
+        if (movie.studio && !movie.studio.startsWith("st_")) {
+          await database.update(
+            database.store.movies,
+            { _id: movieId },
+            { $set: { studio: "st_" + movie.studio } }
+          );
+        }
+        if (movie.frontCover && !movie.frontCover.startsWith("im_")) {
+          await database.update(
+            database.store.movies,
+            { _id: movieId },
+            { $set: { frontCover: "im_" + movie.frontCover } }
+          );
+        }
+        if (movie.backCover && !movie.backCover.startsWith("im_")) {
+          await database.update(
+            database.store.movies,
+            { _id: movieId },
+            { $set: { backCover: "im_" + movie.backCover } }
+          );
+        }
+        if (movie.scenes)
+          await database.update(
+            database.store.movies,
+            { _id: movieId },
+            { $unset: { scenes: true } }
+          );
+      }
+    }
+  }
 
   static async calculateDuration(movie: Movie) {
     const scenesWithSource = (await Movie.getScenes(movie)).filter(
@@ -91,20 +203,50 @@ export default class Movie {
 
   static async getLabels(movie: Movie) {
     const scenes = await Movie.getScenes(movie);
-    const labelIds = [...new Set(scenes.map(scene => scene.labels).flat())];
+    const labelIds = [
+      ...new Set(
+        (await mapAsync(scenes, Scene.getLabels)).flat().map(a => a._id)
+      )
+    ];
     return (await mapAsync(labelIds, Label.getById)).filter(Boolean) as Label[];
   }
 
   static async getActors(movie: Movie) {
     const scenes = await Movie.getScenes(movie);
-    const actorIds = [...new Set(scenes.map(scene => scene.actors).flat())];
+    const actorIds = [
+      ...new Set(
+        (await mapAsync(scenes, Scene.getActors)).flat().map(a => a._id)
+      )
+    ];
     return (await mapAsync(actorIds, Actor.getById)).filter(Boolean) as Actor[];
   }
 
+  static async setScenes(movie: Movie, sceneIds: string[]) {
+    const references = await CrossReference.getBySource(movie._id);
+
+    const oldSceneReferences = references
+      .filter(r => r.to.startsWith("sc_"))
+      .map(r => r._id);
+
+    for (const id of oldSceneReferences) {
+      await database.remove(database.store.cross_references, { _id: id });
+    }
+
+    for (const id of [...new Set(sceneIds)]) {
+      const crossReference = new CrossReference(movie._id, id);
+      logger.log("Adding label to scene: " + JSON.stringify(crossReference));
+      await database.insert(database.store.cross_references, crossReference);
+    }
+  }
+
   static async getScenes(movie: Movie) {
-    return (await mapAsync(movie.scenes, Scene.getById)).filter(
-      Boolean
-    ) as Scene[];
+    const references = await CrossReference.getBySource(movie._id);
+    return (
+      await mapAsync(
+        references.filter(r => r.to.startsWith("sc_")),
+        r => Scene.getById(r.to)
+      )
+    ).filter(Boolean) as Scene[];
   }
 
   static async getRating(movie: Movie) {
@@ -121,7 +263,7 @@ export default class Movie {
   }
 
   constructor(name: string, scenes: string[] = []) {
-    this._id = generateHash();
+    this._id = "mo_" + generateHash();
     this.name = name.trim();
     this.scenes = scenes;
   }

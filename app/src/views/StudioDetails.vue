@@ -544,6 +544,7 @@ export default class StudioDetails extends Vue {
     this.movies = [];
     this.scenes = [];
     this.selectedLabels = [];
+    this.page = 0;
     this.onLoad();
   }
 

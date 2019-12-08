@@ -52,10 +52,21 @@ export default class Studio {
         if (studio.thumbnail && !studio.thumbnail.startsWith("im_")) {
           newStudio.thumbnail = "im_" + studio.thumbnail;
         }
+        if (studio.parent && !studio.parent.startsWith("st_")) {
+          newStudio.parent = "st_" + studio.parent;
+        }
         await database.insert(database.store.studios, newStudio);
         await database.remove(database.store.studios, { _id: studio._id });
         logger.log(`Changed studio ID: ${studio._id} -> ${studioId}`);
       } else {
+        logger.log(studioId, studio.parent);
+        if (studio.parent && !studio.parent.startsWith("st_")) {
+          await database.update(
+            database.store.studios,
+            { _id: studioId },
+            { $set: { parent: "st_" + studio.parent } }
+          );
+        }
         if (studio.thumbnail && !studio.thumbnail.startsWith("im_")) {
           await database.update(
             database.store.studios,

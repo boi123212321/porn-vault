@@ -154,9 +154,13 @@ export default class Movie {
   }
 
   static async getByScene(id: string) {
-    return (await database.find(database.store.movies, {
-      scenes: id
-    })) as Movie[];
+    const references = await CrossReference.getByDest(id);
+    return (
+      await mapAsync(
+        references.filter(r => r.from.startsWith("mo_")),
+        r => Movie.getById(r.from)
+      )
+    ).filter(Boolean) as Movie[];
   }
 
   static async getByStudio(id: string) {

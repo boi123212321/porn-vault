@@ -59,7 +59,6 @@ export default class Studio {
         await database.remove(database.store.studios, { _id: studio._id });
         logger.log(`Changed studio ID: ${studio._id} -> ${studioId}`);
       } else {
-        logger.log(studioId, studio.parent);
         if (studio.parent && !studio.parent.startsWith("st_")) {
           await database.update(
             database.store.studios,

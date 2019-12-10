@@ -36,7 +36,7 @@ class Queue {
 
   async process(item: IQueueItem) {
     const sourcePath = item.path;
-    logger.log(`Processing ${sourcePath}...`);
+    logger.message(`Processing ${sourcePath}...`);
 
     for (const actor of item.actors || []) {
       const actorInDb = await Actor.getById(actor);

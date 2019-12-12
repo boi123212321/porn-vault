@@ -41,24 +41,36 @@ import IScene from "../types/scene";
 
 @Component
 export default class SceneSelector extends Vue {
-  @Prop() value!: any;
+  @Prop() value!: IScene | IScene[];
   @Prop({ default: false }) multiple!: boolean;
 
-  innerValue = this.value ? JSON.parse(JSON.stringify(this.value)) : null;
+  innerValue = (() => {
+    if (!this.multiple)
+      return this.value ? JSON.parse(JSON.stringify(this.value)) : null;
+    return JSON.parse(JSON.stringify(this.value)) || [];
+  })();
 
-  scenes: IScene[] = this.value ? [this.value] : [];
+  scenes: IScene[] = (() => {
+    if (!this.multiple) return this.value ? [this.value] : [];
+    return this.value ? JSON.parse(JSON.stringify(this.value)) : null;
+  })();
+
   searchQuery = "";
 
   loading = false;
   resetTimeout = null as NodeJS.Timeout | null;
 
   @Watch("value", { deep: true })
-  onValueChange(newVal: any) {
+  onValueChange(newVal: IScene | IScene[]) {
     this.innerValue = newVal;
   }
 
-  onInnerValueChange(newVal: string) {
-    this.$emit("input", this.scenes.find(a => a._id == newVal));
+  onInnerValueChange(newVal: string | string[]) {
+    if (this.multiple && Array.isArray(newVal)) {
+      this.$emit("input", newVal
+        .map(id => this.scenes.find(a => a._id == id))
+        .filter(Boolean) as IScene[]);
+    } else this.$emit("input", this.scenes.find(a => a._id == newVal));
   }
 
   thumbnail(scene: IScene) {

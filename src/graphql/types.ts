@@ -187,6 +187,7 @@ input ImageUpdateOpts {
   favorite: Boolean
   bookmark: Boolean
   studio: String
+  scene: String
 }
 
 input LabelUpdateOpts {

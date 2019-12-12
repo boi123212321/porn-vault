@@ -10,7 +10,7 @@
       hide-no-data
       hint="Search for scenes by typing something"
       persistent-hint
-       :label="multiple ? 'Select scenes' : 'Select scene'"
+      :label="multiple ? 'Select scenes' : 'Select scene'"
       :multiple="multiple"
       item-text="name"
       item-value="_id"
@@ -41,26 +41,24 @@ import IScene from "../types/scene";
 
 @Component
 export default class SceneSelector extends Vue {
-  @Prop() value!: IScene[];
+  @Prop() value!: any;
   @Prop({ default: false }) multiple!: boolean;
 
-  innerValue = JSON.parse(JSON.stringify(this.value)) || [];
+  innerValue = this.value ? JSON.parse(JSON.stringify(this.value)) : null;
 
-  scenes: IScene[] = JSON.parse(JSON.stringify(this.value)) || [];
+  scenes: IScene[] = this.value ? [this.value] : [];
   searchQuery = "";
 
   loading = false;
   resetTimeout = null as NodeJS.Timeout | null;
 
   @Watch("value", { deep: true })
-  onValueChange(newVal: IScene[]) {
+  onValueChange(newVal: any) {
     this.innerValue = newVal;
   }
 
-  onInnerValueChange(newVal: string[]) {
-    this.$emit("input", newVal
-      .map(id => this.scenes.find(a => a._id == id))
-      .filter(Boolean) as IScene[]);
+  onInnerValueChange(newVal: string) {
+    this.$emit("input", this.scenes.find(a => a._id == newVal));
   }
 
   thumbnail(scene: IScene) {

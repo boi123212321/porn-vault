@@ -60,8 +60,21 @@
       <v-card-text>
         <div v-if="currentImage.scene">
           Part of scene
-          <a class="accent--text" :href="`#/scene/${currentImage.scene._id}`">{{ currentImage.scene.name }}</a>
+          <a
+            class="accent--text"
+            :href="`#/scene/${currentImage.scene._id}`"
+          >{{ currentImage.scene.name }}</a>
         </div>
+
+        <div>
+          <SceneSelector
+            @input="editImageScene"
+            class="d-inline-block"
+            style="max-width: 200px"
+            v-model="editScene"
+          />
+        </div>
+
         <div>
           <v-rating
             half-increments
@@ -171,13 +184,16 @@ import ActorSelector from "../components/ActorSelector.vue";
 import IImage from "../types/image";
 import ILabel from "../types/label";
 import IActor from "../types/actor";
+import SceneSelector from "../components/SceneSelector.vue";
+import IScene from "../types/scene";
 
 @Component({
   components: {
     LabelSelector,
     InfiniteLoading,
     ImageCard,
-    ActorSelector
+    ActorSelector,
+    SceneSelector
   }
 })
 export default class Lightbox extends Vue {
@@ -192,8 +208,35 @@ export default class Lightbox extends Vue {
 
   editActorsDialog = false;
   editActors = [] as IActor[];
+  editScene = null as { _id: string; name: string } | null;
 
   removeDialog = false;
+
+  editImageScene() {
+    if (!this.currentImage) return;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!, $opts: ImageUpdateOpts!) {
+          updateImages(ids: $ids, opts: $opts) {
+            _id
+          }
+        }
+      `,
+      variables: {
+        ids: [this.currentImage._id],
+        opts: {
+          scene: this.editScene ? this.editScene._id : null
+        }
+      }
+    }).then(res => {
+      this.$emit("update", {
+        index: this.index,
+        key: "scene",
+        value: this.editScene
+      });
+    });
+  }
 
   editImageActors() {
     if (!this.currentImage) return;
@@ -245,6 +288,7 @@ export default class Lightbox extends Vue {
       this.selectedLabels = this.items[newVal].labels.map(l =>
         this.allLabels.findIndex(k => k._id == l._id)
       );
+      this.editScene = this.items[newVal].scene;
     }
   }
 

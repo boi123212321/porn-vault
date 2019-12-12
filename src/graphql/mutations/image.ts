@@ -22,6 +22,7 @@ type IImageUpdateOpts = Partial<{
   favorite: boolean;
   bookmark: boolean;
   studio: string | null;
+  scene: string | null;
 }>;
 
 export default {
@@ -224,6 +225,8 @@ export default {
         if (typeof opts.rating == "number") image.rating = opts.rating;
 
         if (opts.studio !== undefined) image.studio = opts.studio;
+
+        if (opts.scene !== undefined) image.scene = opts.scene;
 
         await database.update(database.store.images, { _id: image._id }, image);
         updatedImages.push(image);

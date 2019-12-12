@@ -39,7 +39,12 @@ export async function createBackup(amount = 10) {
 
     for (const transfer of transfers) {
       log.log(`Backup: ${transfer.from} -> ${transfer.to}...`);
-      await copyFileAsync(transfer.from, transfer.to);
+      try {
+        await copyFileAsync(transfer.from, transfer.to);
+      } catch (error) {
+        log.error(error);
+        log.warn(`Couldn't back up ${transfer.from} to ${transfer.to}.`);
+      }
     }
 
     await checkBackupMax(amount);

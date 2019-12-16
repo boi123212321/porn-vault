@@ -35,7 +35,7 @@
   "dependencies": {
     "@types/cli-progress": "^1.8.1",
     "@types/graphql": "^14.5.0",
-    "@types/node": "^12.12.14",
+    "@types/node": "^12.12.17",
     "apollo-server-express": "^2.9.8",
     "axios": "^0.19.0",
     "checksum": "^0.1.1",

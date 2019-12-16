@@ -70,7 +70,7 @@
     "@types/pug": "^2.0.4",
     "@types/rimraf": "^2.0.3",
     "@types/tiny-async-pool": "^1.0.0",
-    "nodemon": "^2.0.1",
+    "nodemon": "^2.0.2",
     "pkg": "^4.4.0",
     "ts-node": "^8.5.4",
     "typescript": "^3.7.3"

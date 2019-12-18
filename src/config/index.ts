@@ -59,7 +59,7 @@ export const defaultConfig: IConfig = {
   APPLY_STUDIO_LABELS: true,
   USE_FUZZY_SEARCH: true,
   FUZZINESS: 0.25,
-  READ_IMAGES_ON_IMPORT: true,
+  READ_IMAGES_ON_IMPORT: false,
   REMOVE_DANGLING_FILE_REFERENCES: false,
   BACKUP_ON_STARTUP: true,
   MAX_BACKUP_AMOUNT: 10

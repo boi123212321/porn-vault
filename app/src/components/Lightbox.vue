@@ -227,6 +227,8 @@ export default class Lightbox extends Vue {
 
   mounted() {
     window.addEventListener("keydown", ev => {
+      if (this.index === null) return;
+
       if (ev.keyCode === 27) {
         this.close();
       } else if (ev.keyCode === 37 || ev.keyCode === 65) {
@@ -252,10 +254,12 @@ export default class Lightbox extends Vue {
   }
 
   decrementIndex() {
+    if (this.index === null) return;
     this.$emit("index", Math.max(0, <number>this.index - 1));
   }
 
   incrementIndex() {
+    if (this.index === null) return;
     this.$emit(
       "index",
       Math.min(<number>this.index + 1, this.items.length - 1)

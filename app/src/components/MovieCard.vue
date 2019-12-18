@@ -1,5 +1,5 @@
 <template>
-  <v-card dark :color="cardColor" v-if="value" tile>
+  <v-card :dark="!!cardColor || $vuetify.theme.dark" :color="cardColor" v-if="value" tile>
     <v-hover v-slot:default="{ hover }">
       <a :href="`#/movie/${value._id}`">
         <v-img :aspect-ratio="ratio" class="hover" v-ripple eager :src="frontCover">
@@ -80,11 +80,22 @@ import IMovie from "../types/movie";
 import { copy } from "../util/object";
 import moment from "moment";
 import { ensureDarkColor } from "../util/color";
+import Color from "color";
 
 @Component
 export default class MovieCard extends Vue {
   @Prop(Object) value!: IMovie;
   @Prop({ default: 0.71 }) ratio!: number;
+
+  get complementary() {
+    if (this.cardColor)
+      return (
+        Color(this.cardColor)
+          .negate()
+          .hex() + " !important"
+      );
+    return undefined;
+  }
 
   get cardColor() {
     if (this.value.frontCover && this.value.frontCover.color)
@@ -151,7 +162,10 @@ export default class MovieCard extends Vue {
 
   get actorLinks() {
     const names = this.value.actors.map(
-      a => `<a class="accent--text" href="#/actor/${a._id}">${a.name}</a>`
+      a =>
+        `<a class="${this.complementary ? "" : "accent--text"}" style="color: ${
+          this.complementary
+        }" href="#/actor/${a._id}">${a.name}</a>`
     );
     names.sort();
     return names.join(", ");

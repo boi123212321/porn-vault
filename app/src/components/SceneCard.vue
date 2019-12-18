@@ -1,5 +1,5 @@
 <template>
-  <v-card dark tile :color="cardColor" v-if="value">
+  <v-card :dark="!!cardColor || $vuetify.theme.dark" tile :color="cardColor" v-if="value">
     <a :href="`#/scene/${value._id}`">
       <v-hover>
         <template v-slot:default="{ hover }">
@@ -99,6 +99,7 @@ import moment from "moment";
 import { contextModule } from "../store/context";
 import { copy } from "../util/object";
 import { ensureDarkColor } from "../util/color";
+import Color from "color";
 
 @Component
 export default class SceneCard extends Vue {
@@ -106,6 +107,16 @@ export default class SceneCard extends Vue {
 
   playIndex = 0;
   playInterval = null as NodeJS.Timeout | null;
+
+  get complementary() {
+    if (this.cardColor)
+      return (
+        Color(this.cardColor)
+          .negate()
+          .hex() + " !important"
+      );
+    return undefined;
+  }
 
   get cardColor() {
     if (this.value.thumbnail && this.value.thumbnail.color)
@@ -228,7 +239,10 @@ export default class SceneCard extends Vue {
 
   get actorLinks() {
     const names = this.value.actors.map(
-      a => `<a class="accent--text" href="#/actor/${a._id}">${a.name}</a>`
+      a =>
+        `<a class="${this.complementary ? "" : "accent--text"}" style="color: ${
+          this.complementary
+        }" href="#/actor/${a._id}">${a.name}</a>`
     );
     names.sort();
     return names.join(", ");

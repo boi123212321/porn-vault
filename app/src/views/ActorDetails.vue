@@ -682,7 +682,7 @@ export default class ActorDetails extends Vue {
   }
 
   mounted() {
-    window.addEventListener("keydown", ev => {
+    /* window.addEventListener("keydown", ev => {
       if (ev.keyCode >= 48 && ev.keyCode <= 53) {
         const rating = ev.keyCode - 48;
         this.rate(rating);
@@ -690,7 +690,7 @@ export default class ActorDetails extends Vue {
         const rating = ev.keyCode - 96;
         this.rate(rating);
       }
-    });
+    }); */
   }
 }
 </script>

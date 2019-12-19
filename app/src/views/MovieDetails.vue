@@ -6,12 +6,18 @@
           <v-container>
             <v-hover>
               <template v-slot:default="{ hover }">
-                <v-img
-                  style=" max-height: 400px"
-                  contain
-                  :aspect-ratio="0.71"
-                  :src="hover ? backCover : frontCover"
-                >
+                <v-img style="max-height: 400px" contain :aspect-ratio="0.71" :src="frontCover">
+                  <v-fade-transition>
+                    <v-img
+                      eager
+                      style="max-height: 400px"
+                      contain
+                      :aspect-ratio="0.71"
+                      :src="backCover"
+                      v-if="hover"
+                    ></v-img>
+                  </v-fade-transition>
+
                   <template v-slot:placeholder>
                     <v-sheet style="width: 100%; height: 100%;" color="grey" />
                   </template>
@@ -104,60 +110,8 @@
       <v-row v-if="scenes.length">
         <v-col cols="12">
           <h1 class="font-weight-light text-center">Scenes</h1>
-          <!--  
-          <v-row>
-            <v-col
-              class="pa-1"
-              v-for="(scene, i) in scenes"
-              :key="scene._id"
-              cols="12"
-              sm="6"
-              md="4"
-              lg="3"
-              xl="2"
-            >
-              <scene-card style="height: 100%" v-model="scenes[i]" />
-            </v-col>
-          </v-row>-->
           <div v-for="(scene, i) in scenes" :key="scene._id" class="mb-2">
-            <div class="pa-2 mb-2 d-flex align-center">
-              <div class="mr-4 font-weight-light display-1 med--text">{{ i + 1}}</div>
-
-              <a :href="`#/scene/${scene._id}`">
-                <v-avatar style="border-radius: 4px" class="mr-3" tile size="200">
-                  <v-img
-                    v-ripple
-                    :src="`http://localhost:3000/image/${
-          scene.thumbnail._id
-        }?password=xxx`"
-                  ></v-img>
-                </v-avatar>
-              </a>
-              <div>
-                <a
-                  :class="$vuetify.theme.dark ? 'white--text' : 'black--text'"
-                  style="text-decoration: none !important"
-                  :href="`#/scene/${scene._id}`"
-                >
-                  <div class="title">{{ scene.name }}</div>
-                </a>
-                <div class="med--text">Featuring {{ scene.actors.map(a => a.name).join(", ") }}</div>
-                <div class="mt-1" style="max-width: 300px">
-                  <v-chip
-                    small
-                    outlined
-                    label
-                    class="mr-1 mb-1"
-                    v-for="label in scene.labels"
-                    :key="label._id"
-                  >{{ label.name }}</v-chip>
-                </div>
-              </div>
-              <v-spacer></v-spacer>
-              <v-btn fab color="accent">
-                <v-icon :class="`${$vuetify.theme.dark ? 'black--text' : 'white--text'}`">mdi-play</v-icon>
-              </v-btn>
-            </div>
+            <movie-item :index="i + 1" v-model="scenes[i]"></movie-item>
             <v-divider></v-divider>
           </div>
         </v-col>
@@ -276,7 +230,7 @@ import sceneFragment from "../fragments/scene";
 import actorFragment from "../fragments/actor";
 import imageFragment from "../fragments/image";
 import studioFragment from "../fragments/studio";
-import SceneCard from "../components/SceneCard.vue";
+import MovieItem from "../components/MovieItem.vue";
 import ActorCard from "../components/ActorCard.vue";
 import moment from "moment";
 import SceneSelector from "../components/SceneSelector.vue";
@@ -295,10 +249,10 @@ import movieFragment from "../fragments/movie";
 @Component({
   components: {
     ActorCard,
-    SceneCard,
     Lightbox,
     ImageCard,
-    InfiniteLoading
+    InfiniteLoading,
+    MovieItem
   },
   beforeRouteLeave(_to, _from, next) {
     movieModule.setCurrent(null);

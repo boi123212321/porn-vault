@@ -2,14 +2,11 @@
   <v-card dark :color="cardColor" v-if="value" tile>
     <v-hover v-slot:default="{ hover }">
       <a :href="`#/movie/${value._id}`">
-        <v-img
-          contain
-          :aspect-ratio="ratio"
-          class="hover"
-          v-ripple
-          eager
-          :src="hover ? backCover : frontCover"
-        >
+        <v-img contain :aspect-ratio="ratio" class="hover" v-ripple eager :src="frontCover">
+          <v-fade-transition>
+            <v-img eager :aspect-ratio="ratio" :src="backCover" v-if="hover"></v-img>
+          </v-fade-transition>
+
           <div
             style="z-index: 6"
             class="white--text body-2 font-weight-bold duration-stamp"

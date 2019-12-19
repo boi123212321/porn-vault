@@ -21,6 +21,10 @@
                   <template v-slot:placeholder>
                     <v-sheet style="width: 100%; height: 100%;" color="grey" />
                   </template>
+                  
+                  <v-fade-transition>
+                    <v-img style=" max-height: 400px" contain eager :aspect-ratio="0.71" :src="backCover" v-if="hover"></v-img>
+                  </v-fade-transition>
                 </v-img>
               </template>
             </v-hover>

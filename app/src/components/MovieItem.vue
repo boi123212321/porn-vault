@@ -92,10 +92,18 @@ export default class SceneCard extends Mixins(SceneMixin) {
   playInterval = null as NodeJS.Timeout | null;
 
   get thumbnailSize() {
-    if (this.$vuetify.breakpoint.smAndDown) {
-      return 100;
+    switch (this.$vuetify.breakpoint.name) {
+      case "xs":
+        return 100;
+      case "sm":
+        return 200;
+      case "md":
+        return 225;
+      case "lg":
+        return 250;
+      case "xl":
+        return 300;
     }
-    return 200;
   }
 
   mouseenter() {

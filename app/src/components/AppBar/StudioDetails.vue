@@ -234,5 +234,15 @@ export default class StudioToolbar extends Vue {
   get currentStudio() {
     return studioModule.current;
   }
+
+  mounted() {
+    /* window.addEventListener("keydown", ev => {
+      if (ev.keyCode === 70) {
+        this.favorite();
+      } else if (ev.keyCode === 66) {
+        this.bookmark();
+      }
+    }); */
+  }
 }
 </script>

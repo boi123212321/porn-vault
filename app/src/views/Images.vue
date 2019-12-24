@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-banner sticky v-if="selectedImages.length">
+    <v-banner app sticky v-if="selectedImages.length">
       {{ selectedImages.length }} images selected
       <template v-slot:actions>
         <v-btn text @click="selectedImages = []" class="text-none">Deselect</v-btn>

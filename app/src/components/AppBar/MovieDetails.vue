@@ -257,5 +257,15 @@ export default class MovieToolbar extends Vue {
   get currentMovie() {
     return movieModule.current;
   }
+
+  mounted() {
+    /* window.addEventListener("keydown", ev => {
+      if (ev.keyCode === 70) {
+        this.favorite();
+      } else if (ev.keyCode === 66) {
+        this.bookmark();
+      }
+    }); */
+  }
 }
 </script>

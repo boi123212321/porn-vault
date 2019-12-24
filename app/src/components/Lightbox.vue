@@ -1,12 +1,21 @@
 <template>
   <div
-    @click="$emit('index', null)"
+    @click="close"
     v-if="currentImage"
     style="flex-direction: column; z-index: 999; position: fixed; top:0;left:0; width: 100%; height: 100%; background: #000000aa"
     class="d-flex"
   >
     <div style="position: relative; width: 100%; height: 100%;">
-      <v-img contain class="image" :src="imageLink(currentImage)"></v-img>
+      <v-img
+        v-touch="{
+          left: decrementIndex,
+          right: incrementIndex,
+        }"
+        contain
+        class="image"
+        :src="imageLink(currentImage)"
+        @click.native.stop
+      ></v-img>
 
       <v-btn
         outlined
@@ -14,7 +23,7 @@
         v-if="index > 0"
         icon
         class="thumb-btn left"
-        @click.stop="$emit('index', index - 1)"
+        @click.stop="decrementIndex"
       >
         <v-icon color="white">mdi-chevron-left</v-icon>
       </v-btn>
@@ -24,7 +33,7 @@
         v-if="index < items.length - 1"
         icon
         class="thumb-btn right"
-        @click.stop="$emit('index', index + 1)"
+        @click.stop="incrementIndex"
       >
         <v-icon color="white">mdi-chevron-right</v-icon>
       </v-btn>
@@ -186,6 +195,7 @@ import ILabel from "../types/label";
 import IActor from "../types/actor";
 import SceneSelector from "../components/SceneSelector.vue";
 import IScene from "../types/scene";
+import { Touch } from "vuetify/lib/directives";
 
 @Component({
   components: {
@@ -194,6 +204,9 @@ import IScene from "../types/scene";
     ImageCard,
     ActorSelector,
     SceneSelector
+  },
+  directives: {
+    Touch
   }
 })
 export default class Lightbox extends Vue {
@@ -211,6 +224,50 @@ export default class Lightbox extends Vue {
   editScene = null as { _id: string; name: string } | null;
 
   removeDialog = false;
+
+  mounted() {
+    window.addEventListener("keydown", ev => {
+      if (this.index === null) return;
+
+      if (ev.keyCode === 27) {
+        this.close();
+      } else if (ev.keyCode === 37 || ev.keyCode === 65) {
+        this.decrementIndex();
+      } else if (ev.keyCode === 39 || ev.keyCode === 68) {
+        this.incrementIndex();
+      } else if (ev.keyCode === 70) {
+        this.favorite();
+      } else if (ev.keyCode === 66) {
+        this.bookmark();
+      } else if (ev.keyCode >= 48 && ev.keyCode <= 53) {
+        const rating = ev.keyCode - 48;
+        this.rate(rating);
+      } else if (ev.keyCode >= 96 && ev.keyCode <= 101) {
+        const rating = ev.keyCode - 96;
+        this.rate(rating);
+      }
+    });
+  }
+
+  close() {
+    this.$emit("index", null);
+  }
+
+  decrementIndex() {
+    if (this.index === null) return;
+    this.$emit("index", Math.max(0, <number>this.index - 1));
+  }
+
+  incrementIndex() {
+    if (this.index === null) return;
+    this.$emit(
+      "index",
+      Math.min(<number>this.index + 1, this.items.length - 1)
+    );
+
+    // TODO: load next page
+    if (this.index == this.items.length - 1) this.$emit("more");
+  }
 
   editImageScene() {
     if (!this.currentImage) return;

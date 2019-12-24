@@ -2,7 +2,7 @@
   <div>
     <v-navigation-drawer v-model="drawer" :permanent="$vuetify.breakpoint.mdAndUp" clipped app>
       <v-container>
-        <v-checkbox v-model="useDVDCoverRatio" label="Use DVD Cover ratio"></v-checkbox>
+        <!-- <v-checkbox v-model="useDVDCoverRatio" label="Use DVD Cover ratio"></v-checkbox> -->
         <v-text-field clearable color="accent" v-model="query" label="Search query"></v-text-field>
 
         <v-subheader>Labels</v-subheader>
@@ -74,12 +74,7 @@
           lg="3"
           xl="2"
         >
-          <MovieCard
-            :ratio="useDVDCoverRatio ? undefined : 1"
-            :movie="movie"
-            style="height: 100%"
-            v-model="movies[i]"
-          />
+          <MovieCard :movie="movie" style="height: 100%" v-model="movies[i]" />
         </v-col>
       </v-row>
     </div>
@@ -277,16 +272,16 @@ export default class MovieList extends Vue {
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
 
-  useDVDCoverRatio = (() => {
+  /* useDVDCoverRatio = (() => {
     const fromLocalStorage = localStorage.getItem("pm_movieDVDRatio");
     if (fromLocalStorage) return fromLocalStorage == "true";
     return true;
-  })();
+  })(); */
 
-  @Watch("useDVDCoverRatio")
+  /* @Watch("useDVDCoverRatio")
   onRatioChange(newVal: boolean) {
     localStorage.setItem("pm_movieDVDRatio", "" + newVal);
-  }
+  } */
 
   get drawer() {
     return contextModule.showFilters;

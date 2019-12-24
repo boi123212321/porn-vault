@@ -64,6 +64,57 @@ Note: this is by no means finished, but useable.
 - Run the application in the terminal of your choice and follow the on-screen instructions
 - Once your app is setup you can visit it on http://localhost:3000 (or your LAN IP equivalent) in your web browser of choice
 
+## Build from source
+
+- Install Git (https://git-scm.com/)
+- Install Node.js (https://nodejs.org/en/)
+- Clone the repository
+
+```
+git clone https://github.com/boi123212321/porn-manager.git
+```
+
+- Install dependencies
+
+```
+npm install
+npm install typescript -g
+npm install ts-node -g
+```
+
+- Build web app dependencies
+
+```
+cd app
+npm install
+```
+
+- Run web app in dev mode
+
+```
+npm run serve
+```
+
+- Build web app
+
+```
+npm run build
+```
+
+- Run server in dev mode
+
+```
+npm run mon
+```
+
+- Run server in release mode
+
+```
+npm run build
+```
+
+And run the built exe in the release/ folder
+
 ## Images
 
 ### Scene collection

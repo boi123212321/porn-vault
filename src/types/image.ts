@@ -37,33 +37,37 @@ export default class Image {
 
   static async color(image: Image) {
     if (!image.path) return null;
-
     if (image.color) return image.color;
 
-    try {
-      const palette = await Vibrant.from(image.path).getPalette();
+    if (image.path) {
+      (async () => {
+        if (!image.path) return;
 
-      const color =
-        palette.DarkVibrant?.getHex() ||
-        palette.DarkMuted?.getHex() ||
-        palette.Vibrant?.getHex() ||
-        palette.Vibrant?.getHex();
+        try {
+          const palette = await Vibrant.from(image.path).getPalette();
 
-      if (color) {
-        database
-          .update(
-            database.store.images,
-            { _id: image._id },
-            { $set: { color } }
-          )
-          .catch(err => {});
-      }
+          const color =
+            palette.DarkVibrant?.getHex() ||
+            palette.DarkMuted?.getHex() ||
+            palette.Vibrant?.getHex() ||
+            palette.Vibrant?.getHex();
 
-      return color;
-    } catch (error) {
-      logger.error(error);
-      return null;
+          if (color) {
+            database
+              .update(
+                database.store.images,
+                { _id: image._id },
+                { $set: { color } }
+              )
+              .catch(err => {});
+          }
+        } catch (err) {
+          logger.error(err);
+        }
+      })();
     }
+
+    return null;
   }
 
   static async checkIntegrity() {

@@ -1,5 +1,5 @@
 <template>
-  <v-card dark tile :color="cardColor" v-if="value">
+  <v-card :dark="!!cardColor || $vuetify.theme.dark" tile :color="cardColor" v-if="value">
     <a :href="`#/scene/${value._id}`">
       <v-hover>
         <template v-slot:default="{ hover }">
@@ -108,6 +108,22 @@ export default class SceneCard extends Mixins(SceneMixin) {
 
   playIndex = 0;
   playInterval = null as NodeJS.Timeout | null;
+
+  get complementary() {
+    if (this.cardColor)
+      return (
+        Color(this.cardColor)
+          .negate()
+          .hex() + " !important"
+      );
+    return undefined;
+  }
+
+  get cardColor() {
+    if (this.value.thumbnail && this.value.thumbnail.color)
+      return ensureDarkColor(this.value.thumbnail.color);
+    return null;
+  }
 
   mouseenter() {
     console.log("playing video");

@@ -1,6 +1,6 @@
 import { getConfig } from "../config";
 import { walk } from "../fs/async";
-import filterAsync from "node-filter-async";
+import { filterAsync } from "../types/utility";
 import Scene from "../types/scene";
 import Image from "../types/image";
 import { basename } from "path";

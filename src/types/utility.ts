@@ -30,5 +30,5 @@ export async function filterAsync<T>(
   callbackfn: (value: T, index: number, array: T[]) => Promise<boolean>
 ): Promise<T[]> {
   const filterMap = await mapAsync(array, callbackfn);
-  return array.filter((value, index) => filterMap[index]);
+  return array.filter((_value, index) => filterMap[index]);
 }

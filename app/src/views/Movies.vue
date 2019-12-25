@@ -223,7 +223,7 @@ export default class MovieList extends Vue {
   createMovieScenes = [] as IScene[];
   addMovieLoader = false;
 
-  movieNameRules = [v => (!!v && !!v.length) || "Invalid scene name"];
+  movieNameRules = [v => (!!v && !!v.length) || "Invalid movie name"];
 
   query = localStorage.getItem("pm_movieQuery") || "";
   page = 0;

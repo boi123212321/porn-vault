@@ -6,12 +6,7 @@
       <v-hover>
         <template v-slot:default="{ hover }">
           <v-avatar style="border-radius: 4px" class="mr-5" tile :size="thumbnailSize">
-            <v-img
-              v-ripple
-              :src="`http://localhost:3000/image/${
-          value.thumbnail._id
-        }?password=xxx`"
-            >
+            <v-img v-ripple :src="thumbnail">
               <v-fade-transition>
                 <div
                   @mouseenter="mouseenter"

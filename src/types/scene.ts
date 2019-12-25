@@ -312,7 +312,7 @@ export default class Scene {
       const options = {
         file: scene.path,
         pattern: `${scene._id}-{{index}}.jpg`,
-        count: 100,
+        count: 100 + 1,
         thumbnailPath: tmpFolder,
         quality: "60"
       };

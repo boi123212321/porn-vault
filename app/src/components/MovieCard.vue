@@ -2,7 +2,7 @@
   <v-card :dark="!!cardColor || $vuetify.theme.dark" :color="cardColor" v-if="value" tile>
     <v-hover v-slot:default="{ hover }">
       <a :href="`#/movie/${value._id}`">
-        <v-img :aspect-ratio="ratio" class="hover" v-ripple eager :src="frontCover">
+        <v-img contain :aspect-ratio="ratio" class="hover" v-ripple eager :src="frontCover">
           <v-fade-transition>
             <v-img eager :aspect-ratio="ratio" :src="backCover" v-if="hover"></v-img>
           </v-fade-transition>

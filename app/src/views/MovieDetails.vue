@@ -6,7 +6,18 @@
           <v-container>
             <v-hover>
               <template v-slot:default="{ hover }">
-                <v-img contain aspect-ratio="1" :src="hover ? backCover : frontCover">
+                <v-img style="max-height: 400px" contain :aspect-ratio="0.71" :src="frontCover">
+                  <v-fade-transition>
+                    <v-img
+                      eager
+                      style="max-height: 400px"
+                      contain
+                      :aspect-ratio="0.71"
+                      :src="backCover"
+                      v-if="hover"
+                    ></v-img>
+                  </v-fade-transition>
+
                   <template v-slot:placeholder>
                     <v-sheet style="width: 100%; height: 100%;" color="grey" />
                   </template>
@@ -99,21 +110,10 @@
       <v-row v-if="scenes.length">
         <v-col cols="12">
           <h1 class="font-weight-light text-center">Scenes</h1>
-
-          <v-row>
-            <v-col
-              class="pa-1"
-              v-for="(scene, i) in scenes"
-              :key="scene._id"
-              cols="12"
-              sm="6"
-              md="4"
-              lg="3"
-              xl="2"
-            >
-              <scene-card style="height: 100%" v-model="scenes[i]" />
-            </v-col>
-          </v-row>
+          <div v-for="(scene, i) in scenes" :key="scene._id" class="mb-2">
+            <movie-item :index="i + 1" v-model="scenes[i]"></movie-item>
+            <v-divider></v-divider>
+          </div>
         </v-col>
       </v-row>
 
@@ -230,7 +230,7 @@ import sceneFragment from "../fragments/scene";
 import actorFragment from "../fragments/actor";
 import imageFragment from "../fragments/image";
 import studioFragment from "../fragments/studio";
-import SceneCard from "../components/SceneCard.vue";
+import MovieItem from "../components/MovieItem.vue";
 import ActorCard from "../components/ActorCard.vue";
 import moment from "moment";
 import SceneSelector from "../components/SceneSelector.vue";
@@ -249,10 +249,10 @@ import movieFragment from "../fragments/movie";
 @Component({
   components: {
     ActorCard,
-    SceneCard,
     Lightbox,
     ImageCard,
-    InfiniteLoading
+    InfiniteLoading,
+    MovieItem
   },
   beforeRouteLeave(_to, _from, next) {
     movieModule.setCurrent(null);

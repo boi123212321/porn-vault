@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row>
-      <v-col cols="12" md="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card>
           <v-card-title>Scenes</v-card-title>
           <v-card-text>
@@ -10,7 +10,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card>
           <v-card-title>Actors</v-card-title>
           <v-card-text>
@@ -19,7 +19,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card>
           <v-card-title>Movies</v-card-title>
           <v-card-text>
@@ -28,7 +28,7 @@
         </v-card>
       </v-col>
 
-      <v-col cols="12" md="3">
+      <v-col cols="12" sm="6" md="3">
         <v-card>
           <v-card-title>Images</v-card-title>
           <v-card-text>
@@ -40,7 +40,7 @@
     <div class="my-5 display-1 text-center">Your favorites</div>
 
     <v-row>
-      <v-col class="pa-1" v-for="(actor, i) in topActors" :key="actor._id" cols="12" md="4">
+      <v-col class="pa-1" v-for="(actor, i) in topActors" :key="actor._id" cols="6" sm="6" md="4">
         <actor-card style="height: 100%" max-width="200px" v-model="topActors[i]" />
       </v-col>
     </v-row>

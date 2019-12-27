@@ -3,7 +3,7 @@
     <a :href="`#/scene/${value._id}`">
       <v-hover>
         <template v-slot:default="{ hover }">
-          <v-img :aspect-ratio="aspectRatio" class="hover" v-ripple eager :src="thumbnail">
+          <v-img :aspect-ratio="aspectRatio" v-ripple eager :src="thumbnail">
             <v-fade-transition>
               <div
                 @mouseenter="mouseenter"

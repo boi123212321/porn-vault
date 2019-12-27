@@ -3,23 +3,27 @@
     <div v-if="currentScene">
       <v-row>
         <v-col cols="12">
-          <v-container fluid>
-            <div id="dplayer" ref="dplayer"></div>
-          </v-container>
+          <div id="dplayer" ref="dplayer"></div>
         </v-col>
       </v-row>
       <div>
         <v-btn class="text-none" color="accent" text @click="openMarkerDialog">Create marker</v-btn>
         <div class="mt-3">
-          <div v-for="marker in markers" :key="marker._id">
-            {{ marker.name }} ({{ formatTime(marker.time) }})
-            <span
-              class="hover accent--text"
-              @click="moveToTime(marker.time, marker.name)"
-            >Jump</span>
-          </div>
+          <v-row>
+            <v-col cols="12" sm="8" md="6">
+              <MarkerItem
+                style="width: 100%"
+                @jump="moveToTime(marker.time, marker.name)"
+                @delete="removeMarker(marker._id)"
+                :marker="marker"
+                v-for="marker in markers"
+                :key="marker._id"
+              />
+            </v-col>
+          </v-row>
         </div>
       </div>
+      <v-divider></v-divider>
       <v-row>
         <!-- <v-col cols="12" sm="4" md="4" lg="3" xl="2">
           <v-container>
@@ -44,17 +48,15 @@
           </v-container>
         </v-col>-->
         <v-col cols="12">
-          <div>
+          <div class="d-flex align-center">
             <v-btn
               text
               class="text-none"
               color="accent"
               @click="openThumbnailDialog"
             >Change thumbnail</v-btn>
-          </div>
-          <div class="d-flex" v-if="currentScene.studio">
             <v-spacer></v-spacer>
-            <router-link :to="`/studio/${currentScene.studio._id}`">
+            <router-link v-if="currentScene.studio" :to="`/studio/${currentScene.studio._id}`">
               <v-img v-ripple max-width="200px" :src="studioLogo"></v-img>
             </router-link>
           </div>
@@ -373,6 +375,7 @@ import IImage from "../types/image";
 import ILabel from "../types/label";
 import { contextModule } from "../store/context";
 import { watch, unwatch } from "../util/scene";
+import MarkerItem from "../components/MarkerItem.vue";
 
 import "dplayer/dist/DPlayer.min.css";
 import DPlayer from "dplayer";
@@ -396,7 +399,8 @@ interface ICropResult {
     ImageCard,
     InfiniteLoading,
     Cropper,
-    ImageUploader
+    ImageUploader,
+    MarkerItem
   },
   beforeRouteLeave(_to, _from, next) {
     sceneModule.setCurrent(null);
@@ -924,6 +928,7 @@ export default class SceneDetails extends Vue {
       sceneModule.setCurrent(res.data.getSceneById);
       this.actors = res.data.getSceneById.actors;
       this.markers = res.data.getSceneById.markers;
+      this.markers.sort((a, b) => a.time - b.time);
       document.title = res.data.getSceneById.name;
 
       setTimeout(() => {

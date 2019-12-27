@@ -45,6 +45,7 @@
                 v-model="editLabelName"
                 placeholder="Label name"
                 :rules="labelNameRules"
+                 @keydown.enter="editLabel"
               ></v-text-field>
 
               <v-combobox
@@ -84,6 +85,7 @@
                 v-model="createLabelName"
                 placeholder="Label name"
                 :rules="labelNameRules"
+                @keydown.enter="addLabel"
               ></v-text-field>
 
               <v-combobox
@@ -164,6 +166,7 @@ export default class Home extends Vue {
 
   editLabel() {
     if (!this.editingLabel) return;
+    if (!this.validEditing) return
 
     this.editLabelLoader = true;
     ApolloClient.mutate({
@@ -232,6 +235,8 @@ export default class Home extends Vue {
   }
 
   addLabel() {
+    if (!this.validCreation) return;
+
     this.createLabelLoader = true;
     ApolloClient.mutate({
       mutation: gql`

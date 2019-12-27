@@ -30,10 +30,10 @@ export default class Marker {
   }
 
   static async remove(_id: string) {
-    await database.remove(database.store.actors, { _id });
+    await database.remove(database.store.markers, { _id });
   }
 
   static async removeByScene(scene: Scene) {
-    await database.remove(database.store.actors, { scene: scene._id });
+    await database.remove(database.store.markers, { scene: scene._id });
   }
 }

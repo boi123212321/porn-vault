@@ -13,11 +13,15 @@ Note: this is by no means finished, but useable.
 - Works on any somewhat-modern device including tablets and smartphones
 - Self hosted, fully open source
 - Serves image and video to your device
+  - Built-in video player
 - Browse, manage & watch scenes
 - Browse & manage actors, including actor aliases
+  - Automatic actor extraction from scene titles & file names
 - Browse & manage movies
 - Browse & manage studios (+ parent studios!)
+  - Automatic studio extraction from scene titles & file names
 - Browse, manage & view images
+- Set and jump to time markers
 - Label your collection, including sub-labels
   - Automatic label extraction from scene titles & file names
   - Search, filter and sort your collection
@@ -56,7 +60,9 @@ Note: this is by no means finished, but useable.
 
 ## Roadmap
 
+- Custom data fields
 - Image albums
+- More useful front page
 - Recommend similar scenes/actors/images
 - visit [Issues](https://github.com/boi123212321/porn-manager/issues) to see what's up
 

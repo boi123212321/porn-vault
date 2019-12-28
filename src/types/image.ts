@@ -28,7 +28,7 @@ export default class Image {
   bookmark: boolean = false;
   rating: number = 0;
   customFields: any = {};
-  labels?: string[];
+  labels?: string[]; // backwards compatibility
   meta = new ImageMeta();
   actors?: string[];
   studio: string | null = null;

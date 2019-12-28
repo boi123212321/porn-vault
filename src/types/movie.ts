@@ -18,7 +18,7 @@ export default class Movie {
   favorite: boolean = false;
   bookmark: boolean = false;
   rating: number = 0;
-  scenes?: string[];
+  scenes?: string[]; // backwards compatibility
   customFields: any = {};
   studio: string | null = null;
 

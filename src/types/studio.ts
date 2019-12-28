@@ -17,7 +17,7 @@ export default class Studio {
   favorite: boolean = false;
   bookmark: boolean = false;
   parent: string | null = null;
-  labels?: string[];
+  labels?: string[]; // backwards compatibility
 
   static async checkIntegrity() {
     const allStudios = await Studio.getAll();

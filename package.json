@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/boi123212321/porn-manager#readme",
   "dependencies": {
-    "@types/cli-progress": "^1.8.1",
+    "@types/cli-progress": "^3.4.0",
     "@types/graphql": "^14.5.0",
     "@types/node": "^12.12.21",
     "apollo-server-express": "^2.9.8",

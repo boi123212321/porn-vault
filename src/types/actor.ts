@@ -17,7 +17,7 @@ export default class Actor {
   bookmark: boolean = false;
   rating: number = 0;
   customFields: any = {};
-  labels?: string[];
+  labels?: string[]; // backwards compatibility
   studio: string | null = null;
 
   static async checkIntegrity() {

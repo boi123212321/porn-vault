@@ -3,31 +3,31 @@
     <div class="mx-auto" style="max-width: 800px">
       <v-row>
         <v-col cols="12" sm="6">
-          <v-card dark class="mb-3" style="border-radius: 10px" color="grey darken-4">
+          <v-card  class="mb-3" style="border-radius: 10px" >
             <v-card-title>
               <v-icon medium class="mr-2">mdi-counter</v-icon>Stats
             </v-card-title>
             <v-card-text>
               <div class="my-4">
-                <span class="mr-2 d-inline-block white--text display-1">{{ numScenes }}</span>
+                <span class="mr-2 d-inline-block  display-1">{{ numScenes }}</span>
                 <span class="subtitle-1">scenes</span>
               </div>
               <v-divider></v-divider>
 
               <div class="my-4">
-                <span class="mr-2 d-inline-block white--text display-1">{{ numActors }}</span>
+                <span class="mr-2 d-inline-block  display-1">{{ numActors }}</span>
                 <span class="subtitle-1">actors</span>
               </div>
               <v-divider></v-divider>
 
               <div class="my-4">
-                <span class="mr-2 d-inline-block white--text display-1">{{ numMovies }}</span>
+                <span class="mr-2 d-inline-block  display-1">{{ numMovies }}</span>
                 <span class="subtitle-1">movies</span>
               </div>
               <v-divider></v-divider>
 
               <div class="my-4">
-                <span class="mr-2 d-inline-block white--text display-1">{{ numImages }}</span>
+                <span class="mr-2 d-inline-block  display-1">{{ numImages }}</span>
                 <span class="subtitle-1">images</span>
               </div>
             </v-card-text>
@@ -35,10 +35,10 @@
 
           <v-card
             v-if="scenesWithoutLabels.length"
-            dark
+            
             class="mb-3"
             style="border-radius: 10px"
-            color="grey darken-4"
+            
           >
             <v-card-title>
               <v-icon medium class="mr-2">mdi-account-alert</v-icon>Scenes without labels
@@ -55,17 +55,17 @@
                   </v-avatar>
                 </router-link>
 
-                <div class="subtitle-1 white--text">{{ scene.name }}</div>
+                <div class="subtitle-1 ">{{ scene.name }}</div>
               </div>
             </v-card-text>
           </v-card>
 
           <v-card
             v-if="scenesWithoutActors.length"
-            dark
+            
             class="mb-3"
             style="border-radius: 10px"
-            color="grey darken-4"
+            
           >
             <v-card-title>
               <v-icon medium class="mr-2">mdi-account-alert</v-icon>Scenes without actors
@@ -82,13 +82,13 @@
                   </v-avatar>
                 </router-link>
 
-                <div class="subtitle-1 white--text">{{ scene.name }}</div>
+                <div class="subtitle-1 ">{{ scene.name }}</div>
               </div>
             </v-card-text>
           </v-card>
         </v-col>
         <v-col cols="12" sm="6">
-          <v-card dark class="mb-3" style="border-radius: 10px" color="grey darken-4">
+          <v-card  class="mb-3" style="border-radius: 10px" >
             <v-card-title>
               <v-icon medium class="mr-2">mdi-heart</v-icon>Your favorites
             </v-card-title>
@@ -100,17 +100,17 @@
                   </v-avatar>
                 </router-link>
 
-                <div class="subtitle-1 white--text">{{ actor.name }}</div>
+                <div class="subtitle-1 ">{{ actor.name }}</div>
               </div>
             </v-card-text>
           </v-card>
 
           <v-card
             v-if="actorsWithoutLabels.length"
-            dark
+            
             class="mb-3"
             style="border-radius: 10px"
-            color="grey darken-4"
+            
           >
             <v-card-title>
               <v-icon medium class="mr-2">mdi-account-alert</v-icon>Actors without labels
@@ -127,17 +127,17 @@
                   </v-avatar>
                 </router-link>
 
-                <div class="subtitle-1 white--text">{{ actor.name }}</div>
+                <div class="subtitle-1 ">{{ actor.name }}</div>
               </div>
             </v-card-text>
           </v-card>
 
           <v-card
             v-if="actorsWithoutScenes.length"
-            dark
+            
             class="mb-3"
             style="border-radius: 10px"
-            color="grey darken-4"
+            
           >
             <v-card-title>
               <v-icon medium class="mr-2">mdi-account-alert</v-icon>Actors without scenes
@@ -154,7 +154,7 @@
                   </v-avatar>
                 </router-link>
 
-                <div class="subtitle-1 white--text">{{ actor.name }}</div>
+                <div class="subtitle-1 ">{{ actor.name }}</div>
               </div>
             </v-card-text>
           </v-card>

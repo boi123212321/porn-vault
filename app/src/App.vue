@@ -51,7 +51,7 @@
       </template>
     </v-app-bar>
 
-    <v-navigation-drawer temporary app v-model="navDrawer">
+    <v-navigation-drawer style="z-index: 14" temporary app v-model="navDrawer">
       <v-list nav>
         <v-list-item :to="item.url" v-for="item in navItems" :key="item.icon">
           <v-list-item-icon>

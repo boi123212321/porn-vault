@@ -55,8 +55,8 @@ export default class Scene {
   bookmark: boolean = false;
   rating: number = 0;
   customFields: any = {};
-  labels?: string[];
-  actors?: string[];
+  labels?: string[]; // backwards compatibility
+  actors?: string[]; // backwards compatibility
   path: string | null = null;
   streamLinks: string[] = [];
   watches: number[] = []; // Array of timestamps of watches

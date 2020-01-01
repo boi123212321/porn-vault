@@ -1,8 +1,6 @@
 import * as database from "../database";
 import { generateHash } from "../hash";
 import Scene from "./scene";
-import CrossReference from "./cross_references";
-import { mapAsync } from "./utility";
 
 export default class Marker {
   _id: string;
@@ -12,7 +10,6 @@ export default class Marker {
   bookmark: boolean = false;
   rating: number = 0;
   customFields: any = {};
-  labels?: string[];
   scene: string;
   time: number; // Time in scene in seconds
 

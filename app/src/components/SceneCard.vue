@@ -58,7 +58,14 @@
       </v-hover>
     </a>
 
-    <v-card-title>
+    <div v-if="value.studio" class="mt-2 pl-4 text-uppercase caption">
+      <router-link
+        class="hover"
+        style="color: inherit; text-decoration: none"
+        :to="`/studio/${value.studio._id}`"
+      >{{ value.studio.name }}</router-link>
+    </div>
+    <v-card-title class="pt-0">
       <span
         :title="value.name"
         style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"

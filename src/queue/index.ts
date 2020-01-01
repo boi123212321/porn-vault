@@ -148,7 +148,7 @@ class Queue {
     }
 
     // Extract studio
-    const extractedStudios = await extractStudios(scene.name);
+    const extractedStudios = await extractStudios(sourcePath);
 
     scene.studio = extractedStudios[0] || null;
 

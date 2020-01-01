@@ -118,9 +118,7 @@ export default class SceneMixin extends Vue {
   get actorLinks() {
     const names = this.value.actors.map(
       a =>
-        `<a class="${this.complementary ? "" : "accent--text"}" style="color: ${
-          this.complementary
-        }" href="#/actor/${a._id}">${a.name}</a>`
+        `<a class="hover font-weight-bold" style="color: inherit; text-decoration: none" href="#/actor/${a._id}">${a.name}</a>`
     );
     names.sort();
     return names.join(", ");

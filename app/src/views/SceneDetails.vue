@@ -3,7 +3,7 @@
     <div v-if="currentScene">
       <v-row>
         <v-col cols="12">
-          <div id="dplayer" ref="dplayer"></div>
+          <div class="mx-auto" style="max-width: 1000px" id="dplayer" ref="dplayer"></div>
         </v-col>
       </v-row>
       <div>

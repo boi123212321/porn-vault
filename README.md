@@ -45,6 +45,7 @@ Note: this is by no means finished, but useable.
 - FFMPEG_PATH: Where the ffmpeg binary is located; will be placed in working directory when downloading using the setup
 - FFPROBE_PATH: Where the ffprobe binary is located; will be placed in working directory when downloading using the setup
 - GENERATE_THUMBNAILS: Whether thumbnails should be extracted from imported videos
+- GENERATE_MULTIPLE_THUMBNAILS: Generate single or multiple thumbnails. If true, THUMBNAIL_INTERVAL will determine how many thumbnails are generated
 - GENERATE_PREVIEWS: Whether video preview should be generated from imported videos (used in video player)
 - THUMBNAIL_INTERVAL: Seconds between thumbnail snapshots in seconds
 - PORT: Port server is running on

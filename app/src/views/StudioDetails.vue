@@ -312,8 +312,8 @@ export default class StudioDetails extends Vue {
 
       const result = await ApolloClient.query({
         query: gql`
-          query($query: String, $auto: Boolean) {
-            getScenes(query: $query, auto: $auto) {
+          query($query: String) {
+            getScenes(query: $query) {
               ...SceneFragment
               actors {
                 ...ActorFragment
@@ -328,8 +328,7 @@ export default class StudioDetails extends Vue {
           ${actorFragment}
         `,
         variables: {
-          query,
-          auto: true
+          query
         }
       });
 

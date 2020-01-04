@@ -179,7 +179,7 @@ class Queue {
 
         for (let i = 0; i < thumbnailFiles.length; i++) {
           const file = thumbnailFiles[i];
-          const image = new Image(`${sceneName} ${i + 1}`);
+          const image = new Image(`${sceneName} ${i + 1} (screenshot)`);
           image.path = file.path;
           image.scene = scene._id;
           image.meta.size = file.size;

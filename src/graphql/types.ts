@@ -33,7 +33,8 @@ type Query {
   getScenes(query: String): [Scene!]!
   getActors(query: String): [Actor!]!
   getMovies(query: String): [Movie!]!
-  getImages(query: String): [Image!]!
+  # auto = true will prevent thumbnails, previews and screenshots from being filtered out
+  getImages(query: String, auto: Boolean): [Image!]!
   getStudios(query: String): [Studio!]!
 
   topActors(num: Int): [Actor!]!

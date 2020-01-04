@@ -39,7 +39,7 @@ export default {
       .map(i => i.actor)
       .slice(0, num || 12);
   },
-  
+
   async getScenesWithoutActors(_, { num }: { num: number }) {
     return (
       await mapAsync(await Scene.getAll(), async scene => ({
@@ -655,7 +655,10 @@ export default {
     return slice;
   },
 
-  async getImages(_, { query }: { query: string | undefined }) {
+  async getImages(
+    _,
+    { query, auto }: { query: string | undefined; auto?: boolean | null }
+  ) {
     try {
       const timeNow = +new Date();
       logger.log("Searching...");
@@ -679,6 +682,14 @@ export default {
       } else {
         allImages = await Image.getAll();
       }
+
+      // Filter thumbnails, screenshots, previews
+      if (!auto)
+        allImages = allImages.filter(i =>
+          ["(thumbnail)", "(preview)", "(screenshot)"].every(
+            ending => !i.name.endsWith(ending)
+          )
+        );
 
       let searchDocs = await Promise.all(
         allImages.map(async image => ({

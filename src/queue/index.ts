@@ -40,6 +40,10 @@ class Queue {
 
   async process(item: IQueueItem) {
     const sourcePath = item.path;
+
+    if (!(await existsAsync(sourcePath)))
+      throw new Error(`File ${sourcePath} not found`);
+
     logger.message(`Processing ${sourcePath}...`);
 
     for (const actor of item.actors || []) {
@@ -109,8 +113,10 @@ class Queue {
         });
       });
     } catch (err) {
-      logger.error("Error ffprobing file - perhaps a permission problem?");
-      throw new Error("Error");
+      logger.error(
+        `Error ffprobing file '${sourcePath}' - perhaps a permission problem?`
+      );
+      throw new Error("Error when running FFPROBE");
     }
 
     let actors = [] as string[];
@@ -247,14 +253,14 @@ class Queue {
         try {
           await this.process(head);
         } catch (error) {
-          logger.error("Error processing scene", error);
+          logger.warn("Error processing scene:", error.message);
           await database.remove(this.store, { _id: head._id });
         }
         head = await this.getFirst();
       }
       logger.success("Processing done");
     } catch (error) {
-      logger.error("Error in processing loop", error);
+      logger.error("Error in processing loop:", error.message);
     }
     this.isProcessing = false;
   }

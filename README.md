@@ -38,6 +38,7 @@ Note: this is by no means finished, but useable.
 ## Config
 
 - VIDEO_PATHS: Paths of video files that will be imported - subfolders will be searched recursively
+- VIDEO_EXTENSIONS: File extensions considered as movie files. Defaults to .mp4
 - IMAGE_PATHS: Paths of image files that will be imported - subfolders will be searched recursively
 - SCAN_ON_STARTUP: Whether video and image paths should be scanned
 - SCAN_INTERVAL: Rescan paths all X milliseconds - only works when SCAN_ON_STARTUP is enabled

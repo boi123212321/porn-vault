@@ -13,6 +13,7 @@ function stringifyFormatted(obj: any) {
 
 export interface IConfig {
   VIDEO_PATHS: string[];
+  VIDEO_EXTENSIONS: string[];
   IMAGE_PATHS: string[];
 
   SCAN_ON_STARTUP: boolean;
@@ -47,6 +48,7 @@ export interface IConfig {
 
 export const defaultConfig: IConfig = {
   VIDEO_PATHS: [],
+  VIDEO_EXTENSIONS: [".mp4"],
   IMAGE_PATHS: [],
   SCAN_ON_STARTUP: false,
   SCAN_INTERVAL: 10800000,

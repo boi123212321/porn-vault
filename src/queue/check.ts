@@ -25,7 +25,7 @@ export async function checkVideoFolders() {
   const allFiles = [] as string[];
 
   for (const folder of config.VIDEO_PATHS) {
-    await walk(folder, [".mp4"], async file => {
+    await walk(folder, config.VIDEO_EXTENSIONS, async file => {
       allFiles.push(file);
     });
   }

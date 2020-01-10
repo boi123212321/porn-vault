@@ -80,9 +80,10 @@ class Queue {
     scene._id = item._id;
     scene.path = sourcePath;
 
-    logger.log("Generating file checksum...");
-
-    scene.hash = await fileHash(sourcePath);
+    if (config.CALCULATE_FILE_CHECKSUM) {
+      logger.log("Generating file checksum...");
+      scene.hash = await fileHash(sourcePath);
+    }
 
     try {
       await new Promise(async (resolve, reject) => {

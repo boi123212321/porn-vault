@@ -952,6 +952,39 @@ export default class SceneDetails extends Vue {
             this.rate(rating);
           }
         }); */
+
+    /* window.addEventListener(
+      "pagehide",
+      event => {
+        if (event.persisted) {
+          this.dp.pause();
+          this.dp.notice("Auto pause", 4000, 0.8);
+        }
+      },
+      false
+    ); */
+
+    window.onblur = () => {
+      if (
+        !document.hasFocus() &&
+        this.dp &&
+        contextModule.scenePauseOnUnfocus
+      ) {
+        this.dp.pause();
+        this.dp.notice("Auto pause", 4000, 0.8);
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (document.hidden && this.dp && contextModule.scenePauseOnUnfocus) {
+          this.dp.pause();
+          this.dp.notice("Auto pause", 4000, 0.8);
+        }
+      },
+      false
+    );
   }
 }
 </script>

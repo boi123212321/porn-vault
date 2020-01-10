@@ -6,10 +6,16 @@ class ContextModule extends VuexModule {
 
   sceneAspectRatio = 1;
   actorAspectRatio = 1;
+  scenePauseOnUnfocus = false;
 
   @Mutation
   toggleFilters(bool: boolean) {
     this.showFilters = bool;
+  }
+
+  @Mutation
+  setScenePauseOnUnfocus(val: boolean) {
+    this.scenePauseOnUnfocus = val;
   }
 
   @Mutation

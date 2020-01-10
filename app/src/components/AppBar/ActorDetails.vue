@@ -46,6 +46,7 @@
             <DateInput v-if="editDialog" v-model="editBirthDate" />
 
             <v-combobox
+              clearable
               color="accent"
               multiple
               chips
@@ -144,8 +145,14 @@ export default class ActorToolbar extends Vue {
     this.removeDialog = true;
   }
 
-  editActor() {
+  async sleep(ms: number) {
+    return new Promise(r => setTimeout(r, ms));
+  }
+
+  async editActor() {
     if (!this.currentActor) return;
+
+    await this.sleep(50);
 
     ApolloClient.mutate({
       mutation: gql`

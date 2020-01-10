@@ -22,6 +22,15 @@ import { loadStores } from "./database/index";
 import { existsAsync } from "./fs/async";
 import { createBackup } from "./backup";
 
+function isRegExp(regStr: string) {
+  try {
+    new RegExp(regStr);
+  } catch (e) {
+    return false;
+  }
+  return true;
+}
+
 logger.message(
   "Check https://github.com/boi123212321/porn-manager for discussion & updates"
 );
@@ -100,6 +109,15 @@ export default async () => {
 
   if (config.BACKUP_ON_STARTUP === true) {
     await createBackup(config.MAX_BACKUP_AMOUNT || 10);
+  }
+
+  if (config.EXCLUDE_FILES && config.EXCLUDE_FILES.length) {
+    for (const regStr of config.EXCLUDE_FILES) {
+      if (!isRegExp(regStr)) {
+        logger.error(`Invalid regex: '${regStr}'.`);
+        process.exit(1);
+      }
+    }
   }
 
   async function scanFolders() {

@@ -19,13 +19,20 @@ async function getItemByPath(path: string) {
   return (await getAll()).filter(item => item.path == path)[0];
 }
 
+const fileIsExcluded = (exclude: string[], file: string) =>
+  exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
+
 export async function checkVideoFolders() {
   const config = await getConfig();
 
   const allFiles = [] as string[];
 
+  logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
+
   for (const folder of config.VIDEO_PATHS) {
     await walk(folder, [".mp4"], async file => {
+      if (file.startsWith(".") || fileIsExcluded(config.EXCLUDE_FILES, file))
+        return;
       allFiles.push(file);
     });
   }
@@ -100,8 +107,13 @@ export async function checkImageFolders() {
   if (!config.READ_IMAGES_ON_IMPORT)
     logger.warn("Reading images on import is disabled.");
 
+  logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
+
   for (const folder of config.IMAGE_PATHS) {
     await walk(folder, [".jpg", ".jpeg", ".png"], async path => {
+      if (path.startsWith(".") || fileIsExcluded(config.EXCLUDE_FILES, path))
+        return;
+
       if (!(await imageWithPathExists(path))) {
         await processImage(path, config.READ_IMAGES_ON_IMPORT);
         numAddedImages++;

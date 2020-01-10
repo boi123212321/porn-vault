@@ -43,6 +43,10 @@ export interface IConfig {
 
   BACKUP_ON_STARTUP: boolean;
   MAX_BACKUP_AMOUNT: number;
+
+  EXCLUDE_FILES: string[];
+
+  CALCULATE_FILE_CHECKSUM: boolean;
 }
 
 export const defaultConfig: IConfig = {
@@ -66,7 +70,9 @@ export const defaultConfig: IConfig = {
   READ_IMAGES_ON_IMPORT: false,
   REMOVE_DANGLING_FILE_REFERENCES: false,
   BACKUP_ON_STARTUP: true,
-  MAX_BACKUP_AMOUNT: 10
+  MAX_BACKUP_AMOUNT: 10,
+  EXCLUDE_FILES: [],
+  CALCULATE_FILE_CHECKSUM: false
 };
 
 let config = JSON.parse(JSON.stringify(defaultConfig)) as IConfig;

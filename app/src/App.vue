@@ -147,12 +147,15 @@ export default class App extends Vue {
   }
 
   beforeCreate() {
-    if ((<any>this).$route.query.password) {
-      localStorage.setItem("password", (<any>this).$route.query.password);
+    // @ts-ignore
+    if (this.$route.query.password) {
+      // @ts-ignore
+      localStorage.setItem("password", this.$route.query.password);
     }
 
     const darkModeLocalStorage = localStorage.getItem("pm_darkMode");
     if (darkModeLocalStorage) {
+      // @ts-ignore
       this.$vuetify.theme.dark = darkModeLocalStorage == "true";
     }
 
@@ -164,6 +167,15 @@ export default class App extends Vue {
     const actorRatioLocalStorage = localStorage.getItem("pm_actorRatio");
     if (actorRatioLocalStorage) {
       contextModule.setActorAspectRatio(parseFloat(actorRatioLocalStorage));
+    }
+
+    const scenePauseOnUnfocusLocalStorage = localStorage.getItem(
+      "pm_scenePauseOnUnfocus"
+    );
+    if (scenePauseOnUnfocusLocalStorage) {
+      contextModule.setScenePauseOnUnfocus(
+        scenePauseOnUnfocusLocalStorage == "true"
+      );
     }
   }
 

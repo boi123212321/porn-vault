@@ -31,4 +31,12 @@ export default interface IScene {
   };
   watches: number[];
   streamLinks: string[];
+  customFields: { [key: string]: any };
+  availableFields: {
+    _id: string;
+    name: string;
+    values?: string[];
+    type: string;
+    unit: string | null;
+  }[];
 }

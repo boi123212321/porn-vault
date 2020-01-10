@@ -1,6 +1,8 @@
 import Scene from "../../types/scene";
 import Image from "../../types/image";
 import Actor from "../../types/actor";
+import { mapAsync } from "../../types/utility";
+import CustomField from "../../types/custom_field";
 
 export default {
   async scenes(actor: Actor) {
@@ -21,5 +23,9 @@ export default {
   },
   async numScenes(actor: Actor) {
     return (await Scene.getByActor(actor._id)).length;
+  },
+  async availableFields() {
+    const fields = await CustomField.getAll();
+    return fields;
   }
 };

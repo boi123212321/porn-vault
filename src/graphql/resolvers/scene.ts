@@ -1,7 +1,7 @@
 import Scene from "../../types/scene";
 import Image from "../../types/image";
 import Studio from "../../types/studio";
-import Marker from "types/marker";
+import CustomField from "../../types/custom_field";
 
 export default {
   async actors(scene: Scene) {
@@ -27,5 +27,9 @@ export default {
   },
   async markers(scene: Scene) {
     return await Scene.getMarkers(scene);
+  },
+  async availableFields() {
+    const fields = await CustomField.getAll();
+    return fields;
   }
 };

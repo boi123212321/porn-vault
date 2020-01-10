@@ -32,5 +32,13 @@ export default gql`
     watches
     streamLinks
     path
+    customFields
+    availableFields {
+      _id
+      name
+      type
+      values
+      unit
+    }
   }
 `;

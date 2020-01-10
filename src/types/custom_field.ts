@@ -2,7 +2,7 @@ import { generateHash } from "../hash";
 import * as database from "../database";
 
 export enum CustomFieldType {
-  INTEGER = "INTEGER",
+  NUMBER = "NUMBER",
   STRING = "STRING",
   BOOLEAN = "BOOLEAN",
   SINGLE_SELECT = "SINGLE_SELECT",
@@ -14,7 +14,7 @@ export default class CustomField {
   name: string;
   values: string[] | null = [];
   type: CustomFieldType;
-  unit = null;
+  unit = null as string | null;
 
   constructor(name: string, type: CustomFieldType) {
     this._id = "cf_" + generateHash();

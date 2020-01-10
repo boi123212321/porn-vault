@@ -44,6 +44,10 @@
       </v-radio-group>
     </div>
 
+    <div>
+      <CustomFieldCreator />
+    </div>
+
     <QueueInfo />
   </div>
 </template>
@@ -51,11 +55,13 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import QueueInfo from "../components/QueueInfo.vue";
+import CustomFieldCreator from "../components/CustomFieldCreator.vue";
 import { contextModule } from "../store/context";
 
 @Component({
   components: {
-    QueueInfo
+    QueueInfo,
+    CustomFieldCreator
   }
 })
 export default class About extends Vue {
@@ -82,9 +88,11 @@ export default class About extends Vue {
   }
 
   toggleDarkMode() {
+    // @ts-ignore
     this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
     localStorage.setItem(
       "pm_darkMode",
+      // @ts-ignore
       this.$vuetify.theme.dark ? "true" : "false"
     );
   }

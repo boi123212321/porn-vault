@@ -19,5 +19,13 @@ export default gql`
       color
     }
     watches
+    customFields
+    availableFields {
+      _id
+      name
+      type
+      values
+      unit
+    }
   }
 `;

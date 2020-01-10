@@ -52,6 +52,8 @@
               v-model="editAliases"
               placeholder="Alias names"
             />
+
+            <CustomFieldSelector v-model="editCustomFields" :fields="currentActor.availableFields" />
           </v-form>
         </v-card-text>
         <v-divider></v-divider>
@@ -89,10 +91,12 @@ import gql from "graphql-tag";
 import DateInput from "../DateInput.vue";
 import IActor from "../../types/actor";
 import moment from "moment";
+import CustomFieldSelector from "../CustomFieldSelector.vue";
 
 @Component({
   components: {
-    DateInput
+    DateInput,
+    CustomFieldSelector
   }
 })
 export default class ActorToolbar extends Vue {
@@ -101,6 +105,7 @@ export default class ActorToolbar extends Vue {
   editName = "";
   editAliases = [] as string[];
   editBirthDate = null as number | null;
+  editCustomFields = {} as any;
 
   actorNameRules = [v => (!!v && !!v.length) || "Invalid actor name"];
 
@@ -161,7 +166,8 @@ export default class ActorToolbar extends Vue {
         opts: {
           name: this.editName,
           aliases: this.editAliases,
-          bornOn: this.editBirthDate
+          bornOn: this.editBirthDate,
+          customFields: this.editCustomFields
         }
       }
     })
@@ -169,6 +175,7 @@ export default class ActorToolbar extends Vue {
         actorModule.setName(this.editName);
         actorModule.setAliases(this.editAliases);
         actorModule.setBornOn(this.editBirthDate);
+        actorModule.setCustomFields(this.editCustomFields);
         this.editDialog = false;
       })
       .catch(err => {
@@ -182,6 +189,9 @@ export default class ActorToolbar extends Vue {
     this.editAliases = this.currentActor.aliases;
     this.editDialog = true;
     this.editBirthDate = this.currentActor.bornOn;
+    this.editCustomFields = JSON.parse(
+      JSON.stringify(this.currentActor.customFields)
+    );
   }
 
   favorite() {

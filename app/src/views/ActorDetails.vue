@@ -23,6 +23,15 @@
               </template>
             </v-hover>
           </v-container>
+
+          <div class="px-2 d-flex align-center">
+            <v-subheader>View counter</v-subheader>
+            {{ currentActor.watches.length }}
+          </div>
+          <div v-if="currentActor.watches.length" class="px-2 d-flex align-center">
+            <v-subheader>Last time watched</v-subheader>
+            {{ new Date(currentActor.watches[currentActor.watches.length - 1]).toLocaleString() }}
+          </div>
         </v-col>
         <v-col cols="12" sm="8" md="8" lg="9" xl="10">
           <div v-if="currentActor.aliases.length">
@@ -77,13 +86,22 @@
               :class="`hover mr-1 mb-1 ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
             >+ Add</v-chip>
           </div>
-          <div class="px-2 d-flex align-center">
-            <v-subheader>View counter</v-subheader>
-            {{ currentActor.watches.length }}
+
+          <div class="d-flex align-center">
+            <v-icon>mdi-information-outline</v-icon>
+            <v-subheader>Metadata</v-subheader>
           </div>
-          <div v-if="currentActor.watches.length" class="px-2 d-flex align-center">
-            <v-subheader>Last time watched</v-subheader>
-            {{ new Date(currentActor.watches[currentActor.watches.length - 1]).toLocaleString() }}
+          <div class="px-2" v-for="(val, key) in currentActor.customFields" :key="key">
+            <div class="px-2 d-flex align-center">
+              <v-subheader
+                class="text-truncate"
+                style="width: 125px; height: 40px"
+              >{{ currentActor.availableFields.find(f => f._id == key).name }}</v-subheader>
+              <b>{{ Array.isArray(val) ? val.join(", ") : (typeof val == "boolean" ? (val ? 'Yes' : 'No') : val) }}</b>
+              <i
+                class="d-inline-block ml-1"
+              >{{ " " }}{{ currentActor.availableFields.find(f => f._id == key).unit || "" }}</i>
+            </div>
           </div>
         </v-col>
       </v-row>

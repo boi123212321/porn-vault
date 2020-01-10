@@ -65,6 +65,7 @@ type Actor {
   customFields: Object!
   
   # Resolvers
+  availableFields: [CustomField!]!
   watches: [Long!]!
   labels: [Label!]!
   scenes: [Scene!]
@@ -99,6 +100,7 @@ type Scene {
   customFields: Object!
   
   # Resolvers
+  availableFields: [CustomField!]!
   thumbnail: Image
   preview: Image
   images: [Image!]!
@@ -171,7 +173,7 @@ type Studio {
 }
 
 enum CustomFieldType {
-  INTEGER,
+  NUMBER,
   STRING,
   BOOLEAN,
   SINGLE_SELECT,
@@ -183,6 +185,7 @@ type CustomField {
   name: String!
   type: CustomFieldType!
   values: [String!]
+  unit: String
 }
 
 type Marker {

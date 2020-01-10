@@ -30,10 +30,13 @@ export async function checkVideoFolders() {
   logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
 
   for (const folder of config.VIDEO_PATHS) {
-    await walk(folder, [".mp4"], async file => {
-      if (file.startsWith(".") || fileIsExcluded(config.EXCLUDE_FILES, file))
+    await walk(folder, [".mp4"], async path => {
+      if (
+        basename(path).startsWith(".") ||
+        fileIsExcluded(config.EXCLUDE_FILES, path)
+      )
         return;
-      allFiles.push(file);
+      allFiles.push(path);
     });
   }
 
@@ -111,7 +114,10 @@ export async function checkImageFolders() {
 
   for (const folder of config.IMAGE_PATHS) {
     await walk(folder, [".jpg", ".jpeg", ".png"], async path => {
-      if (path.startsWith(".") || fileIsExcluded(config.EXCLUDE_FILES, path))
+      if (
+        basename(path).startsWith(".") ||
+        fileIsExcluded(config.EXCLUDE_FILES, path)
+      )
         return;
 
       if (!(await imageWithPathExists(path))) {

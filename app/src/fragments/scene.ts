@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 export default gql`
   fragment SceneFragment on Scene {
     _id
+    addedOn
     name
     releaseDate
     description

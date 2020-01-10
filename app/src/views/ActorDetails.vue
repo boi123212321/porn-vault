@@ -1,9 +1,9 @@
 <template>
   <div>
     <div v-if="currentActor">
-      <v-row>
-        <v-col cols="12" sm="4" md="4" lg="3" xl="2">
-          <v-container>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="12" sm="4" md="3" lg="2" xl="2">
             <v-hover>
               <template v-slot:default="{ hover }">
                 <v-img
@@ -22,164 +22,196 @@
                 </v-img>
               </template>
             </v-hover>
-          </v-container>
-
-          <div class="px-2 d-flex align-center">
-            <v-subheader>View counter</v-subheader>
-            {{ currentActor.watches.length }}
-          </div>
-          <div v-if="currentActor.watches.length" class="px-2 d-flex align-center">
-            <v-subheader>Last time watched</v-subheader>
-            {{ new Date(currentActor.watches[currentActor.watches.length - 1]).toLocaleString() }}
-          </div>
-        </v-col>
-        <v-col cols="12" sm="8" md="8" lg="9" xl="10">
-          <div v-if="currentActor.aliases.length">
-            <div class="med--text pa-2">a.k.a. {{ currentActor.aliases.join(", ") }}</div>
-          </div>
-
-          <div v-if="currentActor.bornOn">
-            <div class="d-flex align-center">
-              <v-icon>mdi-calendar</v-icon>
-              <v-subheader>Birthday</v-subheader>
-            </div>
-            <div class="med--text pa-2">{{ new Date(currentActor.bornOn).toLocaleDateString() }}</div>
-          </div>
-
-          <div class="d-flex align-center">
-            <v-icon>mdi-star</v-icon>
-            <v-subheader>Rating</v-subheader>
-          </div>
-          <v-rating
-            half-increments
-            @input="rate"
-            class="px-2"
-            :value="currentActor.rating / 2"
-            background-color="grey"
-            color="amber"
-            dense
-            hide-details
-          ></v-rating>
-          <div
-            @click="rate(0)"
-            class="d-inline-block pl-3 mt-1 med--text caption hover"
-          >Reset rating</div>
-          <div class="d-flex align-center">
-            <v-icon>mdi-label</v-icon>
-            <v-subheader>Labels</v-subheader>
-          </div>
-          <div class="pa-2">
-            <v-chip
-              label
-              class="mr-1 mb-1"
-              small
-              outlined
-              v-for="label in labelNames"
-              :key="label"
-            >{{ label }}</v-chip>
-            <v-chip
-              label
-              color="accent"
-              v-ripple
-              @click="openLabelSelector"
-              small
-              :class="`hover mr-1 mb-1 ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
-            >+ Add</v-chip>
-          </div>
-
-          <div class="d-flex align-center">
-            <v-icon>mdi-information-outline</v-icon>
-            <v-subheader>Metadata</v-subheader>
-          </div>
-          <div class="px-2" v-for="(val, key) in currentActor.customFields" :key="key">
-            <div v-if="val !== null" class="d-flex align-center">
-              <v-subheader
-                class="text-truncate"
-                style="width: 125px; height: 40px"
-              >{{ currentActor.availableFields.find(f => f._id == key).name }}</v-subheader>
-              <b>{{ Array.isArray(val) ? val.join(", ") : (typeof val == "boolean" ? (val ? 'Yes' : 'No') : val) }}</b>
-              <i
-                class="d-inline-block ml-1"
-              >{{ " " }}{{ currentActor.availableFields.find(f => f._id == key).unit || "" }}</i>
-            </div>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row v-if="scenes.length">
-        <v-col cols="12">
-          <h1 class="text-center font-weight-light">{{ scenes.length }} Scenes</h1>
-
-          <v-row>
-            <v-col
-              class="pa-1"
-              v-for="(scene, i) in scenes"
-              :key="scene._id"
-              cols="12"
-              sm="6"
-              md="4"
-              lg="3"
-              xl="2"
-            >
-              <scene-card v-model="scenes[i]" style="height: 100%" />
-            </v-col>
-          </v-row>
-        </v-col>
-      </v-row>
-
-      <div v-if="images.length">
-        <div class="d-flex align-center">
-          <v-spacer></v-spacer>
-          <h1 class="font-weight-light mr-3">{{ images.length }} Images</h1>
-          <v-btn @click="openUploadDialog" icon>
-            <v-icon>mdi-upload</v-icon>
-          </v-btn>
-          <v-spacer></v-spacer>
-        </div>
-        <v-container fluid>
-          <v-row>
-            <v-col
-              class="pa-1"
-              v-for="(image, index) in images"
-              :key="image._id"
-              cols="6"
-              sm="4"
-              md="3"
-              lg="3"
-              xl="2"
-            >
-              <ImageCard @open="lightboxIndex = index" width="100%" height="100%" :image="image">
-                <template v-slot:action>
-                  <v-tooltip top>
-                    <template v-slot:activator="{ on }">
-                      <v-btn
-                        light
-                        v-on="on"
-                        @click.native.stop="setAsThumbnail(image._id)"
-                        class="elevation-2 mb-2"
-                        icon
-                        style="background: #fafafa;"
-                      >
-                        <v-icon>mdi-image</v-icon>
-                      </v-btn>
-                    </template>
-                    <span>Set as actor thumbnail</span>
-                  </v-tooltip>
-                </template>
-              </ImageCard>
-            </v-col>
-          </v-row>
-
-          <transition name="fade">
-            <Lightbox
-              @delete="removeImage"
-              @update="updateImage"
-              :items="images"
-              :index="lightboxIndex"
-              @index="lightboxIndex = $event"
+            <v-rating
+              half-increments
+              @input="rate"
+              :value="currentActor.rating / 2"
+              background-color="grey"
+              color="amber"
+              hide-details
+              dense
+              class="my-2 text-center"
             />
-          </transition>
-        </v-container>
-      </div>
+
+            <div class="pa-2">
+              <v-chip
+                label
+                class="mr-1 mb-1"
+                small
+                outlined
+                v-for="label in labelNames"
+                :key="label"
+              >{{ label }}</v-chip>
+              <v-chip
+                label
+                color="accent"
+                v-ripple
+                @click="openLabelSelector"
+                small
+                :class="`hover mr-1 mb-1 ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
+              >+ Add</v-chip>
+            </div>
+
+            <div class="d-flex align-center">
+              <v-icon>mdi-information-outline</v-icon>
+              <v-subheader>General</v-subheader>
+            </div>
+            <div class="px-2">
+              <div
+                v-if="currentActor.aliases.length"
+                class="py-1 med--text body-2"
+              >a.k.a. {{ currentActor.aliases.join(", ") }}</div>
+              <div
+                v-if="currentActor.bornOn"
+                class="py-1"
+              >Born on {{ new Date(currentActor.bornOn).toLocaleDateString() }}</div>
+
+              <v-tooltip bottom class="py-1">
+                <template v-slot:activator="{ on }">
+                  <div v-on="on" class="d-flex align-center">
+                    <b>
+                      <pre>{{ currentActor.watches.length }} </pre>
+                    </b>
+                    <span class="med-text">views</span>
+                  </div>
+                </template>
+                <span
+                  v-if="currentActor.watches.length"
+                >Last watched: {{ new Date(currentActor.watches[currentActor.watches.length - 1]).toLocaleString() }}</span>
+                <span v-else>You haven't watched {{ currentActor.name }} yet!</span>
+              </v-tooltip>
+            </div>
+          </v-col>
+          <v-col cols="12" sm="8" md="9" lg="10" xl="10">
+            <v-tabs v-model="activeTab" background-color="transparent" color="accent" centered grow>
+              <v-tab>Metadata</v-tab>
+              <v-tab>Scenes</v-tab>
+              <v-tab>Images</v-tab>
+            </v-tabs>
+            <div class="pa-2" v-if="activeTab == 0">
+              <div class="text-center py-2">
+                <v-btn
+                  class="text-none"
+                  color="accent"
+                  text
+                  @click="updateCustomFields"
+                  :disabled="!hasUpdatedFields"
+                >Update</v-btn>
+              </div>
+              <CustomFieldSelector
+                :fields="currentActor.availableFields"
+                v-model="editCustomFields"
+                @change="hasUpdatedFields = true"
+              />
+            </div>
+            <div class="pa-2" v-if="activeTab == 1">
+              <v-row v-if="scenes.length">
+                <v-col cols="12">
+                  <h1 class="text-center font-weight-light">{{ scenes.length }} Scenes</h1>
+
+                  <v-row>
+                    <v-col
+                      class="pa-1"
+                      v-for="(scene, i) in scenes"
+                      :key="scene._id"
+                      cols="12"
+                      sm="6"
+                      md="4"
+                      lg="3"
+                      xl="2"
+                    >
+                      <scene-card v-model="scenes[i]" style="height: 100%" />
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+              <div v-else class="text-center title">No scenes found :(</div>
+            </div>
+            <div class="pa-2" v-if="activeTab == 2">
+              <div v-if="images.length">
+                <div class="d-flex align-center">
+                  <v-spacer></v-spacer>
+                  <h1 class="font-weight-light mr-3">{{ images.length }} Images</h1>
+                  <v-btn @click="openUploadDialog" icon>
+                    <v-icon>mdi-upload</v-icon>
+                  </v-btn>
+                  <v-spacer></v-spacer>
+                </div>
+                <v-container fluid>
+                  <v-row>
+                    <v-col
+                      class="pa-1"
+                      v-for="(image, index) in images"
+                      :key="image._id"
+                      cols="6"
+                      sm="4"
+                      md="3"
+                      lg="3"
+                      xl="2"
+                    >
+                      <ImageCard
+                        @open="lightboxIndex = index"
+                        width="100%"
+                        height="100%"
+                        :image="image"
+                      >
+                        <template v-slot:action>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                light
+                                v-on="on"
+                                @click.native.stop="setAsThumbnail(image._id)"
+                                class="elevation-2 mb-2"
+                                icon
+                                style="background: #fafafa;"
+                              >
+                                <v-icon>mdi-image</v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Set as actor thumbnail</span>
+                          </v-tooltip>
+                        </template>
+                      </ImageCard>
+                    </v-col>
+                  </v-row>
+
+                  <transition name="fade">
+                    <Lightbox
+                      @delete="removeImage"
+                      @update="updateImage"
+                      :items="images"
+                      :index="lightboxIndex"
+                      @index="lightboxIndex = $event"
+                    />
+                  </transition>
+                </v-container>
+              </div>
+
+              <infinite-loading
+                v-if="currentActor"
+                :identifier="infiniteId"
+                @infinite="infiniteHandler"
+              >
+                <div slot="no-results">
+                  <v-icon large>mdi-close</v-icon>
+                  <div>Nothing found!</div>
+                </div>
+
+                <div slot="spinner">
+                  <v-progress-circular indeterminate></v-progress-circular>
+                  <div>Loading...</div>
+                </div>
+
+                <div slot="no-more">
+                  <v-icon large>mdi-emoticon-wink</v-icon>
+                  <div>That's all!</div>
+                </div>
+              </infinite-loading>
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
     </div>
     <div v-else class="text-center">
       <p>Loading...</p>
@@ -201,23 +233,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <infinite-loading v-if="currentActor" :identifier="infiniteId" @infinite="infiniteHandler">
-      <div slot="no-results">
-        <v-icon large>mdi-close</v-icon>
-        <div>Nothing found!</div>
-      </div>
-
-      <div slot="spinner">
-        <v-progress-circular indeterminate></v-progress-circular>
-        <div>Loading...</div>
-      </div>
-
-      <div slot="no-more">
-        <v-icon large>mdi-emoticon-wink</v-icon>
-        <div>That's all!</div>
-      </div>
-    </infinite-loading>
 
     <v-dialog
       v-if="currentActor"
@@ -291,6 +306,7 @@ import IScene from "../types/scene";
 import IImage from "../types/image";
 import ILabel from "../types/label";
 import { contextModule } from "../store/context";
+import CustomFieldSelector from "../components/CustomFieldSelector.vue";
 
 interface ICropCoordinates {
   left: number;
@@ -311,7 +327,8 @@ interface ICropResult {
     ImageCard,
     InfiniteLoading,
     Cropper,
-    ImageUploader
+    ImageUploader,
+    CustomFieldSelector
   },
   beforeRouteLeave(_to, _from, next) {
     actorModule.setCurrent(null);
@@ -322,6 +339,8 @@ export default class ActorDetails extends Vue {
   scenes = [] as IScene[];
   images = [] as IImage[];
   lightboxIndex = null as number | null;
+
+  activeTab = 0;
 
   labelSelectorDialog = false;
   allLabels = [] as ILabel[];
@@ -339,6 +358,36 @@ export default class ActorDetails extends Vue {
 
   uploadDialog = false;
   isUploading = false;
+
+  editCustomFields = {} as any;
+  hasUpdatedFields = false;
+
+  updateCustomFields() {
+    if (!this.currentActor) return;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!, $opts: ActorUpdateOpts!) {
+          updateActors(ids: $ids, opts: $opts) {
+            customFields
+          }
+        }
+      `,
+      variables: {
+        ids: [this.currentActor._id],
+        opts: {
+          customFields: this.editCustomFields
+        }
+      }
+    })
+      .then(res => {
+        actorModule.setCustomFields(res.data.updateActors[0].customFields);
+        this.hasUpdatedFields = false;
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
 
   get aspectRatio() {
     return contextModule.actorAspectRatio;
@@ -697,9 +746,11 @@ export default class ActorDetails extends Vue {
       }
     }).then(res => {
       this.scenes = res.data.getActorById.scenes;
+      this.scenes.sort((a, b) => b.addedOn - a.addedOn);
       delete res.data.getActorById.scenes;
       actorModule.setCurrent(res.data.getActorById);
       document.title = res.data.getActorById.name;
+      this.editCustomFields = res.data.getActorById.customFields;
     });
   }
 

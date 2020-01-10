@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container fluid>
     <v-banner app sticky v-if="selectedScenes.length">
       {{ selectedScenes.length }} scenes selected
       <template v-slot:actions>
@@ -202,7 +202,7 @@
         <div>That's all!</div>
       </div>
     </infinite-loading>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container fluid>
     <div v-if="currentMovie">
       <v-row>
         <v-col cols="12" sm="4" md="4" lg="3" xl="2">
@@ -219,7 +219,7 @@
         <div>That's all!</div>
       </div>
     </infinite-loading>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

@@ -89,7 +89,7 @@ export default {
               opts.customFields[key] !== undefined
                 ? opts.customFields[key]
                 : null;
-            logger.log(`Set scene custom.${key} to ${value}`);
+            logger.log(`Set actor custom.${key} to ${value}`);
             opts.customFields[key] = value;
           }
           actor.customFields = opts.customFields;

@@ -1,5 +1,5 @@
 <template>
-  <div class="text-center">
+  <v-container fluid class="text-center">
     <div class="pa-3 d-inline-block" style="border: 1px solid #ddd">
       <div class="title">porn-manager (name TBD)</div>
 
@@ -49,7 +49,7 @@
     </div>
 
     <QueueInfo />
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

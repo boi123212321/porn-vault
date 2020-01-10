@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container fluid>
     <v-navigation-drawer v-model="drawer" :permanent="$vuetify.breakpoint.mdAndUp" clipped app>
       <v-container>
         <v-text-field clearable color="accent" v-model="query" label="Search query"></v-text-field>
@@ -199,7 +199,7 @@
         <div>That's all!</div>
       </div>
     </infinite-loading>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

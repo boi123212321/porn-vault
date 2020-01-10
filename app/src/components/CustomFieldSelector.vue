@@ -1,41 +1,57 @@
 <template>
-  <div>
-    <template v-for="field in fields">
+  <v-row dense>
+    <v-col
+      class="d-flex align-center"
+      v-for="(field, i) in fields"
+      :key="field._id"
+      cols="12"
+      md="6"
+      lg="4"
+      xl="3"
+    >
+      <v-subheader class="text-truncate" style="width: 125px">{{ field.name }}</v-subheader>
+
       <v-checkbox
-        :key="field._id"
+        class="mt-0"
         v-if="field.type == 'BOOLEAN'"
         v-model="innerValue[field._id]"
         @change="onInnerValueChange"
         color="accent"
-        :label="field.name"
         hide-details
-      ></v-checkbox>
+        :label="innerValue[field._id]===true ? 'Yes' : 'No'"
+      />
 
       <v-select
+        style="width:100%"
+        solo
+        flat
+        single-line
         :multiple="field.type == 'MULTI_SELECT'"
         color="accent"
-        clearable
-        v-else-if="field.type == 'SINGLE_SELECT' || field.type == 'MULTI_SELECT'"
+        v-else-if="field.type.includes('SELECT')"
         :placeholder="field.name"
         v-model="innerValue[field._id]"
         :items="field.values"
-        :key="field._id"
         @change="onInnerValueChange"
         hide-details
-      ></v-select>
+        :suffix="field.unit"
+      />
 
       <v-text-field
+        style="width:100%"
+        solo
+        flat
+        single-line
         v-else
         :placeholder="field.name"
-        clearable
         v-model="innerValue[field._id]"
-        :key="field._id"
         @input="onInnerValueChange"
         hide-details
         color="accent"
-      ></v-text-field>
-    </template>
-  </div>
+        :suffix="field.unit"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <script lang="ts">
@@ -48,6 +64,10 @@ export default class CustomFieldSelector extends Vue {
   @Prop({ default: () => ({}) }) value: any;
   @Prop() fields!: any;
 
+  getField(id: string) {
+    return this.fields.find(f => f._id == id);
+  }
+
   innerValue = JSON.parse(JSON.stringify(this.value));
 
   @Watch("value", { deep: true })
@@ -57,6 +77,7 @@ export default class CustomFieldSelector extends Vue {
 
   onInnerValueChange(newVal: any) {
     this.$emit("input", this.innerValue);
+    this.$emit("change");
   }
 }
 </script>

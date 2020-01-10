@@ -42,7 +42,7 @@
           />
           <v-combobox
             chips
-            v-if="createFieldType == 'SINGLE_SELECT' || createFieldType == 'MULTI_SELECT'"
+            v-if="createFieldType.includes('SELECT')"
             placeholder="Preset values"
             color="accent"
             clearable

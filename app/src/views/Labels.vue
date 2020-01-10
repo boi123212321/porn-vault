@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container fluid>
     <div v-if="!fetchLoader">
       <h1 class="font-weight-light">Labels</h1>
 
@@ -45,7 +45,7 @@
                 v-model="editLabelName"
                 placeholder="Label name"
                 :rules="labelNameRules"
-                 @keydown.enter="editLabel"
+                @keydown.enter="editLabel"
               ></v-text-field>
 
               <v-combobox
@@ -117,7 +117,7 @@
       <p>Loading...</p>
       <v-progress-circular indeterminate></v-progress-circular>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -166,7 +166,7 @@ export default class Home extends Vue {
 
   editLabel() {
     if (!this.editingLabel) return;
-    if (!this.validEditing) return
+    if (!this.validEditing) return;
 
     this.editLabelLoader = true;
     ApolloClient.mutate({

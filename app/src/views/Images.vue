@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container fluid>
     <v-banner app sticky v-if="selectedImages.length">
       {{ selectedImages.length }} images selected
       <template v-slot:actions>
@@ -144,7 +144,7 @@
         @index="lightboxIndex = $event"
       />
     </transition>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

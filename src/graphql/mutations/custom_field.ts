@@ -33,7 +33,7 @@ export default {
         field.values = values;
       }
 
-      if (unit) field.unit = unit || null;
+      field.unit = unit || null;
 
       await database.update(
         database.store.customFields,

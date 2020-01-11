@@ -185,8 +185,9 @@
               :key="actor._id"
               cols="12"
               sm="6"
-              md="4"
-              lg="3"
+              md="3"
+              lg="2"
+              xl="2"
             >
               <actor-card style="height: 100%" v-model="actors[i]" />
             </v-col>
@@ -258,7 +259,8 @@
       <v-card :loading="labelEditLoader" v-if="currentScene">
         <v-card-title>Select labels for '{{ currentScene.name }}'</v-card-title>
 
-        <v-text-field clearable
+        <v-text-field
+          clearable
           color="accent"
           hide-details
           class="px-5 mb-2"
@@ -267,7 +269,11 @@
         />
 
         <v-card-text style="max-height: 400px">
-          <LabelSelector :searchQuery="labelSearchQuery" :items="allLabels" v-model="selectedLabels" />
+          <LabelSelector
+            :searchQuery="labelSearchQuery"
+            :items="allLabels"
+            v-model="selectedLabels"
+          />
         </v-card-text>
         <v-divider></v-divider>
 
@@ -443,7 +449,7 @@ export default class SceneDetails extends Vue {
   markerName = "" as string | null;
   markerDialog = false;
 
-   labelSearchQuery = "";
+  labelSearchQuery = "";
 
   removeMarker(id: string) {
     ApolloClient.mutate({

@@ -222,8 +222,21 @@
       <v-card :loading="labelEditLoader" v-if="currentActor">
         <v-card-title>Select labels for '{{ currentActor.name }}'</v-card-title>
 
+        <v-text-field
+          clearable
+          color="accent"
+          hide-details
+          class="px-5 mb-2"
+          label="Find labels..."
+          v-model="labelSearchQuery"
+        />
+
         <v-card-text style="max-height: 400px">
-          <LabelSelector :items="allLabels" v-model="selectedLabels" />
+          <LabelSelector
+            :searchQuery="labelSearchQuery"
+            :items="allLabels"
+            v-model="selectedLabels"
+          />
         </v-card-text>
         <v-divider></v-divider>
 
@@ -388,6 +401,8 @@ export default class ActorDetails extends Vue {
         console.error(err);
       });
   }
+  
+  labelSearchQuery = "";
 
   get aspectRatio() {
     return contextModule.actorAspectRatio;
@@ -515,8 +530,8 @@ export default class ActorDetails extends Vue {
 
       const result = await ApolloClient.query({
         query: gql`
-          query($query: String) {
-            getImages(query: $query) {
+          query($query: String, $auto: Boolean) {
+            getImages(query: $query, auto: $auto) {
               ...ImageFragment
               actors {
                 ...ActorFragment
@@ -531,7 +546,8 @@ export default class ActorDetails extends Vue {
           ${actorFragment}
         `,
         variables: {
-          query
+          query,
+          auto: true
         }
       });
 

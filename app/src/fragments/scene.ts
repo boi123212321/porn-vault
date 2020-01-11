@@ -10,6 +10,10 @@ export default gql`
     rating
     favorite
     bookmark
+    studio {
+      _id
+      name
+    }
     labels {
       _id
       name

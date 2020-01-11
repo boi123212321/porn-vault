@@ -1,4 +1,9 @@
-import { copyFileAsync, readdirAsync, rimrafAsync } from "./fs/async";
+import {
+  copyFileAsync,
+  readdirAsync,
+  rimrafAsync,
+  existsAsync
+} from "./fs/async";
 import { join } from "path";
 import { libraryPath, mapAsync } from "./types/utility";
 import * as log from "./logger/index";
@@ -38,7 +43,10 @@ export async function createBackup(amount = 10) {
     });
 
     for (const transfer of transfers) {
+      if (!(await existsAsync(transfer.from))) return;
+
       log.log(`Backup: ${transfer.from} -> ${transfer.to}...`);
+
       try {
         await copyFileAsync(transfer.from, transfer.to);
       } catch (error) {

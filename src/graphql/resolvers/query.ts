@@ -369,7 +369,8 @@ export default {
         rating: actor.rating,
         labels: await Actor.getLabels(actor),
         addedOn: actor.addedOn,
-        watches: await Actor.getWatches(actor)
+        watches: await Actor.getWatches(actor),
+        aliases: actor.aliases
       }))
     );
 
@@ -407,7 +408,7 @@ export default {
           distance: 100,
           maxPatternLength: 32,
           minMatchCharLength: 1,
-          keys: ["name", "labels.name", "labels.aliases"]
+          keys: ["name", "aliases", "labels.name", "labels.aliases"]
         });
 
         searchDocs = searcher.search(options.query);
@@ -419,6 +420,10 @@ export default {
             let score = 0;
             for (const token of tokens) {
               if (doc.name.toLowerCase().includes(token)) score++;
+              for (const alias of doc.aliases) {
+                if (alias.toLowerCase().includes(token)) score++;
+              }
+
               for (const label of doc.labels) {
                 if (label.name.toLowerCase().includes(token)) score++;
                 for (const alias of label.aliases) {
@@ -482,7 +487,23 @@ export default {
 
     const options = extractQueryOptions(query);
 
-    const allScenes = await Scene.getAll();
+    let allScenes = [] as Scene[];
+
+    if (options.studios.length) {
+      for (const studioId of options.studios) {
+        allScenes.push(...(await Scene.getByStudio(studioId)));
+      }
+    } else if (options.actors.length) {
+      if (options.actors.length) {
+        for (const actorId of options.actors) {
+          allScenes.push(...(await Scene.getByActor(actorId)));
+        }
+      } else {
+        allScenes = await Scene.getAll();
+      }
+    } else {
+      allScenes = await Scene.getAll();
+    }
 
     let searchDocs = await Promise.all(
       allScenes.map(async scene => ({
@@ -498,7 +519,8 @@ export default {
         watches: scene.watches,
         duration: scene.meta.duration || 0,
         studio: scene.studio,
-        movies: await Movie.getByScene(scene._id)
+        movies: await Movie.getByScene(scene._id),
+        studioObj: scene.studio ? await Studio.getById(scene.studio) : null
       }))
     );
 
@@ -567,7 +589,9 @@ export default {
             "labels.aliases",
             "actors.name",
             "actors.aliases",
-            "movies.name"
+            "movies.name",
+            "studioObj.name"
+            // "studioObj.aliases"
           ]
         });
 
@@ -656,7 +680,10 @@ export default {
     return slice;
   },
 
-  async getImages(_, { query }: { query: string | undefined }) {
+  async getImages(
+    _,
+    { query, auto }: { query: string | undefined; auto?: boolean | null }
+  ) {
     try {
       const timeNow = +new Date();
       logger.log("Searching...");
@@ -680,6 +707,14 @@ export default {
       } else {
         allImages = await Image.getAll();
       }
+
+      // Filter thumbnails, screenshots, previews
+      if (!auto)
+        allImages = allImages.filter(i =>
+          ["(thumbnail)", "(preview)", "(screenshot)"].every(
+            ending => !i.name.endsWith(ending)
+          )
+        );
 
       let searchDocs = await Promise.all(
         allImages.map(async image => ({

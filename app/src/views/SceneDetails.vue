@@ -258,8 +258,16 @@
       <v-card :loading="labelEditLoader" v-if="currentScene">
         <v-card-title>Select labels for '{{ currentScene.name }}'</v-card-title>
 
+        <v-text-field clearable
+          color="accent"
+          hide-details
+          class="px-5 mb-2"
+          label="Find labels..."
+          v-model="labelSearchQuery"
+        />
+
         <v-card-text style="max-height: 400px">
-          <LabelSelector :items="allLabels" v-model="selectedLabels" />
+          <LabelSelector :searchQuery="labelSearchQuery" :items="allLabels" v-model="selectedLabels" />
         </v-card-text>
         <v-divider></v-divider>
 
@@ -434,6 +442,8 @@ export default class SceneDetails extends Vue {
   markers = [] as { _id: string; name: string; time: number }[];
   markerName = "" as string | null;
   markerDialog = false;
+
+   labelSearchQuery = "";
 
   removeMarker(id: string) {
     ApolloClient.mutate({
@@ -702,8 +712,8 @@ export default class SceneDetails extends Vue {
 
       const result = await ApolloClient.query({
         query: gql`
-          query($query: String) {
-            getImages(query: $query) {
+          query($query: String, $auto: Boolean) {
+            getImages(query: $query, auto: $auto) {
               ...ImageFragment
               actors {
                 ...ActorFragment
@@ -718,7 +728,8 @@ export default class SceneDetails extends Vue {
           ${actorFragment}
         `,
         variables: {
-          query
+          query,
+          auto: true
         }
       });
 
@@ -951,6 +962,39 @@ export default class SceneDetails extends Vue {
             this.rate(rating);
           }
         }); */
+
+    /* window.addEventListener(
+      "pagehide",
+      event => {
+        if (event.persisted) {
+          this.dp.pause();
+          this.dp.notice("Auto pause", 4000, 0.8);
+        }
+      },
+      false
+    ); */
+
+    window.onblur = () => {
+      if (
+        !document.hasFocus() &&
+        this.dp &&
+        contextModule.scenePauseOnUnfocus
+      ) {
+        this.dp.pause();
+        this.dp.notice("Auto pause", 4000, 0.8);
+      }
+    };
+
+    document.addEventListener(
+      "visibilitychange",
+      () => {
+        if (document.hidden && this.dp && contextModule.scenePauseOnUnfocus) {
+          this.dp.pause();
+          this.dp.notice("Auto pause", 4000, 0.8);
+        }
+      },
+      false
+    );
   }
 }
 </script>

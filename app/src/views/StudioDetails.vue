@@ -120,8 +120,21 @@
       <v-card :loading="labelEditLoader" v-if="currentStudio">
         <v-card-title>Select labels for '{{ currentStudio.name }}'</v-card-title>
 
+        <v-text-field
+          clearable
+          color="accent"
+          hide-details
+          class="px-5 mb-2"
+          label="Find labels..."
+          v-model="labelSearchQuery"
+        />
+
         <v-card-text style="max-height: 400px">
-          <LabelSelector :items="allLabels" v-model="selectedLabels" />
+          <LabelSelector
+            :searchQuery="labelSearchQuery"
+            :items="allLabels"
+            v-model="selectedLabels"
+          />
         </v-card-text>
         <v-divider></v-divider>
 
@@ -218,6 +231,8 @@ export default class StudioDetails extends Vue {
   thumbnailDialog = false;
   thumbnailLoader = false;
   selectedThumbnail = null as File | null;
+
+  labelSearchQuery = "";
 
   uploadThumbnail() {
     if (!this.currentStudio) return;

@@ -45,6 +45,7 @@ Note: this is by no means finished, but useable.
 - FFMPEG_PATH: Where the ffmpeg binary is located; will be placed in working directory when downloading using the setup
 - FFPROBE_PATH: Where the ffprobe binary is located; will be placed in working directory when downloading using the setup
 - GENERATE_THUMBNAILS: Whether thumbnails should be extracted from imported videos
+- GENERATE_MULTIPLE_THUMBNAILS: Generate single or multiple thumbnails. If true, THUMBNAIL_INTERVAL will determine how many thumbnails are generated
 - GENERATE_PREVIEWS: Whether video preview should be generated from imported videos (used in video player)
 - THUMBNAIL_INTERVAL: Seconds between thumbnail snapshots in seconds
 - PORT: Port server is running on
@@ -57,6 +58,8 @@ Note: this is by no means finished, but useable.
 - REMOVE_DANGLING_FILE_REFERENCES: Remove scenes/images from the database that can not be found on disk
 - BACKUP_ON_STARTUP: Whether to create a backup when starting the server
 - MAX_BACKUP_AMOUNT: Max amount of backups in backups/ folder. Oldest one will be deleted, if max amount has been reached.
+- EXCLUDE_FILES: Array of regular expressions that, if any of them match a file name, will cause the file to be ignored
+- CALCULATE_FILE_CHECKSUM: Generate file checksum (hash) on import
 
 ## Roadmap
 

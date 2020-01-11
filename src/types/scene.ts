@@ -437,6 +437,72 @@ export default class Scene {
     });
   }
 
+  static async generateSingleThumbnail(
+    scene: Scene
+  ): Promise<ThumbnailFile | null> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        if (!scene.path) {
+          logger.warn("No scene path, aborting thumbnail generation.");
+          return resolve(null);
+        }
+
+        const folder = await libraryPath("thumbnails/");
+
+        await (() => {
+          return new Promise(async (resolve, reject) => {
+            ffmpeg(<string>scene.path)
+              .on("end", async () => {
+                logger.success("Created thumbnail");
+                resolve();
+              })
+              .on("error", (err: Error) => {
+                logger.error("Thumbnail generation failed for thumbnail");
+                logger.error(scene.path);
+                reject(err);
+              })
+              .screenshot({
+                folder,
+                count: 1,
+                filename: `${scene._id} (thumbnail).jpg`,
+                timestamps: ["50%"]
+              });
+          });
+        })();
+
+        logger.success("Thumbnail generation done.");
+
+        const thumbnailFilenames = (await readdirAsync(folder)).filter(name =>
+          name.includes(scene._id)
+        );
+
+        const thumbnailFiles = await Promise.all(
+          thumbnailFilenames.map(async name => {
+            const filePath = await libraryPath(`thumbnails/${name}`);
+            const stats = await statAsync(filePath);
+            return {
+              name,
+              path: filePath,
+              size: stats.size,
+              time: stats.mtime.getTime()
+            };
+          })
+        );
+
+        thumbnailFiles.sort((a, b) =>
+          a.name.localeCompare(b.name, undefined, { numeric: true })
+        );
+
+        logger.success(`Generated ${thumbnailFiles.length} thumbnails.`);
+
+        resolve(thumbnailFiles[0] || null);
+      } catch (err) {
+        logger.error(err);
+        reject(err);
+      }
+    });
+  }
+
   static async generateThumbnails(scene: Scene): Promise<ThumbnailFile[]> {
     return new Promise(async (resolve, reject) => {
       if (!scene.path) {

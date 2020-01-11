@@ -13,6 +13,10 @@ import { existsAsync, statAsync } from "../fs/async";
 import { fileHash } from "../hash";
 import Studio from "../types/studio";
 
+function removeExtension(file: string) {
+  return file.replace(/\.[^/.]+$/, "");
+}
+
 export interface IQueueItem {
   _id: string;
   name: string | null;
@@ -36,6 +40,10 @@ class Queue {
 
   async process(item: IQueueItem) {
     const sourcePath = item.path;
+
+    if (!(await existsAsync(sourcePath)))
+      throw new Error(`File ${sourcePath} not found`);
+
     logger.message(`Processing ${sourcePath}...`);
 
     for (const actor of item.actors || []) {
@@ -48,8 +56,7 @@ class Queue {
       if (!labelInDb) throw new Error(`Label ${label} not found`);
     }
 
-    const fileNameWithoutExtension = item.filename.split(".")[0];
-    let sceneName = fileNameWithoutExtension;
+    let sceneName = removeExtension(item.filename);
     if (item.name) sceneName = item.name;
 
     const config = await getConfig();
@@ -73,9 +80,10 @@ class Queue {
     scene._id = item._id;
     scene.path = sourcePath;
 
-    logger.log("Generating file checksum...");
-
-    scene.hash = await fileHash(sourcePath);
+    if (config.CALCULATE_FILE_CHECKSUM) {
+      logger.log("Generating file checksum...");
+      scene.hash = await fileHash(sourcePath);
+    }
 
     try {
       await new Promise(async (resolve, reject) => {
@@ -106,8 +114,10 @@ class Queue {
         });
       });
     } catch (err) {
-      logger.error("Error ffprobing file - perhaps a permission problem?");
-      throw new Error("Error");
+      logger.error(
+        `Error ffprobing file '${sourcePath}' - perhaps a permission problem?`
+      );
+      throw new Error("Error when running FFPROBE");
     }
 
     let actors = [] as string[];
@@ -169,36 +179,41 @@ class Queue {
 
     // Thumbnails
     if (config.GENERATE_THUMBNAILS) {
-      const loader = ora("Generating thumbnails...").start();
+      const loader = ora("Generating thumbnail(s)...").start();
 
       let thumbnailFiles = [] as ThumbnailFile[];
       let images = [] as Image[];
 
-      try {
-        thumbnailFiles = await Scene.generateThumbnails(scene);
-
-        for (let i = 0; i < thumbnailFiles.length; i++) {
-          const file = thumbnailFiles[i];
-          const image = new Image(`${sceneName} ${i + 1}`);
-          image.path = file.path;
-          image.scene = scene._id;
-          image.meta.size = file.size;
-          image.labels = scene.labels;
-          await Image.setLabels(image, labels);
-          await Image.setActors(image, actors);
-          logger.log(`Creating image with id ${image._id}...`);
-          await database.insert(database.store.images, image);
-          images.push(image);
+      if (config.GENERATE_MULTIPLE_THUMBNAILS) {
+        try {
+          thumbnailFiles = await Scene.generateThumbnails(scene);
+        } catch (error) {
+          logger.error(error);
+          loader.fail(`Error generating thumbnails.`);
         }
-
-        if (images.length > 0) {
-          scene.thumbnail = images[Math.floor(images.length / 2)]._id;
-          loader.succeed(`Created ${images.length} thumbnails.`);
-        } else loader.warn(`Created 0 thumbnails.`);
-      } catch (error) {
-        logger.error(error);
-        loader.fail(`Error generating thumbnails.`);
+      } else {
+        const thumbnail = await Scene.generateSingleThumbnail(scene);
+        if (thumbnail) thumbnailFiles.push(thumbnail);
       }
+
+      for (let i = 0; i < thumbnailFiles.length; i++) {
+        const file = thumbnailFiles[i];
+        const image = new Image(`${sceneName} ${i + 1} (screenshot)`);
+        image.path = file.path;
+        image.scene = scene._id;
+        image.meta.size = file.size;
+        image.labels = scene.labels;
+        await Image.setLabels(image, labels);
+        await Image.setActors(image, actors);
+        logger.log(`Creating image with id ${image._id}...`);
+        await database.insert(database.store.images, image);
+        images.push(image);
+      }
+
+      if (images.length > 0) {
+        scene.thumbnail = images[Math.floor(images.length / 2)]._id;
+        loader.succeed(`Created ${images.length} thumbnails.`);
+      } else loader.warn(`Created 0 thumbnails.`);
     }
 
     if (config.GENERATE_PREVIEWS && !scene.preview) {
@@ -241,14 +256,17 @@ class Queue {
       let head = await this.getFirst();
 
       while (!!head) {
-        await this.process(head);
+        try {
+          await this.process(head);
+        } catch (error) {
+          logger.warn("Error processing scene:", error.message);
+        }
         await database.remove(this.store, { _id: head._id });
         head = await this.getFirst();
       }
       logger.success("Processing done");
     } catch (error) {
-      logger.error(error);
-      logger.error("Error processing scene");
+      logger.error("Error in processing loop:", error.message);
     }
     this.isProcessing = false;
   }

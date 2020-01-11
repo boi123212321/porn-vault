@@ -3,7 +3,7 @@ import Studio from "../../types/studio";
 import Scene from "../../types/scene";
 import Movie from "../../types/movie";
 import Image from "../../types/image";
-import { tokenPerms } from "../../extractor";
+import { stripStr } from "../../extractor";
 import * as logger from "../../logger/index";
 import { getConfig } from "../../config/index";
 
@@ -22,9 +22,9 @@ export default {
     const studio = new Studio(name);
 
     for (const scene of await Scene.getAll()) {
-      const perms = tokenPerms(scene.path || scene.name);
+      const perms = stripStr(scene.path || scene.name);
 
-      if (scene.studio === null && perms.includes(studio.name.toLowerCase())) {
+      if (scene.studio === null && perms.includes(stripStr(studio.name))) {
         await database.update(
           database.store.scenes,
           { _id: scene._id },

@@ -4,7 +4,7 @@ import Label from "../../types/label";
 import Scene from "../../types/scene";
 import Image from "../../types/image";
 import { Dictionary } from "../../types/utility";
-import { tokenPerms } from "../../extractor";
+import { stripStr } from "../../extractor";
 import * as logger from "../../logger/index";
 
 type ILabelUpdateOpts = Partial<{
@@ -32,11 +32,11 @@ export default {
     const label = new Label(args.name, args.aliases);
 
     for (const scene of await Scene.getAll()) {
-      const perms = tokenPerms(scene.path || scene.name);
+      const perms = stripStr(scene.path || scene.name);
 
       if (
-        perms.includes(label.name.toLowerCase()) ||
-        label.aliases.some(alias => perms.includes(alias.toLowerCase()))
+        perms.includes(stripStr(label.name)) ||
+        label.aliases.some(alias => perms.includes(stripStr(alias)))
       ) {
         const labels = (await Scene.getLabels(scene)).map(l => l._id);
         labels.push(label._id);

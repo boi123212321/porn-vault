@@ -24,6 +24,7 @@ export interface IConfig {
   FFPROBE_PATH: string;
 
   GENERATE_THUMBNAILS: boolean;
+  GENERATE_MULTIPLE_THUMBNAILS: boolean;
   GENERATE_PREVIEWS: boolean;
   THUMBNAIL_INTERVAL: number;
 
@@ -42,6 +43,10 @@ export interface IConfig {
 
   BACKUP_ON_STARTUP: boolean;
   MAX_BACKUP_AMOUNT: number;
+
+  EXCLUDE_FILES: string[];
+
+  CALCULATE_FILE_CHECKSUM: boolean;
 }
 
 export const defaultConfig: IConfig = {
@@ -53,8 +58,9 @@ export const defaultConfig: IConfig = {
   FFMPEG_PATH: "",
   FFPROBE_PATH: "",
   GENERATE_THUMBNAILS: true,
+  GENERATE_MULTIPLE_THUMBNAILS: true,
   GENERATE_PREVIEWS: false,
-  THUMBNAIL_INTERVAL: 60,
+  THUMBNAIL_INTERVAL: 120,
   PASSWORD: null,
   PORT: 3000,
   APPLY_ACTOR_LABELS: true,
@@ -64,7 +70,9 @@ export const defaultConfig: IConfig = {
   READ_IMAGES_ON_IMPORT: false,
   REMOVE_DANGLING_FILE_REFERENCES: false,
   BACKUP_ON_STARTUP: true,
-  MAX_BACKUP_AMOUNT: 10
+  MAX_BACKUP_AMOUNT: 10,
+  EXCLUDE_FILES: [],
+  CALCULATE_FILE_CHECKSUM: false
 };
 
 let config = JSON.parse(JSON.stringify(defaultConfig)) as IConfig;

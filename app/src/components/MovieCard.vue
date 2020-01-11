@@ -2,7 +2,7 @@
   <v-card :dark="!!cardColor || $vuetify.theme.dark" :color="cardColor" v-if="value" tile>
     <v-hover v-slot:default="{ hover }">
       <a :href="`#/movie/${value._id}`">
-        <v-img contain :aspect-ratio="ratio"  v-ripple eager :src="frontCover">
+        <v-img contain :aspect-ratio="ratio" v-ripple eager :src="frontCover">
           <v-fade-transition>
             <v-img eager :aspect-ratio="ratio" :src="backCover" v-if="hover"></v-img>
           </v-fade-transition>
@@ -39,7 +39,14 @@
       </a>
     </v-hover>
 
-    <v-card-title>
+    <div v-if="value.studio" class="mt-2 pl-4 text-uppercase caption">
+      <router-link
+        class="hover"
+        style="color: inherit; text-decoration: none"
+        :to="`/studio/${value.studio._id}`"
+      >{{ value.studio.name }}</router-link>
+    </div>
+    <v-card-title :class="`${value.studio ? 'pt-0' : ''}`">
       <span
         :title="value.name"
         style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
@@ -177,9 +184,7 @@ export default class MovieCard extends Vue {
   get actorLinks() {
     const names = this.value.actors.map(
       a =>
-        `<a class="${this.complementary ? "" : "accent--text"}" style="color: ${
-          this.complementary
-        }" href="#/actor/${a._id}">${a.name}</a>`
+        `<a class="hover font-weight-bold" style="color: inherit; text-decoration: none" href="#/actor/${a._id}">${a.name}</a>`
     );
     names.sort();
     return names.join(", ");

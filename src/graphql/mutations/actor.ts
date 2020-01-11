@@ -2,7 +2,7 @@ import * as database from "../../database";
 import Actor from "../../types/actor";
 import Scene from "../../types/scene";
 import { Dictionary } from "../../types/utility";
-import { tokenPerms } from "../../extractor";
+import { stripStr } from "../../extractor";
 import * as logger from "../../logger/index";
 import { getConfig } from "../../config/index";
 
@@ -30,11 +30,11 @@ export default {
     }
 
     for (const scene of await Scene.getAll()) {
-      const perms = tokenPerms(scene.path || scene.name);
+      const perms = stripStr(scene.path || scene.name);
 
       if (
-        perms.includes(actor.name.toLowerCase()) ||
-        actor.aliases.some(alias => perms.includes(alias.toLowerCase()))
+        perms.includes(stripStr(actor.name)) ||
+        actor.aliases.some(alias => perms.includes(stripStr(alias)))
       ) {
         if (config.APPLY_ACTOR_LABELS === true) {
           const sceneLabels = (await Scene.getLabels(scene)).map(l => l._id);

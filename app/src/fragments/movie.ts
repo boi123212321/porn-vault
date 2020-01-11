@@ -20,6 +20,10 @@ export default gql`
     backCover {
       _id
     }
+    studio {
+      _id
+      name
+    }
     duration
     size
   }

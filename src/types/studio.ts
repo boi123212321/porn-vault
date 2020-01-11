@@ -37,7 +37,7 @@ export default class Studio {
             );
           } else {
             const cr = new CrossReference(studioId, labelId);
-            await database.insert(database.store.cross_references, cr);
+            await database.insert(database.store.crossReferences, cr);
             logger.log(
               `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
             );
@@ -163,13 +163,13 @@ export default class Studio {
       .map(r => r._id);
 
     for (const id of oldLabelReferences) {
-      await database.remove(database.store.cross_references, { _id: id });
+      await database.remove(database.store.crossReferences, { _id: id });
     }
 
     for (const id of [...new Set(labelIds)]) {
       const crossReference = new CrossReference(studio._id, id);
       logger.log("Adding actor to scene: " + JSON.stringify(crossReference));
-      await database.insert(database.store.cross_references, crossReference);
+      await database.insert(database.store.crossReferences, crossReference);
     }
   }
 

@@ -1,6 +1,12 @@
 <template>
-  <div>
-    <v-navigation-drawer style="z-index: 14" v-model="drawer" :permanent="$vuetify.breakpoint.mdAndUp" clipped app>
+  <v-container fluid>
+    <v-navigation-drawer
+      style="z-index: 14"
+      v-model="drawer"
+      :permanent="$vuetify.breakpoint.mdAndUp"
+      clipped
+      app
+    >
       <v-container>
         <v-text-field clearable color="accent" v-model="query" label="Search query"></v-text-field>
 
@@ -82,33 +88,6 @@
       <v-progress-circular indeterminate></v-progress-circular>
     </div>
 
-    <!--  <v-dialog scrollable v-model="createStudioDialog" max-width="400px">
-      <v-card :loading="addStudioLoader">
-        <v-card-title>Add new studio</v-card-title>
-        <v-card-text style="max-height: 90vh">
-          <v-form v-model="validCreation">
-            <v-text-field
-              :rules="studioNameRules"
-              color="accent"
-              v-model="createStudioName"
-              placeholder="Name"
-            />
-          </v-form>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            text
-            class="text-none"
-            :disabled="!validCreation"
-            color="accent"
-            @click="addStudio"
-          >Add</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>-->
-
     <v-dialog :persistent="bulkLoader" scrollable v-model="bulkImportDialog" max-width="400px">
       <v-card :loading="bulkLoader">
         <v-card-title>Create studio(s)</v-card-title>
@@ -155,7 +134,7 @@
         <div>That's all!</div>
       </div>
     </infinite-loading>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

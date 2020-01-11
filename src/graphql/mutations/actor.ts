@@ -15,6 +15,7 @@ type IActorUpdateOpts = Partial<{
   favorite: boolean;
   bookmark: boolean;
   bornOn: number;
+  customFields: Dictionary<string[] | boolean | string | null>;
 }>;
 
 export default {
@@ -82,6 +83,18 @@ export default {
 
         if (opts.bornOn !== undefined) actor.bornOn = opts.bornOn;
 
+        if (opts.customFields) {
+          for (const key in opts.customFields) {
+            const value =
+              opts.customFields[key] !== undefined
+                ? opts.customFields[key]
+                : null;
+            logger.log(`Set actor custom.${key} to ${value}`);
+            opts.customFields[key] = value;
+          }
+          actor.customFields = opts.customFields;
+        }
+
         await database.update(database.store.actors, { _id: actor._id }, actor);
 
         updatedActors.push(actor);
@@ -99,10 +112,10 @@ export default {
 
       if (actor) {
         await Actor.remove(actor);
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           from: actor._id
         });
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           to: actor._id
         });
       }

@@ -23,6 +23,7 @@ type IImageUpdateOpts = Partial<{
   bookmark: boolean;
   studio: string | null;
   scene: string | null;
+  customFields: Dictionary<string[] | boolean | string | null>;
 }>;
 
 export default {
@@ -228,6 +229,18 @@ export default {
 
         if (opts.scene !== undefined) image.scene = opts.scene;
 
+        if (opts.customFields) {
+          for (const key in opts.customFields) {
+            const value =
+              opts.customFields[key] !== undefined
+                ? opts.customFields[key]
+                : null;
+            logger.log(`Set scene custom.${key} to ${value}`);
+            opts.customFields[key] = value;
+          }
+          image.customFields = opts.customFields;
+        }
+
         await database.update(database.store.images, { _id: image._id }, image);
         updatedImages.push(image);
       } else {
@@ -248,10 +261,10 @@ export default {
         await Scene.filterImage(image._id);
         await Label.filterImage(image._id);
         await Movie.filterImage(image._id);
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           from: image._id
         });
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           to: image._id
         });
       }

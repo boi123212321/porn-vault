@@ -20,7 +20,7 @@ export default {
 
       if (label) {
         await Label.remove(label._id);
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           to: label._id
         });
       }

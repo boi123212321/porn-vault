@@ -7,9 +7,13 @@ import ImageResolver from "./resolvers/image";
 import LabelResolver from "./resolvers/label";
 import MovieResolver from "./resolvers/movie";
 import StudioResolver from "./resolvers/studio";
+import CustomFieldResolver from "./resolvers/custom_field";
+import { GraphQLJSONObject } from "graphql-type-json";
 
 const resolvers = {
   Long: GraphQLLong,
+  Object: GraphQLJSONObject,
+
   Actor: ActorResolver,
   Scene: SceneResolver,
   Image: ImageResolver,
@@ -17,7 +21,8 @@ const resolvers = {
   Mutation: MutationResolver,
   Label: LabelResolver,
   Movie: MovieResolver,
-  Studio: StudioResolver
+  Studio: StudioResolver,
+  CustomField: CustomFieldResolver
 };
 
 export default resolvers;

@@ -93,10 +93,10 @@ export default {
         await Movie.filterStudio(studio._id);
         await Image.filterStudio(studio._id);
 
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           from: studio._id
         });
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           to: studio._id
         });
       }

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container fluid>
     <v-navigation-drawer style="z-index: 14" v-model="drawer" :permanent="$vuetify.breakpoint.mdAndUp" clipped app>
       <v-container>
         <!-- <v-checkbox v-model="useDVDCoverRatio" label="Use DVD Cover ratio"></v-checkbox> -->
@@ -157,7 +157,7 @@
         <div>That's all!</div>
       </div>
     </infinite-loading>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">

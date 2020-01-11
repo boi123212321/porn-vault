@@ -23,6 +23,8 @@ import moment from "moment";
 export default class MarkerItem extends Vue {
   @Prop(Object) marker!: any;
 
+  errorState = 0;
+
   errorClick() {
     if (this.errorState == 0) {
       this.errorState = 1;
@@ -33,8 +35,6 @@ export default class MarkerItem extends Vue {
       this.$emit("delete");
     }
   }
-
-  errorState = 0;
 
   formatTime(secs: number) {
     return moment()

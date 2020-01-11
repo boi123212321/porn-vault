@@ -14,7 +14,7 @@ mkdirp.sync("backups/");
 mkdirp.sync("tmp/");
 
 let store = {} as {
-  cross_references: DataStore;
+  crossReferences: DataStore;
   scenes: DataStore;
   actors: DataStore;
   images: DataStore;
@@ -23,6 +23,7 @@ let store = {} as {
   studios: DataStore;
   queue: DataStore;
   markers: DataStore;
+  customFields: DataStore;
 };
 
 function buildIndex(store: DataStore, opts: EnsureIndexOptions) {
@@ -62,7 +63,7 @@ export async function loadStores() {
   } catch (err) {}
 
   store = {
-    cross_references: await loadStore(await libraryPath("cross_references.db")),
+    crossReferences: await loadStore(await libraryPath("cross_references.db")),
     scenes: await loadStore(await libraryPath("scenes.db")),
     actors: await loadStore(await libraryPath("actors.db")),
     images: await loadStore(await libraryPath("images.db")),
@@ -70,13 +71,14 @@ export async function loadStores() {
     movies: await loadStore(await libraryPath("movies.db")),
     studios: await loadStore(await libraryPath("studios.db")),
     queue: await loadStore(await libraryPath("queue.db")),
-    markers: await loadStore(await libraryPath("markers.db"))
+    markers: await loadStore(await libraryPath("markers.db")),
+    customFields: await loadStore(await libraryPath("custom_fields.db"))
   };
 
-  await buildIndex(store.cross_references, {
+  await buildIndex(store.crossReferences, {
     fieldName: "from"
   });
-  await buildIndex(store.cross_references, {
+  await buildIndex(store.crossReferences, {
     fieldName: "to"
   });
   await buildIndex(store.scenes, {

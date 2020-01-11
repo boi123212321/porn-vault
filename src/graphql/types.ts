@@ -1,5 +1,6 @@
 export default `
 scalar Long
+scalar Object
 
 type Dimensions {
   width: Long
@@ -36,24 +37,17 @@ type Query {
   # auto = true will prevent thumbnails, previews and screenshots from being filtered out
   getImages(query: String, auto: Boolean): [Image!]!
   getStudios(query: String): [Studio!]!
-
-  topActors(num: Int): [Actor!]!
+  getLabels: [Label!]!
+  getCustomFields: [CustomField!]!
 
   getSceneById(id: String!): Scene
-
   getActorById(id: String!): Actor
-  findActors(name: String!): [Actor!]
-
-  getLabelById(id: String!): Label
-  findLabel(name: String!): Label
-  getLabels: [Label!]!
-
   getMovieById(id: String!): Movie
-
   getStudioById(id: String!): Studio
-
+  getLabelById(id: String!): Label
+  
   getQueueInfo: QueueInfo!
-
+  topActors(num: Int): [Actor!]!
   getActorsWithoutScenes(num: Int): [Actor!]!
   getActorsWithoutLabels(num: Int): [Actor!]!
   getScenesWithoutActors(num: Int): [Scene!]!
@@ -69,9 +63,10 @@ type Actor {
   favorite: Boolean!
   bookmark: Boolean!
   rating: Int
-  #customFields
+  customFields: Object!
   
   # Resolvers
+  availableFields: [CustomField!]!
   watches: [Long!]!
   labels: [Label!]!
   scenes: [Scene!]
@@ -103,9 +98,10 @@ type Scene {
   streamLinks: [String!]!
   watches: [Long!]!
   meta: SceneMeta!
-  #customFields
+  customFields: Object!
   
   # Resolvers
+  availableFields: [CustomField!]!
   thumbnail: Image
   preview: Image
   images: [Image!]!
@@ -122,7 +118,7 @@ type Image {
   favorite: Boolean!
   bookmark: Boolean!
   rating: Int
-  #customFields
+  customFields: Object!
   meta: ImageMeta!
   
   # Resolvers
@@ -142,7 +138,7 @@ type Movie {
   releaseDate: Long
   favorite: Boolean!
   bookmark: Boolean!
-  #customFields
+  customFields: Object!
   
   # Resolvers
   rating: Int # Inferred from scene ratings
@@ -163,7 +159,7 @@ type Studio {
   addedOn: Long!
   favorite: Boolean!
   bookmark: Boolean!
-  #customFields
+  customFields: Object!
   
   # Resolvers
   parent: Studio
@@ -175,6 +171,32 @@ type Studio {
   labels: [Label!]! # Inferred from scene labels
   actors: [Actor!]! # Inferred from scene actors
   movies: [Movie!]!
+}
+
+enum CustomFieldType {
+  NUMBER,
+  STRING,
+  BOOLEAN,
+  SINGLE_SELECT,
+  MULTI_SELECT
+}
+
+enum CustomFieldTarget {
+  SCENES,
+  ACTORS,
+  MOVIES,
+  IMAGES,
+  STUDIOS,
+  ALBUMS
+}
+
+type CustomField {
+  _id: String!
+  name: String!
+  target: [CustomFieldTarget!]!
+  type: CustomFieldType!
+  values: [String!]
+  unit: String
 }
 
 type Marker {
@@ -192,6 +214,7 @@ input ActorUpdateOpts {
   favorite: Boolean
   bookmark: Boolean
   bornOn: Long
+  customFields: Object
 }
 
 input ImageUpdateOpts {
@@ -203,6 +226,7 @@ input ImageUpdateOpts {
   bookmark: Boolean
   studio: String
   scene: String
+  customFields: Object
 }
 
 input LabelUpdateOpts {
@@ -223,6 +247,7 @@ input SceneUpdateOpts {
   thumbnail: String
   releaseDate: Long
   studio: String
+  customFields: Object
 }
 
 input MovieUpdateOpts {
@@ -236,6 +261,7 @@ input MovieUpdateOpts {
   rating: Int
   scenes: [String!]
   studio: String
+  customFields: Object
 }
 
 input StudioUpdateOpts {
@@ -285,5 +311,9 @@ type Mutation {
 
   createMarker(scene: String!, name: String!, time: Int!): Marker!
   removeMarkers(ids: [String!]!): Boolean!
+
+  createCustomField(name: String!, target: [CustomFieldTarget!]!, type: CustomFieldType!, values: [String!], unit: String): CustomField!
+  updateCustomField(id: String!, name: String, values: [String!], unit: String): CustomField!
+  removeCustomField(id: String!): Boolean!
 }
 `;

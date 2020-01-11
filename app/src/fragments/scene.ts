@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 export default gql`
   fragment SceneFragment on Scene {
     _id
+    addedOn
     name
     releaseDate
     description
@@ -36,5 +37,13 @@ export default gql`
     watches
     streamLinks
     path
+    customFields
+    availableFields {
+      _id
+      name
+      type
+      values
+      unit
+    }
   }
 `;

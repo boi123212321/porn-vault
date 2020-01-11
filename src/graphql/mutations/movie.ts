@@ -1,6 +1,7 @@
 import * as database from "../../database";
 import Movie from "../../types/movie";
 import { Dictionary } from "../../types/utility";
+import * as logger from "../../logger";
 
 type IMovieUpdateOpts = Partial<{
   name: string;
@@ -13,6 +14,7 @@ type IMovieUpdateOpts = Partial<{
   rating: number;
   scenes: string[];
   studio: string | null;
+  customFields: Dictionary<string[] | boolean | string | null>;
 }>;
 
 export default {
@@ -32,10 +34,10 @@ export default {
 
       if (movie) {
         await Movie.remove(movie._id);
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           from: movie._id
         });
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           to: movie._id
         });
       }
@@ -76,6 +78,18 @@ export default {
 
         if (opts.releaseDate !== undefined)
           movie.releaseDate = opts.releaseDate;
+
+        if (opts.customFields) {
+          for (const key in opts.customFields) {
+            const value =
+              opts.customFields[key] !== undefined
+                ? opts.customFields[key]
+                : null;
+            logger.log(`Set scene custom.${key} to ${value}`);
+            opts.customFields[key] = value;
+          }
+          movie.customFields = opts.customFields;
+        }
 
         await database.update(database.store.movies, { _id: movie._id }, movie);
         updatedScenes.push(movie);

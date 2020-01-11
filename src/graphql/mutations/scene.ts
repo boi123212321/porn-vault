@@ -27,6 +27,7 @@ type ISceneUpdateOpts = Partial<{
   thumbnail: string;
   releaseDate: number;
   studio: string | null;
+  customFields: Dictionary<string[] | boolean | string | null>;
 }>;
 
 export default {
@@ -230,6 +231,18 @@ export default {
         if (opts.releaseDate !== undefined)
           scene.releaseDate = opts.releaseDate;
 
+        if (opts.customFields) {
+          for (const key in opts.customFields) {
+            const value =
+              opts.customFields[key] !== undefined
+                ? opts.customFields[key]
+                : null;
+            logger.log(`Set scene custom.${key} to ${value}`);
+            opts.customFields[key] = value;
+          }
+          scene.customFields = opts.customFields;
+        }
+
         await database.update(database.store.scenes, { _id: scene._id }, scene);
         updatedScenes.push(scene);
       }
@@ -253,10 +266,10 @@ export default {
         if (deleteImages === true) {
           for (const image of await Image.getByScene(scene._id)) {
             await Image.remove(image);
-            await database.remove(database.store.cross_references, {
+            await database.remove(database.store.crossReferences, {
               from: image._id
             });
-            await database.remove(database.store.cross_references, {
+            await database.remove(database.store.crossReferences, {
               to: image._id
             });
             await Marker.removeByScene(scene);
@@ -265,10 +278,10 @@ export default {
         }
         logger.success("Deleted scene " + scene._id);
 
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           from: scene._id
         });
-        await database.remove(database.store.cross_references, {
+        await database.remove(database.store.crossReferences, {
           to: scene._id
         });
       }

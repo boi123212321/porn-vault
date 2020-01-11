@@ -52,6 +52,11 @@ class ActorModule extends VuexModule {
   setLabels(labels: { _id: string; name: string }[]) {
     if (this.current) this.current.labels = labels;
   }
+
+  @Mutation
+  setCustomFields(fields: any) {
+    if (this.current) this.current.customFields = fields;
+  }
 }
 
 import store from "./index";

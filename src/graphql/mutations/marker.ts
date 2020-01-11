@@ -11,7 +11,7 @@ export default {
     await database.insert(database.store.markers, marker);
 
     const crossReference = new CrossReference(scene, marker._id);
-    await database.insert(database.store.cross_references, crossReference);
+    await database.insert(database.store.crossReferences, crossReference);
 
     return marker;
   },

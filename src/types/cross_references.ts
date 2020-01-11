@@ -13,28 +13,28 @@ export default class CrossReference {
   }
 
   static async remove(from: string, to: string) {
-    return database.remove(database.store.cross_references, {
+    return database.remove(database.store.crossReferences, {
       from,
       to
     }) as Promise<CrossReference[]>;
   }
 
   static async getByDest(to: string) {
-    const result = (await database.find(database.store.cross_references, {
+    const result = (await database.find(database.store.crossReferences, {
       to
     })) as CrossReference[];
     return result;
   }
 
   static async getBySource(from: string) {
-    const result = (await database.find(database.store.cross_references, {
+    const result = (await database.find(database.store.crossReferences, {
       from
     })) as CrossReference[];
     return result;
   }
 
   static async get(from: string, to: string) {
-    const result = (await database.findOne(database.store.cross_references, {
+    const result = (await database.findOne(database.store.crossReferences, {
       from,
       to
     })) as CrossReference | null;

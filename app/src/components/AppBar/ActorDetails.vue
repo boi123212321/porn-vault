@@ -90,10 +90,12 @@ import gql from "graphql-tag";
 import DateInput from "../DateInput.vue";
 import IActor from "../../types/actor";
 import moment from "moment";
+import CustomFieldSelector from "../CustomFieldSelector.vue";
 
 @Component({
   components: {
-    DateInput
+    DateInput,
+    CustomFieldSelector
   }
 })
 export default class ActorToolbar extends Vue {

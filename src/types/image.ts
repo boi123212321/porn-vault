@@ -35,6 +35,14 @@ export default class Image {
   hash: string | null = null;
   color: string | null = null;
 
+  static async filterCustomField(fieldId: string) {
+    await database.update(
+      database.store.images,
+      {},
+      { $unset: { [`customFields.${fieldId}`]: true } }
+    );
+  }
+
   static async color(image: Image) {
     if (!image.path) return null;
     if (image.color) return image.color;
@@ -88,7 +96,7 @@ export default class Image {
             );
           } else {
             const cr = new CrossReference(imageId, actorId);
-            await database.insert(database.store.cross_references, cr);
+            await database.insert(database.store.crossReferences, cr);
             logger.log(
               `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
             );
@@ -106,7 +114,7 @@ export default class Image {
             );
           } else {
             const cr = new CrossReference(imageId, labelId);
-            await database.insert(database.store.cross_references, cr);
+            await database.insert(database.store.crossReferences, cr);
             logger.log(
               `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
             );
@@ -244,13 +252,13 @@ export default class Image {
       .map(r => r._id);
 
     for (const id of oldActorReferences) {
-      await database.remove(database.store.cross_references, { _id: id });
+      await database.remove(database.store.crossReferences, { _id: id });
     }
 
     for (const id of [...new Set(actorIds)]) {
       const crossReference = new CrossReference(image._id, id);
       logger.log("Adding label to image: " + JSON.stringify(crossReference));
-      await database.insert(database.store.cross_references, crossReference);
+      await database.insert(database.store.crossReferences, crossReference);
     }
   }
 
@@ -262,13 +270,13 @@ export default class Image {
       .map(r => r._id);
 
     for (const id of oldLabelReferences) {
-      await database.remove(database.store.cross_references, { _id: id });
+      await database.remove(database.store.crossReferences, { _id: id });
     }
 
     for (const id of [...new Set(labelIds)]) {
       const crossReference = new CrossReference(image._id, id);
       logger.log("Adding label to scene: " + JSON.stringify(crossReference));
-      await database.insert(database.store.cross_references, crossReference);
+      await database.insert(database.store.crossReferences, crossReference);
     }
   }
 

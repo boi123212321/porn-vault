@@ -5,6 +5,7 @@ import ImageMutations from "./mutations/image";
 import MovieMutations from "./mutations/movie";
 import StudioMutations from "./mutations/studio";
 import MarkerMutations from "./mutations/marker";
+import CustomFieldMutations from "./mutations/custom_field";
 
 export default {
   ...ImageMutations,
@@ -13,5 +14,6 @@ export default {
   ...SceneMutations,
   ...MovieMutations,
   ...StudioMutations,
-  ...MarkerMutations
+  ...MarkerMutations,
+  ...CustomFieldMutations
 };

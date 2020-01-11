@@ -13,6 +13,14 @@ export default class Marker {
   scene: string;
   time: number; // Time in scene in seconds
 
+  static async filterCustomField(fieldId: string) {
+    await database.update(
+      database.store.markers,
+      {},
+      { $unset: { [`customFields.${fieldId}`]: true } }
+    );
+  }
+
   constructor(name: string, scene: string, time: number) {
     this._id = "mk_" + generateHash();
     this.name = name;

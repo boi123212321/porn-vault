@@ -1001,6 +1001,7 @@ export default class SceneDetails extends Vue {
         this.autoPaused
       ) {
         this.dp.play();
+        this.dp.notice("", 0, 0);
         this.autoPaused = false;
       }
     };
@@ -1015,6 +1016,8 @@ export default class SceneDetails extends Vue {
             this.dp.notice("Auto pause", 4000, 0.8);
           } else if (this.autoPaused) {
             this.dp.play();
+            this.autoPaused = false;
+            this.dp.notice("", 0, 0);
           }
         }
       },

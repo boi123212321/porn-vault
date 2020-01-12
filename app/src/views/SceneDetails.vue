@@ -985,6 +985,7 @@ export default class SceneDetails extends Vue {
       if (
         !document.hasFocus() &&
         this.dp &&
+        !this.dp.video.paused &&
         contextModule.scenePauseOnUnfocus
       ) {
         this.dp.pause();
@@ -1010,7 +1011,7 @@ export default class SceneDetails extends Vue {
       "visibilitychange",
       () => {
         if (this.dp && contextModule.scenePauseOnUnfocus) {
-          if (document.hidden) {
+          if (document.hidden && !this.dp.video.paused) {
             this.dp.pause();
             this.autoPaused = true;
             this.dp.notice("Auto pause", 4000, 0.8);

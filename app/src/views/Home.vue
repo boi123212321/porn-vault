@@ -180,6 +180,8 @@ export default class Home extends Vue {
   }
 
   beforeMount() {
+    document.title = "Home";
+
     ApolloClient.query({
       query: gql`
         {

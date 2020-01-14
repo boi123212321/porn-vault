@@ -41,9 +41,31 @@ logger.message(
   "Check https://github.com/boi123212321/porn-manager for discussion & updates"
 );
 
+let serverReady = false;
+let setupMessage = "Setting up...";
+
 export default async () => {
   const app = express();
   app.use(cors({ origin: "*" }));
+
+  app.get("/setup", (req, res) => {
+    res.json({
+      serverReady,
+      setupMessage
+    });
+  });
+
+  app.get("/", (req, res, next) => {
+    if (serverReady) next();
+    else {
+      res.status(404).send(
+        pug.renderFile("./views/setup.pug", {
+          code: 200,
+          message: setupMessage
+        })
+      );
+    }
+  });
 
   app.get("/broken", (_, res) => {
     const b64 = BROKEN_IMAGE;
@@ -62,6 +84,13 @@ export default async () => {
       `${req.method} ${req.originalUrl}: ${new Date().toLocaleString()}`
     );
     next();
+  });
+
+  const config = await getConfig();
+
+  const port = config.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server running on Port ${port}`);
   });
 
   app.use("/js", express.static("./app/dist/js"));
@@ -118,9 +147,8 @@ export default async () => {
     }
   );
 
-  const config = await getConfig();
-
   if (config.BACKUP_ON_STARTUP === true) {
+    setupMessage = "Creating backup...";
     await createBackup(config.MAX_BACKUP_AMOUNT || 10);
   }
 
@@ -144,7 +172,11 @@ export default async () => {
     ProcessingQueue.processLoop();
   }
 
+  setupMessage = "Loading database...";
+
   await loadStores();
+
+  setupMessage = "Creating search indices...";
 
   await buildImageIndex();
   await buildActorIndex();
@@ -152,23 +184,20 @@ export default async () => {
   await buildStudioIndex();
   await buildMovieIndex();
 
-  const port = config.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server running on Port ${port}`);
+  ProcessingQueue.setStore(database.store.queue);
+  checkSceneSources();
+  checkImageSources();
+  checkPreviews();
 
-    ProcessingQueue.setStore(database.store.queue);
-    checkSceneSources();
-    checkImageSources();
-    checkPreviews();
+  serverReady = true;
 
-    if (config.SCAN_ON_STARTUP) {
-      scanFolders();
-      setInterval(scanFolders, config.SCAN_INTERVAL);
-    } else {
-      logger.warn(
-        "Scanning folders is currently disabled. Enable in config.json & restart."
-      );
-      ProcessingQueue.processLoop();
-    }
-  });
+  if (config.SCAN_ON_STARTUP) {
+    scanFolders();
+    setInterval(scanFolders, config.SCAN_INTERVAL);
+  } else {
+    logger.warn(
+      "Scanning folders is currently disabled. Enable in config.json & restart."
+    );
+    ProcessingQueue.processLoop();
+  }
 };

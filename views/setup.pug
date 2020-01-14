@@ -1,0 +1,33 @@
+meta(name='viewport', content='width=device-width, initial-scale=1.0')
+
+div(class='center')
+  p(id="message", class='title') !{message}
+
+script.
+  setInterval(() => {
+    fetch("/setup")
+      .then(data => data.json())
+      .then(json => {
+        document.getElementById("message").innerHTML = json.setupMessage;
+
+        if (json.serverReady)
+          window.location.reload();
+      })
+  }, 500)
+
+style.
+  * {
+    font-family: sans-serif;
+  }
+
+  .title {
+    margin-top: 40px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 0px;
+    opacity: 0.66;
+  }
+
+  .center {
+    text-align: center;
+  }

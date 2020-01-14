@@ -21,7 +21,7 @@ export default {
       id: string;
       name?: string | null;
       values?: string[] | null;
-      unit: string | null;
+      unit?: string | null;
     }
   ) {
     const field = await CustomField.getById(id);
@@ -33,7 +33,7 @@ export default {
         field.values = values;
       }
 
-      field.unit = unit || null;
+      if (field.unit !== undefined) field.unit = unit || null;
 
       await database.update(
         database.store.customFields,

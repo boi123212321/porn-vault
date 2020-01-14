@@ -13,6 +13,7 @@ import Jimp from "jimp";
 import { statAsync, unlinkAsync } from "../../fs/async";
 import { getConfig } from "../../config";
 import Studio from "../../types/studio";
+import { indices, createImageSearchDoc } from "../../search";
 
 type IImageUpdateOpts = Partial<{
   name: string;
@@ -243,6 +244,7 @@ export default {
 
         await database.update(database.store.images, { _id: image._id }, image);
         updatedImages.push(image);
+        indices.images.update(image._id, await createImageSearchDoc(image));
       } else {
         throw new Error(`Image ${id} not found`);
       }
@@ -257,6 +259,7 @@ export default {
 
       if (image) {
         await Image.remove(image);
+        indices.images.remove(image._id);
         await Actor.filterImage(image._id);
         await Scene.filterImage(image._id);
         await Label.filterImage(image._id);

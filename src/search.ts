@@ -20,8 +20,29 @@ class Index<T> {
     this.identifier = identifier;
   }
 
+  remove(id: string) {
+    delete this.items[id];
+
+    for (const key in this.tokens) {
+      const arr = this.tokens[key];
+      this.tokens[key] = arr.filter(s => s != id);
+    }
+  }
+
+  rebuild() {
+    this.clear();
+    for (const item of Object.values(this.items)) {
+      this.add(item);
+    }
+  }
+
+  update(id: string, doc: T) {
+    this.items[id] = doc;
+  }
+
   clear() {
     this.tokens = {};
+    this.items = {};
   }
 
   add(t: T) {
@@ -40,7 +61,6 @@ class Index<T> {
     const scores = {} as { [key: string]: number };
 
     const tokenizedQuery = tokenize(search.query);
-    console.log(tokenizedQuery);
 
     let foundDocs = [] as { id: string; score: number }[];
 
@@ -145,6 +165,7 @@ const tokenize = (str: string) =>
     .replace(/[^a-z0-9 ]/g, " ")
     .split(" ")
     .filter(Boolean)
+    .filter(s => /[a-z]/i.test(s))
     .filter(s => s.length > 1);
 
 export const indices = {
@@ -166,14 +187,4 @@ export async function buildImageIndex() {
     indices.images.add(await createImageSearchDoc(image));
   }
   console.log(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
-
-  /* console.log("Searching image index for 'adria'...");
-
-  const result = await indices.images.search({
-    query: "adria",
-    skip: 0,
-    take: 24
-  });
-
-  console.log(await Promise.all(result.map(i => Image.getById(i.id)))); */
 }

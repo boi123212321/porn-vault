@@ -81,7 +81,7 @@ export default async () => {
       return res.status(404).send(
         pug.renderFile("./views/error.pug", {
           code: 404,
-          message: `File ${file} not found`
+          message: `File <b>${file}</b> not found`
         })
       );
     }

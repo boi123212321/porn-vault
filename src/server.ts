@@ -21,6 +21,7 @@ import { checkSceneSources, checkImageSources } from "./integrity";
 import { loadStores } from "./database/index";
 import { existsAsync } from "./fs/async";
 import { createBackup } from "./backup";
+import { buildImageIndex } from "./search";
 
 function isRegExp(regStr: string) {
   try {
@@ -132,6 +133,8 @@ export default async () => {
   }
 
   await loadStores();
+
+  await buildImageIndex();
 
   const port = config.PORT || 3000;
   app.listen(port, () => {

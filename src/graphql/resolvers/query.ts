@@ -12,6 +12,7 @@ import Studio from "../../types/studio";
 import { getConfig } from "../../config";
 import * as database from "../../database/index";
 import CustomField from "../../types/custom_field";
+import * as search from "../../search";
 
 const PAGE_SIZE = 24;
 const FALLBACK_FUZZINESS = 0.25;
@@ -686,167 +687,59 @@ export default {
   ) {
     try {
       const timeNow = +new Date();
-      logger.log("Searching...");
 
       const options = extractQueryOptions(query);
+      logger.log(`Searching for '${options.query}'...`);
 
-      let allImages = [] as Image[];
+      const filters = [] as ((doc: search.IImageSearchDoc) => boolean)[];
 
-      if (options.scenes.length) {
-        for (const sceneId of options.scenes) {
-          allImages.push(...(await Image.getByScene(sceneId)));
-        }
-      } else if (options.actors.length) {
-        if (options.actors.length) {
-          for (const actorId of options.actors) {
-            allImages.push(...(await Image.getByActor(actorId)));
-          }
-        } else {
-          allImages = await Image.getAll();
-        }
-      } else {
-        allImages = await Image.getAll();
-      }
+      if (options.bookmark) filters.push(doc => doc.bookmark);
 
-      // Filter thumbnails, screenshots, previews
-      if (!auto)
-        allImages = allImages.filter(i =>
-          ["(thumbnail)", "(preview)", "(screenshot)"].every(
-            ending => !i.name.endsWith(ending)
-          )
-        );
+      if (options.favorite) filters.push(doc => doc.favorite);
 
-      let searchDocs = await Promise.all(
-        allImages.map(async image => ({
-          _id: image._id,
-          name: image.name,
-          favorite: image.favorite,
-          bookmark: image.bookmark,
-          rating: image.rating,
-          labels: await Image.getLabels(image),
-          actors: await Image.getActors(image),
-          addedOn: image.addedOn,
-          scene: image.scene,
-          studio: image.studio
-        }))
-      );
+      if (options.rating) filters.push(doc => doc.rating >= options.rating);
 
-      if (options.favorite === true)
-        searchDocs = searchDocs.filter(image => image.favorite);
+      if (options.scenes && options.scenes.length)
+        filters.push(doc => {
+          return options.scenes.some(id => doc.scene == id);
+        });
 
-      if (options.bookmark === true)
-        searchDocs = searchDocs.filter(image => image.bookmark);
+      if (options.include && options.include.length)
+        filters.push(doc => {
+          return options.include.every(id =>
+            doc.labels.map(l => l._id).includes(id)
+          );
+        });
 
-      if (options.rating > 0)
-        searchDocs = searchDocs.filter(image => image.rating >= options.rating);
-
-      if (options.include.length) {
-        searchDocs = searchDocs.filter(image =>
-          options.include.every(id => image.labels.map(l => l._id).includes(id))
-        );
-      }
-
-      if (options.exclude.length) {
-        searchDocs = searchDocs.filter(image =>
-          options.exclude.every(
-            id => !image.labels.map(l => l._id).includes(id)
-          )
-        );
-      }
-
-      if (options.scenes.length) {
-        searchDocs = searchDocs.filter(image =>
-          options.scenes.includes(image.scene || "none")
-        );
-      }
-
-      if (options.studios.length) {
-        searchDocs = searchDocs.filter(image =>
-          options.studios.includes(image.studio || "none")
-        );
-      }
-
-      const config = await getConfig();
-
-      if (options.query) {
-        if (config.USE_FUZZY_SEARCH) {
-          logger.log("Using fuzzy search...");
-          const searcher = new Fuse(searchDocs, {
-            shouldSort: options.sortBy == SortTarget.RELEVANCE,
-            tokenize: true,
-            threshold: config.FUZZINESS || FALLBACK_FUZZINESS,
-            location: 0,
-            distance: 100,
-            maxPatternLength: 32,
-            minMatchCharLength: 1,
-            keys: [
-              "name",
-              "labels.name",
-              "labels.aliases",
-              "actors.name",
-              "actors.aliases"
-            ]
-          });
-          searchDocs = searcher.search(options.query);
-        } else {
-          logger.log("Using simple search...");
-          const tokens = options.query.toLowerCase().split(" ");
-          searchDocs = searchDocs
-            .map(doc => {
-              let score = 0;
-              for (const token of tokens) {
-                if (doc.name.toLowerCase().includes(token)) score++;
-                for (const actor of doc.actors) {
-                  if (actor.name.toLowerCase().includes(token)) score++;
-                  for (const alias of actor.aliases) {
-                    if (alias.toLowerCase().includes(token)) score++;
-                  }
-                }
-                for (const label of doc.labels) {
-                  if (label.name.toLowerCase().includes(token)) score++;
-                  for (const alias of label.aliases) {
-                    if (alias.toLowerCase().includes(token)) score++;
-                  }
-                }
-              }
-              return {
-                doc,
-                score
-              };
-            })
-            .filter(doc => doc.score > 0)
-            .sort((a, b) => b.score - a.score)
-            .map(doc => doc.doc);
+      function sortMode(sortBy: SortTarget, sortDir: "asc" | "desc") {
+        switch (sortBy) {
+          case SortTarget.ADDED_ON:
+            if (sortDir == "asc") return (a, b) => a.addedOn - b.addedOn;
+            return (a, b) => b.addedOn - a.addedOn;
+          case SortTarget.RATING:
+            if (sortDir == "asc") return (a, b) => a.rating - b.rating;
+            return (a, b) => b.rating - a.rating;
+          case SortTarget.ALPHABETIC:
+            if (sortDir == "asc") return (a, b) => a.name.localeCompare(b.name);
+            return (a, b) => b.name.localeCompare(a.name);
+          default:
+            return undefined;
         }
       }
 
-      switch (options.sortBy) {
-        case SortTarget.ADDED_ON:
-          if (options.sortDir == "asc")
-            searchDocs.sort((a, b) => a.addedOn - b.addedOn);
-          else searchDocs.sort((a, b) => b.addedOn - a.addedOn);
-          break;
-        case SortTarget.RATING:
-          if (options.sortDir == "asc")
-            searchDocs.sort((a, b) => a.rating - b.rating);
-          else searchDocs.sort((a, b) => b.rating - a.rating);
-          break;
-        case SortTarget.ALPHABETIC:
-          if (options.sortDir == "asc")
-            searchDocs.sort((a, b) => a.name.localeCompare(b.name));
-          else searchDocs.sort((a, b) => b.name.localeCompare(a.name));
-          break;
-      }
+      const result = await search.indices.images.search({
+        query: options.query || "",
+        skip: options.page * PAGE_SIZE,
+        take: PAGE_SIZE,
+        sort: sortMode(options.sortBy, options.sortDir),
+        filters
+      });
 
-      const slice = await Promise.all(
-        searchDocs
-          .slice(options.page * PAGE_SIZE, options.page * PAGE_SIZE + PAGE_SIZE)
-          .map(image => Image.getById(image._id))
-      );
+      const images = await Promise.all(result.map(i => Image.getById(i.id)));
 
       logger.log(`Search done in ${(Date.now() - timeNow) / 1000}s.`);
 
-      return slice;
+      return images;
     } catch (error) {
       logger.error(error);
     }

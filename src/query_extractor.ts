@@ -23,6 +23,27 @@ interface IQueryOptions {
   studios: string[];
 }
 
+const parseWords = (str = "") =>
+  //@ts-ignore
+  str
+    .match(/\\?.|^$/g)
+    .reduce(
+      (p, c) => {
+        if (c === "'") {
+          //@ts-ignore
+          p.quote ^= 1;
+          //@ts-ignore
+        } else if (!p.quote && c === " ") {
+          p.a.push("");
+        } else {
+          p.a[p.a.length - 1] += c.replace(/\\(.)/, "$1");
+        }
+        return p;
+      },
+      { a: [""] }
+    )
+    .a.filter(Boolean);
+
 export default (query?: string) => {
   const options: IQueryOptions = {
     include: [],
@@ -40,7 +61,7 @@ export default (query?: string) => {
 
   options.sortBy = SortTarget.RELEVANCE;
 
-  for (const part of query.split(" ")) {
+  for (const part of parseWords(query)) {
     const [operation, value] = part.split(":");
 
     switch (operation) {
@@ -48,7 +69,7 @@ export default (query?: string) => {
         options[operation] = parseInt(value);
         break;
       case "query":
-        options[operation] = value.slice(1, -1);
+        options[operation] = value;
         break;
       case "include":
         options[operation] = value.split(",");

@@ -2,6 +2,7 @@ import * as logger from "../logger";
 import setupFunction from "../setup";
 import { exists, writeFile, readFile } from "fs";
 import { promisify } from "util";
+import { Dictionary } from "../types/utility";
 
 const existsAsync = promisify(exists);
 const readFileAsync = promisify(readFile);
@@ -9,6 +10,11 @@ const writeFileAsync = promisify(writeFile);
 
 function stringifyFormatted(obj: any) {
   return JSON.stringify(obj, null, 1);
+}
+
+interface IScraper {
+  path: string;
+  args?: Dictionary<any>;
 }
 
 export interface IConfig {
@@ -48,6 +54,9 @@ export interface IConfig {
   EXCLUDE_FILES: string[];
 
   CALCULATE_FILE_CHECKSUM: boolean;
+
+  SCRAPERS: Dictionary<IScraper>;
+  SCRAPE_EVENTS: { [key: string]: string[] };
 }
 
 export const defaultConfig: IConfig = {
@@ -74,7 +83,11 @@ export const defaultConfig: IConfig = {
   BACKUP_ON_STARTUP: true,
   MAX_BACKUP_AMOUNT: 10,
   EXCLUDE_FILES: [],
-  CALCULATE_FILE_CHECKSUM: false
+  CALCULATE_FILE_CHECKSUM: false,
+  SCRAPERS: {},
+  SCRAPE_EVENTS: {
+    actorCreated: []
+  }
 };
 
 let config = JSON.parse(JSON.stringify(defaultConfig)) as IConfig;

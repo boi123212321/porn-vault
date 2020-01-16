@@ -1,12 +1,13 @@
 import * as database from "../../database";
 import Actor from "../../types/actor";
 import Scene from "../../types/scene";
-import { Dictionary } from "../../types/utility";
-import { stripStr } from "../../extractor";
+import { Dictionary, mapAsync } from "../../types/utility";
+import { stripStr, extractLabels } from "../../extractor";
 import * as logger from "../../logger/index";
 import { getConfig } from "../../config/index";
 import { indices } from "../../search/index";
 import { createActorSearchDoc } from "../../search/actor";
+import { runScrapersSerial } from "../../scrapers";
 
 type IActorUpdateOpts = Partial<{
   name: string;
@@ -53,7 +54,34 @@ export default {
       }
     }
 
+    let scraperResult = {} as Dictionary<any>;
+
+    try {
+      scraperResult = await runScrapersSerial(config, "actorCreated", {
+        actorName: actor.name
+      });
+
+      if (scraperResult.bornOn)
+        actor.bornOn = new Date(scraperResult.bornOn).valueOf();
+
+      if (scraperResult.aliases && Array.isArray(scraperResult.aliases)) {
+        actor.aliases.push(...scraperResult.aliases);
+        actor.aliases = [...new Set(actor.aliases)];
+      }
+
+      if (scraperResult.custom && typeof scraperResult.custom === "object")
+        Object.assign(actor.customFields, scraperResult.custom);
+
+      if (scraperResult.labels && Array.isArray(scraperResult.labels)) {
+        const labelIds = await mapAsync(scraperResult.labels, extractLabels);
+        await Actor.setLabels(actor, labelIds.flat().concat(actorLabels));
+      }
+    } catch (error) {
+      logger.error(error.message);
+    }
+
     await database.insert(database.store.actors, actor);
+    indices.actors.add(await createActorSearchDoc(actor));
     return actor;
   },
 

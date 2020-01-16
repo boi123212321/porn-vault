@@ -3,7 +3,7 @@ import debug from "debug";
 if (process.env.NODE_ENV == "development") {
   debug.enable("porn:*");
 } else {
-  debug.enable("porn:warn,porn:error,porn:message");
+  debug.enable("porn:warn,porn:error,porn:message,porn:scraper");
 }
 
 export const log = debug("porn:log");

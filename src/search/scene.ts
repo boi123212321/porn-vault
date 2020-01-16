@@ -16,6 +16,8 @@ export interface ISceneSearchDoc {
   duration: number | null;
   // movies: string[];
   studio: string | null;
+  resolution: number | null;
+  size: number | null;
 }
 
 export async function createSceneSearchDoc(
@@ -44,7 +46,9 @@ export async function createSceneSearchDoc(
     views: scene.watches.length,
     duration: scene.meta.duration,
     releaseDate: scene.releaseDate,
-    studio: scene.studio
+    studio: scene.studio,
+    resolution: scene.meta.dimensions.height,
+    size: scene.meta.size
   };
 }
 

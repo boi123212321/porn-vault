@@ -6,7 +6,10 @@ import { ISceneSearchDoc } from "../../../search/scene";
 
 const PAGE_SIZE = 24;
 
-export async function getScenes(_, { query }: { query: string | undefined }) {
+export async function getScenes(
+  _,
+  { query, random }: { random: boolean | undefined; query: string | undefined }
+) {
   try {
     const timeNow = +new Date();
     const options = extractQueryOptions(query);
@@ -67,6 +70,13 @@ export async function getScenes(_, { query }: { query: string | undefined }) {
           if (sortDir == "asc")
             return (a, b) => (a.releaseDate || 0) - (b.releaseDate || 0);
           return (a, b) => (b.releaseDate || 0) - (a.releaseDate || 0);
+        case SortTarget.RESOLUTION:
+          if (sortDir == "asc")
+            return (a, b) => (a.resolution || 0) - (b.resolution || 0);
+          return (a, b) => (b.resolution || 0) - (a.resolution || 0);
+        case SortTarget.SIZE:
+          if (sortDir == "asc") return (a, b) => (a.size || 0) - (b.size || 0);
+          return (a, b) => (b.size || 0) - (a.size || 0);
         default:
           return undefined;
       }
@@ -77,7 +87,8 @@ export async function getScenes(_, { query }: { query: string | undefined }) {
       skip: options.page * PAGE_SIZE,
       take: PAGE_SIZE,
       sort: sortMode(options.sortBy, options.sortDir),
-      filters
+      filters,
+      random
     });
 
     const scenes = await Promise.all(result.map(i => Scene.getById(i.id)));

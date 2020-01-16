@@ -6,6 +6,7 @@ export interface ISearchOptions<T> {
   take?: number;
   filters?: ((doc: T) => boolean)[];
   sort?: (a: T, b: T) => number;
+  random?: boolean;
 }
 
 export class SearchIndex<T> {
@@ -94,7 +95,6 @@ export class SearchIndex<T> {
           });
       }
     } else {
-      console.log("all docs...");
       foundDocs = Object.keys(this.items).map(id => ({
         id,
         score: 1
@@ -106,6 +106,10 @@ export class SearchIndex<T> {
       foundDocs = foundDocs.filter(d =>
         filterFuncs.every(f => f(this.items[d.id]))
       );
+    }
+
+    if (search.random) {
+      return [foundDocs[Math.floor(Math.random() * foundDocs.length)]];
     }
 
     if (search.sort) {
@@ -123,12 +127,7 @@ export class SearchIndex<T> {
       const page = [] as { id: string; score: number }[];
       for (let i = skip; i < foundDocs.length && page.length < take; i++) {
         const doc = foundDocs[i];
-
-        if (!search.filters) {
-          page.push(doc);
-        } else {
-          if (search.filters.every(f => f(this.items[doc.id]))) page.push(doc);
-        }
+        page.push(doc);
       }
 
       return page;

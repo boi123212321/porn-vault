@@ -31,7 +31,7 @@ type Query {
   numStudios: Int!
   numImages: Int!
 
-  getScenes(query: String): [Scene!]!
+  getScenes(query: String, random: Boolean): [Scene!]!
   getActors(query: String): [Actor!]!
   getMovies(query: String): [Movie!]!
   # auto = true will prevent thumbnails, previews and screenshots from being filtered out

@@ -83,8 +83,11 @@
         <!--  <v-btn class="mr-3" @click="openCreateDialog" icon>
           <v-icon>mdi-plus</v-icon>
         </v-btn>-->
-        <v-btn @click="openUploadDialog" icon>
+        <v-btn class="mr-3" @click="openUploadDialog" icon>
           <v-icon>mdi-upload</v-icon>
+        </v-btn>
+        <v-btn @click="getRandom" icon>
+          <v-icon>mdi-shuffle-variant</v-icon>
         </v-btn>
       </div>
       <v-row>
@@ -311,6 +314,14 @@ export default class SceneList extends Vue {
     {
       text: "Duration",
       value: "duration"
+    },
+    {
+      text: "Resolution",
+      value: "resolution"
+    },
+    {
+      text: "Size",
+      value: "size"
     }
   ];
 
@@ -562,7 +573,14 @@ export default class SceneList extends Vue {
     });
   }
 
-  async fetchPage() {
+  getRandom() {
+    this.fetchPage(true).then(scenes => {
+      // @ts-ignore
+      this.$router.push(`/scene/${scenes[0]._id}`);
+    });
+  }
+
+  async fetchPage(random = false) {
     try {
       let include = "";
 
@@ -582,8 +600,8 @@ export default class SceneList extends Vue {
 
       const result = await ApolloClient.query({
         query: gql`
-          query($query: String) {
-            getScenes(query: $query) {
+          query($query: String, $random: Boolean) {
+            getScenes(query: $query, random: $random) {
               ...SceneFragment
               actors {
                 ...ActorFragment
@@ -598,7 +616,8 @@ export default class SceneList extends Vue {
           ${studioFragment}
         `,
         variables: {
-          query
+          query,
+          random
         }
       });
 

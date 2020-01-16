@@ -73,8 +73,8 @@ export default {
         Object.assign(actor.customFields, scraperResult.custom);
 
       if (scraperResult.labels && Array.isArray(scraperResult.labels)) {
-        const labelIds = await mapAsync(scraperResult.labels, extractLabels);
-        await Actor.setLabels(actor, labelIds.flat().concat(actorLabels));
+        const labelIds = (await mapAsync(scraperResult.labels, extractLabels)).flat();
+        await Actor.setLabels(actor, labelIds.concat(actorLabels));
       }
     } catch (error) {
       logger.error(error.message);

@@ -14,6 +14,7 @@ import { fileHash } from "../hash";
 import Studio from "../types/studio";
 import { createSceneSearchDoc } from "../search/scene";
 import { indices } from "../search/index";
+import { createImageSearchDoc } from "../search/image";
 
 function removeExtension(file: string) {
   return file.replace(/\.[^/.]+$/, "");
@@ -209,6 +210,7 @@ class Queue {
         await Image.setActors(image, actors);
         logger.log(`Creating image with id ${image._id}...`);
         await database.insert(database.store.images, image);
+        indices.images.add(await createImageSearchDoc(image));
         images.push(image);
       }
 

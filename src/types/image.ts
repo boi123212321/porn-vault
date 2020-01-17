@@ -248,9 +248,6 @@ export default class Image {
   static async setActors(image: Image, actorIds: string[]) {
     const references = await CrossReference.getBySource(image._id);
 
-    console.log(actorIds);
-    console.log(references);
-
     const oldActorReferences = references
       .filter(r => r.to && r.to.startsWith("ac_"))
       .map(r => r._id);

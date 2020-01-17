@@ -183,6 +183,7 @@ export default {
     // Done
 
     await database.insert(database.store.images, image);
+    indices.images.add(await createImageSearchDoc(image));
     await unlinkAsync(outPath);
     logger.success(`Image '${imageName}' done.`);
     return image;

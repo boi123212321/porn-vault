@@ -9,6 +9,7 @@ import Image from "../types/image";
 import ora from "ora";
 import Movie from "../types/movie";
 import Studio from "../types/studio";
+import CrossReference from "../types/cross_references";
 
 mkdirp.sync("backups/");
 mkdirp.sync("tmp/");
@@ -109,6 +110,7 @@ export async function loadStores() {
   await Image.checkIntegrity();
   await Studio.checkIntegrity();
   await Movie.checkIntegrity();
+  await CrossReference.checkIntegrity();
   loader.succeed("Integrity check done.");
 }
 

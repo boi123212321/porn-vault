@@ -118,8 +118,6 @@ export class SearchIndex<T> {
     } // Sort by relevance
     else foundDocs.sort((a, b) => b.score - a.score);
 
-    console.log("Found " + foundDocs.length);
-
     if (search.skip !== undefined || search.take) {
       const skip = search.skip && search.skip >= 0 ? search.skip : 0;
       const take = search.take && search.take > 0 ? search.take : 1;

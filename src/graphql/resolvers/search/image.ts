@@ -28,6 +28,13 @@ export async function getImages(
         return options.scenes.some(id => doc.scene == id);
       });
 
+    if (options.actors && options.actors.length)
+      filters.push(doc => {
+        return options.actors.every(id =>
+          doc.actors.map(l => l._id).includes(id)
+        );
+      });
+
     if (options.include && options.include.length)
       filters.push(doc => {
         return options.include.every(id =>

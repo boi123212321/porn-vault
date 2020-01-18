@@ -1,6 +1,7 @@
 import { SearchIndex } from "./engine";
 import Movie from "../types/movie";
 import { tokenizeNames, tokenize } from "./tokenize";
+import Studio from "../types/studio";
 
 export interface IMovieSearchDoc {
   _id: string;
@@ -13,6 +14,7 @@ export interface IMovieSearchDoc {
   favorite: boolean;
   releaseDate: number | null;
   duration: number | null;
+  studio: Studio | null;
 }
 
 export async function createMovieSearchDoc(
@@ -35,6 +37,7 @@ export async function createMovieSearchDoc(
       name: a.name,
       aliases: a.aliases
     })),
+    studio: movie.studio ? await Studio.getById(movie.studio) : null,
     rating: movie.rating,
     bookmark: movie.bookmark,
     favorite: movie.favorite,
@@ -49,7 +52,8 @@ export const movieIndex = new SearchIndex(
       ...tokenize(doc.name),
       ...tokenizeNames(doc.actors.map(l => l.name)),
       ...tokenizeNames(doc.actors.map(l => l.aliases).flat()),
-      ...tokenizeNames(doc.labels.map(l => l.name))
+      ...tokenizeNames(doc.labels.map(l => l.name)),
+      ...tokenize(doc.studio ? doc.studio.name : "")
     ];
   },
   (movie: IMovieSearchDoc) => movie._id

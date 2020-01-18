@@ -1,6 +1,7 @@
 import { SearchIndex } from "./engine";
 import Scene from "../types/scene";
 import { tokenizeNames, tokenize } from "./tokenize";
+import Studio from "../types/studio";
 
 export interface ISceneSearchDoc {
   _id: string;
@@ -15,7 +16,7 @@ export interface ISceneSearchDoc {
   releaseDate: number | null;
   duration: number | null;
   // movies: string[];
-  studio: string | null;
+  studio: Studio | null;
   resolution: number | null;
   size: number | null;
 }
@@ -46,7 +47,7 @@ export async function createSceneSearchDoc(
     views: scene.watches.length,
     duration: scene.meta.duration,
     releaseDate: scene.releaseDate,
-    studio: scene.studio,
+    studio: scene.studio ? await Studio.getById(scene.studio) : null,
     resolution: scene.meta.dimensions.height,
     size: scene.meta.size
   };
@@ -58,7 +59,8 @@ export const sceneIndex = new SearchIndex(
       ...tokenize(doc.name),
       ...tokenizeNames(doc.actors.map(l => l.name)),
       ...tokenizeNames(doc.actors.map(l => l.aliases).flat()),
-      ...tokenizeNames(doc.labels.map(l => l.name))
+      ...tokenizeNames(doc.labels.map(l => l.name)),
+      ...tokenize(doc.studio ? doc.studio.name : "")
     ];
   },
   (scene: ISceneSearchDoc) => scene._id

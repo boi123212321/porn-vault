@@ -34,7 +34,7 @@
           <div class="d-flex" v-if="currentMovie.studio">
             <v-spacer></v-spacer>
             <router-link :to="`/studio/${currentMovie.studio._id}`">
-              <v-img v-ripple max-width="200px" :src="studioLogo"></v-img>
+              <v-img contain v-ripple max-width="150px" :src="studioLogo"></v-img>
             </router-link>
           </div>
           <div v-if="currentMovie.releaseDate">

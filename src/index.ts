@@ -20,6 +20,20 @@ logger.message(
 
   logger.message("Registered plugins", Object.keys(config.PLUGINS));
 
+  for (const name in config.PLUGINS) {
+    const plugin = config.PLUGINS[name];
+    const path = plugin.path;
+
+    if (!path) {
+      logger.error(`${name}: missing plugin path.`);
+      process.exit(1);
+    }
+    if (!(await existsAsync(path))) {
+      logger.error(`${name}: plugin definition not found (missing file).`);
+      process.exit(1);
+    }
+  }
+
   if (config.PASSWORD && process.env.NODE_ENV != "development") {
     let password;
     do {

@@ -38,7 +38,7 @@ export async function createMovieSearchDoc(
       aliases: a.aliases
     })),
     studio: movie.studio ? await Studio.getById(movie.studio) : null,
-    rating: movie.rating,
+    rating: await Movie.getRating(movie),
     bookmark: movie.bookmark,
     favorite: movie.favorite,
     duration: await Movie.calculateDuration(movie),

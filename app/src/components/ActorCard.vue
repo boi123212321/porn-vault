@@ -1,7 +1,7 @@
 <template>
   <v-card :dark="!!cardColor || $vuetify.theme.dark" :color="cardColor" v-if="value" tile>
     <a :href="`#/actor/${value._id}`">
-      <v-img :aspect-ratio="aspectRatio" class="hover" v-ripple eager :src="thumbnail">
+      <v-img contain :aspect-ratio="aspectRatio" class="hover" v-ripple eager :src="thumbnail">
         <div class="corner-actions">
           <v-btn
             light

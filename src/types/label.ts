@@ -59,6 +59,8 @@ export default class Label {
   constructor(name: string, aliases: string[] = []) {
     this._id = "la_" + generateHash();
     this.name = name.trim();
-    this.aliases = aliases.map(alias => alias.toLowerCase().trim());
+    this.aliases = [
+      ...new Set(aliases.map(alias => alias.toLowerCase().trim()))
+    ];
   }
 }

@@ -1,5 +1,10 @@
 import Schema from "validate";
-import { stringArray, limitRating, isValidDate } from "./common";
+import {
+  stringArray,
+  limitRating,
+  isValidDate,
+  validCustomFields
+} from "./common";
 
 export const actorSchema = new Schema({
   name: {
@@ -22,9 +27,10 @@ export const actorSchema = new Schema({
     use: { limitRating }
   },
   labels: stringArray(false),
-  custom: {
+  customFields: {
     required: false,
-    type: Object
+    type: Object,
+    use: { validCustomFields }
   },
   bookmark: {
     required: false,

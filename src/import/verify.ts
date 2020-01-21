@@ -10,42 +10,42 @@ import { Dictionary } from "../types/utility";
 
 async function checkDuplicates(opts: ICreateOptions) {
   if (opts.actors) {
-    for (const actorId in Object.keys(opts.actors)) {
+    for (const actorId in opts.actors) {
       const actorInDb = await Actor.getById(actorId);
       if (actorInDb) throw new Error(`Actor ${actorId} already exists!`);
     }
   }
 
   if (opts.customFields) {
-    for (const fieldId in Object.keys(opts.customFields)) {
+    for (const fieldId in opts.customFields) {
       const fieldInDb = await CustomField.getById(fieldId);
       if (fieldInDb) throw new Error(`Custom field ${fieldId} already exists!`);
     }
   }
 
   if (opts.labels) {
-    for (const labelId in Object.keys(opts.labels)) {
-      const labelInDb = await CustomField.getById(labelId);
+    for (const labelId in opts.labels) {
+      const labelInDb = await Label.getById(labelId);
       if (labelInDb) throw new Error(`Label ${labelId} already exists!`);
     }
   }
 
   if (opts.movies) {
-    for (const movieId in Object.keys(opts.movies)) {
+    for (const movieId in opts.movies) {
       const movieInDb = await Movie.getById(movieId);
       if (movieInDb) throw new Error(`Movie ${movieId} already exists!`);
     }
   }
 
   if (opts.scenes) {
-    for (const sceneId in Object.keys(opts.scenes)) {
+    for (const sceneId in opts.scenes) {
       const sceneInDb = await Scene.getById(sceneId);
       if (sceneInDb) throw new Error(`Scene ${sceneId} already exists!`);
     }
   }
 
   if (opts.studios) {
-    for (const studioId in Object.keys(opts.studios)) {
+    for (const studioId in opts.studios) {
       const studioInDb = await Studio.getById(studioId);
       if (studioInDb) throw new Error(`Studio ${studioId} already exists!`);
     }
@@ -133,9 +133,9 @@ async function checkMovies(opts: ICreateOptions) {
       if (newMovie.labels)
         await checkIfLabelsExist(newMovie.labels, opts.labels);
 
-      if (newMovie.custom)
+      if (newMovie.customFields)
         await checkIfCustomFieldsExist(
-          Object.keys(newMovie.custom),
+          Object.keys(newMovie.customFields),
           opts.customFields
         );
 
@@ -163,9 +163,9 @@ async function checkScenes(opts: ICreateOptions) {
       if (newScene.labels)
         await checkIfLabelsExist(newScene.labels, opts.labels);
 
-      if (newScene.custom)
+      if (newScene.customFields)
         await checkIfCustomFieldsExist(
-          Object.keys(newScene.custom),
+          Object.keys(newScene.customFields),
           opts.customFields
         );
 
@@ -205,9 +205,9 @@ async function checkActors(opts: ICreateOptions) {
       if (newActor.labels)
         await checkIfLabelsExist(newActor.labels, opts.labels);
 
-      if (newActor.custom)
+      if (newActor.customFields)
         await checkIfCustomFieldsExist(
-          Object.keys(newActor.custom),
+          Object.keys(newActor.customFields),
           opts.customFields
         );
     }

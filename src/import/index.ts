@@ -34,14 +34,13 @@ async function processFile(file: string) {
   if (typeof parsed !== "object" || parsed === null)
     throw new Error(`${file}: Invalid import format.`);
 
-  const errors = validateImportFile(parsed);
+  const errors = validateImportFile(JSON.parse(JSON.stringify(parsed)));
   if (errors.length) {
     logger.error(`Invalid structure of file: ${file}`);
     logger.error(errors);
     process.exit(1);
   }
 
-  console.log(parsed);
   try {
     await verifyFileData(parsed);
   } catch (error) {

@@ -29,6 +29,8 @@ export default {
     await database.insert(database.store.movies, movie);
     indices.movies.add(await createMovieSearchDoc(movie));
 
+    // TODO: plugin event
+
     return movie;
   },
 

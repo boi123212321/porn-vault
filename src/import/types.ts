@@ -7,7 +7,7 @@ export interface IImportedScene {
   releaseDate?: number | null;
   actors?: string[] | null;
   labels?: string[] | null;
-  custom?: Dictionary<string> | null;
+  customFields?: Dictionary<string> | null;
   favorite?: boolean | null;
   bookmark?: boolean | null;
   rating?: number | null;
@@ -25,7 +25,7 @@ export interface IImportedMovie {
   favorite?: boolean | null;
   bookmark?: boolean | null;
   rating?: number | null;
-  custom?: Dictionary<string> | null;
+  customFields?: Dictionary<string> | null;
   frontCover?: string | null;
   backCover?: string | null;
   studio?: string | null;
@@ -36,7 +36,7 @@ export interface IImportedActor {
   bornOn?: number | null;
   aliases?: string[];
   labels?: string[];
-  custom?: Dictionary<string>;
+  customFields?: Dictionary<string>;
   favorite?: boolean;
   bookmark?: boolean;
   rating?: number | null;
@@ -61,6 +61,6 @@ export interface IImportedStudio {
 
 export interface IImportedCustomField {
   name: string;
-  type: keyof typeof CustomFieldType;
+  type: CustomFieldType;
   values?: string[] | null;
 }

@@ -1,4 +1,11 @@
+import { Dictionary } from "../../types/utility";
+
 export const isString = (i: any) => typeof i === "string";
+
+export function validCustomFields(obj?: Dictionary<any> | null) {
+  if (!obj) return true;
+  return Object.values(obj).every(isString);
+}
 
 export function stringArray(required: boolean) {
   return {

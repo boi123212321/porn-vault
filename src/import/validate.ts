@@ -74,7 +74,9 @@ export function validateImportFile(parsedFile: Dictionary<any>) {
       parsedFile.customFields === null
     )
       return [
-        new Error(".custom needs to be a dictionary of custom (id => label)")
+        new Error(
+          ".custom needs to be a dictionary of custom fields (id => field)"
+        )
       ];
 
     for (const field of Object.values(parsedFile.customFields)) {

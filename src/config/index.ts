@@ -95,6 +95,7 @@ export const defaultConfig: IConfig = {
   PLUGIN_EVENTS: {
     actorCreated: [],
     sceneCreated: []
+    // TODO: movieCreated: []
   }
 };
 

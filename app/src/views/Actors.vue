@@ -309,6 +309,10 @@ export default class SceneList extends Vue {
       value: "rating"
     },
     {
+      text: "# scenes",
+      value: "scenes"
+    },
+    {
       text: "Views",
       value: "views"
     },

@@ -1,6 +1,7 @@
 import { SearchIndex } from "./engine";
 import Actor from "../types/actor";
 import { tokenizeNames, tokenize } from "./tokenize";
+import Scene from "../types/scene";
 
 export interface IActorSearchDoc {
   _id: string;
@@ -13,6 +14,7 @@ export interface IActorSearchDoc {
   favorite: boolean;
   views: number;
   bornOn: number | null;
+  numScenes: number;
 }
 
 export async function createActorSearchDoc(
@@ -34,7 +36,8 @@ export async function createActorSearchDoc(
     bookmark: actor.bookmark,
     favorite: actor.favorite,
     views: (await Actor.getWatches(actor)).length,
-    bornOn: actor.bornOn
+    bornOn: actor.bornOn,
+    numScenes: (await Scene.getByActor(actor._id)).length
   };
 }
 

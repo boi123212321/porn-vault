@@ -38,7 +38,6 @@ export const movieSchema = new Schema({
     use: { limitRating }
   },
   scenes: stringArray(false),
-  labels: stringArray(false),
   customFields: {
     required: false,
     type: Object,

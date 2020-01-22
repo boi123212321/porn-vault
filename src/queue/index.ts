@@ -17,7 +17,7 @@ import { indices } from "../search/index";
 import { createImageSearchDoc } from "../search/image";
 import { runPluginsSerial } from "../plugins";
 import actor from "../graphql/resolvers/actor";
-import { mapAsync } from "../types/utility";
+import { mapAsync, Dictionary } from "../types/utility";
 
 function removeExtension(file: string) {
   return file.replace(/\.[^/.]+$/, "");
@@ -30,6 +30,15 @@ export interface IQueueItem {
   path: string;
   actors: string[];
   labels: string[];
+  customFields?: Dictionary<string>;
+
+  description?: string | null;
+  thumbnail?: string | null;
+  favorite?: boolean;
+  bookmark?: boolean;
+  rating?: number;
+  releaseDate?: number;
+  studio?: string | null;
 }
 
 class Queue {
@@ -85,6 +94,13 @@ class Queue {
     const scene = new Scene(sceneName);
     scene._id = item._id;
     scene.path = sourcePath;
+    if (item.rating) scene.rating = item.rating;
+    if (item.bookmark) scene.bookmark = item.bookmark;
+    if (item.favorite) scene.favorite = item.favorite;
+    if (item.releaseDate) scene.releaseDate = item.releaseDate;
+    if (item.customFields) scene.customFields = item.customFields;
+    if (item.description) scene.description = item.description;
+    if (item.studio) scene.studio = item.studio;
 
     if (config.CALCULATE_FILE_CHECKSUM) {
       logger.log("Generating file checksum...");
@@ -218,7 +234,8 @@ class Queue {
       }
 
       if (images.length > 0) {
-        scene.thumbnail = images[Math.floor(images.length / 2)]._id;
+        if (!item.thumbnail)
+          scene.thumbnail = images[Math.floor(images.length / 2)]._id;
         loader.succeed(`Created ${images.length} thumbnails.`);
       } else loader.warn(`Created 0 thumbnails.`);
     }

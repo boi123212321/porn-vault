@@ -17,6 +17,14 @@ import * as database from "../database/index";
 import CustomField, { CustomFieldTarget } from "../types/custom_field";
 import CrossReference from "../types/cross_references";
 import { inspect } from "util";
+import ProcessingQueue, { IQueueItem } from "../queue/index";
+import { basename } from "path";
+import Movie from "../types/movie";
+import Studio from "../types/studio";
+
+import args from "../args";
+
+// TODO: args["commit-import"]
 
 export interface ICreateOptions {
   scenes?: Dictionary<IImportedScene>;
@@ -65,6 +73,9 @@ export async function createFromFileData(opts: ICreateOptions) {
   const createdLabels = {} as Dictionary<Label>;
   const createdFields = {} as Dictionary<CustomField>;
   const createdActors = {} as Dictionary<Actor>;
+  const createdScenes = {} as Dictionary<IQueueItem>;
+  const createdMovies = {} as Dictionary<Movie>;
+  const createdStudios = {} as Dictionary<Studio>;
 
   if (opts.labels) {
     for (const labelId in opts.labels) {
@@ -107,6 +118,40 @@ export async function createFromFileData(opts: ICreateOptions) {
       // TODO: commit
       // await database.insert(database.store.customFields, label);
       createdFields[fieldId] = field;
+    }
+  }
+
+  if (opts.studios) {
+    // TODO:
+
+    for (const studioId in opts.studios) {
+      const studioToCreate = opts.studios[studioId];
+
+      const studio = new Studio(studioToCreate.name);
+
+      if (isBoolean(studioToCreate.bookmark))
+        studio.bookmark = <boolean>studioToCreate.bookmark;
+
+      if (isBoolean(studioToCreate.favorite))
+        studio.favorite = <boolean>studioToCreate.favorite;
+
+      /* if (isNumber(studioToCreate.rating))
+        studio.rating = <number>studioToCreate.rating; */
+
+      if (studioToCreate.parent) studio.parent = studioToCreate.parent;
+
+      if (studioToCreate.thumbnail) {
+        const image = new Image(`${studio.name} (thumbnail)`);
+        image.path = studioToCreate.thumbnail;
+        studio.thumbnail = image._id;
+
+        // TODO: commit
+        // await database.insert(database.store.images, image);
+      }
+
+      // TODO: commit
+      // await database.insert(database.store.studios, studio);
+      createdStudios[studioId] = studio;
     }
   }
 
@@ -163,9 +208,146 @@ export async function createFromFileData(opts: ICreateOptions) {
     }
   }
 
+  if (opts.scenes) {
+    for (const sceneId in opts.scenes) {
+      const sceneToCreate = opts.scenes[sceneId];
+
+      const _id = new Scene("")._id;
+      logger.log(`Creating scene queue item with id ${_id}...`);
+
+      let thumbnail = null as string | null;
+      let labels = [] as string[];
+      let actors = [] as string[];
+      let customFields = {} as Dictionary<string>;
+
+      if (sceneToCreate.thumbnail) {
+        const image = new Image(`${sceneToCreate.name} (thumbnail)`);
+        image.path = sceneToCreate.thumbnail;
+        thumbnail = image._id;
+
+        const reference = new CrossReference(_id, image._id);
+
+        // TODO: commit
+        // await database.insert(database.store.crossReferences, reference);
+        // await database.insert(database.store.images, image);
+      }
+
+      if (sceneToCreate.actors) {
+        actors = normalizeCreatedObjects(sceneToCreate.actors, createdActors);
+      }
+
+      if (sceneToCreate.labels) {
+        labels = normalizeCreatedObjects(sceneToCreate.labels, createdLabels);
+      }
+
+      if (sceneToCreate.customFields) {
+        customFields = normalizeCustomFields(
+          sceneToCreate.customFields,
+          createdFields
+        );
+      }
+
+      const queueItem: IQueueItem = {
+        _id,
+        filename: basename(sceneToCreate.path),
+        path: sceneToCreate.path,
+        name: sceneToCreate.name,
+        description: sceneToCreate.description || null,
+        bookmark: isBoolean(sceneToCreate.bookmark)
+          ? <boolean>sceneToCreate.bookmark
+          : undefined,
+        favorite: isBoolean(sceneToCreate.favorite)
+          ? <boolean>sceneToCreate.favorite
+          : undefined,
+        releaseDate: isNumber(sceneToCreate.releaseDate)
+          ? <number>sceneToCreate.releaseDate
+          : undefined,
+        rating: isNumber(sceneToCreate.rating)
+          ? <number>sceneToCreate.rating
+          : undefined,
+        thumbnail,
+        actors,
+        labels,
+        customFields,
+        studio: sceneToCreate.studio
+          ? normalizeCreatedObjects(
+              [sceneToCreate.studio],
+              createdStudios
+            ).pop() || null
+          : undefined
+      };
+
+      // TODO: commit
+      // await ProcessingQueue.append(queueItem);
+      createdScenes[_id] = queueItem;
+    }
+  }
+
+  if (opts.movies) {
+    for (const movieId in opts.movies) {
+      const movieToCreate = opts.movies[movieId];
+
+      const movie = new Movie(movieToCreate.name, Object.keys(createdScenes));
+
+      if (isBoolean(movieToCreate.bookmark))
+        movie.bookmark = <boolean>movieToCreate.bookmark;
+
+      if (isBoolean(movieToCreate.favorite))
+        movie.favorite = <boolean>movieToCreate.favorite;
+
+      if (isNumber(movieToCreate.releaseDate))
+        movie.releaseDate = <number>movieToCreate.releaseDate;
+
+      if (isNumber(movieToCreate.rating))
+        movie.rating = <number>movieToCreate.rating;
+
+      if (movieToCreate.studio) {
+        movie.studio =
+          normalizeCreatedObjects(
+            [movieToCreate.studio],
+            createdStudios
+          ).pop() || null;
+      }
+
+      if (movieToCreate.frontCover) {
+        const image = new Image(`${movie.name} (front cover)`);
+        image.path = movieToCreate.frontCover;
+        movie.frontCover = image._id;
+
+        // TODO: commit
+        // await database.insert(database.store.images, image);
+      }
+
+      if (movieToCreate.backCover) {
+        const image = new Image(`${movie.name} (back cover)`);
+        image.path = movieToCreate.backCover;
+        movie.backCover = image._id;
+
+        // TODO: commit
+        // await database.insert(database.store.images, image);
+      }
+
+      // TODO: commit
+      // await database.insert(database.store.movies, movie);
+      createdMovies[movieId] = movie;
+    }
+  }
+
   // TODO: scene plugin event
   // TODO: movie plugin event
 
-  console.log({ createdFields, createdLabels });
-  console.log(inspect(createdActors, true, null));
+  console.log(
+    inspect(
+      {
+        createdFields,
+        createdLabels,
+        createdScenes,
+        createdActors,
+        createdMovies,
+        createdStudios
+      },
+      true,
+      null
+    )
+  );
 }

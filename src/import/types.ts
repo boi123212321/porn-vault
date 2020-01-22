@@ -21,7 +21,6 @@ export interface IImportedMovie {
   description?: string | null;
   releaseDate?: number | null;
   scenes?: string[] | null;
-  labels?: string[] | null;
   favorite?: boolean | null;
   bookmark?: boolean | null;
   rating?: number | null;

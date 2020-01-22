@@ -130,9 +130,6 @@ async function checkMovies(opts: ICreateOptions) {
           throw new Error(`Scene ${movieId} backCover does not exist.`);
       }
 
-      if (newMovie.labels)
-        await checkIfLabelsExist(newMovie.labels, opts.labels);
-
       if (newMovie.customFields)
         await checkIfCustomFieldsExist(
           Object.keys(newMovie.customFields),
@@ -142,7 +139,8 @@ async function checkMovies(opts: ICreateOptions) {
       if (newMovie.scenes)
         await checkIfScenesExist(newMovie.scenes, opts.scenes);
 
-      if (newMovie.studio) await checkIfStudioExists(newMovie.studio);
+      if (newMovie.studio)
+        await checkIfStudioExists(newMovie.studio, opts.studios);
     }
   }
 }
@@ -172,7 +170,8 @@ async function checkScenes(opts: ICreateOptions) {
       if (newScene.actors)
         await checkIfActorsExist(newScene.actors, opts.actors);
 
-      if (newScene.studio) await checkIfStudioExists(newScene.studio);
+      if (newScene.studio)
+        await checkIfStudioExists(newScene.studio, opts.studios);
     }
   }
 }

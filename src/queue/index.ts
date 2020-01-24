@@ -16,7 +16,7 @@ import { createSceneSearchDoc } from "../search/scene";
 import { indices } from "../search/index";
 import { createImageSearchDoc } from "../search/image";
 import { Dictionary } from "../types/utility";
-import { onSceneCreate } from "plugin_events/scene";
+import { onSceneCreate } from "../plugin_events/scene";
 
 function removeExtension(file: string) {
   return file.replace(/\.[^/.]+$/, "");

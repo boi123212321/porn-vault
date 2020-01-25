@@ -99,7 +99,7 @@
           sm="6"
           md="4"
           lg="3"
-          xl="2"
+          :xl="scenePerRows"
         >
           <scene-card :showLabels="showCardLabels" v-model="scenes[i]" style="height: 100%">
             <template v-slot:action>
@@ -386,6 +386,10 @@ export default class SceneList extends Vue {
 
   set drawer(val: boolean) {
     contextModule.toggleFilters(val);
+  }
+
+  get scenePerRows() {
+    return contextModule.scenePerRows;
   }
 
   labelIDs(indices: number[]) {

@@ -8,6 +8,7 @@ class ContextModule extends VuexModule {
   actorAspectRatio = 1;
   scenePauseOnUnfocus = false;
   showCardLabels = true;
+  scenePerRows = 2;
 
   @Mutation
   toggleCardLabels(bool: boolean) {
@@ -32,6 +33,11 @@ class ContextModule extends VuexModule {
   @Mutation
   setActorAspectRatio(val: number) {
     this.actorAspectRatio = val;
+  }
+  
+  @Mutation
+  setscenePerRows(val: number) {
+    this.scenePerRows = val;
   }
 }
 

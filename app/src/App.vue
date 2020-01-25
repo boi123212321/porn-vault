@@ -175,6 +175,11 @@ export default class App extends Vue {
         scenePauseOnUnfocusLocalStorage == "true"
       );
     }
+
+    const scenePerRowsLocalStorage = localStorage.getItem("pm_scenePerRows");
+    if (scenePerRowsLocalStorage) {
+      contextModule.setscenePerRows(parseFloat(scenePerRowsLocalStorage));
+    }
   }
 
   navItems = [

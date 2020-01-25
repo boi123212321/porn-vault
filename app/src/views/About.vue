@@ -20,6 +20,14 @@
             <v-radio :value="3/4" label="3:4"></v-radio>
           </v-radio-group>
         </div>
+        
+        <div>
+          <v-subheader>Scenes per row (desktop only)</v-subheader>
+          <v-radio-group v-model="scenePerRows">
+            <v-radio :value="6" label="2"></v-radio>
+            <v-radio :value="2" label="6"></v-radio>
+          </v-radio-group>
+        </div>
       </v-col>
       <v-col :cols="12" :sm="6">
         <div>
@@ -118,6 +126,15 @@ export default class About extends Vue {
     return contextModule.scenePauseOnUnfocus;
   }
 
+  set scenePerRows(val: number) {
+    localStorage.setItem("pm_scenePerRows", val.toString());
+    contextModule.setscenePerRows(val);
+  }
+
+  get scenePerRows() {
+    return contextModule.scenePerRows;
+  }
+  
   toggleDarkMode() {
     // @ts-ignore
     this.$vuetify.theme.dark = !this.$vuetify.theme.dark;

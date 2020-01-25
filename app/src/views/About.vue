@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <BindTitle value="About" />
     <div class="text-center headline mt-4">Settings</div>
     <v-row>
       <v-col :cols="12" :sm="6">
@@ -78,10 +79,6 @@ import { contextModule } from "../store/context";
   }
 })
 export default class About extends Vue {
-  beforeMount() {
-    document.title = "About";
-  }
-
   set showCardLabels(val: boolean) {
     localStorage.setItem("pm_showCardLabels", val.toString());
     contextModule.toggleCardLabels(val);

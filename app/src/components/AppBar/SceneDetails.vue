@@ -121,13 +121,11 @@ import ActorSelector from "../ActorSelector.vue";
 import IActor from "../../types/actor";
 import StudioSelector from "../../components/StudioSelector.vue";
 import IScene from "../../types/scene";
-import DateInput from "../DateInput.vue";
 
 @Component({
   components: {
     ActorSelector,
-    StudioSelector,
-    DateInput
+    StudioSelector
   }
 })
 export default class SceneToolbar extends Vue {

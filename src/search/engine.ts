@@ -103,8 +103,8 @@ export class SearchIndex<T> {
 
     if (search.filters && search.filters.length) {
       const filterFuncs = search.filters;
-      foundDocs = foundDocs.filter(d =>
-        filterFuncs.every(f => f(this.items[d.id]))
+      foundDocs = foundDocs.filter(
+        d => this.items[d.id] && filterFuncs.every(f => f(this.items[d.id]))
       );
     }
 

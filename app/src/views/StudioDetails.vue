@@ -1,6 +1,7 @@
 <template>
   <v-container fluid>
     <div v-if="currentStudio">
+      <BindTitle :value="currentStudio.name" />
       <div class="text-center" v-if="!currentStudio.thumbnail">
         <v-btn @click="openThumbnailDialog">Upload logo</v-btn>
       </div>
@@ -231,7 +232,8 @@ import LabelSelector from "../components/LabelSelector.vue";
     ActorCard,
     InfiniteLoading,
     StudioCard,
-    LabelSelector
+    LabelSelector,
+    
   },
   beforeRouteLeave(_to, _from, next) {
     studioModule.setCurrent(null);
@@ -553,7 +555,6 @@ export default class StudioDetails extends Vue {
       studioModule.setCurrent(res.data.getStudioById);
       this.movies = res.data.getStudioById.movies;
       this.actors = res.data.getStudioById.actors;
-      document.title = res.data.getStudioById.name;
     });
   }
 

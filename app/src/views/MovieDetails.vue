@@ -1,6 +1,7 @@
 <template>
   <v-container fluid>
     <div v-if="currentMovie">
+      <BindTitle :value="currentMovie.name" />
       <v-row>
         <v-col cols="12" sm="4" md="4" lg="3" xl="2">
           <v-container>
@@ -627,7 +628,6 @@ export default class SceneDetails extends Vue {
       movieModule.setCurrent(res.data.getMovieById);
       this.scenes = res.data.getMovieById.scenes;
       this.actors = res.data.getMovieById.actors;
-      document.title = res.data.getMovieById.name;
     });
   }
 

@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <BindTitle value="Scenes" />
     <v-banner app sticky v-if="selectedScenes.length">
       {{ selectedScenes.length }} scenes selected
       <template v-slot:actions>
@@ -83,9 +84,9 @@
         <!--  <v-btn class="mr-3" @click="openCreateDialog" icon>
           <v-icon>mdi-plus</v-icon>
         </v-btn>-->
-        <v-btn class="mr-3" @click="openUploadDialog" icon>
+        <!-- <v-btn class="mr-3" @click="openUploadDialog" icon>
           <v-icon>mdi-upload</v-icon>
-        </v-btn>
+        </v-btn>-->
         <v-btn @click="getRandom" icon>
           <v-icon>mdi-shuffle-variant</v-icon>
         </v-btn>
@@ -244,7 +245,8 @@ import moment from "moment";
     LabelSelector,
     InfiniteLoading,
     ActorSelector,
-    SceneUploader
+    SceneUploader,
+    
   }
 })
 export default class SceneList extends Vue {
@@ -653,7 +655,6 @@ export default class SceneList extends Vue {
       .catch(err => {
         console.error(err);
       });
-    document.title = "Scenes";
   }
 }
 </script>

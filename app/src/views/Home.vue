@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <v-container>
+    <BindTitle value="Home" />
     <div class="mx-auto" style="max-width: 800px">
       <v-row>
         <v-col cols="12" sm="6">
@@ -106,7 +107,7 @@
         </v-col>
       </v-row>
     </div>
-  </div>
+  </v-container>
 </template>
 
 <script lang="ts">
@@ -151,8 +152,6 @@ export default class Home extends Vue {
   }
 
   beforeMount() {
-    document.title = "Home";
-
     ApolloClient.query({
       query: gql`
         {

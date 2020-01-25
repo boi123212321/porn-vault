@@ -1,6 +1,7 @@
 <template>
   <v-container fluid>
     <div v-if="currentScene">
+      <BindTitle :value="currentScene.name" />
       <div class="d-flex pb-2">
         <div class="text-center pa-2" style="flex-grow: 1">
           <div class="mx-auto" style="max-width: 1000px" id="dplayer" ref="dplayer"></div>
@@ -425,7 +426,8 @@ interface ICropResult {
     InfiniteLoading,
     Cropper,
     ImageUploader,
-    MarkerItem
+    MarkerItem,
+    
   },
   beforeRouteLeave(_to, _from, next) {
     sceneModule.setCurrent(null);
@@ -983,7 +985,6 @@ export default class SceneDetails extends Vue {
       this.actors = res.data.getSceneById.actors;
       this.markers = res.data.getSceneById.markers;
       this.markers.sort((a, b) => a.time - b.time);
-      document.title = res.data.getSceneById.name;
 
       setTimeout(() => {
         this.dp = new DPlayer(this.dplayerOptions);
@@ -995,7 +996,35 @@ export default class SceneDetails extends Vue {
     this.onLoad();
   }
 
+  goToPreviousMarker() {
+    const prevMarkers = this.markers.filter(
+      m => m.time < this.currentTime() - 5
+    );
+    if (prevMarkers.length) {
+      const prevMarker = prevMarkers.pop() as {
+        _id: string;
+        name: string;
+        time: number;
+      };
+      this.moveToTime(prevMarker.time, prevMarker.name);
+    } else this.moveToTime(0);
+  }
+
+  goToNextMarker() {
+    const nextMarker = this.markers.find(m => m.time > this.currentTime());
+    if (nextMarker) this.moveToTime(nextMarker.time, nextMarker.name);
+  }
+
   mounted() {
+    window.addEventListener("keydown", ev => {
+      if (ev.keyCode == 66) {
+        this.goToPreviousMarker();
+      }
+      if (ev.keyCode == 78) {
+        this.goToNextMarker();
+      }
+    });
+
     /* window.addEventListener("keydown", ev => {
           if (ev.keyCode >= 48 && ev.keyCode <= 53) {
             const rating = ev.keyCode - 48;

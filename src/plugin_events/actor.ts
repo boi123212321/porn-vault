@@ -1,13 +1,15 @@
 import Actor from "../types/actor";
 import { runPluginsSerial } from "../plugins";
 import { mapAsync, isValidUrl, libraryPath } from "../types/utility";
-import { extractLabels } from "../extractor";
+import { extractLabels, extractFields } from "../extractor";
 import { getConfig } from "../config";
 import { extname } from "path";
 import { downloadFile } from "../ffmpeg-download";
 import Image from "../types/image";
 import * as database from "../database/index";
 import * as logger from "../logger/index";
+import { indices } from "../search/index";
+import { createImageSearchDoc } from "../search/image";
 
 // This function has side effects
 export async function onActorCreate(actor: Actor, actorLabels: string[]) {
@@ -26,6 +28,7 @@ export async function onActorCreate(actor: Actor, actorLabels: string[]) {
       await Image.setActors(img, [actor._id]);
       logger.log("Created image " + img._id);
       await database.insert(database.store.images, img);
+      indices.images.add(await createImageSearchDoc(img));
       return img._id;
     }
   });
@@ -46,8 +49,12 @@ export async function onActorCreate(actor: Actor, actorLabels: string[]) {
     actor.aliases = [...new Set(actor.aliases)];
   }
 
-  if (pluginResult.custom && typeof pluginResult.custom === "object")
-    Object.assign(actor.customFields, pluginResult.custom);
+  if (pluginResult.custom && typeof pluginResult.custom === "object") {
+    for (const key in pluginResult.custom) {
+      const fields = await extractFields(key);
+      if (fields.length) actor.customFields[fields[0]] = pluginResult[key];
+    }
+  }
 
   if (pluginResult.labels && Array.isArray(pluginResult.labels)) {
     const labelIds = (

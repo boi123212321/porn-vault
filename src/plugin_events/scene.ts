@@ -1,7 +1,12 @@
 import Scene from "../types/scene";
 import { runPluginsSerial } from "../plugins";
-import { mapAsync, isValidUrl, libraryPath } from "../types/utility";
-import { extractLabels, extractStudios, extractActors } from "../extractor";
+import { isValidUrl, libraryPath } from "../types/utility";
+import {
+  extractLabels,
+  extractStudios,
+  extractActors,
+  extractFields
+} from "../extractor";
 import { getConfig } from "../config";
 import { extname } from "path";
 import { downloadFile } from "../ffmpeg-download";
@@ -11,6 +16,10 @@ import * as logger from "../logger/index";
 import Studio from "../types/studio";
 import Label from "../types/label";
 import Actor from "../types/actor";
+import { onActorCreate } from "./actor";
+import { indices } from "../search/index";
+import { createActorSearchDoc } from "../search/actor";
+import { createImageSearchDoc } from "../search/image";
 
 // This function has side effects
 export async function onSceneCreate(
@@ -34,6 +43,7 @@ export async function onSceneCreate(
       img.scene = scene._id;
       logger.log("Created image " + img._id);
       await database.insert(database.store.images, img);
+      indices.images.add(await createImageSearchDoc(img));
       return img._id;
     }
   });
@@ -52,8 +62,12 @@ export async function onSceneCreate(
   if (typeof pluginResult.releaseDate === "number")
     scene.releaseDate = new Date(pluginResult.releaseDate).valueOf();
 
-  if (pluginResult.custom && typeof pluginResult.custom === "object")
-    Object.assign(scene.customFields, pluginResult.custom);
+  if (pluginResult.custom && typeof pluginResult.custom === "object") {
+    for (const key in pluginResult.custom) {
+      const fields = await extractFields(key);
+      if (fields.length) scene.customFields[fields[0]] = pluginResult[key];
+    }
+  }
 
   if (pluginResult.actors && Array.isArray(pluginResult.actors)) {
     const actorIds = [] as string[];
@@ -61,9 +75,11 @@ export async function onSceneCreate(
       const extractedIds = await extractActors(actorName);
       if (extractedIds.length) actorIds.push(...extractedIds);
       else if (config.CREATE_MISSING_ACTORS) {
-        const actor = new Actor(actorName);
+        let actor = new Actor(actorName);
         actorIds.push(actor._id);
+        actor = await onActorCreate(actor, []);
         await database.insert(database.store.actors, actor);
+        indices.actors.add(await createActorSearchDoc(actor));
         logger.log("Created actor " + actor.name);
       }
     }

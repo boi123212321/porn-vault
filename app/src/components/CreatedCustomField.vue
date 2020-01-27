@@ -1,7 +1,7 @@
 <template>
   <v-list-item>
     <v-list-item-content>
-      <v-list-item-title>{{ value.name }}</v-list-item-title>
+      <v-list-item-title>{{ value.name }} (for {{ value.target.map(titleCase).join(", ") }})</v-list-item-title>
       <v-list-item-subtitle>{{ value.type }} {{ value.values && value.values.length ? `(${value.values.join(", ")})` : ""}}</v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action>
@@ -75,6 +75,13 @@ export default class CreatedCustomField extends Vue {
   fieldNameRules = [v => (!!v && !!v.length) || "Invalid field name"];
 
   deleteState = 0;
+
+  titleCase(str: string) {
+    return str
+      .split(" ")
+      .map(w => w[0].toUpperCase() + w.substr(1).toLowerCase())
+      .join(" ");
+  }
 
   edit() {
     if (!this.validEdit) return;

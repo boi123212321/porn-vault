@@ -2,12 +2,13 @@
   <v-row dense>
     <v-col
       class="d-flex align-center"
-      v-for="(field, i) in fields"
+      v-for="field in fields"
       :key="field._id"
-      cols="12"
-      md="6"
-      lg="4"
-      xl="3"
+      :cols="cols"
+      :sm="sm"
+      :md="md"
+      :lg="lg"
+      :xl="xl"
     >
       <v-subheader class="text-truncate" style="width: 125px">{{ field.name }}</v-subheader>
 
@@ -63,6 +64,11 @@ import gql from "graphql-tag";
 export default class CustomFieldSelector extends Vue {
   @Prop({ default: () => ({}) }) value: any;
   @Prop() fields!: any;
+  @Prop({ default: 12 }) cols!: number;
+  @Prop({ default: 6 }) sm!: number;
+  @Prop({ default: 4 }) md!: number;
+  @Prop({ default: 3 }) lg!: number;
+  @Prop({ default: 3 }) xl!: number;
 
   getField(id: string) {
     return this.fields.find(f => f._id == id);

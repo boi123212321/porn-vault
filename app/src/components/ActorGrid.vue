@@ -1,6 +1,6 @@
 <template>
   <v-row dense>
-    <v-col cols="6" v-for="actor in value" :key="actor._id">
+    <v-col :cols="cols" :sm="sm" :md="md" :lg="lg" :xl="xl" v-for="actor in value" :key="actor._id">
       <v-hover>
         <template v-slot:default="{ hover }">
           <v-img :src="thumbnail(actor)">
@@ -29,6 +29,11 @@ import { contextModule } from "../store/context";
 @Component
 export default class ActorGrid extends Vue {
   @Prop() value!: IActor[];
+  @Prop({ default: 6 }) cols!: number;
+  @Prop({ default: 6 }) sm!: number;
+  @Prop({ default: 6 }) md!: number;
+  @Prop({ default: 6 }) lg!: number;
+  @Prop({ default: 6 }) xl!: number;
 
   thumbnail(actor: IActor) {
     if (actor.thumbnail)

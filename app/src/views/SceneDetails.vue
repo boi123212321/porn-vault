@@ -186,24 +186,51 @@
           </div>
         </v-col>
       </v-row>
-      <v-row v-if="actors.length">
-        <v-col cols="12">
+      <v-divider></v-divider>
+      <v-row>
+        <v-col cols="12" sm="6">
           <h1 class="font-weight-light text-center">Starring</h1>
 
-          <v-row>
+          <ActorGrid :cols="6" :sm="6" :md="4" :lg="4" :xl="3" :value="actors" />
+
+          <!-- <v-row>
             <v-col
               class="pa-1"
               v-for="(actor, i) in actors"
               :key="actor._id"
-              cols="12"
-              sm="6"
-              md="3"
-              lg="2"
-              xl="2"
+              cols="6"
+              sm="12"
+              md="6"
+              lg="4"
+              xl="3"
             >
               <actor-card style="height: 100%" v-model="actors[i]" />
             </v-col>
-          </v-row>
+          </v-row>-->
+        </v-col>
+        <v-col cols="12" sm="6" class="d-flex">
+          <v-divider v-if="$vuetify.breakpoint.smAndUp" class="mr-2 d-inline-block" vertical />
+          <div style="width: 100%">
+            <div class="text-center py-2">
+              <v-btn
+                class="text-none"
+                color="accent"
+                text
+                @click="updateCustomFields"
+                :disabled="!hasUpdatedFields"
+              >Update</v-btn>
+            </div>
+            <CustomFieldSelector
+              :cols="12"
+              :sm="12"
+              :md="6"
+              :lg="4"
+              :xl="3"
+              :fields="currentScene.availableFields"
+              v-model="editCustomFields"
+              @change="hasUpdatedFields = true"
+            />
+          </div>
         </v-col>
       </v-row>
 
@@ -403,6 +430,8 @@ import { contextModule } from "../store/context";
 import { watch, unwatch } from "../util/scene";
 import MarkerItem from "../components/MarkerItem.vue";
 import hotkeys from "hotkeys-js";
+import CustomFieldSelector from "../components/CustomFieldSelector.vue";
+import ActorGrid from "../components/ActorGrid.vue";
 
 import "dplayer/dist/DPlayer.min.css";
 import DPlayer from "dplayer";
@@ -420,6 +449,7 @@ interface ICropResult {
 
 @Component({
   components: {
+    ActorGrid,
     ActorCard,
     LabelSelector,
     Lightbox,
@@ -427,7 +457,8 @@ interface ICropResult {
     InfiniteLoading,
     Cropper,
     ImageUploader,
-    MarkerItem
+    MarkerItem,
+    CustomFieldSelector
   },
   beforeRouteLeave(_to, _from, next) {
     sceneModule.setCurrent(null);
@@ -466,6 +497,36 @@ export default class SceneDetails extends Vue {
   autoPaused = false;
 
   labelSearchQuery = "";
+
+  editCustomFields = {} as any;
+  hasUpdatedFields = false;
+
+  updateCustomFields() {
+    if (!this.currentScene) return;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!, $opts: SceneUpdateOpts!) {
+          updateScenes(ids: $ids, opts: $opts) {
+            customFields
+          }
+        }
+      `,
+      variables: {
+        ids: [this.currentScene._id],
+        opts: {
+          customFields: this.editCustomFields
+        }
+      }
+    })
+      .then(res => {
+        sceneModule.setCustomFields(res.data.updateScenes[0].customFields);
+        this.hasUpdatedFields = false;
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
 
   createScreenshot() {
     this.screenshotLoader = true;
@@ -985,6 +1046,7 @@ export default class SceneDetails extends Vue {
       this.actors = res.data.getSceneById.actors;
       this.markers = res.data.getSceneById.markers;
       this.markers.sort((a, b) => a.time - b.time);
+      this.editCustomFields = res.data.getSceneById.customFields;
 
       setTimeout(() => {
         this.dp = new DPlayer(this.dplayerOptions);

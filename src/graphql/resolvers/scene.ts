@@ -1,7 +1,7 @@
 import Scene from "../../types/scene";
 import Image from "../../types/image";
 import Studio from "../../types/studio";
-import CustomField from "../../types/custom_field";
+import CustomField, { CustomFieldTarget } from "../../types/custom_field";
 
 export default {
   async actors(scene: Scene) {
@@ -30,6 +30,8 @@ export default {
   },
   async availableFields() {
     const fields = await CustomField.getAll();
-    return fields;
+    return fields.filter(field =>
+      field.target.includes(CustomFieldTarget.SCENES)
+    );
   }
 };

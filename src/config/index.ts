@@ -110,9 +110,9 @@ let loadedConfig;
 export let configFile;
 
 export async function checkConfig() {
-  const readFile = await loadConfig();
+  const hasReadFile = await loadConfig();
 
-  if (readFile) {
+  if (hasReadFile) {
     let defaultOverride = false;
     for (const key in defaultConfig) {
       if (loadedConfig[key] === undefined) {
@@ -157,17 +157,16 @@ export async function checkConfig() {
   return process.exit(0);
 }
 
-export async function loadConfig(ext = "json") {
+export async function loadConfig() {
   logger.message("Loading config...");
-  if (ext == "json") {
-    if (!(await existsAsync("config.json"))) return false;
+  if (await existsAsync("config.json")) {
     loadedConfig = JSON.parse(await readFileAsync("config.json", "utf-8"));
     configFile = "config.json";
-  } else if (ext == "yaml") {
-    if (!(await existsAsync("config.yaml"))) return false;
+  } else if (await existsAsync("config.yaml")) {
     loadedConfig = YAML.parse(await readFileAsync("config.yaml", "utf-8"));
     configFile = "config.yaml";
   }
+
   return true;
 }
 

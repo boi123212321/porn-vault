@@ -49,6 +49,13 @@ export async function getScenes(
         );
       });
 
+    if (options.exclude && options.exclude.length)
+      filters.push(doc => {
+        return !options.exclude.some(id =>
+          doc.labels.map(l => l._id).includes(id)
+        );
+      });
+
     function sortMode(sortBy: SortTarget, sortDir: "asc" | "desc") {
       switch (sortBy) {
         case SortTarget.ADDED_ON:

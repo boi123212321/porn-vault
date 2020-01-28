@@ -24,8 +24,21 @@
       <v-container>
         <v-text-field clearable color="accent" v-model="query" label="Search query"></v-text-field>
 
-        <v-subheader>Labels</v-subheader>
-        <v-chip-group
+        <v-subheader>
+          Labels
+          <span style="white-space: pre" class="hover" @click="resetLabels">{{ " (reset)" }}</span>
+        </v-subheader>
+        <div style="max-height: 30vh; overflow-y: scroll">
+          <div
+            @click="onLabelClick(label)"
+            :class="labelClasses(label)"
+            class="hover mb-1"
+            v-for="label in allLabels"
+            :key="label._id"
+          >{{ label.name }}</div>
+        </div>
+
+        <!-- <v-chip-group
           active-class="accent--text"
           :items="allLabels"
           column
@@ -35,7 +48,7 @@
           <div style="max-height:30vh; overflow-y:scroll">
             <v-chip label small v-for="label in allLabels" :key="label._id">{{ label.name }}</v-chip>
           </div>
-        </v-chip-group>
+        </v-chip-group>-->
 
         <v-subheader>Filter by duration</v-subheader>
         <v-range-slider hide-details :max="durationMax" v-model="durationRange" color="accent"></v-range-slider>
@@ -245,8 +258,7 @@ import moment from "moment";
     LabelSelector,
     InfiniteLoading,
     ActorSelector,
-    SceneUploader,
-    
+    SceneUploader
   }
 })
 export default class SceneList extends Vue {
@@ -255,7 +267,8 @@ export default class SceneList extends Vue {
 
   waiting = false;
   allLabels = [] as ILabel[];
-  selectedLabels = [] as number[]; // TODO: try to retrieve from localStorage
+  include = [] as string[];
+  exclude = [] as string[];
 
   validCreation = false;
   createSceneDialog = false;
@@ -343,6 +356,38 @@ export default class SceneList extends Vue {
 
   selectedScenes = [] as string[];
   deleteSelectedScenesDialog = false;
+
+  resetLabels() {
+    this.include = [];
+    this.exclude = [];
+
+    this.page = 0;
+    this.scenes = [];
+    this.infiniteId++;
+  }
+
+  onLabelClick(label: ILabel) {
+    if (this.exclude.includes(label._id))
+      this.exclude = this.exclude.filter(i => i !== label._id);
+    else if (this.include.includes(label._id)) {
+      this.exclude.push(label._id);
+      this.include = this.include.filter(i => i !== label._id);
+    } else {
+      this.include.push(label._id);
+    }
+
+    this.page = 0;
+    this.scenes = [];
+    this.infiniteId++;
+  }
+
+  labelClasses(label: ILabel) {
+    if (this.include.includes(label._id))
+      return "font-weight-bold accent--text";
+    else if (this.exclude.includes(label._id))
+      return "font-weight-bold error--text";
+    return "";
+  }
 
   get showCardLabels() {
     return contextModule.showCardLabels;
@@ -593,13 +638,13 @@ export default class SceneList extends Vue {
   async fetchPage(random = false) {
     try {
       let include = "";
+      let exclude = "";
 
-      if (this.selectedLabels.length)
-        include =
-          "include:" +
-          this.selectedLabels.map(i => this.allLabels[i]._id).join(",");
+      if (this.include.length) include = "include:" + this.include.join(",");
 
-      const query = `query:'${this.query || ""}' ${include} page:${
+      if (this.exclude.length) exclude = "exclude:" + this.exclude.join(",");
+
+      const query = `query:'${this.query || ""}' ${include} ${exclude} page:${
         this.page
       } sortDir:${this.sortDir} sortBy:${this.sortBy} favorite:${
         this.favoritesOnly ? "true" : "false"

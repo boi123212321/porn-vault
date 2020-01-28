@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <BindTitle value="Actors" />
     <v-navigation-drawer
       style="z-index: 14"
       v-model="drawer"
@@ -309,6 +310,10 @@ export default class SceneList extends Vue {
       value: "rating"
     },
     {
+      text: "# scenes",
+      value: "scenes"
+    },
+    {
       text: "Views",
       value: "views"
     },
@@ -573,7 +578,6 @@ export default class SceneList extends Vue {
       .catch(err => {
         console.error(err);
       });
-    document.title = "Actors";
   }
 }
 </script>

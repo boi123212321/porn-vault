@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <BindTitle value="Images" />
     <v-banner app sticky v-if="selectedImages.length">
       {{ selectedImages.length }} images selected
       <template v-slot:actions>
@@ -464,7 +465,6 @@ export default class ImagesView extends Vue {
       .catch(err => {
         console.error(err);
       });
-    document.title = "Images";
   }
 }
 </script>

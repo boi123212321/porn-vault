@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "vue-cli-service serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build"
   },
@@ -17,6 +18,7 @@
     "core-js": "^3.3.2",
     "dplayer": "^1.25.0",
     "graphql-tag": "^2.10.1",
+    "hotkeys-js": "^3.7.3",
     "moment": "^2.24.0",
     "roboto-fontface": "*",
     "vue": "^2.6.10",

@@ -6,7 +6,7 @@ export const tokenize = (str: string) => [
       .split(" ")
       .filter(Boolean)
       .filter(s => /[a-z]/i.test(s))
-      .filter(s => s.length > 2)
+      .filter(s => s.length > 1 || /^[0-9]+$/.test(s))
   )
 ];
 

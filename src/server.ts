@@ -21,15 +21,7 @@ import BROKEN_IMAGE from "./broken_image";
 import pug from "pug";
 import { mountApolloServer } from "./apollo";
 import { buildIndices } from "./search";
-
-function isRegExp(regStr: string) {
-  try {
-    new RegExp(regStr);
-  } catch (e) {
-    return false;
-  }
-  return true;
-}
+import { checkImportFolders } from "./import/index";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-manager for discussion & updates"
@@ -37,6 +29,17 @@ logger.message(
 
 let serverReady = false;
 let setupMessage = "Setting up...";
+
+async function scanFolders() {
+  logger.warn("Scanning folders...");
+
+  await checkVideoFolders();
+  checkImageFolders();
+
+  logger.log(`Processing ${await ProcessingQueue.getLength()} videos...`);
+
+  ProcessingQueue.processLoop();
+}
 
 export default async () => {
   const app = express();
@@ -80,7 +83,7 @@ export default async () => {
     next();
   });
 
-  const config = await getConfig();
+  const config = getConfig();
 
   const port = config.PORT || 3000;
   app.listen(port, () => {
@@ -145,33 +148,16 @@ export default async () => {
     await createBackup(config.MAX_BACKUP_AMOUNT || 10);
   }
 
-  if (config.EXCLUDE_FILES && config.EXCLUDE_FILES.length) {
-    for (const regStr of config.EXCLUDE_FILES) {
-      if (!isRegExp(regStr)) {
-        logger.error(`Invalid regex: '${regStr}'.`);
-        process.exit(1);
-      }
-    }
-  }
-
-  async function scanFolders() {
-    logger.warn("Scanning folders...");
-
-    await checkVideoFolders();
-    checkImageFolders();
-
-    logger.log(`Processing ${await ProcessingQueue.getLength()} videos...`);
-
-    ProcessingQueue.processLoop();
-  }
-
   setupMessage = "Loading database...";
   await loadStores();
+  ProcessingQueue.setStore(database.store.queue);
+
+  setupMessage = "Checking imports...";
+  await checkImportFolders();
 
   setupMessage = "Creating search indices...";
   await buildIndices();
 
-  ProcessingQueue.setStore(database.store.queue);
   checkSceneSources();
   checkImageSources();
   checkPreviews();

@@ -18,7 +18,8 @@ export default class Actor {
   rating: number = 0;
   customFields: any = {};
   labels?: string[]; // backwards compatibility
-  studio: string | null = null;
+  studio?: string | null; // backwards compatibility
+  description?: string | null = null;
 
   static async filterCustomField(fieldId: string) {
     await database.update(
@@ -171,6 +172,6 @@ export default class Actor {
   constructor(name: string, aliases: string[] = []) {
     this._id = "ac_" + generateHash();
     this.name = name.trim();
-    this.aliases = aliases.map(tag => tag.trim());
+    this.aliases = [...new Set(aliases.map(tag => tag.trim()))];
   }
 }

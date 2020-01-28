@@ -41,3 +41,6 @@ releases/
 tmp/
 backups/
 plugins/
+imports/
+
+config\.yaml

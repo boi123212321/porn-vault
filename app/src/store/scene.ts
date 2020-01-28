@@ -79,6 +79,11 @@ class SceneModule extends VuexModule {
   setActors(actors: IActor[]) {
     if (this.current) this.current.actors = actors;
   }
+
+  @Mutation
+  setCustomFields(fields: any) {
+    if (this.current) this.current.customFields = fields;
+  }
 }
 
 import store from "./index";

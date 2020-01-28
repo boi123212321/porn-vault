@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <BindTitle value="Labels" />
     <div v-if="!fetchLoader">
       <h1 class="font-weight-light">Labels</h1>
 
@@ -330,7 +331,6 @@ export default class Home extends Vue {
       .finally(() => {
         this.fetchLoader = false;
       });
-    document.title = "Labels";
   }
 
   beforeMount() {

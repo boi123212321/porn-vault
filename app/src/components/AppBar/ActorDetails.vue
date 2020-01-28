@@ -87,14 +87,12 @@ import { Component, Vue } from "vue-property-decorator";
 import { actorModule } from "../../store/actor";
 import ApolloClient, { serverBase } from "../../apollo";
 import gql from "graphql-tag";
-import DateInput from "../DateInput.vue";
 import IActor from "../../types/actor";
 import moment from "moment";
 import CustomFieldSelector from "../CustomFieldSelector.vue";
 
 @Component({
   components: {
-    DateInput,
     CustomFieldSelector
   }
 })

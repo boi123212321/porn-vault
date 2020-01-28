@@ -1,6 +1,7 @@
 <template>
   <v-container fluid>
     <div v-if="currentMovie">
+      <BindTitle :value="currentMovie.name" />
       <v-row>
         <v-col cols="12" sm="4" md="4" lg="3" xl="2">
           <v-container>
@@ -34,7 +35,7 @@
           <div class="d-flex" v-if="currentMovie.studio">
             <v-spacer></v-spacer>
             <router-link :to="`/studio/${currentMovie.studio._id}`">
-              <v-img v-ripple max-width="200px" :src="studioLogo"></v-img>
+              <v-img contain v-ripple max-width="150px" :src="studioLogo"></v-img>
             </router-link>
           </div>
           <div v-if="currentMovie.releaseDate">
@@ -129,7 +130,7 @@
               cols="12"
               sm="6"
               md="4"
-              lg="3"
+              lg="2"
               xl="2"
             >
               <actor-card style="height: 100%" v-model="actors[i]" />
@@ -627,7 +628,6 @@ export default class SceneDetails extends Vue {
       movieModule.setCurrent(res.data.getMovieById);
       this.scenes = res.data.getMovieById.scenes;
       this.actors = res.data.getMovieById.actors;
-      document.title = res.data.getMovieById.name;
     });
   }
 

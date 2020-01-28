@@ -15,6 +15,8 @@ import Studio from "../types/studio";
 import { createSceneSearchDoc } from "../search/scene";
 import { indices } from "../search/index";
 import { createImageSearchDoc } from "../search/image";
+import { Dictionary } from "../types/utility";
+import { onSceneCreate } from "../plugin_events/scene";
 
 function removeExtension(file: string) {
   return file.replace(/\.[^/.]+$/, "");
@@ -27,6 +29,15 @@ export interface IQueueItem {
   path: string;
   actors: string[];
   labels: string[];
+  customFields?: Dictionary<string>;
+
+  description?: string | null;
+  thumbnail?: string | null;
+  favorite?: boolean;
+  bookmark?: boolean;
+  rating?: number;
+  releaseDate?: number;
+  studio?: string | null;
 }
 
 class Queue {
@@ -62,7 +73,7 @@ class Queue {
     let sceneName = removeExtension(item.filename);
     if (item.name) sceneName = item.name;
 
-    const config = await getConfig();
+    const config = getConfig();
 
     logger.log(`Checking binaries...`);
 
@@ -79,9 +90,17 @@ class Queue {
     ffmpeg.setFfmpegPath(config.FFMPEG_PATH);
     ffmpeg.setFfprobePath(config.FFPROBE_PATH);
 
-    const scene = new Scene(sceneName);
+    let scene = new Scene(sceneName);
     scene._id = item._id;
     scene.path = sourcePath;
+    if (item.rating) scene.rating = item.rating;
+    if (item.bookmark) scene.bookmark = item.bookmark;
+    if (item.favorite) scene.favorite = item.favorite;
+    if (item.releaseDate) scene.releaseDate = item.releaseDate;
+    if (item.customFields) scene.customFields = item.customFields;
+    if (item.description) scene.description = item.description;
+    if (item.studio) scene.studio = item.studio;
+    if (item.thumbnail) scene.thumbnail = item.thumbnail;
 
     if (config.CALCULATE_FILE_CHECKSUM) {
       logger.log("Generating file checksum...");
@@ -123,31 +142,31 @@ class Queue {
       throw new Error("Error when running FFPROBE");
     }
 
-    let actors = [] as string[];
+    let sceneActors = [] as string[];
     if (item.actors) {
-      actors = item.actors;
+      sceneActors = item.actors;
     }
 
     // Extract actors
     let extractedActors = [] as string[];
     extractedActors = await extractActors(sourcePath);
-    actors.push(...extractedActors);
-    await Scene.setActors(scene, actors);
+    sceneActors.push(...extractedActors);
+
     logger.log(`Found ${extractedActors.length} actors in scene path.`);
 
-    let labels = [] as string[];
+    let sceneLabels = [] as string[];
     if (item.labels) {
-      labels = item.labels;
+      sceneLabels = item.labels;
     }
 
     // Extract labels
     const extractedLabels = await extractLabels(sourcePath);
-    labels.push(...extractedLabels);
+    sceneLabels.push(...extractedLabels);
     logger.log(`Found ${extractedLabels.length} labels in scene path.`);
 
     if (config.APPLY_ACTOR_LABELS === true) {
       logger.log("Applying actor labels to scene");
-      labels.push(
+      sceneLabels.push(
         ...(
           await Promise.all(
             extractedActors.map(async id => {
@@ -173,12 +192,16 @@ class Queue {
 
         if (studio) {
           logger.log("Applying studio labels to scene");
-          labels.push(...(await Studio.getLabels(studio)).map(l => l._id));
+          sceneLabels.push(...(await Studio.getLabels(studio)).map(l => l._id));
         }
       }
     }
 
-    await Scene.setLabels(scene, labels);
+    try {
+      scene = await onSceneCreate(scene, sceneLabels, sceneActors);
+    } catch (error) {
+      logger.error(error.message);
+    }
 
     // Thumbnails
     if (config.GENERATE_THUMBNAILS) {
@@ -206,8 +229,8 @@ class Queue {
         image.scene = scene._id;
         image.meta.size = file.size;
         image.labels = scene.labels;
-        await Image.setLabels(image, labels);
-        await Image.setActors(image, actors);
+        await Image.setLabels(image, sceneLabels);
+        await Image.setActors(image, sceneActors);
         logger.log(`Creating image with id ${image._id}...`);
         await database.insert(database.store.images, image);
         indices.images.add(await createImageSearchDoc(image));
@@ -215,7 +238,8 @@ class Queue {
       }
 
       if (images.length > 0) {
-        scene.thumbnail = images[Math.floor(images.length / 2)]._id;
+        if (!item.thumbnail)
+          scene.thumbnail = images[Math.floor(images.length / 2)]._id;
         loader.succeed(`Created ${images.length} thumbnails.`);
       } else loader.warn(`Created 0 thumbnails.`);
     }
@@ -245,6 +269,9 @@ class Queue {
         loader.fail(`Error generating preview.`);
       }
     }
+
+    await Scene.setActors(scene, sceneActors);
+    await Scene.setLabels(scene, sceneLabels);
 
     logger.log(`Creating scene with id ${scene._id}...`);
     await database.insert(database.store.scenes, scene);

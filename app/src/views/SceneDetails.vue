@@ -1,65 +1,55 @@
 <template>
   <v-container fluid>
     <div v-if="currentScene">
-      <v-row>
-        <v-col cols="12">
+      <BindTitle :value="currentScene.name" />
+      <div class="d-flex pb-2">
+        <div class="text-center pa-2" style="flex-grow: 1">
           <div class="mx-auto" style="max-width: 1000px" id="dplayer" ref="dplayer"></div>
-        </v-col>
-      </v-row>
-      <div>
-        <v-btn class="text-none" color="accent" text @click="openMarkerDialog">Create marker</v-btn>
-        <div class="mt-3">
-          <v-row>
-            <v-col cols="12" sm="8" md="6">
-              <MarkerItem
-                style="width: 100%"
-                @jump="moveToTime(marker.time, marker.name)"
-                @delete="removeMarker(marker._id)"
-                :marker="marker"
-                v-for="marker in markers"
-                :key="marker._id"
-              />
-            </v-col>
-          </v-row>
+        </div>
+        <v-divider vertical v-if="$vuetify.breakpoint.mdAndUp" />
+        <div class="py-2" v-if="$vuetify.breakpoint.mdAndUp" style="width: 400px; max-width: 400px">
+          <div class="text-center">
+            <v-btn class="text-none" color="accent" text @click="openMarkerDialog">Create marker</v-btn>
+          </div>
+          <div class="mt-3">
+            <MarkerItem
+              style="width: 100%"
+              @jump="moveToTime(marker.time, marker.name)"
+              @delete="removeMarker(marker._id)"
+              :marker="marker"
+              v-for="marker in markers"
+              :key="marker._id"
+            />
+          </div>
         </div>
       </div>
-      <v-divider></v-divider>
-      <v-row>
-        <!-- <v-col cols="12" sm="4" md="4" lg="3" xl="2">
-          <v-container>
-            <v-hover>
-              <template v-slot:default="{ hover }">
-                <v-img
-                  v-ripple
-                  @click="openThumbnailDialog"
-                  class="elevation-4 hover"
-                  :aspect-ratio="aspectRatio"
-                  cover
-                  :src="thumbnail"
-                >
-                  <v-fade-transition>
-                    <v-overlay v-if="hover" absolute color="accent">
-                      <v-icon x-large>mdi-upload</v-icon>
-                    </v-overlay>
-                  </v-fade-transition>
-                </v-img>
-              </template>
-            </v-hover>
-          </v-container>
-        </v-col>-->
-        <v-col cols="12">
-          <div class="d-flex align-center">
-            <v-btn
-              text
-              class="text-none"
-              color="accent"
-              @click="openThumbnailDialog"
-            >Change thumbnail</v-btn>
-            <v-spacer></v-spacer>
-            <router-link v-if="currentScene.studio" :to="`/studio/${currentScene.studio._id}`">
-              <v-img v-ripple max-width="200px" :src="studioLogo"></v-img>
-            </router-link>
+
+      <v-row v-if="!$vuetify.breakpoint.mdAndUp">
+        <v-col cols="12" sm="12" md="4" lg="2" xl="1">
+          <div class="text-center">
+            <v-btn class="text-none" color="accent" text @click="openMarkerDialog">Create marker</v-btn>
           </div>
+          <div class="mt-3">
+            <MarkerItem
+              style="width: 100%"
+              @jump="moveToTime(marker.time, marker.name)"
+              @delete="removeMarker(marker._id)"
+              :marker="marker"
+              v-for="marker in markers"
+              :key="marker._id"
+            />
+          </div>
+        </v-col>
+      </v-row>
+      <v-divider></v-divider>
+      <div class="mt-2 d-flex">
+        <v-spacer></v-spacer>
+        <router-link v-if="currentScene.studio" :to="`/studio/${currentScene.studio._id}`">
+          <v-img contain v-ripple max-width="200px" :src="studioLogo"></v-img>
+        </router-link>
+      </div>
+      <v-row>
+        <v-col cols="12" sm="6" md="4">
           <div v-if="currentScene.releaseDate">
             <div class="d-flex align-center">
               <v-icon>mdi-calendar</v-icon>
@@ -120,78 +110,127 @@
               :class="`mr-1 mb-1 hover ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
             >+ Add</v-chip>
           </div>
-          <div class="d-flex align-center">
-            <v-icon>mdi-information-outline</v-icon>
-            <v-subheader>Info</v-subheader>
-          </div>
-          <div v-if="currentScene.meta.duration" class="px-2 pt-2 d-flex align-center">
-            <v-subheader>Video duration</v-subheader>
-            {{ videoDuration }}
-          </div>
-          <div v-if="currentScene.path" class="px-2 pt-2 d-flex align-center">
-            <v-subheader>Filesystem path</v-subheader>
-            {{ currentScene.path}}
-          </div>
-          <div v-if="currentScene.meta.dimensions.width" class="px-2 d-flex align-center">
-            <v-subheader>Video dimensions</v-subheader>
-            {{ currentScene.meta.dimensions.width }}x{{ currentScene.meta.dimensions.height }}
-          </div>
-          <div v-if="currentScene.meta.fps" class="px-2 d-flex align-center">
-            <v-subheader>Framerate</v-subheader>
-            {{ currentScene.meta.fps }} fps
-          </div>
-          <div v-if="currentScene.meta.size" class="px-2 d-flex align-center">
-            <v-subheader>Video size</v-subheader>
-            {{ (currentScene.meta.size / 1000 / 1000).toFixed(0) }} MB
-          </div>
-          <div class="px-2 d-flex align-center">
-            <v-subheader>View counter</v-subheader>
-            {{ currentScene.watches.length }}
-            <v-btn
-              :class="`${$vuetify.theme.dark ? '' : 'black--text'}`"
-              fab
-              color="primary"
-              class="mx-3"
-              x-small
-              @click="watchScene"
-            >
-              <v-icon>mdi-plus</v-icon>
-            </v-btn>
-            <v-btn
-              :disabled="!currentScene || !currentScene.watches.length"
-              :class="`${$vuetify.theme.dark ? '' : 'black--text'}`"
-              fab
-              color="primary"
-              x-small
-              @click="unwatchScene"
-            >
-              <v-icon>mdi-minus</v-icon>
-            </v-btn>
-          </div>
-          <div v-if="currentScene.watches.length" class="px-2 d-flex align-center">
-            <v-subheader>Last time watched</v-subheader>
-            {{ new Date(currentScene.watches[currentScene.watches.length - 1]).toLocaleString() }}
+          <v-divider />
+          <v-btn
+            text
+            class="mt-2 text-none"
+            color="accent"
+            @click="openThumbnailDialog"
+          >Change thumbnail</v-btn>
+          <br />
+          <v-btn
+            text
+            class="mt-2 text-none"
+            color="accent"
+            @click="createScreenshot"
+            :loading="screenshotLoader"
+          >Use current frame as thumbnail</v-btn>
+        </v-col>
+
+        <v-col class="d-flex" cols="12" sm="6" md="8">
+          <v-divider v-if="$vuetify.breakpoint.smAndUp" class="mr-2 d-inline-block" vertical />
+
+          <div>
+            <div class="d-flex align-center">
+              <v-icon>mdi-information-outline</v-icon>
+              <v-subheader>Info</v-subheader>
+            </div>
+            <div v-if="currentScene.meta.duration" class="px-2 d-flex align-center">
+              <v-subheader style="min-width: 150px">Video duration</v-subheader>
+              {{ videoDuration }}
+            </div>
+            <div v-if="currentScene.path" class="px-2 d-flex align-center">
+              <v-subheader style="min-width: 150px">Filesystem path</v-subheader>
+              {{ currentScene.path}}
+            </div>
+            <div v-if="currentScene.meta.dimensions.width" class="px-2 d-flex align-center">
+              <v-subheader style="min-width: 150px">Video dimensions</v-subheader>
+              {{ currentScene.meta.dimensions.width }}x{{ currentScene.meta.dimensions.height }}
+            </div>
+            <div v-if="currentScene.meta.fps" class="px-2 d-flex align-center">
+              <v-subheader style="min-width: 150px">Framerate</v-subheader>
+              {{ currentScene.meta.fps }} fps
+            </div>
+            <div v-if="currentScene.meta.size" class="px-2 d-flex align-center">
+              <v-subheader style="min-width: 150px">Video size</v-subheader>
+              {{ (currentScene.meta.size / 1000 / 1000).toFixed(0) }} MB
+            </div>
+            <div class="px-2 d-flex align-center">
+              <v-subheader style="min-width: 150px">View counter</v-subheader>
+              {{ currentScene.watches.length }}
+              <v-btn
+                :class="`${$vuetify.theme.dark ? '' : 'black--text'}`"
+                fab
+                color="primary"
+                class="mx-3"
+                x-small
+                @click="watchScene"
+              >
+                <v-icon>mdi-plus</v-icon>
+              </v-btn>
+              <v-btn
+                :disabled="!currentScene || !currentScene.watches.length"
+                :class="`${$vuetify.theme.dark ? '' : 'black--text'}`"
+                fab
+                color="primary"
+                x-small
+                @click="unwatchScene"
+              >
+                <v-icon>mdi-minus</v-icon>
+              </v-btn>
+            </div>
+            <div v-if="currentScene.watches.length" class="px-2 d-flex align-center">
+              <v-subheader style="min-width: 150px">Last time watched</v-subheader>
+              {{ new Date(currentScene.watches[currentScene.watches.length - 1]).toLocaleString() }}
+            </div>
           </div>
         </v-col>
       </v-row>
-      <v-row v-if="actors.length">
-        <v-col cols="12">
+      <v-divider></v-divider>
+      <v-row>
+        <v-col cols="12" sm="6">
           <h1 class="font-weight-light text-center">Starring</h1>
 
-          <v-row>
+          <ActorGrid :cols="6" :sm="6" :md="4" :lg="4" :xl="3" :value="actors" />
+
+          <!-- <v-row>
             <v-col
               class="pa-1"
               v-for="(actor, i) in actors"
               :key="actor._id"
-              cols="12"
-              sm="6"
-              md="3"
-              lg="2"
-              xl="2"
+              cols="6"
+              sm="12"
+              md="6"
+              lg="4"
+              xl="3"
             >
               <actor-card style="height: 100%" v-model="actors[i]" />
             </v-col>
-          </v-row>
+          </v-row>-->
+        </v-col>
+        <v-col cols="12" sm="6" class="d-flex">
+          <v-divider v-if="$vuetify.breakpoint.smAndUp" class="mr-2 d-inline-block" vertical />
+          <div style="width: 100%">
+            <div class="text-center py-2">
+              <v-btn
+                class="text-none"
+                color="accent"
+                text
+                @click="updateCustomFields"
+                :disabled="!hasUpdatedFields"
+              >Update</v-btn>
+            </div>
+            <CustomFieldSelector
+              :cols="12"
+              :sm="12"
+              :md="6"
+              :lg="4"
+              :xl="3"
+              :fields="currentScene.availableFields"
+              v-model="editCustomFields"
+              @change="hasUpdatedFields = true"
+            />
+          </div>
         </v-col>
       </v-row>
 
@@ -390,6 +429,9 @@ import ILabel from "../types/label";
 import { contextModule } from "../store/context";
 import { watch, unwatch } from "../util/scene";
 import MarkerItem from "../components/MarkerItem.vue";
+import hotkeys from "hotkeys-js";
+import CustomFieldSelector from "../components/CustomFieldSelector.vue";
+import ActorGrid from "../components/ActorGrid.vue";
 
 import "dplayer/dist/DPlayer.min.css";
 import DPlayer from "dplayer";
@@ -407,6 +449,7 @@ interface ICropResult {
 
 @Component({
   components: {
+    ActorGrid,
     ActorCard,
     LabelSelector,
     Lightbox,
@@ -414,7 +457,8 @@ interface ICropResult {
     InfiniteLoading,
     Cropper,
     ImageUploader,
-    MarkerItem
+    MarkerItem,
+    CustomFieldSelector
   },
   beforeRouteLeave(_to, _from, next) {
     sceneModule.setCurrent(null);
@@ -430,6 +474,8 @@ export default class SceneDetails extends Vue {
   allLabels = [] as ILabel[];
   selectedLabels = [] as number[];
   labelEditLoader = false;
+
+  screenshotLoader = false;
 
   infiniteId = 0;
   page = 0;
@@ -451,6 +497,59 @@ export default class SceneDetails extends Vue {
   autoPaused = false;
 
   labelSearchQuery = "";
+
+  editCustomFields = {} as any;
+  hasUpdatedFields = false;
+
+  updateCustomFields() {
+    if (!this.currentScene) return;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!, $opts: SceneUpdateOpts!) {
+          updateScenes(ids: $ids, opts: $opts) {
+            customFields
+          }
+        }
+      `,
+      variables: {
+        ids: [this.currentScene._id],
+        opts: {
+          customFields: this.editCustomFields
+        }
+      }
+    })
+      .then(res => {
+        sceneModule.setCustomFields(res.data.updateScenes[0].customFields);
+        this.hasUpdatedFields = false;
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
+  createScreenshot() {
+    this.screenshotLoader = true;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($id: String!, $sec: Int!) {
+          screenshotScene(id: $id, sec: $sec) {
+            _id
+          }
+        }
+      `,
+      variables: {
+        // @ts-ignore
+        id: this.currentScene._id,
+        sec: this.currentTime()
+      }
+    })
+      .then(res => {})
+      .finally(() => {
+        this.screenshotLoader = false;
+      });
+  }
 
   removeMarker(id: string) {
     ApolloClient.mutate({
@@ -947,7 +1046,7 @@ export default class SceneDetails extends Vue {
       this.actors = res.data.getSceneById.actors;
       this.markers = res.data.getSceneById.markers;
       this.markers.sort((a, b) => a.time - b.time);
-      document.title = res.data.getSceneById.name;
+      this.editCustomFields = res.data.getSceneById.customFields;
 
       setTimeout(() => {
         this.dp = new DPlayer(this.dplayerOptions);
@@ -959,7 +1058,41 @@ export default class SceneDetails extends Vue {
     this.onLoad();
   }
 
+  goToPreviousMarker() {
+    const prevMarkers = this.markers.filter(
+      m => m.time < this.currentTime() - 5
+    );
+    if (prevMarkers.length) {
+      const prevMarker = prevMarkers.pop() as {
+        _id: string;
+        name: string;
+        time: number;
+      };
+      this.moveToTime(prevMarker.time, prevMarker.name);
+    } else this.moveToTime(0);
+  }
+
+  goToNextMarker() {
+    const nextMarker = this.markers.find(m => m.time > this.currentTime());
+    if (nextMarker) this.moveToTime(nextMarker.time, nextMarker.name);
+  }
+
+  destroyed() {
+    hotkeys.unbind("b");
+    hotkeys.unbind("n");
+  }
+
   mounted() {
+    hotkeys("n", () => {
+      this.goToNextMarker();
+      return false;
+    });
+
+    hotkeys("b", () => {
+      this.goToPreviousMarker();
+      return false;
+    });
+
     /* window.addEventListener("keydown", ev => {
           if (ev.keyCode >= 48 && ev.keyCode <= 53) {
             const rating = ev.keyCode - 48;

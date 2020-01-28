@@ -23,6 +23,8 @@ export interface IConfig {
   VIDEO_PATHS: string[];
   IMAGE_PATHS: string[];
 
+  BULK_IMPORT_PATHS: string[];
+
   SCAN_ON_STARTUP: boolean;
   SCAN_INTERVAL: number;
 
@@ -58,12 +60,19 @@ export interface IConfig {
   CALCULATE_FILE_CHECKSUM: boolean;
 
   PLUGINS: Dictionary<IPlugin>;
-  PLUGIN_EVENTS: { [key: string]: string[] };
+  PLUGIN_EVENTS: Dictionary<string[]>;
+
+  CREATE_MISSING_ACTORS: boolean;
+  CREATE_MISSING_STUDIOS: boolean;
+  CREATE_MISSING_LABELS: boolean;
 }
 
 export const defaultConfig: IConfig = {
   VIDEO_PATHS: [],
   IMAGE_PATHS: [],
+
+  BULK_IMPORT_PATHS: [],
+
   SCAN_ON_STARTUP: false,
   SCAN_INTERVAL: 10800000,
   LIBRARY_PATH: process.cwd(),
@@ -88,43 +97,38 @@ export const defaultConfig: IConfig = {
   CALCULATE_FILE_CHECKSUM: false,
   PLUGINS: {},
   PLUGIN_EVENTS: {
-    actorCreated: []
-  }
+    actorCreated: [],
+    sceneCreated: []
+    // TODO: movieCreated: []
+  },
+  CREATE_MISSING_ACTORS: false,
+  CREATE_MISSING_STUDIOS: false,
+  CREATE_MISSING_LABELS: false
 };
 
-let config = JSON.parse(JSON.stringify(defaultConfig)) as IConfig;
+let loadedConfig;
+export let configFile;
 
 export async function checkConfig() {
-  if (await existsAsync("config.json")) {
-    config = JSON.parse(await readFileAsync("config.json", "utf-8"));
+  const hasReadFile = await loadConfig();
 
+  if (hasReadFile) {
     let defaultOverride = false;
     for (const key in defaultConfig) {
-      if (config[key] === undefined) {
-        config[key] = defaultConfig[key];
+      if (loadedConfig[key] === undefined) {
+        loadedConfig[key] = defaultConfig[key];
         defaultOverride = true;
       }
     }
 
     if (defaultOverride) {
-      await writeFileAsync("config.json", stringifyFormatted(config), "utf-8");
+      await writeFileAsync(
+        "config.json",
+        stringifyFormatted(loadedConfig),
+        "utf-8"
+      );
     }
-    return config;
-  } else if (await existsAsync("config.yaml")) {
-    config = YAML.parse(await readFileAsync("config.yaml", "utf-8"));
-
-    let defaultOverride = false;
-    for (const key in defaultConfig) {
-      if (config[key] === undefined) {
-        config[key] = defaultConfig[key];
-        defaultOverride = true;
-      }
-    }
-
-    if (defaultOverride) {
-      await writeFileAsync("config.yaml", YAML.stringify(config), "utf-8");
-    }
-    return config;
+    return;
   }
 
   const { yaml } = await inquirer.prompt([
@@ -136,23 +140,36 @@ export async function checkConfig() {
     }
   ]);
 
-  config = await setupFunction();
+  loadedConfig = await setupFunction();
 
   if (yaml) {
-    await writeFileAsync("config.yaml", YAML.stringify(config), "utf-8");
+    await writeFileAsync("config.yaml", YAML.stringify(loadedConfig), "utf-8");
     logger.warn("Created config.yaml. Please edit and restart.");
   } else {
-    await writeFileAsync("config.json", stringifyFormatted(config), "utf-8");
+    await writeFileAsync(
+      "config.json",
+      stringifyFormatted(loadedConfig),
+      "utf-8"
+    );
     logger.warn("Created config.json. Please edit and restart.");
   }
 
   return process.exit(0);
 }
 
-export async function getConfig() {
-  if (await existsAsync("config.json"))
-    return JSON.parse(await readFileAsync("config.json", "utf-8")) as IConfig;
-  else if (await existsAsync("config.yaml"))
-    return YAML.parse(await readFileAsync("config.yaml", "utf-8")) as IConfig;
-  return defaultConfig;
+export async function loadConfig() {
+  logger.message("Loading config...");
+  if (await existsAsync("config.json")) {
+    loadedConfig = JSON.parse(await readFileAsync("config.json", "utf-8"));
+    configFile = "config.json";
+  } else if (await existsAsync("config.yaml")) {
+    loadedConfig = YAML.parse(await readFileAsync("config.yaml", "utf-8"));
+    configFile = "config.yaml";
+  }
+
+  return true;
+}
+
+export function getConfig() {
+  return loadedConfig as IConfig;
 }

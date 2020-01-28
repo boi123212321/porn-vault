@@ -90,13 +90,11 @@ import actorFragment from "../../fragments/actor";
 import sceneFragment from "../../fragments/scene";
 import movieFragment from "../../fragments/movie";
 import StudioSelector from "../../components/StudioSelector.vue";
-import DateInput from "../DateInput.vue";
 
 @Component({
   components: {
     SceneSelector,
-    StudioSelector,
-    DateInput
+    StudioSelector
   }
 })
 export default class MovieToolbar extends Vue {

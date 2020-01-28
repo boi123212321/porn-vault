@@ -1,6 +1,7 @@
 <template>
   <v-container fluid>
     <div v-if="currentStudio">
+      <BindTitle :value="currentStudio.name" />
       <div class="text-center" v-if="!currentStudio.thumbnail">
         <v-btn @click="openThumbnailDialog">Upload logo</v-btn>
       </div>
@@ -89,6 +90,27 @@
               xl="2"
             >
               <movie-card v-model="movies[i]" style="height: 100%" />
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+
+      <v-row v-if="actors.length">
+        <v-col cols="12">
+          <h1 class="font-weight-light text-center">Featuring</h1>
+
+          <v-row>
+            <v-col
+              class="pa-1"
+              v-for="(actor, i) in actors"
+              :key="actor._id"
+              cols="12"
+              sm="6"
+              md="4"
+              lg="2"
+              xl="2"
+            >
+              <actor-card style="height: 100%" v-model="actors[i]" />
             </v-col>
           </v-row>
         </v-col>
@@ -190,6 +212,7 @@ import moment from "moment";
 import Lightbox from "../components/Lightbox.vue";
 import SceneCard from "../components/SceneCard.vue";
 import MovieCard from "../components/MovieCard.vue";
+import ActorCard from "../components/ActorCard.vue";
 import InfiniteLoading from "vue-infinite-loading";
 import { actorModule } from "../store/actor";
 import IActor from "../types/actor";
@@ -206,9 +229,11 @@ import LabelSelector from "../components/LabelSelector.vue";
     Lightbox,
     SceneCard,
     MovieCard,
+    ActorCard,
     InfiniteLoading,
     StudioCard,
-    LabelSelector
+    LabelSelector,
+    
   },
   beforeRouteLeave(_to, _from, next) {
     studioModule.setCurrent(null);
@@ -218,6 +243,7 @@ import LabelSelector from "../components/LabelSelector.vue";
 export default class StudioDetails extends Vue {
   movies = [] as IMovie[];
   scenes = [] as IScene[];
+  actors = [] as IActor[];
   lightboxIndex = null as number | null;
 
   labelSelectorDialog = false;
@@ -491,6 +517,9 @@ export default class StudioDetails extends Vue {
         query($id: String!) {
           getStudioById(id: $id) {
             ...StudioFragment
+            actors {
+              ...ActorFragment
+            }
             movies {
               ...MovieFragment
               actors {
@@ -525,7 +554,7 @@ export default class StudioDetails extends Vue {
     }).then(res => {
       studioModule.setCurrent(res.data.getStudioById);
       this.movies = res.data.getStudioById.movies;
-      document.title = res.data.getStudioById.name;
+      this.actors = res.data.getStudioById.actors;
     });
   }
 

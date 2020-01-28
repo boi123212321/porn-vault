@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar style="z-index: 13" clipped-left elevate-on-scroll app color="primary">
+    <v-app-bar style="z-index: 15" clipped-left app :color="appbarColor">
       <div
         style="overflow: hidden; text-overflow: ellipsis"
         class="d-flex align-center"
@@ -82,6 +82,7 @@ import MovieDetailsBar from "./components/AppBar/MovieDetails.vue";
 import StudioDetailsBar from "./components/AppBar/StudioDetails.vue";
 import { contextModule } from "./store/context";
 import moment from "moment";
+import { ensureDarkColor } from "./util/color";
 
 @Component({
   components: {
@@ -93,6 +94,20 @@ import moment from "moment";
 })
 export default class App extends Vue {
   navDrawer = false;
+
+  get appbarColor() {
+    let color;
+    if (this.currentActor && this.currentActor.thumbnail)
+      return this.currentActor.thumbnail.color;
+    if (this.currentScene && this.currentScene.thumbnail)
+      return this.currentScene.thumbnail.color;
+    if (this.currentMovie && this.currentMovie.frontCover)
+      return this.currentMovie.frontCover.color;
+    if (this.currentStudio && this.currentStudio.thumbnail)
+      return this.currentStudio.thumbnail.color;
+
+    return color ? ensureDarkColor(color) : undefined;
+  }
 
   get age() {
     if (this.currentActor && this.currentActor.bornOn) {

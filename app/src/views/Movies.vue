@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <BindTitle value="Movies" />
     <v-navigation-drawer
       style="z-index: 14"
       v-model="drawer"
@@ -80,7 +81,12 @@
           lg="3"
           xl="2"
         >
-          <MovieCard :showLabels="showCardLabels" :movie="movie" style="height: 100%" v-model="movies[i]" />
+          <MovieCard
+            :showLabels="showCardLabels"
+            :movie="movie"
+            style="height: 100%"
+            v-model="movies[i]"
+          />
         </v-col>
       </v-row>
     </div>
@@ -186,7 +192,7 @@ import movieFragment from "../fragments/movie";
   components: {
     InfiniteLoading,
     SceneSelector,
-    MovieCard
+    MovieCard,
   }
 })
 export default class MovieList extends Vue {
@@ -197,7 +203,7 @@ export default class MovieList extends Vue {
   bulkImportDialog = false;
   bulkLoader = false;
 
-   get showCardLabels( ){
+  get showCardLabels() {
     return contextModule.showCardLabels;
   }
 
@@ -551,7 +557,6 @@ export default class MovieList extends Vue {
       .catch(err => {
         console.error(err);
       });
-    document.title = "Movies";
   }
 }
 </script>

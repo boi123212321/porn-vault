@@ -1,9 +1,8 @@
-import { ApolloServer, gql } from "apollo-server-express";
-import types from "./graphql/types";
-import resolvers from "./graphql/resolvers";
+import { ApolloServer } from "apollo-server-express";
 import express from "express";
+import schema from "./graphql/types";
 
 export function mountApolloServer(app: express.Application) {
-  const server = new ApolloServer({ typeDefs: gql(types), resolvers });
+  const server = new ApolloServer({ schema });
   server.applyMiddleware({ app, path: "/ql" });
 }

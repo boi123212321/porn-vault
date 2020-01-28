@@ -1,11 +1,12 @@
 import "./database";
 import startServer from "./server";
-import { checkConfig } from "./config/index";
+import { checkConfig, getConfig } from "./config/index";
 import inquirer from "inquirer";
 import { existsAsync } from "./fs/async";
 const sha = require("js-sha512").sha512;
 import * as logger from "./logger/index";
 import v8 from "v8";
+import { isRegExp } from "./types/utility";
 
 logger.message(
   `Max. memory: ${Math.round(
@@ -14,11 +15,37 @@ logger.message(
 );
 
 (async () => {
-  let config = await checkConfig();
+  await checkConfig();
+  const config = getConfig();
 
   // TODO: validate config
 
+  if (config.EXCLUDE_FILES && config.EXCLUDE_FILES.length) {
+    for (const regStr of config.EXCLUDE_FILES) {
+      if (!isRegExp(regStr)) {
+        logger.error(`Invalid regex: '${regStr}'.`);
+        process.exit(1);
+      }
+    }
+  }
+
   logger.message("Registered plugins", Object.keys(config.PLUGINS));
+
+  logger.log(config);
+
+  for (const name in config.PLUGINS) {
+    const plugin = config.PLUGINS[name];
+    const path = plugin.path;
+
+    if (!path) {
+      logger.error(`${name}: missing plugin path.`);
+      process.exit(1);
+    }
+    if (!(await existsAsync(path))) {
+      logger.error(`${name}: plugin definition not found (missing file).`);
+      process.exit(1);
+    }
+  }
 
   if (config.PASSWORD && process.env.NODE_ENV != "development") {
     let password;

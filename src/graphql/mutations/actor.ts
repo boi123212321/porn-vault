@@ -1,13 +1,13 @@
 import * as database from "../../database";
 import Actor from "../../types/actor";
 import Scene from "../../types/scene";
-import { Dictionary, mapAsync } from "../../types/utility";
-import { stripStr, extractLabels } from "../../extractor";
+import { Dictionary } from "../../types/utility";
+import { stripStr } from "../../extractor";
 import * as logger from "../../logger/index";
 import { getConfig } from "../../config/index";
 import { indices } from "../../search/index";
 import { createActorSearchDoc } from "../../search/actor";
-import { runPluginsSerial } from "../../plugins";
+import { onActorCreate } from "../../plugin_events/actor";
 
 type IActorUpdateOpts = Partial<{
   name: string;
@@ -23,8 +23,8 @@ type IActorUpdateOpts = Partial<{
 
 export default {
   async addActor(_, args: Dictionary<any>) {
-    const actor = new Actor(args.name, args.aliases);
-    const config = await getConfig();
+    let actor = new Actor(args.name, args.aliases);
+    const config = getConfig();
 
     let actorLabels = [] as string[];
     if (args.labels) {
@@ -54,30 +54,8 @@ export default {
       }
     }
 
-    let pluginResult = {} as Dictionary<any>;
-
     try {
-      pluginResult = await runPluginsSerial(config, "actorCreated", {
-        actorName: actor.name
-      });
-
-      if (pluginResult.bornOn)
-        actor.bornOn = new Date(pluginResult.bornOn).valueOf();
-
-      if (pluginResult.aliases && Array.isArray(pluginResult.aliases)) {
-        actor.aliases.push(...pluginResult.aliases);
-        actor.aliases = [...new Set(actor.aliases)];
-      }
-
-      if (pluginResult.custom && typeof pluginResult.custom === "object")
-        Object.assign(actor.customFields, pluginResult.custom);
-
-      if (pluginResult.labels && Array.isArray(pluginResult.labels)) {
-        const labelIds = (
-          await mapAsync(pluginResult.labels, extractLabels)
-        ).flat();
-        await Actor.setLabels(actor, labelIds.concat(actorLabels));
-      }
+      actor = await onActorCreate(actor, actorLabels);
     } catch (error) {
       logger.error(error.message);
     }

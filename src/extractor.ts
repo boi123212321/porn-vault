@@ -2,9 +2,23 @@ import Label from "./types/label";
 import Actor from "./types/actor";
 import Studio from "./types/studio";
 import Scene from "./types/scene";
+import CustomField from "./types/custom_field";
 
 export function stripStr(str: string) {
   return str.toLowerCase().replace(/[^a-zA-Z0-9']/g, "");
+}
+
+// Returns IDs of extracted custom fields
+export async function extractFields(str: string): Promise<string[]> {
+  const foundFields = [] as string[];
+  const allFields = await CustomField.getAll();
+
+  allFields.forEach(field => {
+    if (stripStr(str).includes(stripStr(field.name))) {
+      foundFields.push(field._id);
+    }
+  });
+  return foundFields;
 }
 
 // Returns IDs of extracted labels

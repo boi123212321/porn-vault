@@ -1,5 +1,6 @@
 <template>
   <v-container fluid>
+    <BindTitle value="Studios" />
     <v-navigation-drawer
       style="z-index: 14"
       v-model="drawer"
@@ -150,7 +151,8 @@ import StudioCard from "../components/StudioCard.vue";
 @Component({
   components: {
     InfiniteLoading,
-    StudioCard
+    StudioCard,
+    
   }
 })
 export default class StudioList extends Vue {
@@ -458,7 +460,6 @@ export default class StudioList extends Vue {
       .catch(err => {
         console.error(err);
       });
-    document.title = "Studios";
   }
 }
 </script>

@@ -3,8 +3,9 @@
     <div class="mr-2 med--text">{{ formatTime(marker.time) }}</div>
     <div class="text-truncate" style="overflow: hidden">{{ marker.name }}</div>
     <v-spacer></v-spacer>
-    <v-btn text color="accent" class="px-0 mr-2 text-none" @click="$emit('jump')">Jump</v-btn>
+    <v-btn small text color="accent" class="px-0 mr-2 text-none" @click="$emit('jump')">Jump</v-btn>
     <v-btn
+      small
       text
       :color="errorState === 0 ? 'warning' : 'error'"
       @click="errorClick"

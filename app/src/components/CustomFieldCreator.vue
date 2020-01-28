@@ -37,16 +37,18 @@
               item-value="id"
               item-text="text"
             />
-            <!-- <v-select
+            <v-select
+              item-value="id"
+              item-text="text"
               multiple
               color="accent"
-              placeholder="Field target items"
+              placeholder="Field target object"
               :items="createFieldTargets"
               v-model="createFieldTarget"
               persistent-hint
-              hint="Currently only actors are supported, but more will be supported in the future"
+              hint="Objects the field is applicable to"
               :rules="v => !!v.length || 'Required'"
-            />-->
+            />
             <v-text-field
               color="accent"
               placeholder="Unit (e.g. 'inches', optional)"
@@ -126,12 +128,30 @@ export default class CustomFieldCreator extends Vue {
   ];
   createFieldTarget = ["ACTORS"] as string[];
   createFieldTargets = [
-    "SCENES",
-    "ACTORS",
-    "MOVIES",
-    "IMAGES",
-    "STUDIOS",
-    "ALBUMS"
+    {
+      id: "SCENES",
+      text: "Scenes"
+    },
+    {
+      id: "ACTORS",
+      text: "Actors"
+    }
+    /* {
+      id: "MOVIES",
+      text: "Movies"
+    },
+    {
+      id: "IMAGES",
+      text: "Images"
+    },
+    {
+      id: "MOVIES",
+      text: "Movies"
+    },
+    {
+      id: "ALBUMS",
+      text: "Albums"
+    } */
   ];
   createFieldValues = [] as string[];
   createFieldUnit = null as string | null;
@@ -230,6 +250,7 @@ export default class CustomFieldCreator extends Vue {
             type
             values
             unit
+            target
           }
         }
       `

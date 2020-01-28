@@ -5,6 +5,7 @@ import Movie from "../../types/movie";
 import { Dictionary, mapAsync } from "../../types/utility";
 import ProcessingQueue from "../../queue/index";
 import Studio from "../../types/studio";
+import Image from "../../types/image";
 import * as database from "../../database/index";
 import CustomField from "../../types/custom_field";
 import { getImages } from "./search/image";
@@ -80,24 +81,28 @@ export default {
   getScenes,
   getImages,
 
-  async getSceneById(_, args: Dictionary<any>) {
-    return await Scene.getById(args.id);
+  async getImageById(_, { id }: { id: string }) {
+    return await Image.getById(id);
   },
 
-  async getActorById(_, args: Dictionary<any>) {
-    return await Actor.getById(args.id);
+  async getSceneById(_, { id }: { id: string }) {
+    return await Scene.getById(id);
   },
 
-  async getMovieById(_, args: Dictionary<any>) {
-    return await Movie.getById(args.id);
+  async getActorById(_, { id }: { id: string }) {
+    return await Actor.getById(id);
   },
 
-  async getStudioById(_, args: Dictionary<any>) {
-    return await Studio.getById(args.id);
+  async getMovieById(_, { id }: { id: string }) {
+    return await Movie.getById(id);
   },
 
-  async getLabelById(_, args: Dictionary<any>) {
-    return await Label.getById(args.id);
+  async getStudioById(_, { id }: { id: string }) {
+    return await Studio.getById(id);
+  },
+
+  async getLabelById(_, { id }: { id: string }) {
+    return await Label.getById(id);
   },
   async getCustomFields() {
     const fields = await CustomField.getAll();

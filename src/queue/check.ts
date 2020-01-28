@@ -25,7 +25,7 @@ const fileIsExcluded = (exclude: string[], file: string) =>
   exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
 
 export async function checkVideoFolders() {
-  const config = await getConfig();
+  const config = getConfig();
 
   const allFiles = [] as string[];
 
@@ -113,7 +113,7 @@ async function processImage(
 }
 
 export async function checkImageFolders() {
-  const config = await getConfig();
+  const config = getConfig();
 
   logger.log("Checking image folders...");
 
@@ -146,7 +146,7 @@ export async function checkImageFolders() {
 }
 
 export async function checkPreviews() {
-  const config = await getConfig();
+  const config = getConfig();
 
   if (!config.GENERATE_PREVIEWS) {
     logger.warn(

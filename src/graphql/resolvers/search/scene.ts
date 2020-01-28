@@ -37,7 +37,9 @@ export async function getScenes(
 
     if (options.studios && options.studios.length)
       filters.push(doc => {
-        return options.studios.some(id => doc.studio == id);
+        if (!doc.studio) return false;
+        // @ts-ignore
+        return options.studios.some(id => doc.studio._id == id);
       });
 
     if (options.include && options.include.length)

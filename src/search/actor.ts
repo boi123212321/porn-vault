@@ -1,6 +1,9 @@
 import { SearchIndex } from "./engine";
 import Actor from "../types/actor";
 import { tokenizeNames, tokenize } from "./tokenize";
+import Scene from "../types/scene";
+import * as log from "../logger/index";
+import { memorySizeOf } from "../mem";
 
 export interface IActorSearchDoc {
   _id: string;
@@ -13,6 +16,7 @@ export interface IActorSearchDoc {
   favorite: boolean;
   views: number;
   bornOn: number | null;
+  numScenes: number;
 }
 
 export async function createActorSearchDoc(
@@ -34,7 +38,8 @@ export async function createActorSearchDoc(
     bookmark: actor.bookmark,
     favorite: actor.favorite,
     views: (await Actor.getWatches(actor)).length,
-    bornOn: actor.bornOn
+    bornOn: actor.bornOn,
+    numScenes: (await Scene.getByActor(actor._id)).length
   };
 }
 
@@ -51,9 +56,12 @@ export const actorIndex = new SearchIndex(
 
 export async function buildActorIndex() {
   const timeNow = +new Date();
-  console.log("Building actor index...");
+  log.log("Building actor index...");
   for (const actor of await Actor.getAll()) {
     actorIndex.add(await createActorSearchDoc(actor));
   }
-  console.log(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
+  log.message(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
+  log.log(
+    `Index size: ${actorIndex.size()} items, ${memorySizeOf(actorIndex)}`
+  );
 }

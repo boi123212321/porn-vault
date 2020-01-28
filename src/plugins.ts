@@ -19,8 +19,15 @@ export async function runPluginsSerial(
   if (!config.PLUGIN_EVENTS[event]) return result;
 
   for (const pluginName of config.PLUGIN_EVENTS[event]) {
-    const pluginResult = await runPlugin(config, pluginName, inject);
-    Object.assign(result, pluginResult);
+    try {
+      const pluginResult = await runPlugin(config, pluginName, {
+        event,
+        ...inject
+      });
+      Object.assign(result, pluginResult);
+    } catch (error) {
+      logger.error(error);
+    }
   }
   return result;
 }
@@ -45,14 +52,16 @@ export async function runPlugin(
         $cheerio: cheerio,
         $moment: moment,
         $log: debug("porn:plugin"),
-        $ora: ora,
+        $loader: ora,
         $throw: (str: string) => {
           logger.error(str);
           throw new Error(str);
         },
+        $async: {
+          map: mapAsync,
+          filter: filterAsync
+        },
         args: plugin.args,
-        mapAsync,
-        filterAsync,
         ...inject
       });
 

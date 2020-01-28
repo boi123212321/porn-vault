@@ -1,6 +1,7 @@
 <template>
   <div>
     <div v-if="currentActor">
+      <BindTitle :value="currentActor.name" />
       <v-container fluid>
         <v-row>
           <v-col cols="12" sm="4" md="3" lg="2" xl="2">
@@ -775,7 +776,6 @@ export default class ActorDetails extends Vue {
       this.scenes.sort((a, b) => b.addedOn - a.addedOn);
       delete res.data.getActorById.scenes;
       actorModule.setCurrent(res.data.getActorById);
-      document.title = res.data.getActorById.name;
       this.editCustomFields = res.data.getActorById.customFields;
     });
   }

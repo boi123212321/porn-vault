@@ -10,7 +10,7 @@ export async function checkPassword(
 ) {
   if (!req.query.password) return res.sendStatus(400);
 
-  const config = await getConfig();
+  const config = getConfig();
 
   if (
     !config.PASSWORD ||
@@ -28,7 +28,7 @@ export async function passwordHandler(
   res: express.Response,
   next: express.NextFunction
 ) {
-  const config = await getConfig();
+  const config = getConfig();
   if (!config.PASSWORD) return next();
 
   if (

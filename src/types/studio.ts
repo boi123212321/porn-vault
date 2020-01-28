@@ -152,7 +152,11 @@ export default class Studio {
 
   static async getActors(studio: Studio) {
     const scenes = await Studio.getScenes(studio);
-    const actorIds = [...new Set(scenes.map(scene => scene.actors).flat())];
+    const actorIds = [
+      ...new Set(
+        (await mapAsync(scenes, Scene.getActors)).flat().map(a => a._id)
+      )
+    ];
     return (await mapAsync(actorIds, Actor.getById)).filter(Boolean) as Actor[];
   }
 

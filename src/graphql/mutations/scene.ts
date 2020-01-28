@@ -33,6 +33,16 @@ type ISceneUpdateOpts = Partial<{
 }>;
 
 export default {
+  async screenshotScene(_, { id, sec }: { id: string; sec: number }) {
+    const scene = await Scene.getById(id);
+
+    if (scene) {
+      const image = await Scene.screenshot(scene, sec);
+      return image;
+    }
+    return null;
+  },
+
   async unwatchScene(_, { id }: { id: string }) {
     const scene = await Scene.getById(id);
 
@@ -64,7 +74,7 @@ export default {
       if (!labelInDb) throw new Error(`Label ${label} not found`);
     }
 
-    const config = await getConfig();
+    const config = getConfig();
 
     const sceneName = args.name;
     const scene = new Scene(sceneName);
@@ -117,7 +127,7 @@ export default {
     logger.log(`Receiving ${filename}...`);
     const ext = extname(filename);
     const ID = new Scene("")._id;
-    const path = await libraryPath(`scenes/${ID}${ext}`);
+    const path = libraryPath(`scenes/${ID}${ext}`);
 
     /* if (!mimetype.includes("video/")) {
       logger.error(`File has invalid format (${mimetype})`);
@@ -168,7 +178,7 @@ export default {
     _,
     { ids, opts }: { ids: string[]; opts: ISceneUpdateOpts }
   ) {
-    const config = await getConfig();
+    const config = getConfig();
     const updatedScenes = [] as Scene[];
 
     for (const id of ids) {

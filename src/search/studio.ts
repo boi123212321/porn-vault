@@ -1,6 +1,8 @@
 import { SearchIndex } from "./engine";
 import Studio from "../types/studio";
 import { tokenizeNames, tokenize } from "./tokenize";
+import * as log from "../logger/index";
+import { memorySizeOf } from "../mem";
 
 export interface IStudioSearchDoc {
   _id: string;
@@ -47,9 +49,12 @@ export const studioIndex = new SearchIndex(
 
 export async function buildStudioIndex() {
   const timeNow = +new Date();
-  console.log("Building studio index...");
+  log.log("Building studio index...");
   for (const studio of await Studio.getAll()) {
     studioIndex.add(await createStudioSearchDoc(studio));
   }
-  console.log(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
+  log.message(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
+  log.log(
+    `Index size: ${studioIndex.size()} items, ${memorySizeOf(studioIndex)}`
+  );
 }

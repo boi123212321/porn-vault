@@ -1,6 +1,8 @@
 import { SearchIndex } from "./engine";
 import Image from "../types/image";
 import { tokenizeNames, tokenize } from "./tokenize";
+import * as log from "../logger/index";
+import { memorySizeOf } from "../mem";
 
 export interface IImageSearchDoc {
   _id: string;
@@ -55,9 +57,12 @@ export const imageIndex = new SearchIndex(
 
 export async function buildImageIndex() {
   const timeNow = +new Date();
-  console.log("Building image index...");
+  log.log("Building image index...");
   for (const image of await Image.getAll()) {
     imageIndex.add(await createImageSearchDoc(image));
   }
-  console.log(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
+  log.message(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
+  log.log(
+    `Index size: ${imageIndex.size()} items, ${memorySizeOf(imageIndex)}`
+  );
 }

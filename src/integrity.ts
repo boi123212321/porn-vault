@@ -8,7 +8,7 @@ import { getConfig } from "./config/index";
 export async function checkSceneSources() {
   logger.log("Checking scene sources...");
   const scenes = await Scene.getAll();
-  const config = await getConfig();
+  const config = getConfig();
   let removedReferences = 0;
   const removedScenes = [] as string[];
 
@@ -47,7 +47,7 @@ export async function checkSceneSources() {
 export async function checkImageSources() {
   logger.log("Checking image sources...");
   const images = await Image.getAll();
-  const config = await getConfig();
+  const config = getConfig();
   let removedReferences = 0;
   const removedImages = [] as string[];
 

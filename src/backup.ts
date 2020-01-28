@@ -37,7 +37,7 @@ export async function createBackup(amount = 10) {
   try {
     const transfers = await mapAsync(files, async file => {
       return {
-        from: await libraryPath(file),
+        from: libraryPath(file),
         to: join(foldername, file)
       };
     });

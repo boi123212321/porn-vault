@@ -7,18 +7,18 @@
         <div>
           <v-subheader>Scene cards aspect ratio</v-subheader>
           <v-radio-group v-model="sceneRatio">
-            <v-radio :value="1" label="Square"></v-radio>
-            <v-radio :value="16/9" label="16:9"></v-radio>
-            <v-radio :value="4/3" label="4:3"></v-radio>
+            <v-radio color="accent" :value="1" label="Square"></v-radio>
+            <v-radio color="accent" :value="16/9" label="16:9"></v-radio>
+            <v-radio color="accent" :value="4/3" label="4:3"></v-radio>
           </v-radio-group>
         </div>
 
         <div>
           <v-subheader>Actor cards aspect ratio</v-subheader>
           <v-radio-group v-model="actorRatio">
-            <v-radio :value="1" label="Square"></v-radio>
-            <v-radio :value="9/16" label="9:16"></v-radio>
-            <v-radio :value="3/4" label="3:4"></v-radio>
+            <v-radio color="accent" :value="1" label="Square"></v-radio>
+            <v-radio color="accent" :value="9/16" label="9:16"></v-radio>
+            <v-radio color="accent" :value="3/4" label="3:4"></v-radio>
           </v-radio-group>
         </div>
       </v-col>
@@ -34,11 +34,17 @@
         </div>
         <div>
           <v-checkbox
+            color="accent"
             hide-details
             v-model="scenePauseOnUnfocus"
             label="Pause video on window unfocus"
           ></v-checkbox>
-          <v-checkbox hide-details v-model="showCardLabels" label="Show card labels on overview"></v-checkbox>
+          <v-checkbox
+            color="accent"
+            hide-details
+            v-model="showCardLabels"
+            label="Show card labels on overview"
+          ></v-checkbox>
         </div>
       </v-col>
     </v-row>

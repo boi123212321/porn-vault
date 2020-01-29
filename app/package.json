@@ -13,7 +13,7 @@
     "apollo-client": "^2.6.4",
     "apollo-link-context": "^1.0.19",
     "apollo-link-http": "^1.5.16",
-    "apollo-upload-client": "^11.0.0",
+    "apollo-upload-client": "^12.1.0",
     "color": "^3.1.2",
     "core-js": "^3.3.2",
     "dplayer": "^1.25.0",

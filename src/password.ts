@@ -2,7 +2,9 @@ import express from "express";
 import { getConfig } from "./config";
 const sha = require("js-sha512").sha512;
 import * as logger from "./logger/index";
-import pug from "pug";
+import { readFileSync } from "fs";
+
+const SIGN_IN_HTML = readFileSync("./views/signin.html", "utf-8");
 
 export async function checkPassword(
   req: express.Request,
@@ -49,8 +51,10 @@ export async function passwordHandler(
     return next();
   }
 
+  console.log("sending signin");
+
   try {
-    return res.status(401).send(pug.renderFile("./views/signin.pug", {}));
+    return res.status(401).send(SIGN_IN_HTML);
   } catch (err) {
     console.error(err);
     return;

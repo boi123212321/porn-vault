@@ -75,5 +75,6 @@ export default gql`
     ): Boolean!
     updateScenes(ids: [String!]!, opts: SceneUpdateOpts!): [Scene!]!
     removeScenes(ids: [String!]!, deleteImages: Boolean): Boolean!
+    runScenePlugins(ids: [String!]!): [Scene!]!
   }
 `;

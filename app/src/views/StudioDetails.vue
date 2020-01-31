@@ -232,8 +232,7 @@ import LabelSelector from "../components/LabelSelector.vue";
     ActorCard,
     InfiniteLoading,
     StudioCard,
-    LabelSelector,
-    
+    LabelSelector
   },
   beforeRouteLeave(_to, _from, next) {
     studioModule.setCurrent(null);
@@ -498,7 +497,7 @@ export default class StudioDetails extends Vue {
       return `${serverBase}/image/${
         this.currentStudio.thumbnail._id
       }?password=${localStorage.getItem("password")}`;
-    return "";
+    return `${serverBase}/broken`;
   }
 
   @Watch("$route.params.id")

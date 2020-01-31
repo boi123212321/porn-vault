@@ -81,18 +81,20 @@ export async function checkImportFolders() {
     });
   }
 
-  logger.message(`Importing ${newFiles.length} new import files...`);
+  if (newFiles.length) {
+    logger.message(`Importing ${newFiles.length} new import files...`);
 
-  for (const file of newFiles) {
-    logger.log(`Reading import file: ${file}...`);
-    try {
-      await processFile(file);
-      logger.message("Imported " + file);
-      if (args["commit-import"]) appendFileSync(importedFile, file + "\n");
-    } catch (err) {
-      logger.error(`${file}: could not read file.`);
-      logger.error(err.message);
-      process.exit(1);
+    for (const file of newFiles) {
+      logger.log(`Reading import file: ${file}...`);
+      try {
+        await processFile(file);
+        logger.message("Imported " + file);
+        if (args["commit-import"]) appendFileSync(importedFile, file + "\n");
+      } catch (err) {
+        logger.error(`${file}: could not read file.`);
+        logger.error(err.message);
+        process.exit(1);
+      }
     }
   }
 }

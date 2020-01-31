@@ -47,5 +47,6 @@ export default gql`
     addActor(name: String!, aliases: [String!], labels: [String!]): Actor!
     updateActors(ids: [String!]!, opts: ActorUpdateOpts!): [Actor!]!
     removeActors(ids: [String!]!): Boolean!
+    runActorPlugins(ids: [String!]!): [Actor!]!
   }
 `;

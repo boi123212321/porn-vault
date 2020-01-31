@@ -63,6 +63,8 @@ export async function buildActorIndex() {
   }
   loader.succeed(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
   log.log(
-    `Index size: ${actorIndex.size()} items, ${memorySizeOf(actorIndex)}`
+    `Index size: ${actorIndex.size()} items, ${actorIndex.numTokens()} tokens, ${memorySizeOf(
+      actorIndex
+    )}`
   );
 }

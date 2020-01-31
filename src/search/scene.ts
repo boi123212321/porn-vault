@@ -77,6 +77,8 @@ export async function buildSceneIndex() {
   }
   loader.succeed(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
   log.log(
-    `Index size: ${sceneIndex.size()} items, ${memorySizeOf(sceneIndex)}`
+    `Index size: ${sceneIndex.size()} items, ${sceneIndex.numTokens()} tokens, ${memorySizeOf(
+      sceneIndex
+    )}`
   );
 }

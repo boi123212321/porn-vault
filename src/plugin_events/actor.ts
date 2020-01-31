@@ -12,10 +12,14 @@ import { indices } from "../search/index";
 import { createImageSearchDoc } from "../search/image";
 
 // This function has side effects
-export async function onActorCreate(actor: Actor, actorLabels: string[]) {
+export async function onActorCreate(
+  actor: Actor,
+  actorLabels: string[],
+  event = "actorCreated"
+) {
   const config = getConfig();
 
-  const pluginResult = await runPluginsSerial(config, "actorCreated", {
+  const pluginResult = await runPluginsSerial(config, event, {
     actorName: actor.name,
     $createImage: async (url: string, name: string, thumbnail?: boolean) => {
       // if (!isValidUrl(url)) throw new Error(`Invalid URL: ` + url);

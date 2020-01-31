@@ -22,6 +22,28 @@ type IActorUpdateOpts = Partial<{
 }>;
 
 export default {
+  async runActorPlugins(_, { ids }: { ids: string[] }) {
+    const changedActors = [] as Actor[];
+    for (const id of ids) {
+      let actor = await Actor.getById(id);
+
+      if (actor) {
+        const labels = await Actor.getLabels(actor);
+        actor = await onActorCreate(
+          actor,
+          labels.map(l => l._id),
+          "actorCustom"
+        );
+
+        await database.update(database.store.actors, { _id: actor._id }, actor);
+        indices.actors.update(actor._id, await createActorSearchDoc(actor));
+
+        changedActors.push(actor);
+      }
+    }
+    return changedActors;
+  },
+
   async addActor(_, args: Dictionary<any>) {
     let actor = new Actor(args.name, args.aliases);
     const config = getConfig();

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <style>
+      * {
+        font-family: sans-serif;
+      }
+
+      .input {
+        padding-left: 5px;
+        height: 30px;
+        margin-bottom: 10px;
+      }
+
+      .button1 {
+        background-color: #525d85;
+        border-radius: 5px;
+        border: 1px solid #517066;
+        display: inline-block;
+        cursor: pointer;
+        color: #ffffff;
+        font-family: Arial;
+        font-size: 15px;
+        font-weight: bold;
+        padding: 11px 23px;
+        text-decoration: none;
+        text-shadow: 0px -1px 0px #2b665e;
+        margin-top: 10px;
+      }
+      .button1:hover {
+        background-color: #75758a;
+      }
+      .button1:active {
+        position: relative;
+        top: 1px;
+      }
+
+      .title {
+        font-size: 18px;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      .box {
+        margin-top: 40px;
+        display: inline-block;
+        -webkit-box-shadow: 0px 5px 12px 1px rgba(0, 0, 0, 0.25);
+        -moz-box-shadow: 0px 5px 12px 1px rgba(0, 0, 0, 0.25);
+        box-shadow: 0px 5px 12px 1px rgba(0, 0, 0, 0.25);
+        padding: 20px;
+        border-radius: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="center">
+      <div class="box">
+        <p class="title">Sign in</p>
+        <input class="input" id="pass" placeholder="Password" type="password" />
+        <br />
+        <a class="button1" id="send">Sign in</a>
+        <p id="error"></p>
+      </div>
+    </div>
+
+    <script>
+      document.getElementById("error").innerText = "";
+
+      document.getElementById("send").addEventListener("click", () => {
+        const pw = document.getElementById("pass").value;
+
+        fetch("/password?password=" + pw).then(res => {
+          if (res.status != 200) {
+            return (document.getElementById("error").innerText =
+              "Invalid password.");
+          }
+          res.json().then(hash => {
+            localStorage.setItem("password", hash);
+            window.location = window.location + "?password=" + hash;
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

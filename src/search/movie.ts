@@ -70,6 +70,8 @@ export async function buildMovieIndex() {
   }
   loader.succeed(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
   log.log(
-    `Index size: ${movieIndex.size()} items, ${memorySizeOf(movieIndex)}`
+    `Index size: ${movieIndex.size()} items, ${movieIndex.numTokens()} tokens, ${memorySizeOf(
+      movieIndex
+    )}`
   );
 }

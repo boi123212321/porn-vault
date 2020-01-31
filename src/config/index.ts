@@ -98,7 +98,9 @@ export const defaultConfig: IConfig = {
   PLUGINS: {},
   PLUGIN_EVENTS: {
     actorCreated: [],
-    sceneCreated: []
+    sceneCreated: [],
+    actorCustom: [],
+    sceneCustom: []
     // TODO: movieCreated: []
   },
   CREATE_MISSING_ACTORS: false,
@@ -160,11 +162,21 @@ export async function checkConfig() {
 export async function loadConfig() {
   logger.message("Loading config...");
   if (await existsAsync("config.json")) {
-    loadedConfig = JSON.parse(await readFileAsync("config.json", "utf-8"));
+    try {
+      loadedConfig = JSON.parse(await readFileAsync("config.json", "utf-8"));
+    } catch (error) {
+      logger.error(error.message);
+      process.exit(1);
+    }
     configFile = "config.json";
     return true;
   } else if (await existsAsync("config.yaml")) {
-    loadedConfig = YAML.parse(await readFileAsync("config.yaml", "utf-8"));
+    try {
+      loadedConfig = YAML.parse(await readFileAsync("config.yaml", "utf-8"));
+    } catch (error) {
+      logger.error(error.message);
+      process.exit(1);
+    }
     configFile = "config.yaml";
     return true;
   }

@@ -24,6 +24,10 @@ export class SearchIndex<T> {
     this.identifier = identifier;
   }
 
+  numTokens() {
+    return Object.keys(this.tokens).length;
+  }
+
   size() {
     return Object.keys(this.items).length;
   }
@@ -38,8 +42,9 @@ export class SearchIndex<T> {
   }
 
   rebuild() {
+    const items = this.items;
     this.clear();
-    for (const item of Object.values(this.items)) {
+    for (const item of Object.values(items)) {
       this.add(item);
     }
   }

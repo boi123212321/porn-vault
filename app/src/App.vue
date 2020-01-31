@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar style="z-index: 15" clipped-left app :color="appbarColor">
+    <v-app-bar style="z-index: 13" clipped-left app :color="appbarColor">
       <div
         style="overflow: hidden; text-overflow: ellipsis"
         class="d-flex align-center"

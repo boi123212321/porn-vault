@@ -56,6 +56,8 @@ export async function buildStudioIndex() {
   }
   loader.succeed(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
   log.log(
-    `Index size: ${studioIndex.size()} items, ${memorySizeOf(studioIndex)}`
+    `Index size: ${studioIndex.size()} items, ${studioIndex.numTokens()} tokens, ${memorySizeOf(
+      studioIndex
+    )}`
   );
 }

@@ -7,6 +7,7 @@ import { stripStr } from "../../extractor";
 import * as logger from "../../logger/index";
 import { indices } from "../../search/index";
 import { createStudioSearchDoc } from "../../search/studio";
+import { buildSceneIndex } from "../../search/scene";
 
 type IStudioUpdateOpts = Partial<{
   name: string;
@@ -43,6 +44,8 @@ export default {
 
     await database.insert(database.store.studios, studio);
     indices.studios.add(await createStudioSearchDoc(studio));
+    indices.scenes.clear();
+    await buildSceneIndex();
 
     return studio;
   },

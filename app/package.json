@@ -42,8 +42,8 @@
     "@vue/cli-service": "^4.0.0",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
-    "typescript": "~3.5.3",
     "vue-cli-plugin-vuetify": "^2.0.3",
+    "typescript": "~3.7.5",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.4.3"
   }

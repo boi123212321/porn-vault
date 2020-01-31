@@ -16,6 +16,7 @@ import Studio from "../../types/studio";
 import Marker from "../../types/marker";
 import { indices } from "../../search/index";
 import { createSceneSearchDoc } from "../../search/scene";
+import { onSceneCreate } from "../../plugin_events/scene";
 
 type ISceneUpdateOpts = Partial<{
   favorite: boolean;
@@ -33,6 +34,30 @@ type ISceneUpdateOpts = Partial<{
 }>;
 
 export default {
+  async runScenePlugins(_, { ids }: { ids: string[] }) {
+    const changedScenes = [] as Scene[];
+    for (const id of ids) {
+      let scene = await Scene.getById(id);
+
+      if (scene) {
+        const labels = await Scene.getLabels(scene);
+        const actors = await Scene.getActors(scene);
+        scene = await onSceneCreate(
+          scene,
+          labels.map(l => l._id),
+          actors.map(a => a._id),
+          "sceneCustom"
+        );
+
+        await database.update(database.store.scenes, { _id: scene._id }, scene);
+        indices.scenes.update(scene._id, await createSceneSearchDoc(scene));
+
+        changedScenes.push(scene);
+      }
+    }
+    return changedScenes;
+  },
+
   async screenshotScene(_, { id, sec }: { id: string; sec: number }) {
     const scene = await Scene.getById(id);
 

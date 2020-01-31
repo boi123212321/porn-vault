@@ -7,6 +7,7 @@ const sha = require("js-sha512").sha512;
 import * as logger from "./logger/index";
 import v8 from "v8";
 import { isRegExp } from "./types/utility";
+import ffmpeg from "fluent-ffmpeg";
 
 logger.message(
   `Max. memory: ${Math.round(
@@ -83,6 +84,12 @@ logger.message(
     logger.error(`No FFPROBE path defined in config.json`);
     process.exit(1);
   }
+
+  ffmpeg.setFfmpegPath(config.FFMPEG_PATH);
+  ffmpeg.setFfprobePath(config.FFPROBE_PATH);
+
+  logger.message("FFMPEG set to " + config.FFMPEG_PATH);
+  logger.message("FFPROBE set to " + config.FFPROBE_PATH);
 
   startServer();
 })();

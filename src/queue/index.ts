@@ -75,21 +75,6 @@ class Queue {
 
     const config = getConfig();
 
-    logger.log(`Checking binaries...`);
-
-    if (!(await existsAsync(config.FFMPEG_PATH))) {
-      logger.error("FFMPEG not found");
-      throw new Error("FFMPEG not found");
-    }
-
-    if (!(await existsAsync(config.FFPROBE_PATH))) {
-      logger.error("FFPROBE not found");
-      throw new Error("FFPROBE not found");
-    }
-
-    ffmpeg.setFfmpegPath(config.FFMPEG_PATH);
-    ffmpeg.setFfprobePath(config.FFPROBE_PATH);
-
     let scene = new Scene(sceneName);
     scene._id = item._id;
     scene.path = sourcePath;

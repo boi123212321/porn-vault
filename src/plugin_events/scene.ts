@@ -25,11 +25,12 @@ import { createImageSearchDoc } from "../search/image";
 export async function onSceneCreate(
   scene: Scene,
   sceneLabels: string[],
-  sceneActors: string[]
+  sceneActors: string[],
+  event="sceneCreated"
 ) {
   const config = getConfig();
 
-  const pluginResult = await runPluginsSerial(config, "sceneCreated", {
+  const pluginResult = await runPluginsSerial(config, event, {
     sceneName: scene.name,
     scenePath: scene.path,
     $createImage: async (url: string, name: string, thumbnail?: boolean) => {

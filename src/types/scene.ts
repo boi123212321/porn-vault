@@ -416,10 +416,7 @@ export default class Scene {
 
       const img = (await mergeImg(files)) as Jimp;
 
-      const file = path.join(
-        libraryPath("previews/"),
-        `${scene._id}.jpg`
-      );
+      const file = path.join(libraryPath("previews/"), `${scene._id}.jpg`);
 
       logger.log(`Writing to file ${file}...`);
 
@@ -506,8 +503,7 @@ export default class Scene {
       }
 
       const image = new Image(`${scene.name} (thumbnail)`);
-      image.path =
-        path.join(libraryPath("thumbnails/"), image._id) + ".jpg";
+      image.path = path.join(libraryPath("thumbnails/"), image._id) + ".jpg";
       image.scene = scene._id;
 
       logger.log("Generating screenshot for scene...");

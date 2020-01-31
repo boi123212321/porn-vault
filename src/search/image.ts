@@ -64,6 +64,8 @@ export async function buildImageIndex() {
   }
   loader.succeed(`Build done in ${(Date.now() - timeNow) / 1000}s.`);
   log.log(
-    `Index size: ${imageIndex.size()} items, ${memorySizeOf(imageIndex)}`
+    `Index size: ${imageIndex.size()} items, ${imageIndex.numTokens()} tokens, ${memorySizeOf(
+      imageIndex
+    )}`
   );
 }

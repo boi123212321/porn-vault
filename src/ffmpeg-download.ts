@@ -58,41 +58,46 @@ export function getFFProbeURL() {
 }
 
 export async function downloadFile(url: string, file: string) {
-  if (await existsAsync(file)) return;
+  try {
+    if (await existsAsync(file)) return;
 
-  logger.log(`Getting ${url}...`);
+    logger.log(`Getting ${url}...`);
 
-  const downloadBar = new ProgressBar.SingleBar(
-    {},
-    ProgressBar.Presets.shades_classic
-  );
-  downloadBar.start(100, 0);
+    const downloadBar = new ProgressBar.SingleBar(
+      {},
+      ProgressBar.Presets.shades_classic
+    );
+    downloadBar.start(100, 0);
 
-  const response = await axios({
-    url: url,
-    method: "GET",
-    responseType: "stream"
-  });
-
-  const writer = createWriteStream(file);
-
-  const totalSize = response.headers["content-length"];
-  let loaded = 0;
-
-  response.data.on("data", data => {
-    loaded += Buffer.byteLength(data);
-    downloadBar.update(((loaded / totalSize) * 100).toFixed(0));
-  });
-
-  response.data.pipe(writer);
-
-  await new Promise((resolve, reject) => {
-    writer.on("finish", resolve);
-    writer.on("error", () => {
-      logger.error(`Error while downloading ${url}`);
-      process.exit(1);
+    const response = await axios({
+      url: url,
+      method: "GET",
+      responseType: "stream"
     });
-  });
 
-  downloadBar.stop();
+    const writer = createWriteStream(file);
+
+    const totalSize = response.headers["content-length"];
+    let loaded = 0;
+
+    response.data.on("data", data => {
+      loaded += Buffer.byteLength(data);
+      downloadBar.update(((loaded / totalSize) * 100).toFixed(0));
+    });
+
+    response.data.pipe(writer);
+
+    await new Promise((resolve, reject) => {
+      writer.on("finish", resolve);
+      writer.on("error", () => {
+        logger.error(`Error while downloading ${url}`);
+        process.exit(1);
+      });
+    });
+
+    downloadBar.stop();
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
 }

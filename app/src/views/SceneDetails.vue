@@ -4,7 +4,7 @@
       <BindTitle :value="currentScene.name" />
       <div class="d-flex pb-2">
         <div class="text-center pa-2" style="flex-grow: 1">
-          <div class="mx-auto" style="max-width: 1000px" id="dplayer" ref="dplayer"></div>
+          <div class="mx-auto" style="max-width: 1200px" id="dplayer" ref="dplayer"></div>
         </div>
         <v-divider vertical v-if="$vuetify.breakpoint.mdAndUp" />
         <div class="py-2" v-if="$vuetify.breakpoint.mdAndUp" style="width: 400px; max-width: 400px">
@@ -182,6 +182,15 @@
             <div v-if="currentScene.watches.length" class="px-2 d-flex align-center">
               <v-subheader style="min-width: 150px">Last time watched</v-subheader>
               {{ new Date(currentScene.watches[currentScene.watches.length - 1]).toLocaleString() }}
+            </div>
+            <div class="text-center mt-3">
+              <v-btn
+                color="primary"
+                :loading="pluginLoader"
+                text
+                class="text-none"
+                @click="runPlugins"
+              >Run plugins</v-btn>
             </div>
           </div>
         </v-col>
@@ -500,6 +509,44 @@ export default class SceneDetails extends Vue {
 
   editCustomFields = {} as any;
   hasUpdatedFields = false;
+
+  pluginLoader = false;
+
+  runPlugins() {
+    if (!this.currentScene) return;
+
+    this.pluginLoader = true;
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!) {
+          runScenePlugins(ids: $ids) {
+            ...SceneFragment
+            actors {
+              ...ActorFragment
+            }
+            studio {
+              ...StudioFragment
+            }
+          }
+        }
+        ${sceneFragment}
+        ${actorFragment}
+        ${studioFragment}
+      `,
+      variables: {
+        ids: [this.currentScene._id]
+      }
+    })
+      .then(res => {
+        sceneModule.setCurrent(res.data.runScenePlugins[0]);
+      })
+      .catch(err => {
+        console.error(err);
+      })
+      .finally(() => {
+        this.pluginLoader = false;
+      });
+  }
 
   updateCustomFields() {
     if (!this.currentScene) return;
@@ -1000,7 +1047,7 @@ export default class SceneDetails extends Vue {
       return `${serverBase}/image/${
         this.currentScene.thumbnail._id
       }?password=${localStorage.getItem("password")}`;
-    return "";
+    return `${serverBase}/broken`;
   }
 
   get studioLogo() {

@@ -172,6 +172,12 @@ export default class App extends Vue {
       this.$vuetify.theme.dark = darkModeLocalStorage == "true";
     }
 
+    const fillActorCardsLocalStorage = localStorage.getItem("pm_fillActorCards");
+    if (fillActorCardsLocalStorage) {
+      // @ts-ignore
+      contextModule.toggleActorCardStyle(fillActorCardsLocalStorage == "true")
+    }
+
     const sceneRatioLocalStorage = localStorage.getItem("pm_sceneRatio");
     if (sceneRatioLocalStorage) {
       contextModule.setSceneAspectRatio(parseFloat(sceneRatioLocalStorage));

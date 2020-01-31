@@ -9,6 +9,13 @@ class ContextModule extends VuexModule {
   scenePauseOnUnfocus = false;
   showCardLabels = true;
 
+  fillActorCards = true;
+
+  @Mutation
+  toggleActorCardStyle(bool: boolean) {
+    this.fillActorCards = bool;
+  }
+
   @Mutation
   toggleCardLabels(bool: boolean) {
     this.showCardLabels = bool;

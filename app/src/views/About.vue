@@ -38,13 +38,19 @@
             hide-details
             v-model="scenePauseOnUnfocus"
             label="Pause video on window unfocus"
-          ></v-checkbox>
+          />
           <v-checkbox
             color="primary"
             hide-details
             v-model="showCardLabels"
             label="Show card labels on overview"
-          ></v-checkbox>
+          />
+          <v-checkbox
+            color="primary"
+            hide-details
+            label="Fill actor thumbnails"
+            v-model="fillActorCards"
+          />
         </div>
       </v-col>
     </v-row>
@@ -85,6 +91,15 @@ import { contextModule } from "../store/context";
   }
 })
 export default class About extends Vue {
+  set fillActorCards(val: boolean) {
+    localStorage.setItem("pm_fillActorCards", val.toString());
+    contextModule.toggleActorCardStyle(val);
+  }
+
+  get fillActorCards() {
+    return contextModule.fillActorCards;
+  }
+
   set showCardLabels(val: boolean) {
     localStorage.setItem("pm_showCardLabels", val.toString());
     contextModule.toggleCardLabels(val);

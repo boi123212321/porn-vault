@@ -32,6 +32,7 @@ export async function runPluginsSerial(
       });
       Object.assign(result, pluginResult);
     } catch (error) {
+      logger.error(error.message);
       numErrors++;
     }
   }
@@ -69,7 +70,6 @@ export async function runPlugin(
         $log: debug("porn:plugin"),
         $loader: ora,
         $throw: (str: string) => {
-          logger.error(str);
           throw new Error(str);
         },
         $async: {

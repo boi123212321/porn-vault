@@ -112,7 +112,7 @@
               grow
             >
               <v-tab>Metadata</v-tab>
-              <v-tab @click="loadScenes">Scenes</v-tab>
+              <v-tab>Scenes</v-tab>
               <v-tab>Images</v-tab>
             </v-tabs>
             <div class="pa-2" v-if="activeTab == 0">
@@ -132,9 +132,9 @@
               />
             </div>
             <div class="pa-2" v-if="activeTab == 1">
-              <v-row v-if="scenes.length">
+              <v-row>
                 <v-col cols="12">
-                  <h1 class="text-center font-weight-light">{{ scenes.length }} Scenes</h1>
+                  <!-- <h1 class="text-center font-weight-light">{{ scenes.length }} Scenes</h1> -->
 
                   <v-row>
                     <v-col
@@ -150,13 +150,29 @@
                       <scene-card v-model="scenes[i]" style="height: 100%" />
                     </v-col>
                   </v-row>
+
+                  <infinite-loading
+                    v-if="currentActor"
+                    :identifier="sceneInfiniteId"
+                    @infinite="sceneInfiniteHandler"
+                  >
+                    <div slot="no-results">
+                      <v-icon large>mdi-close</v-icon>
+                      <div>Nothing found!</div>
+                    </div>
+
+                    <div class="mt-3" slot="spinner">
+                      <div>Loading...</div>
+                      <v-progress-circular indeterminate></v-progress-circular>
+                    </div>
+
+                    <div slot="no-more">
+                      <v-icon large>mdi-emoticon-wink</v-icon>
+                      <div>That's all!</div>
+                    </div>
+                  </infinite-loading>
                 </v-col>
               </v-row>
-              <div v-else-if="!sceneLoader" class="text-center title">No scenes found :(</div>
-              <div v-else class="mt-3 text-center">
-                <div>Loading...</div>
-                <v-progress-circular indeterminate></v-progress-circular>
-              </div>
             </div>
             <div class="pa-2" v-if="activeTab == 2">
               <div v-if="images.length">
@@ -391,6 +407,9 @@ export default class ActorDetails extends Vue {
   selectedLabels = [] as number[];
   labelEditLoader = false;
 
+  scenePage = 0;
+  sceneInfiniteId = 0;
+
   infiniteId = 0;
   page = 0;
 
@@ -408,6 +427,53 @@ export default class ActorDetails extends Vue {
 
   sceneLoader = false;
   pluginLoader = false;
+
+  sceneInfiniteHandler($state) {
+    this.fetchScenePage().then(items => {
+      if (items.length) {
+        this.scenePage++;
+        this.scenes.push(...items);
+        $state.loaded();
+      } else {
+        $state.complete();
+      }
+    });
+  }
+
+  async fetchScenePage(random = false) {
+    try {
+      if (!this.currentActor) return;
+
+      const query = `query:'' actors:${this.currentActor._id} page:${this.scenePage} sortDir:desc sortBy:addedOn`;
+
+      const result = await ApolloClient.query({
+        query: gql`
+          query($query: String, $random: Boolean) {
+            getScenes(query: $query, random: $random) {
+              ...SceneFragment
+              actors {
+                ...ActorFragment
+              }
+              studio {
+                ...StudioFragment
+              }
+            }
+          }
+          ${sceneFragment}
+          ${actorFragment}
+          ${studioFragment}
+        `,
+        variables: {
+          query,
+          random
+        }
+      });
+
+      return result.data.getScenes;
+    } catch (err) {
+      throw err;
+    }
+  }
 
   runPlugins() {
     if (!this.currentActor) return;
@@ -796,43 +862,6 @@ export default class ActorDetails extends Vue {
     this.scenes = [];
     this.selectedLabels = [];
     this.onLoad();
-  }
-
-  loadScenes() {
-    if (!this.scenes.length) {
-      this.sceneLoader = true;
-      ApolloClient.query({
-        query: gql`
-          query($id: String!) {
-            getActorById(id: $id) {
-              scenes {
-                ...SceneFragment
-                actors {
-                  ...ActorFragment
-                }
-                studio {
-                  ...StudioFragment
-                }
-              }
-            }
-          }
-          ${actorFragment}
-          ${sceneFragment}
-          ${studioFragment}
-        `,
-        variables: {
-          id: (<any>this).$route.params.id
-        }
-      })
-        .then(res => {
-          this.scenes = res.data.getActorById.scenes;
-          this.scenes.sort((a, b) => b.addedOn - a.addedOn);
-          delete res.data.getActorById.scenes;
-        })
-        .finally(() => {
-          this.sceneLoader = false;
-        });
-    }
   }
 
   onLoad() {

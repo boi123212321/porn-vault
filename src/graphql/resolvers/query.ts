@@ -15,6 +15,16 @@ import { getStudios } from "./search/studio";
 import { getMovies } from "./search/movie";
 
 export default {
+  async getScenesWithoutStudios(_, { num }: { num: number }) {
+    const numStudios = await database.count(database.store.studios, {});
+
+    if (numStudios == 0) return [];
+
+    return (await Scene.getAll())
+      .filter(s => s.studio === null)
+      .slice(0, num || 12);
+  },
+
   async getScenesWithoutLabels(_, { num }: { num: number }) {
     return (
       await mapAsync(await Scene.getAll(), async scene => ({

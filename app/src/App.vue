@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar style="z-index: 15" clipped-left app :color="appbarColor">
+    <v-app-bar style="z-index: 13" clipped-left app :color="appbarColor">
       <div
         style="overflow: hidden; text-overflow: ellipsis"
         class="d-flex align-center"
@@ -170,6 +170,12 @@ export default class App extends Vue {
     if (darkModeLocalStorage) {
       // @ts-ignore
       this.$vuetify.theme.dark = darkModeLocalStorage == "true";
+    }
+
+    const fillActorCardsLocalStorage = localStorage.getItem("pm_fillActorCards");
+    if (fillActorCardsLocalStorage) {
+      // @ts-ignore
+      contextModule.toggleActorCardStyle(fillActorCardsLocalStorage == "true")
     }
 
     const sceneRatioLocalStorage = localStorage.getItem("pm_sceneRatio");

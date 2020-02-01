@@ -51,8 +51,6 @@ export async function passwordHandler(
     return next();
   }
 
-  console.log("sending signin");
-
   try {
     return res.status(401).send(SIGN_IN_HTML);
   } catch (err) {

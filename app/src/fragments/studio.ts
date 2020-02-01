@@ -4,6 +4,7 @@ export default gql`
   fragment StudioFragment on Studio {
     _id
     name
+    description
     aliases
     thumbnail {
       _id

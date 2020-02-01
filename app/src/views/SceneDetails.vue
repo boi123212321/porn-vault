@@ -4,7 +4,7 @@
       <BindTitle :value="currentScene.name" />
       <div class="d-flex pb-2">
         <div class="text-center pa-2" style="flex-grow: 1">
-          <div class="mx-auto" style="max-width: 1000px" id="dplayer" ref="dplayer"></div>
+          <div class="mx-auto" style="max-width: 1200px" id="dplayer" ref="dplayer"></div>
         </div>
         <v-divider vertical v-if="$vuetify.breakpoint.mdAndUp" />
         <div class="py-2" v-if="$vuetify.breakpoint.mdAndUp" style="width: 400px; max-width: 400px">

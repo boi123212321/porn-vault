@@ -19,6 +19,7 @@ export default gql`
     getSceneById(id: String!): Scene
     getScenesWithoutActors(num: Int): [Scene!]!
     getScenesWithoutLabels(num: Int): [Scene!]!
+    getScenesWithoutStudios(num: Int): [Scene!]!
   }
 
   type Scene {

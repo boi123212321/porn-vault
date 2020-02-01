@@ -16,9 +16,15 @@ export async function runPluginsSerial(
   inject?: Dictionary<any>
 ) {
   const result = {} as Dictionary<any>;
-  if (!config.PLUGIN_EVENTS[event]) return result;
+  if (!config.PLUGIN_EVENTS[event]) {
+    logger.warn(`No plugins defined for event ${event}.`);
+    return result;
+  }
+
+  let numErrors = 0;
 
   for (const pluginName of config.PLUGIN_EVENTS[event]) {
+    logger.message(`Running plugin ${pluginName}:`);
     try {
       const pluginResult = await runPlugin(config, pluginName, {
         event,
@@ -26,9 +32,19 @@ export async function runPluginsSerial(
       });
       Object.assign(result, pluginResult);
     } catch (error) {
-      logger.error(error);
+      logger.error(error.message);
+      numErrors++;
     }
   }
+  logger.log(`Plugin run over...`);
+  if (!numErrors)
+    logger.success(
+      `Ran successfully ${config.PLUGIN_EVENTS[event].length} plugins.`
+    );
+  else
+    logger.warn(
+      `Ran ${config.PLUGIN_EVENTS[event].length} plugins with ${numErrors} errors.`
+    );
   return result;
 }
 
@@ -54,7 +70,6 @@ export async function runPlugin(
         $log: debug("porn:plugin"),
         $loader: ora,
         $throw: (str: string) => {
-          logger.error(str);
           throw new Error(str);
         },
         $async: {
@@ -70,8 +85,7 @@ export async function runPlugin(
 
       return result || {};
     } catch (error) {
-      logger.error(error);
-      throw new Error("Plugin error");
+      throw new Error(error);
     }
   } else {
     throw new Error(`${pluginName}: path not defined.`);

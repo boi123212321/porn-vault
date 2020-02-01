@@ -42,6 +42,14 @@ export async function getScenes(
         return options.studios.some(id => doc.studio._id == id);
       });
 
+    if (options.actors && options.actors.length)
+      filters.push(doc => {
+        if (!doc.studio) return false;
+        const actorIds = doc.actors.map(a => a._id);
+        // @ts-ignore
+        return options.actors.every(id => actorIds.includes(id));
+      });
+
     if (options.include && options.include.length)
       filters.push(doc => {
         return options.include.every(id =>

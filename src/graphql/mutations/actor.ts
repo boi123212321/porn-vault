@@ -28,6 +28,8 @@ export default {
       let actor = await Actor.getById(id);
 
       if (actor) {
+        logger.message(`Running plugin action event for '${actor.name}'...`);
+
         const labels = await Actor.getLabels(actor);
         actor = await onActorCreate(
           actor,

@@ -56,6 +56,27 @@
             </v-card-text>
           </v-card>
 
+          <v-card v-if="scenesWithoutStudios.length" class="mb-3" style="border-radius: 10px">
+            <v-card-title>
+              <v-icon medium class="mr-2">mdi-account-alert</v-icon>Scenes without studio
+            </v-card-title>
+            <v-card-text>
+              <div
+                class="mb-2 d-flex align-center"
+                v-for="scene in scenesWithoutStudios"
+                :key="scene._id"
+              >
+                <router-link :to="`/scene/${scene._id}`">
+                  <v-avatar color="grey" class="hover mr-2" size="80">
+                    <v-img v-ripple :src="thumbnail(scene)"></v-img>
+                  </v-avatar>
+                </router-link>
+
+                <div class="subtitle-1">{{ scene.name }}</div>
+              </div>
+            </v-card-text>
+          </v-card>
+
           <v-card v-if="scenesWithoutActors.length" class="mb-3" style="border-radius: 10px">
             <v-card-title>
               <v-icon medium class="mr-2">mdi-account-alert</v-icon>Scenes without actors
@@ -142,6 +163,7 @@ export default class Home extends Vue {
 
   actorsWithoutLabels = [] as IActor[];
   scenesWithoutLabels = [] as IScene[];
+  scenesWithoutStudios = [] as IScene[];
 
   thumbnail(actor: IActor | IScene) {
     if (actor.thumbnail)
@@ -190,6 +212,9 @@ export default class Home extends Vue {
           getScenesWithoutLabels(num: 4) {
             ...SceneFragment
           }
+          getScenesWithoutStudios(num: 4) {
+            ...SceneFragment
+          }
         }
         ${sceneFragment}
         ${actorFragment}
@@ -203,6 +228,7 @@ export default class Home extends Vue {
 
         this.actorsWithoutLabels = res.data.getActorsWithoutLabels;
         this.scenesWithoutLabels = res.data.getScenesWithoutLabels;
+        this.scenesWithoutStudios = res.data.getScenesWithoutStudios;
       })
       .catch(err => {
         console.error(err);

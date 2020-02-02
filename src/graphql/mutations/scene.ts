@@ -49,6 +49,14 @@ export default {
           "sceneCustom"
         );
 
+        await Scene.setLabels(
+          scene,
+          labels.map(l => l._id)
+        );
+        await Scene.setActors(
+          scene,
+          actors.map(a => a._id)
+        );
         await database.update(database.store.scenes, { _id: scene._id }, scene);
         indices.scenes.update(scene._id, await createSceneSearchDoc(scene));
 

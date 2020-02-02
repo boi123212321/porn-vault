@@ -37,6 +37,10 @@ export default {
           "actorCustom"
         );
 
+        await Actor.setLabels(
+          actor,
+          labels.map(l => l._id)
+        );
         await database.update(database.store.actors, { _id: actor._id }, actor);
         indices.actors.update(actor._id, await createActorSearchDoc(actor));
 

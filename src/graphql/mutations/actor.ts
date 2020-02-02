@@ -30,17 +30,10 @@ export default {
       if (actor) {
         logger.message(`Running plugin action event for '${actor.name}'...`);
 
-        const labels = await Actor.getLabels(actor);
-        actor = await onActorCreate(
-          actor,
-          labels.map(l => l._id),
-          "actorCustom"
-        );
+        const labels = (await Actor.getLabels(actor)).map(l => l._id);
+        actor = await onActorCreate(actor, labels, "actorCustom");
 
-        await Actor.setLabels(
-          actor,
-          labels.map(l => l._id)
-        );
+        await Actor.setLabels(actor, labels);
         await database.update(database.store.actors, { _id: actor._id }, actor);
         indices.actors.update(actor._id, await createActorSearchDoc(actor));
 
@@ -56,7 +49,6 @@ export default {
 
     let actorLabels = [] as string[];
     if (args.labels) {
-      await Actor.setLabels(actor, args.labels);
       actorLabels = args.labels;
     }
 
@@ -88,6 +80,7 @@ export default {
       logger.error(error.message);
     }
 
+    await Actor.setLabels(actor, actorLabels);
     await database.insert(database.store.actors, actor);
     indices.actors.add(await createActorSearchDoc(actor));
     return actor;

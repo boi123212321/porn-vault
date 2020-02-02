@@ -12,6 +12,7 @@
               :duration="currentScene.meta.duration"
               :markers="markers"
               :preview="currentScene.preview ? imageLink(currentScene.preview) : null"
+              @play="manuallyStarted = true"
             />
           </div>
         </div>
@@ -514,6 +515,7 @@ export default class SceneDetails extends Vue {
   markerName = "" as string | null;
   markerDialog = false;
   autoPaused = false;
+  manuallyStarted = false;
 
   labelSearchQuery = "";
 
@@ -1113,7 +1115,7 @@ export default class SceneDetails extends Vue {
     window.onblur = () => {
       if (
         this.$refs.player &&
-        this.$refs.player.isPaused() &&
+        !this.$refs.player.isPaused() &&
         !document.hasFocus() &&
         contextModule.scenePauseOnUnfocus
       ) {
@@ -1126,9 +1128,10 @@ export default class SceneDetails extends Vue {
     window.onfocus = () => {
       if (
         document.hasFocus() &&
-        // this.dp &&
+        this.$refs.player &&
         contextModule.scenePauseOnUnfocus &&
-        this.autoPaused
+        this.autoPaused &&
+        this.manuallyStarted
       ) {
         this.$refs.player.play();
         this.$refs.player.notice("", 0);
@@ -1148,7 +1151,7 @@ export default class SceneDetails extends Vue {
               this.autoPaused = true;
               this.$refs.player.notice("Auto pause", 4000);
             }
-          } else if (this.autoPaused) {
+          } else if (this.autoPaused && this.manuallyStarted) {
             this.$refs.player.play();
             this.autoPaused = false;
             this.$refs.player.notice("");

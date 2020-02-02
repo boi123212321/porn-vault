@@ -151,14 +151,15 @@ export default class VideoPlayer extends Vue {
     const vid = <HTMLVideoElement>document.getElementById("video");
     if (vid) {
       vid.currentTime = time;
-      if (vid.paused) {
+      /* if (vid.paused) {
         vid.play();
         this.isPlaying = true;
         this.showPoster = false;
         vid.ontimeupdate = ev => {
           this.progress = vid.currentTime;
         };
-      }
+        this.$emit("play");
+      } */
 
       if (text) {
         this.notice(text);
@@ -192,6 +193,7 @@ export default class VideoPlayer extends Vue {
       vid.ontimeupdate = ev => {
         this.progress = vid.currentTime;
       };
+      this.$emit("play");
     }
   }
 

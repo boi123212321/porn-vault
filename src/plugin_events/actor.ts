@@ -1,6 +1,6 @@
 import Actor from "../types/actor";
 import { runPluginsSerial } from "../plugins";
-import { mapAsync, isValidUrl, libraryPath } from "../types/utility";
+import { libraryPath } from "../types/utility";
 import { extractLabels, extractFields } from "../extractor";
 import { getConfig } from "../config";
 import { extname } from "path";

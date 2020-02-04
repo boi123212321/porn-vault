@@ -1,6 +1,6 @@
 import "./database";
 import startServer from "./server";
-import { checkConfig, getConfig } from "./config/index";
+import { checkConfig, getConfig, IConfig } from "./config/index";
 import inquirer from "inquirer";
 import { existsAsync } from "./fs/async";
 const sha = require("js-sha512").sha512;
@@ -8,6 +8,7 @@ import * as logger from "./logger/index";
 import v8 from "v8";
 import { isRegExp } from "./types/utility";
 import ffmpeg from "fluent-ffmpeg";
+import { existsSync, lstatSync } from "fs";
 
 logger.message(
   `Max. memory: ${Math.round(
@@ -15,11 +16,49 @@ logger.message(
   )} MB`
 );
 
+const isDirectory = (path: string) => lstatSync(path).isDirectory();
+
+function validatePlugins(config: IConfig) {
+  for (const name in config.PLUGINS) {
+    const plugin = config.PLUGINS[name];
+    const path = plugin.path;
+
+    if (!path) {
+      logger.error(`missing plugin path for '${name}'.`);
+      process.exit(1);
+    }
+
+    if (!existsSync(path) || isDirectory(path)) {
+      logger.error(`plugin definition for '${name}' not found (missing file).`);
+      process.exit(1);
+    }
+  }
+
+  for (const event of Object.values(config.PLUGIN_EVENTS)) {
+    for (const pluginName of event) {
+      if (config.PLUGINS[pluginName] === undefined) {
+        logger.error(`Undefined plugin '${pluginName}' in use`);
+        process.exit(1);
+      }
+    }
+  }
+
+  for (const pluginName of Object.keys(config.PLUGINS)) {
+    let pluginUsed = false;
+    for (const event of Object.values(config.PLUGIN_EVENTS)) {
+      if (event.some(name => name == pluginName)) pluginUsed = true;
+    }
+    if (!pluginUsed) logger.warn(`Unused plugin '${pluginName}'`);
+  }
+}
+
 (async () => {
   await checkConfig();
   const config = getConfig();
 
   // TODO: validate config
+
+  validatePlugins(config);
 
   if (config.EXCLUDE_FILES && config.EXCLUDE_FILES.length) {
     for (const regStr of config.EXCLUDE_FILES) {
@@ -33,20 +72,6 @@ logger.message(
   logger.message("Registered plugins", Object.keys(config.PLUGINS));
 
   logger.log(config);
-
-  for (const name in config.PLUGINS) {
-    const plugin = config.PLUGINS[name];
-    const path = plugin.path;
-
-    if (!path) {
-      logger.error(`${name}: missing plugin path.`);
-      process.exit(1);
-    }
-    if (!(await existsAsync(path))) {
-      logger.error(`${name}: plugin definition not found (missing file).`);
-      process.exit(1);
-    }
-  }
 
   if (config.PASSWORD && process.env.NODE_ENV != "development") {
     let password;

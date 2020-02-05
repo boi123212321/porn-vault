@@ -41,12 +41,21 @@
               </v-btn>
               <v-btn
                 light
-                class="elevation-2"
+                class="elevation-2 mr-1"
                 @click.stop.prevent="bookmark"
                 icon
                 style="background: #fafafa;"
               >
                 <v-icon>{{ value.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+              </v-btn>
+              <v-btn
+                light
+                class="elevation-2"
+                @click.stop.prevent="watch(sceneURL)"
+                icon
+                style="background: #fafafa;"
+              >
+                <v-icon>mdi-play</v-icon>
               </v-btn>
             </div>
           </v-img>
@@ -126,6 +135,17 @@ export default class SceneCard extends Mixins(SceneMixin) {
 
   playIndex = 0;
   playInterval = null as NodeJS.Timeout | null;
+
+  watch(url: string) {
+    var win = window.open(url, "_blank");
+    if (win) win.focus();
+  }
+
+  get sceneURL() {
+    return `${serverBase}/scene/${
+      this.value._id
+    }?password=${localStorage.getItem("password")}`;
+  }
 
   get complementary() {
     if (this.cardColor)

@@ -77,7 +77,11 @@ export class SearchIndex<T> {
   async search(search: ISearchOptions<T>) {
     const scores = {} as { [key: string]: number };
 
+    logger.search(`Searching for '${search.query}'`);
+
     const tokenizedQuery = tokenize(search.query);
+
+    logger.search(`Tokenized query`);
 
     let foundDocs = [] as { id: string; score: number }[];
 
@@ -101,17 +105,21 @@ export class SearchIndex<T> {
           });
       }
     } else {
+      logger.search(`No query: getting all items`);
       foundDocs = Object.keys(this.items).map(id => ({
         id,
         score: 1
       }));
     }
 
+    logger.search(`Found ${foundDocs.length} candidates`);
+
     if (search.filters && search.filters.length) {
       const filterFuncs = search.filters;
       foundDocs = foundDocs.filter(
         d => this.items[d.id] && filterFuncs.every(f => f(this.items[d.id]))
       );
+      logger.search(`Applied ${search.filters.length} filters`);
     }
 
     if (search.random) {
@@ -124,6 +132,8 @@ export class SearchIndex<T> {
     } // Sort by relevance
     else foundDocs.sort((a, b) => b.score - a.score);
 
+    logger.search(`Sorted result`);
+
     if (search.skip !== undefined || search.take) {
       const skip = search.skip && search.skip >= 0 ? search.skip : 0;
       const take = search.take && search.take > 0 ? search.take : 1;
@@ -134,9 +144,11 @@ export class SearchIndex<T> {
         page.push(doc);
       }
 
+      logger.search(`Got page: ${page.length} items`);
       return page;
     }
 
+    logger.search(`Returning all ${foundDocs.length} found items`);
     return foundDocs;
   }
 }

@@ -37,7 +37,7 @@
     "@vue/cli-plugin-router": "^4.0.0",
     "@vue/cli-plugin-typescript": "^4.1.2",
     "@vue/cli-plugin-vuex": "^4.0.0",
-    "@vue/cli-service": "^4.0.0",
+    "@vue/cli-service": "^4.2.2",
     "sass": "^1.19.0",
     "sass-loader": "^8.0.2",
     "vue-cli-plugin-vuetify": "^2.0.3",

@@ -83,7 +83,7 @@
     <v-container fluid>
       <v-row v-if="!waiting">
         <v-col
-          class="pa-1"
+          class="pa-0"
           v-for="(image, index) in images"
           :key="image._id"
           :cols="largeThumbs ? 12 : 6"
@@ -92,7 +92,13 @@
           :lg="largeThumbs ? 6 : 3"
           :xl="largeThumbs ? 6 : 2"
         >
-          <ImageCard width="100%" height="100%" @open="lightboxIndex = index" :image="image">
+          <ImageCard
+            :class="selectedImages.length && !selectedImages.includes(image._id) ? 'not-selected': ''"
+            width="100%"
+            height="100%"
+            @open="lightboxIndex = index"
+            :image="image"
+          >
             <template v-slot:action>
               <v-checkbox
                 color="primary"
@@ -468,3 +474,10 @@ export default class ImagesView extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.not-selected {
+  transition: all 0.15s ease-in-out;
+  filter: brightness(0.6);
+}
+</style>

@@ -24,7 +24,7 @@
             >{{ videoDuration }}</div>
 
             <div class="corner-slot" style="z-index: 6">
-              <slot name="action"></slot>
+              <slot name="action" :hover="hover"></slot>
             </div>
 
             <div class="corner-actions" style="z-index: 6">

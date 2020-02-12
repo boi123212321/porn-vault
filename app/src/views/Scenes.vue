@@ -115,17 +115,25 @@
           lg="3"
           xl="2"
         >
-          <scene-card :showLabels="showCardLabels" v-model="scenes[i]" style="height: 100%">
-            <template v-slot:action>
-              <v-checkbox
-                color="primary"
-                :input-value="selectedScenes.includes(scene._id)"
-                @change="selectScene(scene._id)"
-                @click.native.stop.prevent
-                class="mt-0"
-                hide-details
-                :contain="true"
-              ></v-checkbox>
+          <scene-card
+            :class="selectedScenes.length && !selectedScenes.includes(scene._id) ? 'not-selected' : ''"
+            :showLabels="showCardLabels"
+            v-model="scenes[i]"
+            style="height: 100%"
+          >
+            <template v-slot:action="{ hover }">
+              <v-fade-transition>
+                <v-checkbox
+                  v-if="hover || selectedScenes.includes(scene._id)"
+                  color="primary"
+                  :input-value="selectedScenes.includes(scene._id)"
+                  @change="selectScene(scene._id)"
+                  @click.native.stop.prevent
+                  class="mt-0"
+                  hide-details
+                  :contain="true"
+                ></v-checkbox>
+              </v-fade-transition>
             </template>
           </scene-card>
         </v-col>
@@ -713,3 +721,10 @@ export default class SceneList extends Vue {
   }
 }
 </script>
+
+<style lang="scss">
+.not-selected {
+  transition: all 0.15s ease-in-out;
+  filter: brightness(0.6);
+}
+</style>

@@ -69,9 +69,12 @@
     </div>
 
     <script>
-      document.getElementById("error").innerText = "";
+      document.getElementById("pass").addEventListener("keydown", () => {
+        if (event.keyCode == 13) tryLogin();
+      });
 
-      document.getElementById("send").addEventListener("click", () => {
+      function tryLogin() {
+        document.getElementById("error").innerText = "";
         const pw = document.getElementById("pass").value;
 
         fetch("/password?password=" + pw).then(res => {
@@ -84,7 +87,9 @@
             window.location = window.location + "?password=" + hash;
           });
         });
-      });
+      }
+
+      document.getElementById("send").addEventListener("click", tryLogin);
     </script>
   </body>
 </html>

@@ -66,7 +66,7 @@ export async function getActors(_, { query }: { query: string | undefined }) {
 
     const actors = await Promise.all(result.map(i => Actor.getById(i.id)));
     logger.log(`Search done in ${(Date.now() - timeNow) / 1000}s.`);
-    return actors;
+    return actors.filter(Boolean);
   } catch (error) {
     logger.error(error);
   }

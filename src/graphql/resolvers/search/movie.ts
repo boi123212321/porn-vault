@@ -59,5 +59,5 @@ export async function getMovies(_, { query }: { query: string | undefined }) {
 
   const movies = await Promise.all(result.map(i => Movie.getById(i.id)));
   logger.log(`Search done in ${(Date.now() - timeNow) / 1000}s.`);
-  return movies;
+  return movies.filter(Boolean);
 }

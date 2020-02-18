@@ -56,7 +56,7 @@ export async function getStudios(_, { query }: { query: string | undefined }) {
 
     const studios = await Promise.all(result.map(i => Studio.getById(i.id)));
     logger.log(`Search done in ${(Date.now() - timeNow) / 1000}s.`);
-    return studios;
+    return studios.filter(Boolean);
   } catch (error) {
     logger.error(error);
   }

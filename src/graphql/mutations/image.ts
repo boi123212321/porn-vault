@@ -26,7 +26,14 @@ type IImageUpdateOpts = Partial<{
   studio: string | null;
   scene: string | null;
   customFields: Dictionary<string[] | boolean | string | null>;
+  color: string | null;
 }>;
+
+const COLOR_HEX_STRING = /^#[a-f0-9]{6}$/;
+
+function isHexColorString(str: string) {
+  return COLOR_HEX_STRING.test(str);
+}
 
 export default {
   async uploadImage(_, args: Dictionary<any>) {
@@ -231,6 +238,9 @@ export default {
         if (opts.studio !== undefined) image.studio = opts.studio;
 
         if (opts.scene !== undefined) image.scene = opts.scene;
+
+        if (opts.color && isHexColorString(opts.color))
+          image.color = opts.color;
 
         if (opts.customFields) {
           for (const key in opts.customFields) {

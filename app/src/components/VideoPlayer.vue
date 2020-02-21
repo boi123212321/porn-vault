@@ -168,7 +168,7 @@ export default class VideoPlayer extends Vue {
     if (vid) {
       vid.currentTime = time;
 
-      if (play && vid.paused) vid.play();
+      if (play) this.play();
 
       if (text) {
         this.notice(text);

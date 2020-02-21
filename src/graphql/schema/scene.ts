@@ -65,7 +65,7 @@ export default gql`
 
   extend type Mutation {
     addScene(name: String!, actors: [String!], labels: [String!]): Scene!
-    screenshotScene(id: String!, sec: Int!): Image
+    screenshotScene(id: String!, sec: Float!): Image
     watchScene(id: String!): Scene!
     unwatchScene(id: String!): Scene!
     uploadScene(

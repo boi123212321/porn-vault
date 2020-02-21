@@ -624,7 +624,7 @@ export default class SceneDetails extends Vue {
 
     ApolloClient.mutate({
       mutation: gql`
-        mutation($id: String!, $sec: Int!) {
+        mutation($id: String!, $sec: Float!) {
           screenshotScene(id: $id, sec: $sec) {
             _id
           }
@@ -633,10 +633,12 @@ export default class SceneDetails extends Vue {
       variables: {
         // @ts-ignore
         id: this.currentScene._id,
-        sec: Math.floor(this.$refs.player.currentProgress())
+        sec: this.$refs.player.currentProgress()
       }
     })
-      .then(res => {})
+      .then(res => {
+        sceneModule.setThumbnail(res.data.screenshotScene._id);
+      })
       .finally(() => {
         this.screenshotLoader = false;
       });

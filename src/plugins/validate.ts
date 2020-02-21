@@ -28,9 +28,11 @@ export function validatePlugins(config: IConfig) {
       process.exit(1);
     }
 
-    if (plugin.args === null || typeof plugin.args != "object") {
-      logger.error(`Invalid arguments for ${name}.`);
-      process.exit(1);
+    if (plugin.args) {
+      if (plugin.args === null || typeof plugin.args != "object") {
+        logger.error(`Invalid arguments for ${name}.`);
+        process.exit(1);
+      }
     }
   }
 

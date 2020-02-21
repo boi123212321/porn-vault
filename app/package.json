@@ -26,7 +26,7 @@
     "vue-property-decorator": "^8.4.0",
     "vue-router": "^3.1.5",
     "vue-the-mask": "^0.11.1",
-    "vuetify": "^2.2.8",
+    "vuetify": "^2.2.14",
     "vuex": "^3.0.1",
     "vuex-class-modules": "^1.1.2"
   },

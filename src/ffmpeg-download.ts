@@ -1,5 +1,5 @@
 import * as os from "os";
-const ProgressBar = require("cli-progress");
+import ProgressBar from "cli-progress";
 import axios from "axios";
 import { createWriteStream } from "fs";
 import * as logger from "./logger";
@@ -61,11 +61,11 @@ export async function downloadFile(url: string, file: string) {
   try {
     if (await existsAsync(file)) return;
 
-    logger.log(`Getting ${url}...`);
+    logger.message(`Downloading ${url}...`);
 
     const downloadBar = new ProgressBar.SingleBar(
       {},
-      ProgressBar.Presets.shades_classic
+      ProgressBar.Presets.legacy
     );
     downloadBar.start(100, 0);
 
@@ -82,7 +82,8 @@ export async function downloadFile(url: string, file: string) {
 
     response.data.on("data", data => {
       loaded += Buffer.byteLength(data);
-      downloadBar.update(((loaded / totalSize) * 100).toFixed(0));
+      const percent = ((loaded / totalSize) * 100).toFixed(0);
+      downloadBar.update(+percent);
     });
 
     response.data.pipe(writer);

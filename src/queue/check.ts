@@ -33,17 +33,24 @@ export async function checkVideoFolders() {
     logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
 
   for (const folder of config.VIDEO_PATHS) {
+    logger.message(`Scanning ${folder} for videos...`);
+    let numFiles = 0;
+    const loader = ora(`Scanned ${numFiles} videos`).start();
+
     await walk(folder, [".mp4"], async path => {
+      loader.text = `Scanned ${++numFiles} videos`;
       if (
         basename(path).startsWith(".") ||
         fileIsExcluded(config.EXCLUDE_FILES, path)
       ) {
         logger.log(`Ignoring file ${path}`);
-        return;
+      } else {
+        logger.log(`Found matching file ${path}`);
+        allFiles.push(path);
       }
-      logger.log(`Found matching file ${path}`);
-      allFiles.push(path);
     });
+
+    loader.succeed(`${folder} done`);
   }
 
   const unknownVideos = await filterAsync(allFiles, async (path: string) => {
@@ -130,7 +137,12 @@ export async function checkImageFolders() {
     logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
 
   for (const folder of config.IMAGE_PATHS) {
+    logger.message(`Scanning ${folder} for images...`);
+    let numFiles = 0;
+    const loader = ora(`Scanned ${numFiles} images`).start();
+
     await walk(folder, [".jpg", ".jpeg", ".png"], async path => {
+      loader.text = `Scanned ${++numFiles} images`;
       if (
         basename(path).startsWith(".") ||
         fileIsExcluded(config.EXCLUDE_FILES, path)
@@ -140,11 +152,13 @@ export async function checkImageFolders() {
       if (!(await imageWithPathExists(path))) {
         await processImage(path, config.READ_IMAGES_ON_IMPORT, config);
         numAddedImages++;
-        logger.message(`Added image '${path}'.`);
+        logger.log(`Added image '${path}'.`);
       } else {
         logger.log(`Image '${path}' already exists`);
       }
     });
+
+    loader.succeed(`${folder} done`);
   }
 
   logger.warn(`Added ${numAddedImages} new images`);

@@ -168,6 +168,8 @@ import imageFragment from "../fragments/image";
 import ImageUploader from "../components/ImageUploader.vue";
 import IImage from "../types/image";
 import ILabel from "../types/label";
+import DrawerMixin from "../mixins/drawer";
+import { mixins } from "vue-class-component";
 
 @Component({
   components: {
@@ -178,7 +180,7 @@ import ILabel from "../types/label";
     ImageUploader
   }
 })
-export default class ImagesView extends Vue {
+export default class ImagesView extends mixins(DrawerMixin) {
   images = [] as IImage[];
   lightboxIndex = null as number | null;
 
@@ -303,14 +305,6 @@ export default class ImagesView extends Vue {
 
   openUploadDialog() {
     this.uploadDialog = true;
-  }
-
-  get drawer() {
-    return contextModule.showFilters;
-  }
-
-  set drawer(val: boolean) {
-    contextModule.toggleFilters(val);
   }
 
   @Watch("ratingFilter", {})

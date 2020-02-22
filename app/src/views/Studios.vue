@@ -141,6 +141,8 @@ import InfiniteLoading from "vue-infinite-loading";
 import ILabel from "../types/label";
 import studioFragment from "../fragments/studio";
 import StudioCard from "../components/StudioCard.vue";
+import { mixins } from "vue-class-component";
+import DrawerMixin from "../mixins/drawer";
 
 @Component({
   components: {
@@ -148,7 +150,7 @@ import StudioCard from "../components/StudioCard.vue";
     StudioCard
   }
 })
-export default class StudioList extends Vue {
+export default class StudioList extends mixins(DrawerMixin) {
   studios = [] as any[];
   fetchLoader = false;
 
@@ -240,14 +242,6 @@ export default class StudioList extends Vue {
 
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
-
-  get drawer() {
-    return contextModule.showFilters;
-  }
-
-  set drawer(val: boolean) {
-    contextModule.toggleFilters(val);
-  }
 
   labelIDs(indices: number[]) {
     return indices.map(i => this.allLabels[i]).map(l => l._id);

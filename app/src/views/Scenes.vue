@@ -241,6 +241,8 @@ import IScene from "../types/scene";
 import IActor from "../types/actor";
 import ILabel from "../types/label";
 import moment from "moment";
+import DrawerMixin from "../mixins/drawer";
+import { mixins } from "vue-class-component";
 
 @Component({
   components: {
@@ -251,7 +253,7 @@ import moment from "moment";
     SceneUploader
   }
 })
-export default class SceneList extends Vue {
+export default class SceneList extends mixins(DrawerMixin) {
   scenes = [] as IScene[];
   fetchLoader = false;
 
@@ -425,14 +427,6 @@ export default class SceneList extends Vue {
 
   openUploadDialog() {
     this.uploadDialog = true;
-  }
-
-  get drawer() {
-    return contextModule.showFilters;
-  }
-
-  set drawer(val: boolean) {
-    contextModule.toggleFilters(val);
   }
 
   labelIDs(indices: number[]) {

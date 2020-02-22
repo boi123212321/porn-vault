@@ -214,6 +214,8 @@ import { contextModule } from "../store/context";
 import InfiniteLoading from "vue-infinite-loading";
 import IActor from "../types/actor";
 import ILabel from "../types/label";
+import DrawerMixin from "../mixins/drawer";
+import { mixins } from "vue-class-component";
 
 @Component({
   components: {
@@ -222,7 +224,7 @@ import ILabel from "../types/label";
     InfiniteLoading
   }
 })
-export default class SceneList extends Vue {
+export default class SceneList extends mixins(DrawerMixin) {
   actors = [] as IActor[];
   fetchLoader = false;
 
@@ -323,14 +325,6 @@ export default class SceneList extends Vue {
 
   infiniteId = 0;
   resetTimeout = null as NodeJS.Timeout | null;
-
-  get drawer() {
-    return contextModule.showFilters;
-  }
-
-  set drawer(val: boolean) {
-    contextModule.toggleFilters(val);
-  }
 
   createActorWithName(name: string) {
     return new Promise((resolve, reject) => {

@@ -181,6 +181,8 @@ import ILabel from "../types/label";
 import MovieCard from "../components/MovieCard.vue";
 import IMovie from "../types/movie";
 import movieFragment from "../fragments/movie";
+import DrawerMixin from "../mixins/drawer";
+import { mixins } from "vue-class-component";
 
 @Component({
   components: {
@@ -189,7 +191,7 @@ import movieFragment from "../fragments/movie";
     MovieCard
   }
 })
-export default class MovieList extends Vue {
+export default class MovieList extends mixins(DrawerMixin) {
   movies = [] as IMovie[];
   fetchLoader = false;
 
@@ -292,14 +294,6 @@ export default class MovieList extends Vue {
   onRatioChange(newVal: boolean) {
     localStorage.setItem("pm_movieDVDRatio", "" + newVal);
   } */
-
-  get drawer() {
-    return contextModule.showFilters;
-  }
-
-  set drawer(val: boolean) {
-    contextModule.toggleFilters(val);
-  }
 
   openCreateDialog() {
     this.createMovieDialog = true;

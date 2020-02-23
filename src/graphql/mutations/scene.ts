@@ -310,10 +310,12 @@ export default {
             await database.remove(database.store.crossReferences, {
               to: image._id
             });
-            await Marker.removeByScene(scene);
           }
           logger.success("Deleted images of scene " + scene._id);
         }
+
+        await Marker.removeByScene(scene);
+
         logger.success("Deleted scene " + scene._id);
 
         await database.remove(database.store.crossReferences, {

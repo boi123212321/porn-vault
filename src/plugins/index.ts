@@ -9,6 +9,7 @@ import { Dictionary } from "../types/utility";
 import * as logger from "../logger";
 import moment from "moment";
 import { mapAsync, filterAsync } from "../types/utility";
+import ffmpeg from "fluent-ffmpeg";
 
 export async function runPluginsSerial(
   config: IConfig,
@@ -68,6 +69,7 @@ export async function runPlugin(
 
     try {
       const result = await func({
+        $ffmpeg: ffmpeg,
         $axios: axios,
         $cheerio: cheerio,
         $moment: moment,

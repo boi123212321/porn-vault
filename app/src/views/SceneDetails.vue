@@ -1156,6 +1156,7 @@ export default class SceneDetails extends Vue {
   destroyed() {
     hotkeys.unbind("b");
     hotkeys.unbind("n");
+    hotkeys.unbind("*");
   }
 
   mounted() {

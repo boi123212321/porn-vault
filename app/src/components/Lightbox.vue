@@ -209,6 +209,7 @@ import IActor from "../types/actor";
 import SceneSelector from "../components/SceneSelector.vue";
 import IScene from "../types/scene";
 import { Touch } from "vuetify/lib/directives";
+import hotkeys from "hotkeys-js";
 
 @Component({
   components: {
@@ -240,8 +241,12 @@ export default class Lightbox extends Vue {
 
   labelSearchQuery = "";
 
+  destroyed() {
+    hotkeys.unbind("*");
+  }
+
   mounted() {
-    window.addEventListener("keydown", ev => {
+    hotkeys("*", ev => {
       if (this.index === null) return;
 
       if (ev.keyCode === 27) {
@@ -250,7 +255,7 @@ export default class Lightbox extends Vue {
         this.decrementIndex();
       } else if (ev.keyCode === 39 || ev.keyCode === 68) {
         this.incrementIndex();
-      } else if (ev.keyCode === 70) {
+      } /*else if (ev.keyCode === 70) {
         this.favorite();
       } else if (ev.keyCode === 66) {
         this.bookmark();
@@ -260,7 +265,7 @@ export default class Lightbox extends Vue {
       } else if (ev.keyCode >= 96 && ev.keyCode <= 101) {
         const rating = ev.keyCode - 96;
         this.rate(rating);
-      }
+      }*/
     });
   }
 

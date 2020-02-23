@@ -41,11 +41,15 @@ export async function onActorCreate(
 
   if (
     typeof pluginResult.thumbnail == "string" &&
-    pluginResult.thumbnail.startsWith("im_")
+    pluginResult.thumbnail.startsWith("im_") &&
+    !actor.thumbnail
   )
     actor.thumbnail = pluginResult.thumbnail;
 
   if (typeof pluginResult.name === "string") actor.name = pluginResult.name;
+
+  if (typeof pluginResult.description === "string")
+    actor.description = pluginResult.description;
 
   if (typeof pluginResult.bornOn === "number")
     actor.bornOn = new Date(pluginResult.bornOn).valueOf();

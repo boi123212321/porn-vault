@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/boi123212321/porn-manager#readme",
   "dependencies": {
-    "apollo-server-express": "^2.9.8",
+    "apollo-server-express": "^2.10.1",
     "axios": "^0.19.1",
     "checksum": "^0.1.1",
     "cheerio": "^1.0.0-rc.3",
@@ -42,7 +42,7 @@
     "debug": "^4.1.1",
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
-    "graphql-tools": "^4.0.6",
+    "graphql-tools": "^4.0.7",
     "graphql-type-json": "^0.3.1",
     "graphql-type-long": "^0.1.1",
     "handlebars": "^4.7.3",
@@ -72,7 +72,7 @@
     "@types/inquirer": "^6.5.0",
     "@types/mkdirp": "^0.5.2",
     "@types/nedb": "^1.8.9",
-    "@types/node": "^13.7.1",
+    "@types/node": "^13.7.4",
     "@types/pug": "^2.0.4",
     "@types/rimraf": "^2.0.3",
     "@types/tiny-async-pool": "^1.0.0",
@@ -81,7 +81,7 @@
     "nodemon": "^2.0.2",
     "pkg": "^4.4.0",
     "ts-node": "^8.6.2",
-    "typescript": "^3.7.5"
+    "typescript": "^3.8.2"
   },
   "nodemonConfig": {
     "ignore": [

@@ -36,10 +36,39 @@ export function validatePlugins(config: IConfig) {
     }
   }
 
-  for (const event of Object.values(config.PLUGIN_EVENTS)) {
-    for (const pluginName of event) {
-      if (config.PLUGINS[pluginName] === undefined) {
-        logger.error(`Undefined plugin '${pluginName}' in use.`);
+  for (const eventName in config.PLUGIN_EVENTS) {
+    const event = config.PLUGIN_EVENTS[eventName];
+    for (const pluginItem of event) {
+      if (typeof pluginItem == "string") {
+        const pluginName = pluginItem;
+        if (config.PLUGINS[pluginName] === undefined) {
+          logger.error(
+            `Undefined plugin '${pluginName}' in use in event '${eventName}'.`
+          );
+          process.exit(1);
+        }
+      } else if (Array.isArray(pluginItem) && pluginItem.length == 2) {
+        const pluginName = pluginItem[0];
+        const pluginArgs = pluginItem[1];
+
+        if (config.PLUGINS[pluginName] === undefined) {
+          logger.error(
+            `Undefined plugin '${pluginName}' in use in event '${eventName}'.`
+          );
+          process.exit(1);
+        }
+
+        if (!pluginArgs) {
+          logger.error(`Invalid arguments for '${pluginName}'.`);
+          process.exit(1);
+        }
+
+        if (typeof pluginArgs != "object") {
+          logger.error(`Invalid arguments for '${pluginName}'.`);
+          process.exit(1);
+        }
+      } else {
+        logger.error(`Invalid plugin use in event '${eventName}'`);
         process.exit(1);
       }
     }

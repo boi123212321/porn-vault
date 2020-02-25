@@ -2,13 +2,14 @@ import { IConfig } from "../config/index";
 import { readFileAsync, existsAsync } from "../fs/async";
 import axios from "axios";
 import cheerio from "cheerio";
-import { resolve } from "path";
 import debug from "debug";
 import ora from "ora";
 import { Dictionary } from "../types/utility";
 import * as logger from "../logger";
 import moment from "moment";
 import { mapAsync, filterAsync } from "../types/utility";
+import * as fs from "fs";
+import * as nodepath from "path";
 import ffmpeg from "fluent-ffmpeg";
 
 export async function runPluginsSerial(
@@ -24,12 +25,22 @@ export async function runPluginsSerial(
 
   let numErrors = 0;
 
-  for (const pluginName of config.PLUGIN_EVENTS[event]) {
+  for (const pluginItem of config.PLUGIN_EVENTS[event]) {
+    let pluginName;
+    let pluginArgs;
+
+    if (typeof pluginItem == "string") pluginName = pluginItem;
+    else {
+      pluginName = pluginItem[0];
+      pluginArgs = pluginItem[1];
+    }
+
     logger.message(`Running plugin ${pluginName}:`);
     try {
       const pluginResult = await runPlugin(config, pluginName, {
         event,
-        ...inject
+        ...inject,
+        pluginArgs
       });
       Object.assign(result, pluginResult);
     } catch (error) {
@@ -53,10 +64,14 @@ export async function runPluginsSerial(
 export async function runPlugin(
   config: IConfig,
   pluginName: string,
-  inject?: Dictionary<any>
+  inject?: Dictionary<any>,
+  args?: Dictionary<any>
 ) {
   const plugin = config.PLUGINS[pluginName];
-  const path = resolve(plugin.path);
+
+  if (!plugin) throw new Error(`${pluginName}: plugin not found.`);
+
+  const path = nodepath.resolve(plugin.path);
 
   if (path) {
     if (!(await existsAsync(path)))
@@ -69,7 +84,22 @@ export async function runPlugin(
 
     try {
       const result = await func({
+        // TODO: cross plugin call?
+        /* $plugin: async (name: string, args?: Dictionary<any>) => {
+          logger.log(`Calling plugin ${name} from ${pluginName}`);
+          return await runPlugin(config, name, inject, args || {});
+        }, */
+        /* $modules: {
+          fs: fs,
+          path: nodepath,
+          axios: axios,
+          cheerio: cheerio,
+          moment: moment
+        }, */
+        // TODO: deprecate at some point, replace with ^
         $ffmpeg: ffmpeg,
+        $fs: fs,
+        $path: nodepath,
         $axios: axios,
         $cheerio: cheerio,
         $moment: moment,
@@ -78,11 +108,12 @@ export async function runPlugin(
         $throw: (str: string) => {
           throw new Error(str);
         },
+        // TODO: deprecate at some point, or move into util object
         $async: {
           map: mapAsync,
           filter: filterAsync
         },
-        args: plugin.args || {},
+        args: args || plugin.args || {},
         ...inject
       });
 

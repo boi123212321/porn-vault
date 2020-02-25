@@ -22,6 +22,21 @@ export async function onActorCreate(
 
   const pluginResult = await runPluginsSerial(config, event, {
     actorName: actor.name,
+    $createLocalImage: async (
+      path: string,
+      name: string,
+      thumbnail?: boolean
+    ) => {
+      logger.log("Creating image from " + path);
+      const img = new Image(name);
+      if (thumbnail) img.name += " (thumbnail)";
+      img.path = path;
+      await Image.setActors(img, [actor._id]);
+      logger.log("Created image " + img._id);
+      await database.insert(database.store.images, img);
+      if (!thumbnail) indices.images.add(await createImageSearchDoc(img));
+      return img._id;
+    },
     $createImage: async (url: string, name: string, thumbnail?: boolean) => {
       // if (!isValidUrl(url)) throw new Error(`Invalid URL: ` + url);
       logger.log("Creating image from " + url);

@@ -19,6 +19,8 @@ interface IPlugin {
   args?: Dictionary<any>;
 }
 
+type PluginCallWithArgument = [string, Dictionary<any>];
+
 export interface IConfig {
   VIDEO_PATHS: string[];
   IMAGE_PATHS: string[];
@@ -60,11 +62,13 @@ export interface IConfig {
   CALCULATE_FILE_CHECKSUM: boolean;
 
   PLUGINS: Dictionary<IPlugin>;
-  PLUGIN_EVENTS: Dictionary<string[]>;
+  PLUGIN_EVENTS: Dictionary<(string | PluginCallWithArgument)[]>;
 
   CREATE_MISSING_ACTORS: boolean;
   CREATE_MISSING_STUDIOS: boolean;
   CREATE_MISSING_LABELS: boolean;
+
+  MAX_LOG_SIZE: number;
 }
 
 export const defaultConfig: IConfig = {
@@ -105,7 +109,8 @@ export const defaultConfig: IConfig = {
   },
   CREATE_MISSING_ACTORS: false,
   CREATE_MISSING_STUDIOS: false,
-  CREATE_MISSING_LABELS: false
+  CREATE_MISSING_LABELS: false,
+  MAX_LOG_SIZE: 2500
 };
 
 let loadedConfig;

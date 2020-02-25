@@ -1,5 +1,7 @@
 import debug from "debug";
 
+export const logStorage = [];
+
 if (process.env.NODE_ENV == "development") {
   debug.enable("porn:*");
 } else {

@@ -100,7 +100,7 @@
         <!-- <v-btn class="mr-3" @click="openUploadDialog" icon>
           <v-icon>mdi-upload</v-icon>
         </v-btn>-->
-        <v-btn @click="getRandom" icon>
+        <v-btn :loading="fetchingRandom" @click="getRandom" icon>
           <v-icon>mdi-shuffle-variant</v-icon>
         </v-btn>
       </div>
@@ -272,6 +272,7 @@ import moment from "moment";
 export default class SceneList extends Vue {
   scenes = [] as IScene[];
   fetchLoader = false;
+  fetchingRandom = false;
 
   waiting = false;
   allLabels = [] as ILabel[];
@@ -647,13 +648,18 @@ export default class SceneList extends Vue {
   }
 
   getRandom() {
-    this.fetchPage(true).then(scenes => {
-      // @ts-ignore
-      this.$router.push(`/scene/${scenes[0]._id}`);
-    });
+    this.fetchingRandom = true;
+    this.fetchPage(1)
+      .then(scenes => {
+        // @ts-ignore
+        this.$router.push(`/scene/${scenes[0]._id}`);
+      })
+      .catch(err => {
+        this.fetchingRandom = false;
+      });
   }
 
-  async fetchPage(random = false) {
+  async fetchPage(random = 0) {
     try {
       let include = "";
       let exclude = "";
@@ -673,7 +679,7 @@ export default class SceneList extends Vue {
 
       const result = await ApolloClient.query({
         query: gql`
-          query($query: String, $random: Boolean) {
+          query($query: String, $random: Int) {
             getScenes(query: $query, random: $random) {
               ...SceneFragment
               actors {

@@ -4,13 +4,9 @@ import ora from "ora";
 import Axios from "axios";
 import extractQueryOptions from "../query_extractor";
 import * as logger from "../logger";
+import { ISearchResults } from "./index";
 
 const PAGE_SIZE = 24;
-
-interface ISearchResults {
-  num_hits: number;
-  items: IImageSearchDoc[];
-}
 
 export async function searchImages(query: string) {
   const options = extractQueryOptions(query);

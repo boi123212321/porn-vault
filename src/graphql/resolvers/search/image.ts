@@ -1,11 +1,6 @@
 import Image from "../../../types/image";
-import extractQueryOptions, { SortTarget } from "../../../query_extractor";
 import * as logger from "../../../logger";
-import * as search from "../../../search/index";
-import { IImageSearchDoc, searchImages } from "../../../search/image";
-import Axios from "axios";
-
-const PAGE_SIZE = 24;
+import { searchImages } from "../../../search/image";
 
 export async function getImages(
   _,
@@ -29,9 +24,11 @@ export async function getImages(
        ].every(ending => !doc.name.endsWith(ending))
      ); */
 
-    const images = await Promise.all(
-      res.data.items.map(i => Image.getById(i.id))
+    logger.log(
+      `Search results: ${res.data.num_hits} hits found in ${res.data.time.sec} sec`
     );
+
+    const images = await Promise.all(res.data.items.map(Image.getById));
     logger.log(`Search done in ${(Date.now() - timeNow) / 1000}s.`);
     return images.filter(Boolean);
   } catch (error) {

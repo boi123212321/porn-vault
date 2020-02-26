@@ -35,4 +35,4 @@ jobs:
         DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
       uses: Ilshidur/action-discord@master
       with:
-        args: 'Version {{ EVENT_PAYLOAD.release.tag_name }} released!!'
+        args: 'Version **{{ EVENT_PAYLOAD.release.tag_name }}** released!!'

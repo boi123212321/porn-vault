@@ -20,13 +20,6 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Discord notification
-      env:
-        DISCORD_USERNAME: GitHub
-        DISCORD_WEBHOOK: ${{ secrets.DISCORD_HOOK }}
-      uses: Ilshidur/action-discord@master
-      with:
-        args: 'New commit to dev by {{ EVENT_PAYLOAD.pusher.name }}'
     - name: Test typescript & app build
       run: |
         npm install

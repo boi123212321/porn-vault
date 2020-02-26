@@ -25,6 +25,7 @@ import args from "../args";
 import { onActorCreate } from "../plugin_events/actor";
 import { isString } from "./schemas/common";
 import { onMovieCreate } from "../plugin_events/movie";
+import { isNumber, isBoolean } from "../types/utility";
 
 export interface ICreateOptions {
   scenes?: Dictionary<IImportedScene>;
@@ -34,9 +35,6 @@ export interface ICreateOptions {
   studios?: Dictionary<IImportedStudio>;
   customFields?: Dictionary<IImportedCustomField>;
 }
-
-const isNumber = (i: any) => typeof i === "number";
-const isBoolean = (i: any) => typeof i === "boolean";
 
 function normalizeCustomFields(
   ids: Dictionary<string>,

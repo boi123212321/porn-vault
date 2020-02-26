@@ -38,7 +38,7 @@ async function downloadTwigs() {
   const asset = assets.find(as => as.name == downloadName);
 
   if (!asset) {
-    logger.error("Twigs binary not found: " + downloadName + " for " + type());
+    logger.error("Twigs release not found: " + downloadName + " for " + type());
     process.exit(1);
   }
 
@@ -52,7 +52,7 @@ export async function ensureTwigsExists() {
     logger.log("Twigs binary found");
     return true;
   } else {
-    logger.message("Downloading latest Twigs binary");
+    logger.message("Downloading latest Twigs binary...");
     await downloadTwigs();
   }
 }

@@ -1,6 +1,6 @@
 import "./database";
 import startServer from "./server";
-import { checkConfig, getConfig } from "./config/index";
+import { checkConfig, getConfig, IConfig } from "./config/index";
 import inquirer from "inquirer";
 import * as logger from "./logger";
 import { isRegExp } from "./types/utility";
@@ -10,16 +10,12 @@ import { printMaxMemory } from "./mem";
 import { validateFFMPEGPaths } from "./config/validate";
 const sha = require("js-sha512").sha512;
 
-printMaxMemory();
-
-(async () => {
-  await checkConfig();
-  const config = getConfig();
-
-  // TODO: validate config
-
+export async function onConfigLoad(config: IConfig) {
   validatePlugins(config);
   checkUnusedPlugins(config);
+
+  logger.message("Registered plugins", Object.keys(config.PLUGINS));
+  logger.log(config);
 
   if (config.EXCLUDE_FILES && config.EXCLUDE_FILES.length) {
     for (const regStr of config.EXCLUDE_FILES) {
@@ -30,9 +26,24 @@ printMaxMemory();
     }
   }
 
-  logger.message("Registered plugins", Object.keys(config.PLUGINS));
+  await validateFFMPEGPaths(config);
 
-  logger.log(config);
+  ffmpeg.setFfmpegPath(config.FFMPEG_PATH);
+  ffmpeg.setFfprobePath(config.FFPROBE_PATH);
+
+  logger.message("FFMPEG set to " + config.FFMPEG_PATH);
+  logger.message("FFPROBE set to " + config.FFPROBE_PATH);
+}
+
+printMaxMemory();
+
+(async () => {
+  await checkConfig();
+  const config = getConfig();
+
+  // TODO: validate config
+
+  await onConfigLoad(config);
 
   if (config.PASSWORD && process.env.NODE_ENV != "development") {
     let password;
@@ -48,14 +59,6 @@ printMaxMemory();
       ).password;
     } while (sha(password) != config.PASSWORD);
   }
-
-  await validateFFMPEGPaths(config);
-
-  ffmpeg.setFfmpegPath(config.FFMPEG_PATH);
-  ffmpeg.setFfprobePath(config.FFPROBE_PATH);
-
-  logger.message("FFMPEG set to " + config.FFMPEG_PATH);
-  logger.message("FFPROBE set to " + config.FFPROBE_PATH);
 
   startServer();
 })();

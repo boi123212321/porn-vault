@@ -452,7 +452,7 @@ export default class ActorDetails extends Vue {
     });
   }
 
-  async fetchScenePage(random = false) {
+  async fetchScenePage() {
     try {
       if (!this.currentActor) return;
 
@@ -460,8 +460,8 @@ export default class ActorDetails extends Vue {
 
       const result = await ApolloClient.query({
         query: gql`
-          query($query: String, $random: Boolean) {
-            getScenes(query: $query, random: $random) {
+          query($query: String) {
+            getScenes(query: $query) {
               ...SceneFragment
               actors {
                 ...ActorFragment
@@ -476,8 +476,7 @@ export default class ActorDetails extends Vue {
           ${studioFragment}
         `,
         variables: {
-          query,
-          random
+          query
         }
       });
 

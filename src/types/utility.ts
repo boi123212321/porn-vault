@@ -4,6 +4,14 @@ import * as logger from "../logger";
 
 export type Dictionary<T> = Record<string, T>;
 
+export function isNumber(i: any): i is number {
+  return typeof i === "number";
+}
+
+export function isBoolean(i: any): i is boolean {
+  return typeof i === "boolean";
+}
+
 export function isValidUrl(str: string) {
   try {
     new URL(str);

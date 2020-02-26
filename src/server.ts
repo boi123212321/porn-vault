@@ -4,7 +4,7 @@ import Image from "./types/image";
 import Scene from "./types/scene";
 import * as path from "path";
 import { checkPassword, passwordHandler } from "./password";
-import { getConfig } from "./config/index";
+import { getConfig, watchConfig } from "./config/index";
 import ProcessingQueue from "./queue/index";
 import {
   checkVideoFolders,
@@ -176,6 +176,8 @@ export default async () => {
   checkPreviews();
 
   serverReady = true;
+
+  watchConfig();
 
   if (config.SCAN_ON_STARTUP) {
     scanFolders();

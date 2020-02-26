@@ -4,7 +4,7 @@ import axios from "axios";
 import cheerio from "cheerio";
 import debug from "debug";
 import ora from "ora";
-import { Dictionary } from "../types/utility";
+import { Dictionary, libraryPath } from "../types/utility";
 import * as logger from "../logger";
 import moment from "moment";
 import { mapAsync, filterAsync } from "../types/utility";
@@ -84,6 +84,9 @@ export async function runPlugin(
 
     try {
       const result = await func({
+        $pluginPath: path,
+        $cwd: process.cwd(),
+        $library: libraryPath(""),
         // TODO: cross plugin call?
         /* $plugin: async (name: string, args?: Dictionary<any>) => {
           logger.log(`Calling plugin ${name} from ${pluginName}`);

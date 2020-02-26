@@ -5,6 +5,8 @@ import { promisify } from "util";
 import { Dictionary } from "../types/utility";
 import YAML from "yaml";
 import inquirer from "inquirer";
+import chokidar from "chokidar";
+import { onConfigLoad } from "../index";
 
 const existsAsync = promisify(exists);
 const readFileAsync = promisify(readFile);
@@ -192,4 +194,35 @@ export async function loadConfig() {
 
 export function getConfig() {
   return loadedConfig as IConfig;
+}
+
+export function watchConfig() {
+  chokidar.watch(configFile).on("change", async () => {
+    logger.message(`${configFile} changed, reloading...`);
+
+    let newConfig = null as IConfig | null;
+
+    if (configFile.endsWith(".json")) {
+      try {
+        newConfig = JSON.parse(await readFileAsync("config.json", "utf-8"));
+      } catch (error) {
+        logger.error(error.message);
+        logger.error("ERROR when loading new config, please fix it.");
+      }
+    } else if (configFile.endsWith(".yaml")) {
+      try {
+        newConfig = YAML.parse(await readFileAsync("config.yaml", "utf-8"));
+      } catch (error) {
+        logger.error(error.message);
+        logger.error("ERROR when loading new config, please fix it.");
+      }
+    }
+
+    if (newConfig) {
+      loadedConfig = newConfig;
+      await onConfigLoad(loadedConfig);
+    } else {
+      logger.warn("Couldn't load config, try again");
+    }
+  });
 }

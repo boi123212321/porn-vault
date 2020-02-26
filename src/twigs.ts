@@ -61,7 +61,6 @@ export function spawnTwigs() {
   return new Promise((resolve, reject) => {
     const twigs = spawn("./" + twigsPath, []);
     let responded = false;
-
     twigs.on("error", err => {
       reject(err);
     });

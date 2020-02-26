@@ -9,8 +9,8 @@ import { getConfig } from "../../config/index";
 import { indices } from "../../search/index";
 import { createActorSearchDoc } from "../../search/actor";
 import { onActorCreate } from "../../plugin_events/actor";
-import { updateSceneDoc, indexScenes } from "../../search/scene";
-import { updateImageDoc, indexImages } from "../../search/image";
+import { updateSceneDoc } from "../../search/scene";
+import { updateImageDoc } from "../../search/image";
 
 type IActorUpdateOpts = Partial<{
   name: string;

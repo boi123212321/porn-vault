@@ -111,11 +111,11 @@ export async function runPlugin(
         $throw: (str: string) => {
           throw new Error(str);
         },
-        // TODO: deprecate at some point, or move into util object
-        $async: {
+        // TODO: remove
+        /* $async: {
           map: mapAsync,
           filter: filterAsync
-        },
+        }, */
         args: args || plugin.args || {},
         ...inject
       });

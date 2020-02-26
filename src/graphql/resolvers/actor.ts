@@ -28,5 +28,8 @@ export default {
     return fields.filter(field =>
       field.target.includes(CustomFieldTarget.ACTORS)
     );
+  },
+  age(actor: Actor) {
+    return Actor.getAge(actor);
   }
 };

@@ -14,6 +14,7 @@ export default gql`
     customFields: Object!
 
     # Resolvers
+    age: Int
     availableFields: [CustomField!]!
     watches: [Long!]!
     labels: [Label!]!

@@ -5,6 +5,7 @@ import Scene from "./scene";
 import { mapAsync } from "./utility";
 import CrossReference from "./cross_references";
 import * as logger from "../logger";
+import moment = require("moment");
 
 export default class Actor {
   _id: string;
@@ -20,6 +21,11 @@ export default class Actor {
   labels?: string[]; // backwards compatibility
   studio?: string | null; // backwards compatibility
   description?: string | null = null;
+
+  static getAge(actor: Actor) {
+    if (actor.bornOn) return moment().diff(actor.bornOn, "years");
+    return null;
+  }
 
   static async filterCustomField(fieldId: string) {
     await database.update(

@@ -3,6 +3,7 @@ export default interface IActor {
   name: string;
   description: string | null;
   bornOn: number | null;
+  age: number | null;
   aliases: string[];
   rating: number | null;
   favorite: boolean;

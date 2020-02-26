@@ -41,7 +41,7 @@
         style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
       >
         {{ value.name }}
-        <span class="subtitle-1 med--text" v-if="value.bornOn">({{ age }})</span>
+        <span class="subtitle-1 med--text" v-if="value.bornOn">({{ value.age }})</span>
       </span>
     </v-card-title>
     <v-card-subtitle
@@ -92,12 +92,6 @@ export default class ActorCard extends Vue {
     if (this.value.thumbnail && this.value.thumbnail.color)
       return ensureDarkColor(this.value.thumbnail.color);
     return null;
-  }
-
-  get age() {
-    if (this.value.bornOn) {
-      return moment().diff(this.value.bornOn, "years");
-    }
   }
 
   get aspectRatio() {

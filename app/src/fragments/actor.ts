@@ -6,6 +6,7 @@ export default gql`
     name
     description
     bornOn
+    age
     aliases
     rating
     favorite

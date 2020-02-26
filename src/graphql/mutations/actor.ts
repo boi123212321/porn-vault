@@ -67,6 +67,15 @@ export default {
       actorLabels = args.labels;
     }
 
+    try {
+      actor = await onActorCreate(actor, actorLabels);
+    } catch (error) {
+      logger.error(error.message);
+    }
+
+    await Actor.setLabels(actor, actorLabels);
+    await database.insert(database.store.actors, actor);
+
     for (const scene of await Scene.getAll()) {
       const perms = stripStr(scene.path || scene.name);
 
@@ -108,9 +117,6 @@ export default {
           image,
           (await Image.getActors(image)).map(l => l._id).concat(actor._id)
         );
-        // TODO: investigate why this is not working
-        // may be fixed with twigs?
-        // vvvvvvvvvv
         try {
           await updateImageDoc(image);
         } catch (error) {
@@ -120,14 +126,6 @@ export default {
       }
     }
 
-    try {
-      actor = await onActorCreate(actor, actorLabels);
-    } catch (error) {
-      logger.error(error.message);
-    }
-
-    await Actor.setLabels(actor, actorLabels);
-    await database.insert(database.store.actors, actor);
     indices.actors.add(await createActorSearchDoc(actor));
     return actor;
   },

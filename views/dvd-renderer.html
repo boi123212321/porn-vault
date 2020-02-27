@@ -18,11 +18,19 @@
         overflow: hidden;
         font-family: sans-serif;
       }
+      .disabled {
+        opacity: 0.6;
+      }
     </style>
   </head>
   <body style="margin: 0">
+    <div style="padding: 10px; color: white; width: 100%; position: fixed">
+      <span class="disabled" id="auto-rotate" style="cursor: pointer">
+        Toggle auto-rotate
+      </span>
+    </div>
     <div
-      style="padding-top: 10px; color: white; width: 100%; position: fixed; text-align: center"
+      style="pointer-events: none; padding-top: 10px; color: white; width: 100%; position: fixed; text-align: center"
     >
       <div style="font-weight: bold; font-size: 24px">
         {{ movieName }}
@@ -52,7 +60,7 @@
         );
         shape.absarc(width - radius * 2, eps, eps, 0, -Math.PI / 2, true);
         let geometry = new THREE.ExtrudeBufferGeometry(shape, {
-          amount: depth - radius0 * 2,
+          depth: depth - radius0 * 2,
           bevelEnabled: true,
           bevelSegments: smoothness * 2,
           steps: 1,
@@ -77,7 +85,8 @@
       const coverPadding = 0.2; // distance to edges of box
       const coverMargin = 0.01; // to resolve Z fighting
       const roundness = 0.125; // Roundness of box
-      const shininess = 100; // Shiny
+      const bumpiness = 0.15;
+      const shininess = 250; // Shiny
 
       const light = "{{ light }}" == "true";
 
@@ -88,6 +97,7 @@
       const studioName = "{{ studioName }}";
       const frontCover = "{{ frontCover }}".replace("&#x3D;", "=");
       const backCover = "{{ backCover }}".replace("&#x3D;", "=");
+      const spineCover = "{{ spineCover }}".replace("&#x3D;", "=");
       const color = "{{ color }}";
 
       if (studioName)
@@ -124,7 +134,7 @@
               map: frontTex,
               shininess,
               bumpMap: bumpMap,
-              bumpScale: 0.2
+              bumpScale: bumpiness
             })
           );
           front.position.set(0, 0, boxDepth / 2 + coverMargin);
@@ -141,7 +151,7 @@
               map: backTex,
               shininess,
               bumpMap: bumpMap,
-              bumpScale: 0.2
+              bumpScale: bumpiness
             })
           );
           back.rotation.x = Math.PI;
@@ -150,54 +160,73 @@
           scene.add(back);
         })();
 
-        (function createSpine() {
-          const spineText = movieName;
-          var bitmap = document.createElement("canvas");
-          bitmap.style.backgroundColor = boxColor;
-          var ctx = bitmap.getContext("2d");
-          bitmap.width = 1000;
-          bitmap.height = 50;
-          ctx.font = "900 32px Arial";
+        if (!spineCover) {
+          (function createFakeSpine() {
+            const spineText = movieName;
+            var bitmap = document.createElement("canvas");
+            bitmap.style.backgroundColor = boxColor;
+            var ctx = bitmap.getContext("2d");
+            bitmap.width = 1000;
+            bitmap.height = 50;
+            ctx.font = "900 32px Arial";
 
-          ctx.fillStyle = boxColor;
-          ctx.fillRect(0, 0, bitmap.width, bitmap.height);
+            ctx.fillStyle = boxColor;
+            ctx.fillRect(0, 0, bitmap.width, bitmap.height);
 
-          if (studioName) {
+            if (studioName) {
+              ctx.fillStyle = spineTextColor;
+              ctx.fillText(studioName, 10, 40);
+              ctx.strokeStyle = boxColor;
+              ctx.strokeText(studioName, 10, 40);
+            }
+
+            ctx.textAlign = "right";
+            ctx.font = "bold 24px Arial";
+
             ctx.fillStyle = spineTextColor;
-            ctx.fillText(studioName, 10, 40);
+            ctx.fillText(spineText, 990, 35);
             ctx.strokeStyle = boxColor;
-            ctx.strokeText(studioName, 10, 40);
-          }
+            ctx.strokeText(spineText, 990, 35);
 
-          ctx.textAlign = "right";
-          ctx.font = "bold 24px Arial";
+            var spineTex = new THREE.Texture(bitmap);
+            spineTex.needsUpdate = true;
 
-          ctx.fillStyle = spineTextColor;
-          ctx.fillText(spineText, 990, 35);
-          ctx.strokeStyle = boxColor;
-          ctx.strokeText(spineText, 990, 35);
-
-          var spineTex = new THREE.Texture(bitmap);
-          spineTex.needsUpdate = true;
-
+            let spine = new THREE.Mesh(
+              new THREE.PlaneGeometry(
+                boxHeight - coverPadding,
+                boxDepth - coverPadding
+              ),
+              new THREE.MeshPhongMaterial({
+                map: spineTex,
+                shininess,
+                bumpMap: bumpMap,
+                bumpScale: bumpiness
+              })
+            );
+            spine.rotation.z = Math.PI / 2;
+            spine.rotation.y = Math.PI / 2 + Math.PI;
+            spine.position.set(-boxWidth / 2 - coverMargin, 0, 0);
+            scene.add(spine);
+          })();
+        } else {
+          const spineTex = loader.load(spineCover);
           let spine = new THREE.Mesh(
             new THREE.PlaneGeometry(
-              boxHeight - coverPadding,
-              boxDepth - coverPadding
+              boxDepth - coverPadding / 2,
+              boxHeight - coverPadding
             ),
             new THREE.MeshPhongMaterial({
               map: spineTex,
               shininess,
               bumpMap: bumpMap,
-              bumpScale: 0.2
+              bumpScale: bumpiness
             })
           );
-          spine.rotation.z = Math.PI / 2;
+          // spine.rotation.z = Math.PI / 2;
           spine.rotation.y = Math.PI / 2 + Math.PI;
           spine.position.set(-boxWidth / 2 - coverMargin, 0, 0);
           scene.add(spine);
-        })();
-
+        }
         (function createBox() {
           const geometry = createBoxWithRoundedEdges(
             boxWidth,
@@ -262,6 +291,14 @@
         scene.add(ambience);
 
         controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.1;
+        controls.maxDistance = 50;
+
+        document.getElementById("auto-rotate").addEventListener("click", ev => {
+          controls.autoRotate = !controls.autoRotate;
+          ev.target.classList.toggle("disabled");
+        });
       }
 
       // Renders the scene and updates the render as needed.

@@ -2,7 +2,7 @@
   <v-fade-transition>
     <div v-if="value" class="dvd-render">
       <div class="actions">
-        <v-btn class="mr-2" target="_blank" v-on="on" :href="url" icon>
+        <v-btn class="mr-2" target="_blank" :href="url" icon>
           <v-icon>mdi-link</v-icon>
         </v-btn>
         <v-tooltip left>

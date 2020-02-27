@@ -15,6 +15,7 @@ export default class Movie {
   releaseDate: number | null = null;
   frontCover: string | null = null;
   backCover: string | null = null;
+  spineCover: string | null = null;
   favorite: boolean = false;
   bookmark: number | null = null;
   rating: number = 0;

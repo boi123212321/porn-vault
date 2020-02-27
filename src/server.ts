@@ -101,18 +101,19 @@ export default async () => {
         ? (await Studio.getById(movie.studio))?.name
         : "";
 
+      function imageOrNull(id: string | null) {
+        return id ? `/image/${id}?password=${config.PASSWORD}` : null;
+      }
+
       res.status(200).send(
         await renderHandlebars("./views/dvd-renderer.html", {
           color,
           movieName: movie.name,
           studioName,
           light: req.query.light == "true",
-          frontCover: movie.frontCover
-            ? `/image/${movie.frontCover}?password=${config.PASSWORD}`
-            : null,
-          backCover: movie.backCover
-            ? `/image/${movie.backCover}?password=${config.PASSWORD}`
-            : null
+          frontCover: imageOrNull(movie.frontCover),
+          backCover: imageOrNull(movie.backCover),
+          spineCover: imageOrNull(movie.spineCover)
         })
       );
     }

@@ -5,37 +5,42 @@
       <v-row>
         <v-col cols="12" sm="6" md="4" lg="3" xl="2">
           <v-container>
-            <v-hover>
-              <template v-slot:default="{ hover }">
-                <v-img style="max-height: 400px" contain :aspect-ratio="0.71" :src="frontCover">
-                  <v-fade-transition>
-                    <v-img
-                      eager
-                      style="max-height: 400px"
-                      contain
-                      :aspect-ratio="0.71"
-                      :src="backCover"
-                      v-if="hover"
-                    ></v-img>
-                  </v-fade-transition>
+            <div class="d-flex pa-2">
+              <v-img contain style="max-height: 400px" v-if="spineCover" :src="spineCover"></v-img>
+              <v-hover style="width: 100%">
+                <template v-slot:default="{ hover }">
+                  <v-img style="max-height: 400px" contain :aspect-ratio="0.71" :src="frontCover">
+                    <v-fade-transition>
+                      <v-img
+                        eager
+                        style="max-height: 400px"
+                        contain
+                        :aspect-ratio="0.71"
+                        :src="backCover"
+                        v-if="hover"
+                      ></v-img>
+                    </v-fade-transition>
 
-                  <template v-slot:placeholder>
-                    <v-sheet style="width: 100%; height: 100%;" color="grey" />
-                  </template>
+                    <template v-slot:placeholder>
+                      <v-sheet style="width: 100%; height: 100%;" color="grey" />
+                    </template>
 
-                  <v-btn
-                    @click="show3d = true"
-                    style="position: absolute; top: 5px; right: 5px;"
-                    icon
-                  >
-                    <v-icon>mdi-eye</v-icon>
-                  </v-btn>
-                </v-img>
-              </template>
-            </v-hover>
+                    <v-btn
+                      @click="show3d = true"
+                      style="background: #000000aa; position: absolute; top: 5px; left: 5px;"
+                      icon
+                    >
+                      <v-icon>mdi-eye</v-icon>
+                    </v-btn>
+                  </v-img>
+                </template>
+              </v-hover>
+            </div>
+
             <div class="mt-2 text-center">
               <v-btn color="primary" text small @click="frontCoverDialog = true">Set front cover</v-btn>
               <v-btn color="primary" text small @click="backCoverDialog = true">Set back cover</v-btn>
+              <v-btn color="primary" text small @click="spineCoverDialog = true">Set spine cover</v-btn>
             </div>
           </v-container>
         </v-col>
@@ -212,6 +217,19 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="spineCoverDialog" max-width="400px">
+      <v-card v-if="currentMovie">
+        <v-card-title>Set spine cover for '{{ currentMovie.name }}'</v-card-title>
+        <v-card-text>
+          <v-file-input color="primary" placeholder="Select an image" v-model="spineCoverFile"></v-file-input>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn @click="uploadSpineCover" text class="text-none" color="primary">Upload</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <infinite-loading v-if="currentMovie" :identifier="infiniteId" @infinite="infiniteHandler">
       <div slot="no-results">
         <v-icon large>mdi-close</v-icon>
@@ -288,6 +306,9 @@ export default class MovieDetails extends Vue {
   backCoverFile = null as File | null;
   backCoverDialog = false;
 
+  spineCoverFile = null as File | null;
+  spineCoverDialog = false;
+
   @Watch("currentMovie.actors", { deep: true })
   onActorChange(newVal: any[]) {
     this.actors = newVal;
@@ -356,6 +377,33 @@ export default class MovieDetails extends Vue {
       .finally(() => {});
   }
 
+  uploadSpineCover() {
+    if (!this.currentMovie) return;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($file: Upload!, $name: String) {
+          uploadImage(file: $file, name: $name) {
+            ...ImageFragment
+          }
+        }
+        ${imageFragment}
+      `,
+      variables: {
+        file: this.spineCoverFile,
+        name: this.currentMovie.name + " (spine cover)"
+      }
+    })
+      .then(res => {
+        const image = res.data.uploadImage;
+        this.images.unshift(image);
+        this.setAsSpineCover(image._id);
+        this.spineCoverDialog = false;
+        this.spineCoverFile = null;
+      })
+      .finally(() => {});
+  }
+
   setAsFrontCover(id: string) {
     if (!this.currentMovie) return;
 
@@ -412,6 +460,34 @@ export default class MovieDetails extends Vue {
       });
   }
 
+  setAsSpineCover(id: string) {
+    if (!this.currentMovie) return;
+
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation($ids: [String!]!, $opts: MovieUpdateOpts!) {
+          updateMovies(ids: $ids, opts: $opts) {
+            spineCover {
+              _id
+            }
+          }
+        }
+      `,
+      variables: {
+        ids: [this.currentMovie._id],
+        opts: {
+          spineCover: id
+        }
+      }
+    })
+      .then(res => {
+        movieModule.setSpineCover(id);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }
+
   get frontCover() {
     if (!this.currentMovie) return "";
 
@@ -430,6 +506,16 @@ export default class MovieDetails extends Vue {
         this.currentMovie.backCover._id
       }?password=${localStorage.getItem("password")}`;
     return this.frontCover;
+  }
+
+  get spineCover() {
+    if (!this.currentMovie) return "";
+
+    if (this.currentMovie.spineCover)
+      return `${serverBase}/image/${
+        this.currentMovie.spineCover._id
+      }?password=${localStorage.getItem("password")}`;
+    return null;
   }
 
   readImage(file: File): Promise<string> {

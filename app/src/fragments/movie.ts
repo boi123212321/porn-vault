@@ -20,6 +20,9 @@ export default gql`
     backCover {
       _id
     }
+    spineCover {
+      _id
+    }
     studio {
       _id
       name

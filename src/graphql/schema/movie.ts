@@ -21,6 +21,7 @@ export default gql`
     rating: Int # Inferred from scene ratings
     frontCover: Image
     backCover: Image
+    spineCover: Image
     scenes: [Scene!]!
     actors: [Actor!]!
     labels: [Label!]! # Inferred from scene labels
@@ -35,6 +36,7 @@ export default gql`
     releaseDate: Long
     frontCover: String
     backCover: String
+    spineCover: String
     favorite: Boolean
     bookmark: Long
     rating: Int

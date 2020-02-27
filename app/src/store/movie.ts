@@ -55,6 +55,14 @@ class MovieModule extends VuexModule {
   }
 
   @Mutation
+  setSpineCover(id: string) {
+    if (this.current) {
+      if (!this.current.spineCover) this.current.spineCover = { _id: id };
+      else this.current.spineCover._id = id;
+    }
+  }
+
+  @Mutation
   setActors(actors: IActor[]) {
     if (this.current) this.current.actors = actors;
   }

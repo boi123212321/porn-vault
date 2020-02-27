@@ -12,6 +12,7 @@ type IMovieUpdateOpts = Partial<{
   releaseDate: number;
   frontCover: string;
   backCover: string;
+  spineCover: string;
   favorite: boolean;
   bookmark: number | null;
   rating: number;
@@ -74,12 +75,15 @@ export default {
         if (typeof opts.description == "string")
           movie.description = opts.description.trim();
 
-        if (typeof opts.backCover == "string") movie.backCover = opts.backCover;
-
         if (opts.studio !== undefined) movie.studio = opts.studio;
 
         if (typeof opts.frontCover == "string")
           movie.frontCover = opts.frontCover;
+
+        if (typeof opts.backCover == "string") movie.backCover = opts.backCover;
+
+        if (typeof opts.spineCover == "string")
+          movie.spineCover = opts.spineCover;
 
         if (Array.isArray(opts.scenes))
           await Movie.setScenes(movie, opts.scenes);

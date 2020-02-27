@@ -13,6 +13,11 @@ export default {
     return null;
   },
 
+  spineCover(movie: Movie) {
+    if (movie.spineCover) return Image.getById(movie.spineCover);
+    return null;
+  },
+
   scenes(movie: Movie) {
     return Movie.getScenes(movie);
   },

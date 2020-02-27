@@ -17,6 +17,9 @@ export default interface IMovie {
   backCover: {
     _id: string;
   } | null;
+  spineCover: {
+    _id: string;
+  } | null;
   studio: any;
   scenes: IScene[];
   actors: IActor[];

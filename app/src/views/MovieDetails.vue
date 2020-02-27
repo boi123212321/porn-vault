@@ -152,7 +152,7 @@
         </v-col>
       </v-row>
 
-      <div v-if="images.length">
+      <div v-if="scenes.length && images.length">
         <div class="d-flex align-center">
           <v-spacer></v-spacer>
           <h1 class="font-weight-light mr-3">{{ images.length }} Images</h1>

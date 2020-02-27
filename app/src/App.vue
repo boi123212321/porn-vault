@@ -1,6 +1,13 @@
 <template>
   <v-app>
-    <v-app-bar :hide-on-scroll="showDetailsBar" dense style="z-index: 13" clipped-left app :color="appbarColor">
+    <v-app-bar
+      :hide-on-scroll="showDetailsBar"
+      dense
+      style="z-index: 13"
+      clipped-left
+      app
+      :color="appbarColor"
+    >
       <v-btn icon to="/" v-if="$vuetify.breakpoint.smAndUp">
         <v-icon>mdi-home</v-icon>
       </v-btn>

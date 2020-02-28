@@ -25,6 +25,7 @@ import Handlebars from "handlebars";
 import { spawnTwigs, ensureTwigsExists } from "./twigs";
 import Movie from "./types/movie";
 import Studio from "./types/studio";
+import { httpLog } from "./logger";
 
 async function renderHandlebars(file: string, context: any) {
   const text = await readFileAsync(file, "utf-8");
@@ -53,12 +54,7 @@ export default async () => {
   const app = express();
   app.use(cors);
 
-  app.use((req, res, next) => {
-    logger.http(
-      `${req.method} ${req.originalUrl}: ${new Date().toLocaleString()}`
-    );
-    next();
-  });
+  app.use(httpLog);
 
   app.get("/setup", (req, res) => {
     res.json({

@@ -190,7 +190,11 @@ class Queue {
 
     // Thumbnails
     if (config.GENERATE_THUMBNAILS) {
-      const loader = ora("Generating thumbnail(s)...").start();
+      const loader = ora(
+        config.GENERATE_MULTIPLE_THUMBNAILS
+          ? "Generating thumbnails..."
+          : "Generating thumbnail..."
+      ).start();
 
       let thumbnailFiles = [] as ThumbnailFile[];
       let images = [] as Image[];
@@ -230,7 +234,7 @@ class Queue {
     }
 
     if (config.GENERATE_PREVIEWS && !scene.preview) {
-      const loader = ora("Generating previews...").start();
+      const loader = ora("Generating preview...").start();
 
       try {
         let preview = await Scene.generatePreview(scene);

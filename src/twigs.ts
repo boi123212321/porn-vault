@@ -65,6 +65,7 @@ export function spawnTwigs() {
       reject(err);
     });
     twigs.stdout.on("data", data => {
+      logger.twigs(data.toString());
       if (!responded) {
         logger.log("Twigs ready");
         responded = true;

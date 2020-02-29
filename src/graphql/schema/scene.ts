@@ -46,6 +46,7 @@ export default gql`
     labels: [Label!]!
     studio: Studio
     markers: [Marker!]!
+    movies: [Movie!]!
   }
 
   input SceneUpdateOpts {

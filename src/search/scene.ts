@@ -15,8 +15,8 @@ export async function searchScenes(query: string, random = 0) {
   return Axios.get<ISearchResults>("http://localhost:8000/scene", {
     params: {
       query: options.query || "",
-      skip: random || options.page * 24,
-      take: random || PAGE_SIZE,
+      skip: options.skip || options.page * 24,
+      take: (random ? 999999 : null) || options.take || PAGE_SIZE,
       sort_by: options.sortBy,
       sort_dir: options.sortDir,
       favorite: options.favorite ? "true" : undefined,

@@ -16,6 +16,7 @@ import Jimp from "jimp";
 import mergeImg from "merge-img";
 import Marker from "./marker";
 import Image from "./image";
+import Movie from "./movie";
 
 export type ThumbnailFile = {
   name: string;
@@ -254,6 +255,16 @@ export default class Scene {
         r => Marker.getById(r.to)
       )
     ).filter(Boolean) as Marker[];
+  }
+
+  static async getMovies(scene: Scene) {
+    const references = await CrossReference.getByDest(scene._id);
+    return (
+      await mapAsync(
+        references.filter(r => r.from.startsWith("mo_")),
+        r => Movie.getById(r.from)
+      )
+    ).filter(Boolean) as Movie[];
   }
 
   static async getActors(scene: Scene) {

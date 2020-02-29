@@ -33,5 +33,8 @@ export default {
     return fields.filter(field =>
       field.target.includes(CustomFieldTarget.SCENES)
     );
+  },
+  async movies(scene: Scene) {
+    return Scene.getMovies(scene);
   }
 };

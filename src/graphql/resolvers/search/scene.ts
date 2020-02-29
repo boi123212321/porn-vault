@@ -20,7 +20,7 @@ export async function getScenes(
 
     if (random) {
       logger.log("Randomizing items...");
-      res.data.items = shuffle(res.data.items.slice(0, random));
+      res.data.items = shuffle(res.data.items).slice(0, random);
     }
 
     logger.log(

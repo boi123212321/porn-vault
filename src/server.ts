@@ -14,23 +14,17 @@ import {
 import * as database from "./database/index";
 import { checkSceneSources, checkImageSources } from "./integrity";
 import { loadStores } from "./database/index";
-import { existsAsync, readFileAsync } from "./fs/async";
+import { existsAsync } from "./fs/async";
 import { createBackup } from "./backup";
 import BROKEN_IMAGE from "./broken_image";
 import { mountApolloServer } from "./apollo";
 import { buildIndices } from "./search";
 import { checkImportFolders } from "./import/index";
 import cors from "./middlewares/cors";
-import Handlebars from "handlebars";
 import { spawnTwigs, ensureTwigsExists } from "./twigs";
-import Movie from "./types/movie";
-import Studio from "./types/studio";
 import { httpLog } from "./logger";
-
-async function renderHandlebars(file: string, context: any) {
-  const text = await readFileAsync(file, "utf-8");
-  return Handlebars.compile(text)(context);
-}
+import { renderHandlebars } from "./render";
+import { dvdRenderer } from "./dvd_renderer";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-manager for discussion & updates"
@@ -78,42 +72,7 @@ export default async () => {
     res.sendFile(path.resolve("./views/bump.jpg"));
   });
 
-  app.get("/dvd-renderer/:id", async (req, res, next) => {
-    const movie = await Movie.getById(req.params.id);
-
-    if (!movie) {
-      res.status(404).send(
-        await renderHandlebars("./views/error.html", {
-          code: 404,
-          message: `Movie <b>${req.params.id}</b> not found`
-        })
-      );
-    } else {
-      const color = movie.frontCover
-        ? (await Image.getById(movie.frontCover))?.color
-        : "";
-
-      const studioName = movie.studio
-        ? (await Studio.getById(movie.studio))?.name
-        : "";
-
-      function imageOrNull(id: string | null) {
-        return id ? `/image/${id}?password=${config.PASSWORD}` : null;
-      }
-
-      res.status(200).send(
-        await renderHandlebars("./views/dvd-renderer.html", {
-          color,
-          movieName: movie.name,
-          studioName,
-          light: req.query.light == "true",
-          frontCover: imageOrNull(movie.frontCover),
-          backCover: imageOrNull(movie.backCover),
-          spineCover: imageOrNull(movie.spineCover)
-        })
-      );
-    }
-  });
+  app.get("/dvd-renderer/:id", dvdRenderer);
 
   app.get("/broken", (_, res) => {
     const b64 = BROKEN_IMAGE;

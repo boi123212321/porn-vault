@@ -4,8 +4,6 @@ Manage your ever-growing porn collection
 
 There's a Discord channel now! Join in to the discussion. https://discord.gg/t499hxK
 
-Note: this is by no means finished, but useable.
-
 ## Features
 
 - EASY, portable (no install) setup (see. [**How to run**](https://github.com/boi123212321/porn-manager#how-to-run))
@@ -64,11 +62,6 @@ Note: this is by no means finished, but useable.
 - CREATE_MISSING_ACTORS: Create actors returned from plugins when not found in library
 - CREATE_MISSING_STUDIOS: Create studio returned from plugins when not found in library
 - CREATE_MISSING_LABELS: Create labels returned from plugins when not found in library
-
-## Roadmap
-
-- Image albums
-- visit [Issues](https://github.com/boi123212321/porn-manager/issues) to see what's up
 
 ## How to run
 
@@ -170,10 +163,6 @@ You can do everything you can do with scenes (e.g. rate/favorite/bookmark/label)
 ### Parent studio
 
 ![Studios](/doc/img/parent_studio.jpg)
-
-### Dark mode
-
-![Dark mode](/doc/img/darkmode.jpg)
 
 ### Mobile
 

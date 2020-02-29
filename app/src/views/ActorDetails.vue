@@ -589,6 +589,7 @@ export default class ActorDetails extends Vue {
           $crop: Crop
           $actors: [String!]
           $labels: [String!]
+          $compress: Boolean
         ) {
           uploadImage(
             file: $file
@@ -596,6 +597,7 @@ export default class ActorDetails extends Vue {
             crop: $crop
             actors: $actors
             labels: $labels
+            compress: $compress
           ) {
             ...ImageFragment
             actors {
@@ -620,7 +622,8 @@ export default class ActorDetails extends Vue {
           top: this.crop.top,
           width: this.crop.width,
           height: this.crop.height
-        }
+        },
+        compress: true
       }
     })
       .then(res => {

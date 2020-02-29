@@ -478,7 +478,8 @@ export default class Scene {
                 folder,
                 count: 1,
                 filename: `${scene._id} (thumbnail).jpg`,
-                timestamps: ["50%"]
+                timestamps: ["50%"],
+                size: "400x?"
               });
           });
         })();
@@ -533,6 +534,7 @@ export default class Scene {
         .seekInput(sec)
         .output(image.path)
         .outputOptions("-frames", "1")
+        .size("400x?")
         .on("end", async () => {
           logger.log("Screenshot done.");
           await database.insert(database.store.images, image);
@@ -634,7 +636,8 @@ export default class Scene {
                   "{{index}}",
                   index.toString().padStart(3, "0")
                 ),
-                folder: options.thumbnailPath
+                folder: options.thumbnailPath,
+                size: "400x?"
               });
           });
         });

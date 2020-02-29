@@ -791,6 +791,7 @@ export default class SceneDetails extends Vue {
           $actors: [String!]
           $labels: [String!]
           $scene: String
+          $compress: Boolean
         ) {
           uploadImage(
             file: $file
@@ -799,6 +800,7 @@ export default class SceneDetails extends Vue {
             actors: $actors
             labels: $labels
             scene: $scene
+            compress: $compress
           ) {
             ...ImageFragment
             actors {
@@ -824,7 +826,8 @@ export default class SceneDetails extends Vue {
           height: this.crop.height
         },
         actors: this.currentScene.actors.map(a => a._id),
-        labels: this.currentScene.labels.map(a => a._id)
+        labels: this.currentScene.labels.map(a => a._id),
+        compress: true
       }
     })
       .then(res => {

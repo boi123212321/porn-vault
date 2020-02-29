@@ -55,6 +55,7 @@ export default gql`
       crop: Crop
       studio: String
       lossless: Boolean
+      compress: Boolean
     ): Image!
 
     updateImages(ids: [String!]!, opts: ImageUpdateOpts!): [Image!]!

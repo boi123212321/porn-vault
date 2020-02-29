@@ -108,22 +108,28 @@ export default {
 
       if (args.crop) {
         logger.log(`Cropping image...`);
-        await _image
-          .crop(
-            args.crop.left,
-            args.crop.top,
-            args.crop.width,
-            args.crop.height
-          )
-          .writeAsync(sourcePath);
-
+        _image.crop(
+          args.crop.left,
+          args.crop.top,
+          args.crop.width,
+          args.crop.height
+        );
         image.meta.dimensions.width = args.crop.width;
         image.meta.dimensions.height = args.crop.height;
       } else {
         image.meta.dimensions.width = _image.bitmap.width;
         image.meta.dimensions.height = _image.bitmap.height;
-        await _image.writeAsync(sourcePath);
       }
+
+      if (args.compress === true) {
+        logger.log("Resizing image to thumbnail size");
+        const MAX_SIZE = 400;
+        if (_image.bitmap.width > _image.bitmap.height)
+          _image.resize(MAX_SIZE, Jimp.AUTO);
+        else _image.resize(Jimp.AUTO, MAX_SIZE);
+      }
+
+      await _image.writeAsync(sourcePath);
 
       image.hash = _image.hash();
 

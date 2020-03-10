@@ -11,6 +11,7 @@ export default gql`
 
     # Resolvers
     labels: [Label!]!
+    thumbnail: Image
   }
 
   extend type Mutation {

@@ -3,8 +3,11 @@ import { generateHash } from "../hash";
 import Scene from "./scene";
 import CrossReference from "./cross_references";
 import * as logger from "../logger";
-import { mapAsync } from "./utility";
+import { mapAsync, libraryPath } from "./utility";
 import Label from "./label";
+import Image from "./image";
+import * as path from "path";
+import { singleScreenshot } from "../ffmpeg/screenshot";
 
 export default class Marker {
   _id: string;
@@ -39,7 +42,39 @@ export default class Marker {
           { $set: { bookmark: time } }
         );
       }
+
+      if (!marker.thumbnail) {
+        await this.createMarkerThumbnail(marker);
+      }
     }
+  }
+
+  static async createMarkerThumbnail(marker: Marker) {
+    const scene = await Scene.getById(marker.scene);
+    if (!scene || !scene.path) return;
+
+    logger.log("Creating thumbnail for marker " + marker._id);
+    const image = new Image(`${marker.name} (thumbnail)`);
+    image.path = path.join(libraryPath("thumbnails/"), image._id) + ".jpg";
+    image.scene = marker.scene;
+
+    const actors = (await Scene.getActors(scene)).map(l => l._id);
+    await Image.setActors(image, actors);
+
+    const labels = (await Marker.getLabels(marker)).map(l => l._id);
+    await Image.setLabels(image, labels);
+
+    await singleScreenshot(scene.path, image.path, marker.time + 15);
+    await database.insert(database.store.images, image);
+    await database.update(
+      database.store.markers,
+      { _id: marker._id },
+      {
+        $set: {
+          thumbnail: image._id
+        }
+      }
+    );
   }
 
   static async setLabels(marker: Marker, labelIds: string[]) {

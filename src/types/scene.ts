@@ -17,6 +17,7 @@ import mergeImg from "merge-img";
 import Marker from "./marker";
 import Image from "./image";
 import Movie from "./movie";
+import { singleScreenshot } from "../ffmpeg/screenshot";
 
 export type ThumbnailFile = {
   name: string;
@@ -518,47 +519,39 @@ export default class Scene {
   }
 
   static async screenshot(scene: Scene, sec: number): Promise<Image | null> {
-    return new Promise(async (resolve, reject) => {
-      if (!scene.path) {
-        logger.log("No scene path.");
-        return resolve(null);
+    if (!scene.path) {
+      logger.log("No scene path.");
+      return null;
+    }
+
+    const image = new Image(`${scene.name} (thumbnail)`);
+    image.path = path.join(libraryPath("thumbnails/"), image._id) + ".jpg";
+    image.scene = scene._id;
+
+    logger.log("Generating screenshot for scene...");
+
+    await singleScreenshot(scene.path, image.path, sec);
+
+    logger.log("Screenshot done.");
+    await database.insert(database.store.images, image);
+
+    const actors = (await Scene.getActors(scene)).map(l => l._id);
+    await Image.setActors(image, actors);
+
+    const labels = (await Scene.getLabels(scene)).map(l => l._id);
+    await Image.setLabels(image, labels);
+
+    await database.update(
+      database.store.scenes,
+      { _id: scene._id },
+      {
+        $set: {
+          thumbnail: image._id
+        }
       }
+    );
 
-      const image = new Image(`${scene.name} (thumbnail)`);
-      image.path = path.join(libraryPath("thumbnails/"), image._id) + ".jpg";
-      image.scene = scene._id;
-
-      logger.log("Generating screenshot for scene...");
-
-      ffmpeg(scene.path)
-        .seekInput(sec)
-        .output(image.path)
-        .outputOptions("-frames", "1")
-        .size("540x?")
-        .on("end", async () => {
-          logger.log("Screenshot done.");
-          await database.insert(database.store.images, image);
-
-          const actors = (await Scene.getActors(scene)).map(l => l._id);
-          await Image.setActors(image, actors);
-
-          const labels = (await Scene.getLabels(scene)).map(l => l._id);
-          await Image.setLabels(image, labels);
-
-          await database.update(
-            database.store.scenes,
-            { _id: scene._id },
-            {
-              $set: {
-                thumbnail: image._id
-              }
-            }
-          );
-
-          resolve(image);
-        })
-        .run();
-    });
+    return image;
   }
 
   static async generateThumbnails(scene: Scene): Promise<ThumbnailFile[]> {

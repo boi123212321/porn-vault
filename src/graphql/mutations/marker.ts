@@ -35,6 +35,8 @@ export default {
     const crossReference = new CrossReference(scene, marker._id);
     await database.insert(database.store.crossReferences, crossReference);
 
+    await Marker.createMarkerThumbnail(marker);
+
     return marker;
   },
   async removeMarkers(_: any, { ids }: { ids: string[] }) {

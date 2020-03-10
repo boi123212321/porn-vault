@@ -157,7 +157,9 @@
     <v-dialog v-model="removeDialog" max-width="400px">
       <v-card>
         <v-card-title>Really delete '{{ currentImage.name }}'?</v-card-title>
-        <v-card-text>Actors and scenes featuring this image will stay in your collection.</v-card-text>
+        <v-card-text>
+          <v-alert type="error">This will absolutely annihilate the original source file on disk</v-alert>Actors and scenes featuring this image will stay in your collection.
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn text color="error" @click="$emit('delete', index); removeDialog = false">Delete</v-btn>

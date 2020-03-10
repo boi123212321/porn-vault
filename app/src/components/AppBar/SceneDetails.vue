@@ -101,6 +101,10 @@
       <v-card :loading="removeLoader">
         <v-card-title>Really delete '{{ currentScene.name }}'?</v-card-title>
         <v-card-text>
+          <v-alert
+            v-if="currentScene.path"
+            type="error"
+          >This will absolutely annihilate the original source file on disk</v-alert>
           <v-checkbox color="error" v-model="deleteImages" label="Delete images as well"></v-checkbox>
         </v-card-text>
         <v-card-actions>

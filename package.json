@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/boi123212321/porn-manager#readme",
   "dependencies": {
-    "apollo-server-express": "^2.10.1",
+    "apollo-server-express": "^2.11.0",
     "axios": "^0.19.1",
     "checksum": "^0.1.1",
     "cheerio": "^1.0.0-rc.3",

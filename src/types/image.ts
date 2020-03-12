@@ -86,16 +86,6 @@ export default class Image {
         ? image._id
         : `im_${image._id}`;
 
-      if (typeof image.bookmark == "boolean") {
-        logger.log(`Setting bookmark to timestamp...`);
-        const time = image.bookmark ? image.addedOn : null;
-        await database.update(
-          database.store.images,
-          { _id: imageId },
-          { $set: { bookmark: time } }
-        );
-      }
-
       if (image.actors && image.actors.length) {
         for (const actor of image.actors) {
           const actorId = actor.startsWith("ac_") ? actor : `ac_${actor}`;

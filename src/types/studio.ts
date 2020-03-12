@@ -28,16 +28,6 @@ export default class Studio {
         ? studio._id
         : `st_${studio._id}`;
 
-      if (typeof studio.bookmark == "boolean") {
-        logger.log(`Setting bookmark to timestamp...`);
-        const time = studio.bookmark ? studio.addedOn : null;
-        await database.update(
-          database.store.studios,
-          { _id: studioId },
-          { $set: { bookmark: time } }
-        );
-      }
-
       if (studio.labels && studio.labels.length) {
         for (const label of studio.labels) {
           const labelId = label.startsWith("la_") ? label : `la_${label}`;

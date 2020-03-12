@@ -46,16 +46,6 @@ export default class Actor {
         ? actor._id
         : `ac_${actor._id}`;
 
-      if (typeof actor.bookmark == "boolean") {
-        logger.log(`Setting bookmark to timestamp...`);
-        const time = actor.bookmark ? actor.addedOn : null;
-        await database.update(
-          database.store.actors,
-          { _id: actorId },
-          { $set: { bookmark: time } }
-        );
-      }
-
       if (actor.labels && actor.labels.length) {
         for (const label of actor.labels) {
           const labelId = label.startsWith("la_") ? label : `la_${label}`;

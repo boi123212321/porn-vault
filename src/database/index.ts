@@ -11,6 +11,7 @@ import Movie from "../types/movie";
 import Studio from "../types/studio";
 import CrossReference from "../types/cross_references";
 import Marker from "../types/marker";
+import { bookmarksToTimestamp } from "../integrity";
 
 mkdirp.sync("backups/");
 mkdirp.sync("tmp/");
@@ -64,6 +65,17 @@ export async function loadStores() {
     mkdirp.sync(libraryPath("previews/"));
   } catch (err) {}
 
+  const compatLoader = ora("Making .db files compatible (if needed)").start();
+
+  await bookmarksToTimestamp(libraryPath("scenes.db"));
+  await bookmarksToTimestamp(libraryPath("actors.db"));
+  await bookmarksToTimestamp(libraryPath("images.db"));
+  await bookmarksToTimestamp(libraryPath("movies.db"));
+  await bookmarksToTimestamp(libraryPath("studios.db"));
+  await bookmarksToTimestamp(libraryPath("markers.db"));
+
+  compatLoader.succeed();
+
   const dbLoader = ora("Loading DB...").start();
 
   store = {
@@ -113,6 +125,7 @@ export async function loadStores() {
   const integrityLoader = ora(
     "Checking database integrity. This might take a minute..."
   ).start();
+
   await Scene.checkIntegrity();
   await Actor.checkIntegrity();
   await Label.checkIntegrity();

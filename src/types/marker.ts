@@ -33,16 +33,6 @@ export default class Marker {
         ? marker._id
         : `st_${marker._id}`;
 
-      if (typeof marker.bookmark == "boolean") {
-        logger.log(`Setting bookmark to timestamp...`);
-        const time = marker.bookmark ? marker.addedOn : null;
-        await database.update(
-          database.store.markers,
-          { _id: markerId },
-          { $set: { bookmark: time } }
-        );
-      }
-
       if (!marker.thumbnail) {
         await this.createMarkerThumbnail(marker);
       }

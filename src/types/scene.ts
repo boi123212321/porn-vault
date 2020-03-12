@@ -74,16 +74,6 @@ export default class Scene {
         ? scene._id
         : `sc_${scene._id}`;
 
-      if (typeof scene.bookmark == "boolean") {
-        logger.log(`Setting bookmark to timestamp...`);
-        const time = scene.bookmark ? scene.addedOn : null;
-        await database.update(
-          database.store.scenes,
-          { _id: sceneId },
-          { $set: { bookmark: time } }
-        );
-      }
-
       if (scene.preview === undefined) {
         logger.log(`Undefined scene preview, setting to null...`);
         await database.update(

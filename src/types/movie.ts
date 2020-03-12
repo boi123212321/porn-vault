@@ -39,16 +39,6 @@ export default class Movie {
         ? movie._id
         : `mo_${movie._id}`;
 
-      if (typeof movie.bookmark == "boolean") {
-        logger.log(`Setting bookmark to timestamp...`);
-        const time = movie.bookmark ? movie.addedOn : null;
-        await database.update(
-          database.store.movies,
-          { _id: movieId },
-          { $set: { bookmark: time } }
-        );
-      }
-
       if (movie.scenes && movie.scenes.length) {
         for (const actor of movie.scenes) {
           const actorId = actor.startsWith("sc_") ? actor : `sc_${actor}`;

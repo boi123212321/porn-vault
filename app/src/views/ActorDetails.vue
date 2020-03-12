@@ -927,6 +927,7 @@ export default class ActorDetails extends Vue {
         this.images.unshift(image);
         this.setAsAvatar(image._id);
         this.avatarDialog = false;
+        this.avatarLoader = false;
         this.avatarDisplay = null;
         this.selectedAvatar = null;
       })

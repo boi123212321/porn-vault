@@ -141,7 +141,7 @@ export async function checkImageFolders() {
     let numFiles = 0;
     const loader = ora(`Scanned ${numFiles} images`).start();
 
-    await walk(folder, [".jpg", ".jpeg", ".png"], async path => {
+    await walk(folder, [".jpg", ".jpeg", ".png", ".gif"], async path => {
       loader.text = `Scanned ${++numFiles} images`;
       if (
         basename(path).startsWith(".") ||

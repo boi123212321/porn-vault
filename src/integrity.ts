@@ -8,6 +8,8 @@ import fs from "fs";
 import readline from "readline";
 
 export function bookmarksToTimestamp(file: string) {
+  if (!fs.existsSync(file)) return;
+
   let lines = [] as string[];
   let modified = false;
 

@@ -142,8 +142,7 @@
           </v-row>
         </v-col>
       </v-row>
-
-      <div v-if="scenes.length && images.length">
+      <div v-if="images.length">
         <div class="d-flex align-center">
           <v-spacer></v-spacer>
           <h1 class="font-weight-light mr-3">{{ images.length }} Images</h1>
@@ -221,7 +220,11 @@
       </v-card>
     </v-dialog>
 
-    <infinite-loading v-if="currentMovie" :identifier="infiniteId" @infinite="infiniteHandler">
+    <infinite-loading
+      v-if="scenes.length && currentMovie"
+      :identifier="infiniteId"
+      @infinite="infiniteHandler"
+    >
       <div slot="no-results">
         <v-icon large>mdi-close</v-icon>
         <div>Nothing found!</div>
@@ -570,7 +573,7 @@ export default class MovieDetails extends Vue {
   }
 
   async fetchPage() {
-    if (!this.currentMovie) return;
+    if (!this.currentMovie) return [];
 
     try {
       const query = `page:${

@@ -423,6 +423,7 @@
               class="cropper"
               :src="avatarDisplay"
               :stencilProps="{ aspectRatio: 1 }"
+              :stencilComponent="$options.components.CircleStencil"
               @change="changeAvatarCrop"
             ></cropper>
           </div>
@@ -558,7 +559,7 @@ import Lightbox from "../components/Lightbox.vue";
 import MovieCard from "../components/MovieCard.vue";
 import ImageCard from "../components/ImageCard.vue";
 import InfiniteLoading from "vue-infinite-loading";
-import { Cropper } from "vue-advanced-cropper";
+import { Cropper, CircleStencil } from "vue-advanced-cropper";
 import ImageUploader from "../components/ImageUploader.vue";
 import IScene from "../types/scene";
 import IMovie from "../types/movie";
@@ -599,7 +600,8 @@ interface ICollabActor {
     Cropper,
     ImageUploader,
     CustomFieldSelector,
-    MovieCard
+    MovieCard,
+    CircleStencil
   },
   beforeRouteLeave(_to, _from, next) {
     actorModule.setCurrent(null);
@@ -931,7 +933,7 @@ export default class ActorDetails extends Vue {
         this.selectedAvatar = null;
       })
       .finally(() => {
-        this.heroLoader = false;
+        this.avatarLoader = false;
       });
   }
 

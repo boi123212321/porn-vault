@@ -51,12 +51,21 @@
             label="Fill actor thumbnails"
             v-model="fillActorCards"
           />
-          <v-text-field
-            color="primary"
-            hide-details
-            label="Rename Actors"
-            v-model="renameActorLabel"
-          />
+          <v-row>
+            <v-col cols="3">              
+              <v-text-field
+                color="primary"
+                hide-details
+                label="Rename Actors"
+                solo
+                dense
+                v-model="renameActorLabel"
+              />
+            </v-col>
+            <v-col cols="4" class="ml-n8 mt-n1">
+              <v-subheader>Rename Actors</v-subheader>
+            </v-col>
+          </v-row>
         </div>
       </v-col>
     </v-row>

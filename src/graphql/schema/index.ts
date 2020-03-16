@@ -5,9 +5,14 @@ export default gql`
   scalar Object
   scalar Upload
 
+  type IndexStatus {
+    version: String!
+    indexing: Boolean!
+  }
+
   type Query {
     getQueueInfo: QueueInfo!
-    twigsVersion: String
+    twigs: IndexStatus
   }
 
   type Mutation {

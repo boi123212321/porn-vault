@@ -13,6 +13,11 @@ export default gql`
     fps: Float
   }
 
+  type ScoredLabels {
+    label: Label!
+    score: Int!
+  }
+
   extend type Query {
     numScenes: Int!
     getScenes(query: String, random: Int): [Scene!]!
@@ -20,6 +25,7 @@ export default gql`
     getScenesWithoutActors(num: Int): [Scene!]!
     getScenesWithoutLabels(num: Int): [Scene!]!
     getScenesWithoutStudios(num: Int): [Scene!]!
+    getSceneLabelUsage: [ScoredLabels!]!
   }
 
   type Scene {

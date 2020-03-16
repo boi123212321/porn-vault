@@ -31,6 +31,7 @@ logger.message(
 );
 
 let serverReady = false;
+export let indexing = false;
 let setupMessage = "Setting up...";
 
 async function scanFolders() {
@@ -161,8 +162,14 @@ export default async () => {
 
   await spawnTwigs();
 
-  setupMessage = "Creating search indices...";
-  await buildIndices();
+  indexing = true;
+  buildIndices()
+    .then(() => {
+      indexing = false;
+    })
+    .catch(err => {
+      logger.error(err);
+    });
 
   checkSceneSources();
   checkImageSources();

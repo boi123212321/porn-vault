@@ -4,6 +4,21 @@ import * as logger from "../logger";
 
 export type Dictionary<T> = Record<string, T>;
 
+export function createObjectSet<T extends Record<string, any>>(
+  objs: T[],
+  key: keyof T & string
+) {
+  const dict = {} as { [key: string]: T };
+  for (const obj of objs) {
+    dict[obj[key]] = obj;
+  }
+  const set = [] as T[];
+  for (const key in dict) {
+    set.push(dict[key]);
+  }
+  return set;
+}
+
 export function isNumber(i: any): i is number {
   return typeof i === "number";
 }

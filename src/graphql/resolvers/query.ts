@@ -14,10 +14,14 @@ import { getActors } from "./search/actor";
 import { getStudios } from "./search/studio";
 import { getMovies } from "./search/movie";
 import { twigsVersion } from "../../search/index";
+import { indexing } from "../../server";
 
 export default {
-  async twigsVersion() {
-    return twigsVersion();
+  async twigs() {
+    return {
+      version: await twigsVersion(),
+      indexing
+    };
   },
 
   async getScenesWithoutStudios(_, { num }: { num: number }) {
@@ -144,5 +148,77 @@ export default {
   },
   async numImages() {
     return await database.count(database.store.images, {});
+  },
+  async actorGraph() {
+    const actors = await Actor.getAll();
+
+    let links = [] as {
+      _id: string;
+      from: string;
+      to: string;
+      title: string;
+    }[];
+
+    for (const actor of actors) {
+      const collabs = await Actor.getCollabs(actor);
+
+      for (const collab of collabs) {
+        for (const other of collab.actors) {
+          links.push({
+            from: actor._id,
+            to: other._id,
+            title: collab.scene.name,
+            _id: collab.scene._id
+          });
+        }
+      }
+    }
+
+    // TODO: Remove duplicates?
+
+    return {
+      actors,
+      links: { items: links }
+    };
+  },
+  async getSceneLabelUsage() {
+    const scores = {} as Record<string, { label: Label; score: number }>;
+    for (const scene of await Scene.getAll()) {
+      for (const label of await Scene.getLabels(scene)) {
+        const item = scores[label._id];
+        scores[label._id] = item
+          ? { label, score: item.score + 1 }
+          : {
+              label,
+              score: 0
+            };
+      }
+    }
+    return Object.keys(scores)
+      .map(key => ({
+        label: scores[key].label,
+        score: scores[key].score
+      }))
+      .sort((a, b) => b.score - a.score);
+  },
+  async getActorLabelUsage() {
+    const scores = {} as Record<string, { label: Label; score: number }>;
+    for (const actor of await Actor.getAll()) {
+      for (const label of await Actor.getLabels(actor)) {
+        const item = scores[label._id];
+        scores[label._id] = item
+          ? { label, score: item.score + 1 }
+          : {
+              label,
+              score: 0
+            };
+      }
+    }
+    return Object.keys(scores)
+      .map(key => ({
+        label: scores[key].label,
+        score: scores[key].score
+      }))
+      .sort((a, b) => b.score - a.score);
   }
 };

@@ -26,11 +26,11 @@ export const indices = {
 };
 
 export async function buildIndices() {
-  await buildImageIndex();
-  await buildActorIndex();
   await buildSceneIndex();
-  await buildStudioIndex();
+  await buildActorIndex();
   await buildMovieIndex();
+  await buildStudioIndex();
+  await buildImageIndex();
 }
 
 export async function twigsVersion() {
@@ -38,6 +38,6 @@ export async function twigsVersion() {
     const res = await Axios.get(`http://localhost:8000/`);
     return res.data.version as string;
   } catch (error) {
-    return false;
+    return null;
   }
 }

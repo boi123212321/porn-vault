@@ -1,6 +1,5 @@
 import Studio from "../../types/studio";
 import Image from "../../types/image";
-import Scene from "../../types/scene";
 
 export default {
   thumbnail(studio: Studio) {

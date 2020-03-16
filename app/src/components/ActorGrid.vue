@@ -3,7 +3,7 @@
     <v-col :cols="cols" :sm="sm" :md="md" :lg="lg" :xl="xl" v-for="actor in value" :key="actor._id">
       <v-hover>
         <template v-slot:default="{ hover }">
-          <v-img height="100%" cover :src="thumbnail(actor)">
+          <v-img style="border-radius: 8px" height="100%" cover :src="thumbnail(actor)">
             <v-fade-transition>
               <v-overlay v-if="hover" absolute color="primary">
                 <v-btn

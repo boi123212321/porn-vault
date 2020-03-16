@@ -29,6 +29,11 @@ export default gql`
     collabs: [Actor!]!
   }
 
+  type ActorGraph {
+    actors: [Actor!]!
+    links: Object!
+  }
+
   extend type Query {
     numActors: Int!
     getActors(query: String): [Actor!]!
@@ -36,6 +41,8 @@ export default gql`
     topActors(num: Int): [Actor!]!
     getActorsWithoutScenes(num: Int): [Actor!]!
     getActorsWithoutLabels(num: Int): [Actor!]!
+    actorGraph: ActorGraph!
+    getActorLabelUsage: [ScoredLabels!]!
   }
 
   input ActorUpdateOpts {

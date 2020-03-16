@@ -1,6 +1,7 @@
 <template>
   <v-app>
     <v-app-bar
+      dark
       :hide-on-scroll="showDetailsBar"
       dense
       style="z-index: 13"

@@ -71,6 +71,8 @@ export interface IConfig {
   CREATE_MISSING_LABELS: boolean;
 
   MAX_LOG_SIZE: number;
+
+  COMPRESS_IMAGE_SIZE: number;
 }
 
 export const defaultConfig: IConfig = {
@@ -112,7 +114,9 @@ export const defaultConfig: IConfig = {
   CREATE_MISSING_ACTORS: false,
   CREATE_MISSING_STUDIOS: false,
   CREATE_MISSING_LABELS: false,
-  MAX_LOG_SIZE: 2500
+  MAX_LOG_SIZE: 2500,
+
+  COMPRESS_IMAGE_SIZE: 540
 };
 
 let loadedConfig;

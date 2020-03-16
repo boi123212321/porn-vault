@@ -73,7 +73,7 @@
     "@types/inquirer": "^6.5.0",
     "@types/mkdirp": "^0.5.2",
     "@types/nedb": "^1.8.9",
-    "@types/node": "^13.9.0",
+    "@types/node": "^13.9.1",
     "@types/pug": "^2.0.4",
     "@types/rimraf": "^2.0.3",
     "@types/tiny-async-pool": "^1.0.0",

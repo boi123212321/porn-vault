@@ -1461,6 +1461,8 @@ export default class ActorDetails extends Vue {
     this.movies = [];
     this.collabs = [];
     this.selectedLabels = [];
+    this.page = 0;
+    this.scenePage = 0;
     this.onLoad();
     this.loadCollabs();
   }

@@ -13,6 +13,7 @@ import Labels from "../views/Labels.vue";
 import Images from "../views/Images.vue";
 import Studios from "../views/Studios.vue";
 import Plugins from "../views/Plugins.vue";
+import Graph from "../views/Graph.vue";
 
 Vue.use(VueRouter);
 
@@ -31,6 +32,11 @@ const routes = [
     path: "/plugins",
     name: "plugins",
     component: Plugins
+  },
+  {
+    path: "/graph",
+    name: "graph",
+    component: Graph
   },
   {
     path: "/about",

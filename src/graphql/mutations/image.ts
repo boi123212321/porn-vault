@@ -123,13 +123,14 @@ export default {
 
       if (args.compress === true) {
         logger.log("Resizing image to thumbnail size");
-        const MAX_SIZE = 400;
+        const MAX_SIZE = config.COMPRESS_IMAGE_SIZE;
+
         if (
           _image.bitmap.width > _image.bitmap.height &&
-          _image.bitmap.width > 400
+          _image.bitmap.width > MAX_SIZE
         ) {
           _image.resize(MAX_SIZE, Jimp.AUTO);
-        } else if (_image.bitmap.height > 400) {
+        } else if (_image.bitmap.height > MAX_SIZE) {
           _image.resize(Jimp.AUTO, MAX_SIZE);
         }
       }

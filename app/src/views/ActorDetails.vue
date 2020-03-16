@@ -156,7 +156,7 @@
                 >{{ currentActor.description }}</div>
               </div>
               <div v-if="collabs.length">
-                <v-btn icon @click="showCollabs=!showCollabs">
+                <v-btn class="mr-2" icon @click="showCollabs=!showCollabs">
                   <v-icon>{{ showCollabs ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
                 </v-btn>
 

@@ -6,7 +6,7 @@
       :loading="loading"
       :items="scenes"
       :search-input.sync="searchQuery"
-      cache-items
+      no-filter
       hide-no-data
       hint="Search for scenes by typing something"
       persistent-hint
@@ -67,10 +67,17 @@ export default class SceneSelector extends Vue {
 
   onInnerValueChange(newVal: string | string[]) {
     if (this.multiple && Array.isArray(newVal)) {
-      this.$emit("input", newVal
-        .map(id => this.scenes.find(a => a._id == id))
-        .filter(Boolean) as IScene[]);
-    } else this.$emit("input", this.scenes.find(a => a._id == newVal));
+      this.$emit(
+        "input",
+        newVal
+          .map(id => this.scenes.find(a => a._id == id))
+          .filter(Boolean) as IScene[]
+      );
+    } else
+      this.$emit(
+        "input",
+        this.scenes.find(a => a._id == newVal)
+      );
   }
 
   thumbnail(scene: IScene) {
@@ -117,7 +124,7 @@ export default class SceneSelector extends Vue {
       });
 
       this.loading = false;
-      this.scenes.push(...result.data.getScenes);
+      this.scenes = result.data.getScenes;
 
       const ids = [...new Set(this.scenes.map(a => a._id))];
 

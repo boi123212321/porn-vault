@@ -445,7 +445,7 @@ export default class StudioList extends mixins(DrawerMixin) {
       `
     })
       .then(res => {
-        this.allLabels = res.data.getLabels;
+        this.allLabels = res.data.getAreaLabels;
       })
       .catch(err => {
         console.error(err);

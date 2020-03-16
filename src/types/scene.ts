@@ -453,6 +453,8 @@ export default class Scene {
 
         const folder = libraryPath("thumbnails/");
 
+        const config = getConfig();
+
         await (() => {
           return new Promise(async (resolve, reject) => {
             ffmpeg(<string>scene.path)
@@ -470,7 +472,7 @@ export default class Scene {
                 count: 1,
                 filename: `${scene._id} (thumbnail).jpg`,
                 timestamps: ["50%"],
-                size: "540x?"
+                size: "?x" + config.COMPRESS_IMAGE_SIZE
               });
           });
         })();
@@ -620,7 +622,7 @@ export default class Scene {
                   index.toString().padStart(3, "0")
                 ),
                 folder: options.thumbnailPath,
-                size: "540x?"
+                size: "?x" + config.COMPRESS_IMAGE_SIZE
               });
           });
         });

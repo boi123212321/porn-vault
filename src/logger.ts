@@ -1,8 +1,8 @@
 import debug from "debug";
 import * as url from "url";
 import express from "express";
-
-export const logStorage = [];
+import { getConfig } from "./config/index";
+import { writeFileAsync } from "./fs/async";
 
 if (process.env.NODE_ENV == "development") {
   debug.enable("porn:*");
@@ -10,12 +10,83 @@ if (process.env.NODE_ENV == "development") {
   debug.enable("porn:warn,porn:error,porn:message,porn:plugin");
 }
 
-export const log = debug("porn:log");
-export const success = debug("porn:success");
-export const http = debug("porn:http");
-export const warn = debug("porn:warn");
-export const error = debug("porn:error");
-export const message = debug("porn:message");
+enum LogType {
+  LOG = "log",
+  WARN = "warn",
+  ERROR = "error",
+  SUCCESS = "success",
+  HTTP = "http",
+  MESSAGE = "message"
+}
+
+interface ILogData {
+  type: LogType;
+  text: string;
+  date: number;
+}
+
+const logArray = [] as ILogData[];
+export function getLog() {
+  return logArray;
+}
+
+function createItem(type: LogType, text: string) {
+  return {
+    type,
+    text,
+    date: +new Date()
+  } as ILogData;
+}
+
+function appendToLog(item: ILogData) {
+  const config = getConfig();
+  if (config && logArray.length == config.MAX_LOG_SIZE) logArray.shift();
+  logArray.push(item);
+}
+
+export async function logToFile() {
+  return writeFileAsync(
+    `log-${new Date().toISOString()}`,
+    JSON.stringify(logArray),
+    "utf-8"
+  );
+}
+
+function merge(...args: any[]) {
+  return args.map(a => JSON.stringify(a)).join("\n");
+}
+
+export const log = (...args: any) => {
+  const text = merge(args);
+  debug("porn:log")(text);
+  appendToLog(createItem(LogType.LOG, text));
+};
+export const success = (...args: any) => {
+  const text = merge(args);
+  debug("porn:success")(text);
+  appendToLog(createItem(LogType.SUCCESS, text));
+};
+export const http = (...args: any) => {
+  const text = merge(args);
+  debug("porn:http")(text);
+  appendToLog(createItem(LogType.HTTP, text));
+};
+export const warn = (...args: any) => {
+  const text = merge(args);
+  debug("porn:warn")(text);
+  appendToLog(createItem(LogType.WARN, text));
+};
+export const error = (...args: any) => {
+  const text = merge(args);
+  debug("porn:error")(text);
+  appendToLog(createItem(LogType.ERROR, text));
+};
+export const message = (...args: any) => {
+  const text = merge(args);
+  debug("porn:message")(text);
+  appendToLog(createItem(LogType.MESSAGE, text));
+};
+// TODO: merge vvvvvvvvv
 export const search = debug("porn:search");
 export const twigs = debug("porn:twigs");
 

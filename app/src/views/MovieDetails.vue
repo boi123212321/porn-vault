@@ -390,7 +390,6 @@ export default class MovieDetails extends Vue {
     })
       .then(res => {
         const image = res.data.uploadImage;
-        this.images.unshift(image);
         this.setAsSpineCover(image._id);
         this.spineCoverDialog = false;
         this.spineCoverFile = null;

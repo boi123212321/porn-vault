@@ -14,6 +14,7 @@ import Images from "../views/Images.vue";
 import Studios from "../views/Studios.vue";
 import Plugins from "../views/Plugins.vue";
 import Graph from "../views/Graph.vue";
+import Logs from "../views/Logs.vue";
 
 Vue.use(VueRouter);
 
@@ -22,6 +23,11 @@ const routes = [
     path: "/",
     name: "home",
     component: Home
+  },
+  {
+    path: "/logs",
+    name: "logs",
+    component: Logs
   },
   {
     path: "/home",

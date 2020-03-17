@@ -754,6 +754,13 @@ export default class ActorDetails extends Vue {
         mutation($ids: [String!]!) {
           runActorPlugins(ids: $ids) {
             ...ActorFragment
+            hero {
+              _id
+              color
+            }
+            avatar {
+              _id
+            }
           }
         }
         ${actorFragment}

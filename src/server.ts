@@ -129,6 +129,10 @@ export default async () => {
     else res.redirect("/broken");
   });
 
+  app.get("/log", async (req, res) => {
+    res.json(logger.getLog());
+  });
+
   mountApolloServer(app);
 
   app.use(

@@ -6,7 +6,7 @@
       :loading="loading"
       :items="scenes"
       :search-input.sync="searchQuery"
-      no-filter
+      cache-items
       hide-no-data
       hint="Search for scenes by typing something"
       persistent-hint

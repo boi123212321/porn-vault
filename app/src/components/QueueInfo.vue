@@ -8,9 +8,9 @@
       <div class="my-2">
         <span class="mr-2 d-inline-block headline">{{ info.length }}</span>
         <span class="subtitle-1">videos</span>
-        <span v-if="info.length > 0" class="ml-3">
+        <!-- <span v-if="info.length > 0" class="ml-3">
           <v-progress-circular size="20" width="2" indeterminate></v-progress-circular>
-        </span>
+        </span>-->
       </div>
     </v-card-text>
   </v-card>

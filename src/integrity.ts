@@ -30,6 +30,9 @@ export function bookmarksToTimestamp(file: string) {
           else item.bookmark = null;
           modified = true;
         }
+      } else {
+        logger.log("Bookmarks already timestamp... aborting");
+        return rl.close();
       }
       lines.push(JSON.stringify(item));
     });

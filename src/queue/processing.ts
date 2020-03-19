@@ -4,6 +4,16 @@ export interface ISceneProcessingItem {
 
 import * as database from "../database/index";
 
+let processing = false;
+
+export function setProcessingStatus(value: boolean) {
+  processing = value;
+}
+
+export function isProcessing() {
+  return processing;
+}
+
 function getStore() {
   return database.store.processing;
 }

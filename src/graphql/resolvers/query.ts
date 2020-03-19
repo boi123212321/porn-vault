@@ -14,7 +14,7 @@ import { getStudios } from "./search/studio";
 import { getMovies } from "./search/movie";
 import { twigsVersion } from "../../search/index";
 import { indexing } from "../../server";
-import { getLength } from "../../queue/processing";
+import { getLength, isProcessing } from "../../queue/processing";
 
 export default {
   async twigs() {
@@ -88,7 +88,8 @@ export default {
 
   async getQueueInfo() {
     return {
-      length: await getLength()
+      length: await getLength(),
+      processing: isProcessing()
     };
   },
 

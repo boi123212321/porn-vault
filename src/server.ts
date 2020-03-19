@@ -5,11 +5,7 @@ import Scene from "./types/scene";
 import * as path from "path";
 import { checkPassword, passwordHandler } from "./password";
 import { getConfig, watchConfig } from "./config/index";
-import {
-  checkVideoFolders,
-  checkImageFolders,
-  checkPreviews
-} from "./queue/check";
+import { checkVideoFolders, checkImageFolders } from "./queue/check";
 import { checkSceneSources, checkImageSources } from "./integrity";
 import { loadStores } from "./database/index";
 import { existsAsync } from "./fs/async";
@@ -23,8 +19,13 @@ import { spawnTwigs } from "./twigs";
 import { httpLog } from "./logger";
 import { renderHandlebars } from "./render";
 import { dvdRenderer } from "./dvd_renderer";
-import { getLength } from "./queue/processing";
+import {
+  getLength,
+  isProcessing,
+  setProcessingStatus
+} from "./queue/processing";
 import queueRouter from "./queue_router";
+import { spawn } from "child_process";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-manager for discussion & updates"
@@ -34,14 +35,34 @@ let serverReady = false;
 export let indexing = false;
 let setupMessage = "Setting up...";
 
+async function tryStartProcessing() {
+  if ((await getLength()) > 0 && !isProcessing()) {
+    logger.message("Starting processing worker...");
+    setProcessingStatus(true);
+    spawn(
+      process.argv[0],
+      [process.argv[1], "--process-queue"].filter(Boolean),
+      {
+        cwd: process.cwd(),
+        detached: false,
+        stdio: "inherit"
+      }
+    ).on("exit", () => {
+      setProcessingStatus(false);
+    });
+  }
+}
+
 async function scanFolders() {
   logger.warn("Scanning folders...");
 
   await checkVideoFolders();
   checkImageFolders();
 
-  // ProcessingQueue.processLoop();
-  // TODO: start worker
+  tryStartProcessing().catch(err => {
+    logger.error("Couldn't start processing...");
+    logger.error(err.message);
+  });
 }
 
 export default async () => {
@@ -191,7 +212,5 @@ export default async () => {
     logger.warn(
       "Scanning folders is currently disabled. Enable in config.json & restart."
     );
-    // ProcessingQueue.processLoop();
-    // TODO: start worker
   }
 };

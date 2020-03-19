@@ -12,10 +12,8 @@ import { ensureTwigsExists } from "./twigs";
 const sha = require("js-sha512").sha512;
 import args from "./args";
 import Axios from "axios";
-import ora from "ora";
 import Scene from "./types/scene";
 import Image from "./types/image";
-import * as database from "./database/index";
 import { statAsync } from "./fs/async";
 
 export async function onConfigLoad(config: IConfig) {

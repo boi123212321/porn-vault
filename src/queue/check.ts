@@ -50,7 +50,7 @@ export async function checkVideoFolders() {
 
   logger.log(`Found ${unknownVideos.length} new videos.`);
 
-  for (const videoPath of unknownVideos.slice(0, 1)) /* TODO: debug */ {
+  for (const videoPath of unknownVideos) {
     try {
       await Scene.onImport(videoPath);
     } catch (error) {

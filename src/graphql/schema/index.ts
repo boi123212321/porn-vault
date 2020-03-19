@@ -28,5 +28,6 @@ export default gql`
 
   type QueueInfo {
     length: Int!
+    processing: Boolean!
   }
 `;

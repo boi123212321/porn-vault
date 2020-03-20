@@ -63,50 +63,58 @@ printMaxMemory();
     let queueHead = (await getQueueHead()) as Scene;
 
     while (!!queueHead) {
-      let data = {
-        processed: true
-      } as any;
-      let images = [] as any[];
-      let thumbs = [] as any[];
+      try {
+        let data = {
+          processed: true
+        } as any;
+        let images = [] as any[];
+        let thumbs = [] as any[];
 
-      if (config.GENERATE_PREVIEWS && !queueHead.preview) {
-        const preview = await Scene.generatePreview(queueHead);
+        if (config.GENERATE_PREVIEWS && !queueHead.preview) {
+          const preview = await Scene.generatePreview(queueHead);
 
-        if (preview) {
-          let image = new Image(queueHead.name + " (preview)");
-          const stats = await statAsync(preview);
-          image.path = preview;
-          image.scene = queueHead._id;
-          image.meta.size = stats.size;
-          thumbs.push(image);
-          data.preview = image._id;
-        } else {
-          logger.error(`Error generating preview.`);
+          if (preview) {
+            let image = new Image(queueHead.name + " (preview)");
+            const stats = await statAsync(preview);
+            image.path = preview;
+            image.scene = queueHead._id;
+            image.meta.size = stats.size;
+            thumbs.push(image);
+            data.preview = image._id;
+          } else {
+            logger.error(`Error generating preview.`);
+          }
         }
+
+        if (config.GENERATE_SCREENSHOTS) {
+          let screenshots = [] as any[];
+          try {
+            screenshots = await Scene.generateThumbnails(queueHead);
+          } catch (error) {
+            logger.error(error);
+          }
+          for (let i = 0; i < screenshots.length; i++) {
+            const file = screenshots[i];
+            const image = new Image(`${queueHead.name} ${i + 1} (screenshot)`);
+            image.addedOn += i;
+            image.path = file.path;
+            image.scene = queueHead._id;
+            image.meta.size = file.size;
+            images.push(image);
+          }
+        }
+        await Axios.post(
+          `http://localhost:${config.PORT}/queue/${queueHead._id}?password=${config.PASSWORD}`,
+          { scene: data, thumbs, images }
+        );
+      } catch (error) {
+        logger.error("PROCESSING ERROR");
+        logger.log(error);
+        logger.error(error.message);
+        await Axios.delete(
+          `http://localhost:${config.PORT}/queue/${queueHead._id}?password=${config.PASSWORD}`
+        );
       }
-
-      if (config.GENERATE_SCREENSHOTS) {
-        let screenshots = [] as any[];
-        try {
-          screenshots = await Scene.generateThumbnails(queueHead);
-        } catch (error) {
-          logger.error(error);
-        }
-        for (let i = 0; i < screenshots.length; i++) {
-          const file = screenshots[i];
-          const image = new Image(`${queueHead.name} ${i + 1} (screenshot)`);
-          image.addedOn += i;
-          image.path = file.path;
-          image.scene = queueHead._id;
-          image.meta.size = file.size;
-          images.push(image);
-        }
-      }
-
-      await Axios.post(
-        `http://localhost:${config.PORT}/queue/${queueHead._id}?password=${config.PASSWORD}`,
-        { scene: data, thumbs, images }
-      );
       queueHead = await getQueueHead();
     }
 

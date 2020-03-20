@@ -7,6 +7,11 @@ import { indexImages } from "./search/image";
 
 const router = Router();
 
+router.delete("/:id", async (req, res) => {
+  await removeSceneFromQueue(req.params.id);
+  res.json(null);
+});
+
 router.post("/:id", async (req, res) => {
   await removeSceneFromQueue(req.params.id);
   if (req.body.scene) {

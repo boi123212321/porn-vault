@@ -188,6 +188,30 @@
               <v-subheader style="min-width: 150px">Last time watched</v-subheader>
               {{ new Date(currentScene.watches[currentScene.watches.length - 1]).toLocaleString() }}
             </div>
+
+            <div v-if="currentScene.availableFields.length">
+              <v-subheader>Custom data</v-subheader>
+              <div class="text-center py-2">
+                <v-btn
+                  class="text-none"
+                  color="primary"
+                  text
+                  @click="updateCustomFields"
+                  :disabled="!hasUpdatedFields"
+                >Update</v-btn>
+              </div>
+              <CustomFieldSelector
+                :cols="12"
+                :sm="12"
+                :md="6"
+                :lg="4"
+                :xl="3"
+                :fields="currentScene.availableFields"
+                v-model="editCustomFields"
+                @change="hasUpdatedFields = true"
+              />
+            </div>
+
             <div class="text-center mt-3">
               <v-btn
                 color="primary"
@@ -204,7 +228,6 @@
       <v-row>
         <v-col cols="12" sm="6">
           <h1 class="font-weight-light text-center">Starring</h1>
-
           <ActorGrid
             :cols="6"
             :sm="6"
@@ -214,44 +237,35 @@
             :value="actors"
             :sceneDate="currentScene.releaseDate"
           />
-
-          <!-- <v-row>
-            <v-col
-              class="pa-1"
-              v-for="(actor, i) in actors"
-              :key="actor._id"
-              cols="6"
-              sm="12"
-              md="6"
-              lg="4"
-              xl="3"
-            >
-              <actor-card style="height: 100%" v-model="actors[i]" />
-            </v-col>
-          </v-row>-->
         </v-col>
         <v-col cols="12" sm="6" class="d-flex">
           <v-divider v-if="$vuetify.breakpoint.smAndUp" class="mr-2 d-inline-block" vertical />
-          <div style="width: 100%">
-            <div class="text-center py-2">
-              <v-btn
-                class="text-none"
-                color="primary"
-                text
-                @click="updateCustomFields"
-                :disabled="!hasUpdatedFields"
-              >Update</v-btn>
-            </div>
-            <CustomFieldSelector
-              :cols="12"
-              :sm="12"
-              :md="6"
-              :lg="4"
-              :xl="3"
-              :fields="currentScene.availableFields"
-              v-model="editCustomFields"
-              @change="hasUpdatedFields = true"
-            />
+          <div v-if="movies.length" style="width: 100%">
+            <h1
+              class="font-weight-light text-center"
+            >Part of {{ movies.length == 1 ? 'movie' : 'movies' }}</h1>
+            <v-row class="pa-2">
+              <v-col
+                class="pa-1"
+                v-for="(movie, i) in movies"
+                :key="movie._id"
+                cols="6"
+                sm="6"
+                md="6"
+                lg="4"
+                xl="4"
+              >
+                <MovieCard
+                  :showSceneCount="false"
+                  :showActors="false"
+                  :showLabels="false"
+                  :showRating="false"
+                  :movie="movie"
+                  style="height: 100%"
+                  v-model="movies[i]"
+                />
+              </v-col>
+            </v-row>
           </div>
         </v-col>
       </v-row>
@@ -493,7 +507,9 @@ import studioFragment from "../fragments/studio";
 import { sceneModule } from "../store/scene";
 import actorFragment from "../fragments/actor";
 import imageFragment from "../fragments/image";
+import movieFragment from "../fragments/movie";
 import ActorCard from "../components/ActorCard.vue";
+import MovieCard from "../components/MovieCard.vue";
 import moment from "moment";
 import LabelSelector from "../components/LabelSelector.vue";
 import Lightbox from "../components/Lightbox.vue";
@@ -504,6 +520,7 @@ import ImageUploader from "../components/ImageUploader.vue";
 import { actorModule } from "../store/actor";
 import IActor from "../types/actor";
 import IImage from "../types/image";
+import IMovie from "../types/movie";
 import ILabel from "../types/label";
 import { contextModule } from "../store/context";
 import { watch, unwatch } from "../util/scene";
@@ -526,6 +543,7 @@ interface ICropResult {
 
 @Component({
   components: {
+    MovieCard,
     ActorGrid,
     ActorCard,
     LabelSelector,
@@ -550,6 +568,7 @@ export default class SceneDetails extends Vue {
 
   actors = [] as IActor[];
   images = [] as IImage[];
+  movies = [] as IMovie[];
   lightboxIndex = null as number | null;
 
   labelSelectorDialog = false;
@@ -1154,6 +1173,15 @@ export default class SceneDetails extends Vue {
             studio {
               ...StudioFragment
             }
+            movies {
+              ...MovieFragment
+              scenes {
+                ...SceneFragment
+              }
+              actors {
+                ...ActorFragment
+              }
+            }
             markers {
               _id
               name
@@ -1171,6 +1199,7 @@ export default class SceneDetails extends Vue {
         ${sceneFragment}
         ${actorFragment}
         ${studioFragment}
+        ${movieFragment}
       `,
       variables: {
         id: (<any>this).$route.params.id
@@ -1182,6 +1211,7 @@ export default class SceneDetails extends Vue {
 
       this.processed = res.data.getSceneById.processed;
       this.actors = res.data.getSceneById.actors;
+      this.movies = res.data.getSceneById.movies;
       this.markers = res.data.getSceneById.markers;
       this.markers.sort((a, b) => a.time - b.time);
       this.editCustomFields = res.data.getSceneById.customFields;

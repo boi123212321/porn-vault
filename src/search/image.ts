@@ -44,6 +44,10 @@ export interface IImageSearchDoc {
   studio_name: string | null;
 }
 
+export async function clearImageIndex() {
+  return Axios.delete("http://localhost:8000/image");
+}
+
 export async function updateImageDoc(image: Image) {
   return Axios.put(
     `http://localhost:8000/image/${image._id}`,

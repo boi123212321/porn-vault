@@ -12,7 +12,7 @@ import { existsAsync } from "./fs/async";
 import { createBackup } from "./backup";
 import BROKEN_IMAGE from "./broken_image";
 import { mountApolloServer } from "./apollo";
-import { buildIndices } from "./search";
+import { buildIndices, twigsVersion } from "./search";
 import { checkImportFolders } from "./import/index";
 import cors from "./middlewares/cors";
 import { spawnTwigs } from "./twigs";
@@ -26,6 +26,8 @@ import {
 } from "./queue/processing";
 import queueRouter from "./queue_router";
 import { spawn } from "child_process";
+import { clearSceneIndex } from "./search/scene";
+import { clearImageIndex } from "./search/image";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-manager for discussion & updates"
@@ -187,7 +189,13 @@ export default async () => {
   await checkImportFolders();
 
   setupMessage = "Starting search engine...";
-  await spawnTwigs();
+  if (await twigsVersion()) {
+    logger.log("Twigs already running, clearing indices...");
+    await clearSceneIndex();
+    await clearImageIndex();
+  } else {
+    await spawnTwigs();
+  }
 
   setupMessage = "Building search indices...";
   await buildIndices();

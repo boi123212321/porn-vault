@@ -182,6 +182,8 @@ export default class Scene {
 
     scene.thumbnail = image._id;
     logger.log(`Creating scene with id ${scene._id}...`);
+    await Scene.setLabels(scene, sceneLabels);
+    await Scene.setActors(scene, sceneActors);
     await database.insert(database.store.scenes, scene);
     await indexScenes([scene]);
     logger.success(`Scene '${scene.name}' created.`);

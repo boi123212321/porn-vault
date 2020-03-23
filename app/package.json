@@ -30,7 +30,7 @@
     "vuetify": "^2.2.15",
     "vuex": "^3.0.1",
     "vuex-class-modules": "^1.1.2",
-    "yaml": "^1.7.2"
+    "yaml": "^1.8.3"
   },
   "devDependencies": {
     "@types/apollo-upload-client": "^8.1.3",

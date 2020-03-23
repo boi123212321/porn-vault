@@ -75,7 +75,7 @@
     "@types/nedb": "^1.8.9",
     "@types/node": "^13.9.1",
     "@types/pug": "^2.0.4",
-    "@types/rimraf": "^2.0.3",
+    "@types/rimraf": "^3.0.0",
     "@types/tiny-async-pool": "^1.0.0",
     "@types/yaml": "^1.2.0",
     "@types/yargs": "^15.0.4",

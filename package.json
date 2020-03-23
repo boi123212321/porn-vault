@@ -60,7 +60,7 @@
     "rimraf": "^3.0.0",
     "tiny-async-pool": "^1.1.0",
     "validate": "^5.1.0",
-    "yaml": "^1.7.2",
+    "yaml": "^1.8.3",
     "yargs": "^15.1.0"
   },
   "devDependencies": {

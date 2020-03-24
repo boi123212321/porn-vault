@@ -1259,6 +1259,9 @@ export default class SceneDetails extends Vue {
     hotkeys("*", ev => {
       if (ev.keyCode == 37) this.$refs.player.seekRel(-5);
       else if (ev.keyCode == 39) this.$refs.player.seekRel(5);
+      else if (ev.keyCode == 36) {
+        this.$refs.player.panic();
+      }
     });
 
     window.onblur = () => {

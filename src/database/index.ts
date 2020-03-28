@@ -24,7 +24,7 @@ let store = {} as {
   labels: DataStore;
   movies: DataStore;
   studios: DataStore;
-  queue: DataStore;
+  processing: DataStore;
   markers: DataStore;
   customFields: DataStore;
 };
@@ -59,9 +59,8 @@ function loadStore(path: string): Promise<DataStore> {
 
 export async function loadStores() {
   try {
-    mkdirp.sync(libraryPath("scenes/"));
     mkdirp.sync(libraryPath("images/"));
-    mkdirp.sync(libraryPath("thumbnails/"));
+    mkdirp.sync(libraryPath("thumbnails/")); // generated screenshots
     mkdirp.sync(libraryPath("previews/"));
   } catch (err) {}
 
@@ -86,7 +85,7 @@ export async function loadStores() {
     labels: await loadStore(libraryPath("labels.db")),
     movies: await loadStore(libraryPath("movies.db")),
     studios: await loadStore(libraryPath("studios.db")),
-    queue: await loadStore(libraryPath("queue.db")),
+    processing: await loadStore(libraryPath("processing.db")),
     markers: await loadStore(libraryPath("markers.db")),
     customFields: await loadStore(libraryPath("custom_fields.db"))
   };

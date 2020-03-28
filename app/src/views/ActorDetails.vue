@@ -2,7 +2,7 @@
   <div>
     <div v-if="currentActor">
       <v-img
-        :max-height="450"
+        :max-height="500"
         :aspect-ratio="2.75"
         v-if="heroImage && $vuetify.breakpoint.smAndUp"
         :src="heroImage"

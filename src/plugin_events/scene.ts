@@ -31,6 +31,7 @@ export async function onSceneCreate(
   const config = getConfig();
 
   const pluginResult = await runPluginsSerial(config, event, {
+    scene: JSON.parse(JSON.stringify(scene)),
     sceneName: scene.name,
     scenePath: scene.path,
     $createLocalImage: async (
@@ -90,6 +91,16 @@ export async function onSceneCreate(
         scene.customFields[fields[0]] = pluginResult.custom[key];
     }
   }
+
+  const ra = pluginResult.rating;
+  if (typeof ra === "number" && ra >= 0 && ra <= 10 && Number.isInteger(ra))
+    scene.rating = pluginResult.rating;
+
+  if (typeof pluginResult.favorite === "boolean")
+    scene.favorite = pluginResult.favorite;
+
+  if (typeof pluginResult.bookmark === "number")
+    scene.bookmark = pluginResult.bookmark;
 
   if (pluginResult.actors && Array.isArray(pluginResult.actors)) {
     const actorIds = [] as string[];

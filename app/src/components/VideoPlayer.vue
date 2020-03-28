@@ -1,91 +1,97 @@
 <template>
-  <v-hover v-slot:default="{ hover }">
-    <div class="video-wrapper">
-      <div class="video-overlay">
-        <v-img
-          @click="togglePlay"
-          :src="poster"
-          cover
-          max-height="100%"
-          class="blurred poster"
-          v-if="poster && showPoster"
-        ></v-img>
-        <v-img
-          @click="togglePlay"
-          class="poster text-center"
-          :src="poster"
-          contain
-          max-height="100%"
-          v-if="poster && showPoster"
-        ></v-img>
-        <v-fade-transition>
-          <div v-if="videoNotice" class="notice pa-2">{{ videoNotice }}</div>
-        </v-fade-transition>
+  <div>
+    <v-hover v-slot:default="{ hover }">
+      <div class="video-wrapper">
+        <div class="video-overlay">
+          <v-img
+            @click="togglePlay"
+            :src="poster"
+            cover
+            max-height="100%"
+            class="blurred poster"
+            v-if="poster && showPoster"
+          ></v-img>
+          <v-img
+            @click="togglePlay"
+            class="poster text-center"
+            :src="poster"
+            contain
+            max-height="100%"
+            v-if="poster && showPoster"
+          ></v-img>
+          <v-fade-transition>
+            <div v-if="videoNotice" class="notice pa-2">{{ videoNotice }}</div>
+          </v-fade-transition>
 
-        <v-fade-transition>
-          <div v-if="hover" class="bottom-bar d-flex align-center">
-            <div class="px-1 align-center d-flex" style="width: 100%; height: 100%">
-              <v-btn @click="togglePlay" icon>
-                <v-icon>{{ isPlaying ? 'mdi-pause' : 'mdi-play' }}</v-icon>
-              </v-btn>
-              <v-btn @click="toggleMute" icon>
-                <v-icon>{{ isMuted ? 'mdi-volume-mute' : 'mdi-volume-high' }}</v-icon>
-              </v-btn>
-              <span class="mx-2 caption">{{ formatTime(progress) }}</span>
-              <v-hover v-slot:default="{ hover }">
-                <div
-                  @mousemove="onMouseMove"
-                  id="progress-bar"
-                  class="progress-bar-wrapper"
-                  @click="onProgressClick"
-                >
-                  <div class="time-bar">
-                    <v-fade-transition>
-                      <div
-                        class="elevation-4 preview-window"
-                        v-if="hover && preview"
-                        :style="`left: ${previewX * 100}%;`"
-                      >
-                        <div class="preview-wrapper">
-                          <img
-                            class="preview-image"
-                            :style="`left: -${imageIndex * 160}px; background-position: ${imageIndex * 160}`"
-                            :src="preview"
-                          />
-                        </div>
-                      </div>
-                    </v-fade-transition>
-                  </div>
-
-                  <div class="progress-bar" :style="`width: ${progressPercent * 100}%;`"></div>
-                  <v-tooltip v-for="marker in markers" :key="marker.id" top>
-                    <template v-slot:activator="{ on }">
-                      <v-hover v-slot:default="{ hover }">
+          <v-fade-transition>
+            <div v-if="hover" class="bottom-bar d-flex align-center">
+              <div class="px-1 align-center d-flex" style="width: 100%; height: 100%">
+                <v-btn @click="togglePlay" icon>
+                  <v-icon>{{ isPlaying ? 'mdi-pause' : 'mdi-play' }}</v-icon>
+                </v-btn>
+                <v-btn @click="toggleMute" icon>
+                  <v-icon>{{ isMuted ? 'mdi-volume-mute' : 'mdi-volume-high' }}</v-icon>
+                </v-btn>
+                <span class="mx-2 caption">{{ formatTime(progress) }}</span>
+                <v-hover v-slot:default="{ hover }">
+                  <div
+                    @mousemove="onMouseMove"
+                    id="progress-bar"
+                    class="progress-bar-wrapper"
+                    @click="onProgressClick"
+                  >
+                    <div class="time-bar">
+                      <v-fade-transition>
                         <div
-                          @click="seek(marker.time)"
-                          v-on="on"
-                          :class="`marker ${hover ? 'hover' : ''}`"
-                          :style="`left: ${percentOfVideo(marker.time) * 100}%;`"
-                        ></div>
-                      </v-hover>
-                    </template>
-                    {{ marker.name }}
-                  </v-tooltip>
-                </div>
-              </v-hover>
-              <span class="mx-2 caption">{{ formatTime(duration) }}</span>
-              <v-btn @click="requestFullscreen" icon>
-                <v-icon>mdi-fullscreen</v-icon>
-              </v-btn>
+                          class="elevation-4 preview-window"
+                          v-if="hover && preview"
+                          :style="`left: ${previewX * 100}%;`"
+                        >
+                          <div class="preview-wrapper">
+                            <img
+                              class="preview-image"
+                              :style="`left: -${imageIndex * 160}px; background-position: ${imageIndex * 160}`"
+                              :src="preview"
+                            />
+                          </div>
+                        </div>
+                      </v-fade-transition>
+                    </div>
+
+                    <div class="progress-bar" :style="`width: ${progressPercent * 100}%;`"></div>
+                    <v-tooltip v-for="marker in markers" :key="marker.id" top>
+                      <template v-slot:activator="{ on }">
+                        <v-hover v-slot:default="{ hover }">
+                          <div
+                            @click="seek(marker.time)"
+                            v-on="on"
+                            :class="`marker ${hover ? 'hover' : ''}`"
+                            :style="`left: ${percentOfVideo(marker.time) * 100}%;`"
+                          ></div>
+                        </v-hover>
+                      </template>
+                      {{ marker.name }}
+                    </v-tooltip>
+                  </div>
+                </v-hover>
+                <span class="mx-2 caption">{{ formatTime(duration) }}</span>
+                <v-btn @click="requestFullscreen" icon>
+                  <v-icon>mdi-fullscreen</v-icon>
+                </v-btn>
+              </div>
             </div>
-          </div>
-        </v-fade-transition>
+          </v-fade-transition>
+        </div>
+        <video @click="togglePlay" id="video" style="width: 100%">
+          <source :src="src" type="video/mp4" />
+        </video>
       </div>
-      <video @click="togglePlay" id="video" style="width: 100%">
-        <source :src="src" type="video/mp4" />
-      </video>
-    </div>
-  </v-hover>
+    </v-hover>
+    <v-card
+      v-if="paniced"
+      style="z-index: 99999; position: fixed; left: 0; top: 0; width: 100%; height: 100%;"
+    ></v-card>
+  </div>
 </template>
 
 <script lang="ts">
@@ -106,6 +112,20 @@ export default class VideoPlayer extends Vue {
   isPlaying = false;
   showPoster = true;
   isMuted = false;
+
+  paniced = false;
+
+  panic() {
+    this.paniced = true;
+    this.pause();
+    const vid = <HTMLVideoElement>document.getElementById("video");
+    if (vid) {
+      vid.src = "";
+    }
+    window.location.replace(
+      localStorage.getItem("pm_panic") || "https://google.com"
+    );
+  }
 
   formatTime(secs: number) {
     return moment()

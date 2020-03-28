@@ -8,7 +8,7 @@
       <div class="my-2">
         <span class="mr-2 d-inline-block headline">{{ info.length }}</span>
         <span class="subtitle-1">videos</span>
-        <span v-if="info.length > 0" class="ml-3">
+        <span v-if="info.processing" class="ml-3">
           <v-progress-circular size="20" width="2" indeterminate></v-progress-circular>
         </span>
       </div>
@@ -23,7 +23,7 @@ import gql from "graphql-tag";
 
 @Component
 export default class QueueInfo extends Vue {
-  info = null as null | { length: number };
+  info = null as null | { length: number, processing: boolean };
   infoInterval = null as NodeJS.Timeout | null;
 
   created() {
@@ -43,6 +43,7 @@ export default class QueueInfo extends Vue {
         {
           getQueueInfo {
             length
+            processing
           }
         }
       `

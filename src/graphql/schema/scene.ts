@@ -42,6 +42,7 @@ export default gql`
     watches: [Long!]!
     meta: SceneMeta!
     customFields: Object!
+    processed: Boolean
 
     # Resolvers
     availableFields: [CustomField!]!
@@ -75,12 +76,6 @@ export default gql`
     screenshotScene(id: String!, sec: Float!): Image
     watchScene(id: String!): Scene!
     unwatchScene(id: String!): Scene!
-    uploadScene(
-      file: Upload!
-      name: String
-      actors: [String!]
-      labels: [String!]
-    ): Boolean!
     updateScenes(ids: [String!]!, opts: SceneUpdateOpts!): [Scene!]!
     removeScenes(ids: [String!]!, deleteImages: Boolean): Boolean!
     runScenePlugins(ids: [String!]!): [Scene!]!

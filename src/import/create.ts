@@ -17,7 +17,6 @@ import * as database from "../database/index";
 import CustomField, { CustomFieldTarget } from "../types/custom_field";
 import CrossReference from "../types/cross_references";
 import { inspect } from "util";
-import ProcessingQueue, { IQueueItem } from "../queue/index";
 import { basename } from "path";
 import Movie from "../types/movie";
 import Studio from "../types/studio";
@@ -71,7 +70,7 @@ export async function createFromFileData(opts: ICreateOptions) {
   const createdLabels = {} as Dictionary<Label>;
   const createdFields = {} as Dictionary<CustomField>;
   const createdActors = {} as Dictionary<Actor>;
-  const createdScenes = {} as Dictionary<IQueueItem>;
+  // const createdScenes = {} as Dictionary<IQueueItem>; // TODO:
   const createdMovies = {} as Dictionary<Movie>;
   const createdStudios = {} as Dictionary<Studio>;
 
@@ -211,8 +210,8 @@ export async function createFromFileData(opts: ICreateOptions) {
         await database.insert(database.store.actors, actor);
       createdActors[actorId] = actor;
     }
-  }
-
+  } // TODO:
+  /*
   if (opts.scenes) {
     for (const sceneId in opts.scenes) {
       const sceneToCreate = opts.scenes[sceneId];
@@ -283,11 +282,14 @@ export async function createFromFileData(opts: ICreateOptions) {
           : undefined
       };
 
-      if (args["commit-import"]) await ProcessingQueue.append(queueItem);
+      if (args["commit-import"]) {
+        // TODO: add to library/queue
+        // await ProcessingQueue.append(queueItem);
+      }
       createdScenes[_id] = queueItem;
     }
-  }
-
+  }*/
+  /*
   if (opts.movies) {
     for (const movieId in opts.movies) {
       const movieToCreate = opts.movies[movieId];
@@ -351,15 +353,15 @@ export async function createFromFileData(opts: ICreateOptions) {
         await database.insert(database.store.movies, movie);
       createdMovies[movieId] = movie;
     }
-  }
-
-  if (!args["commit-import"]) {
+  }*/ if (
+    !args["commit-import"]
+  ) {
     console.log(
       inspect(
         {
           createdFields,
           createdLabels,
-          createdScenes,
+          //createdScenes,
           createdActors,
           createdMovies,
           createdStudios

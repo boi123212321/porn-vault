@@ -50,6 +50,10 @@ export interface ISceneSearchDoc {
   size: number | null;
 }
 
+export async function clearSceneIndex() {
+  return Axios.delete("http://localhost:8000/scene");
+}
+
 export async function updateSceneDoc(scene: Scene) {
   return Axios.put(
     `http://localhost:8000/scene/${scene._id}`,
@@ -126,6 +130,7 @@ export async function createSceneSearchDoc(
     duration: scene.meta.duration,
     release_date: scene.releaseDate,
     studio: scene.studio,
+    // @ts-ignore
     resolution: scene.meta.dimensions.height,
     size: scene.meta.size,
     studio_name: scene.studio

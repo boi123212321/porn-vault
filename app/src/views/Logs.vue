@@ -8,7 +8,7 @@
     <div class="pa-2 output white--text">
       <div v-for="(item, i) in filtered" :key="i" :style="'color: '+ fontColor(item.type)">
         <span class="font-weight-bold" style="text-transform: uppercase">{{ item.type }}:</span>
-        {{ new Date(item.date).toLocaleString() }}: {{ JSON.stringify(JSON.parse(item.text)[0]) }}
+        {{ new Date(item.date).toLocaleString() }}: {{ item.text }}
       </div>
     </div>
   </v-container>

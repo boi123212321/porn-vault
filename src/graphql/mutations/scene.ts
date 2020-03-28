@@ -1,24 +1,16 @@
 import * as database from "../../database";
 import Actor from "../../types/actor";
 import Label from "../../types/label";
-import { ReadStream, createWriteStream } from "fs";
 import Scene from "../../types/scene";
 import * as logger from "../../logger";
 import Image from "../../types/image";
 import { extractLabels, extractActors } from "../../extractor";
-import { Dictionary, libraryPath, mapAsync } from "../../types/utility";
+import { Dictionary, mapAsync } from "../../types/utility";
 import Movie from "../../types/movie";
-import { unlinkAsync } from "../../fs/async";
-import ProcessingQueue from "../../queue/index";
-import { extname } from "path";
 import { getConfig } from "../../config/index";
 import Studio from "../../types/studio";
 import Marker from "../../types/marker";
-import {
-  createSceneSearchDoc,
-  removeSceneDoc,
-  updateSceneDoc
-} from "../../search/scene";
+import { removeSceneDoc, updateSceneDoc } from "../../search/scene";
 import { onSceneCreate } from "../../plugin_events/scene";
 
 type ISceneUpdateOpts = Partial<{
@@ -155,59 +147,6 @@ export default {
     await database.insert(database.store.scenes, scene);
     logger.success(`Scene '${sceneName}' done.`);
     return scene;
-  },
-
-  async uploadScene(_, args: Dictionary<any>) {
-    logger.log(`Receiving file...`);
-    const { filename, mimetype, createReadStream } = await args.file;
-    logger.log(`Receiving ${filename}...`);
-    const ext = extname(filename);
-    const ID = new Scene("")._id;
-    const path = libraryPath(`scenes/${ID}${ext}`);
-
-    /* if (!mimetype.includes("video/")) {
-      logger.error(`File has invalid format (${mimetype})`);
-      throw new Error("Invalid file");
-    } */
-
-    logger.log(`Getting file...`);
-
-    const read = createReadStream() as ReadStream;
-    const write = createWriteStream(path);
-
-    try {
-      const pipe = read.pipe(write);
-
-      await new Promise((resolve, reject) => {
-        pipe.on("close", () => resolve());
-      });
-    } catch (error) {
-      logger.error("Error reading file - perhaps a permission problem?");
-      try {
-        await unlinkAsync(path);
-      } catch (error) {
-        logger.warn(`Could not cleanup source file - ${path}`);
-      }
-      throw new Error("Error");
-    }
-
-    // File written, now process
-    logger.success(`File written to ${path}.`);
-
-    await ProcessingQueue.append({
-      _id: ID,
-      actors: args.actors,
-      filename,
-      labels: args.labels,
-      name: args.name,
-      path
-    });
-
-    logger.success(`Entry added to queue.`);
-
-    // Done
-
-    return true;
   },
 
   async updateScenes(

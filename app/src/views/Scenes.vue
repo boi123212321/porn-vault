@@ -32,6 +32,8 @@
           >{{ label.name }}</div>
         </div>
 
+        <v-subheader>Filter by actor(s)</v-subheader>
+        <ActorSelector v-model="selectedActors" :multiple="true" />
         <v-subheader>Filter by duration</v-subheader>
         <v-range-slider hide-details :max="durationMax" v-model="durationRange" color="primary"></v-range-slider>
         <div class="med--text text-center">{{ durationRange[0] }} min - {{ durationRange[1] }} min</div>
@@ -247,6 +249,16 @@ export default class SceneList extends mixins(DrawerMixin) {
   scenes = [] as IScene[];
   fetchLoader = false;
   fetchingRandom = false;
+
+  selectedActors = (() => {
+    const fromLocalStorage = localStorage.getItem("pm_sceneActors");
+    if (fromLocalStorage) return JSON.parse(fromLocalStorage);
+    return [];
+  })() as IActor[];
+
+  get selectedActorIds() {
+    return this.selectedActors.map(ac => ac._id);
+  }
 
   waiting = false;
   allLabels = [] as ILabel[];
@@ -562,6 +574,24 @@ export default class SceneList extends mixins(DrawerMixin) {
     this.infiniteId++;
   }
 
+  @Watch("selectedActorIds", { deep: true })
+  onSelectedActorsChange(newVal: string[]) {
+    if (this.resetTimeout) {
+      clearTimeout(this.resetTimeout);
+    }
+
+    localStorage.setItem("pm_sceneActors", JSON.stringify(this.selectedActors));
+
+    this.waiting = true;
+    this.page = 0;
+    this.scenes = [];
+
+    this.resetTimeout = setTimeout(() => {
+      this.waiting = false;
+      this.infiniteId++;
+    }, 500);
+  }
+
   @Watch("durationRange")
   onDurationRangeChange(newVal: number) {
     if (this.resetTimeout) {
@@ -637,14 +667,19 @@ export default class SceneList extends mixins(DrawerMixin) {
     try {
       let include = "";
       let exclude = "";
+      let actors = "";
 
       if (this.include.length) include = "include:" + this.include.join(",");
 
       if (this.exclude.length) exclude = "exclude:" + this.exclude.join(",");
 
-      const query = `query:'${this.query || ""}' ${include} ${exclude} page:${
-        this.page
-      } sortDir:${this.sortDir} sortBy:${this.sortBy} favorite:${
+      if (this.selectedActorIds.length)
+        actors = "actors:" + this.selectedActorIds.join(",");
+
+      const query = `query:'${this.query ||
+        ""}' ${actors} ${include} ${exclude} page:${this.page} sortDir:${
+        this.sortDir
+      } sortBy:${this.sortBy} favorite:${
         this.favoritesOnly ? "true" : "false"
       } bookmark:${this.bookmarksOnly ? "true" : "false"} rating:${
         this.ratingFilter

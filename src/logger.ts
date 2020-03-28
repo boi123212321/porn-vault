@@ -53,36 +53,42 @@ export async function logToFile() {
 }
 
 function merge(...args: any[]) {
-  return args.map(a => JSON.stringify(a)).join("\n");
+  return args
+    .map(a => {
+      const str = JSON.stringify(a);
+      if (str.startsWith('"') && str.endsWith('"')) return str.slice(1, -1);
+      return str;
+    })
+    .join("\n");
 }
 
 export const log = (...args: any) => {
-  const text = merge(args);
+  const text = merge(...args);
   debug("porn:log")(text);
   appendToLog(createItem(LogType.LOG, text));
 };
 export const success = (...args: any) => {
-  const text = merge(args);
+  const text = merge(...args);
   debug("porn:success")(text);
   appendToLog(createItem(LogType.SUCCESS, text));
 };
 export const http = (...args: any) => {
-  const text = merge(args);
+  const text = merge(...args);
   debug("porn:http")(text);
   appendToLog(createItem(LogType.HTTP, text));
 };
 export const warn = (...args: any) => {
-  const text = merge(args);
+  const text = merge(...args);
   debug("porn:warn")(text);
   appendToLog(createItem(LogType.WARN, text));
 };
 export const error = (...args: any) => {
-  const text = merge(args);
+  const text = merge(...args);
   debug("porn:error")(text);
   appendToLog(createItem(LogType.ERROR, text));
 };
 export const message = (...args: any) => {
-  const text = merge(args);
+  const text = merge(...args);
   debug("porn:message")(text);
   appendToLog(createItem(LogType.MESSAGE, text));
 };

@@ -116,15 +116,15 @@ export default class App extends Vue {
   get appbarColor() {
     let color;
     if (this.currentActor && this.currentActor.hero)
-      return this.currentActor.hero.color;
-    if (this.currentActor && this.currentActor.thumbnail)
-      return this.currentActor.thumbnail.color;
-    if (this.currentScene && this.currentScene.thumbnail)
-      return this.currentScene.thumbnail.color;
-    if (this.currentMovie && this.currentMovie.frontCover)
-      return this.currentMovie.frontCover.color;
-    if (this.currentStudio && this.currentStudio.thumbnail)
-      return this.currentStudio.thumbnail.color;
+      color = this.currentActor.hero.color;
+    else if (this.currentActor && this.currentActor.thumbnail)
+      color = this.currentActor.thumbnail.color;
+    else if (this.currentScene && this.currentScene.thumbnail)
+      color = this.currentScene.thumbnail.color;
+    else if (this.currentMovie && this.currentMovie.frontCover)
+      color = this.currentMovie.frontCover.color;
+    else if (this.currentStudio && this.currentStudio.thumbnail)
+      color = this.currentStudio.thumbnail.color;
     return color ? ensureDarkColor(color) : undefined;
   }
 

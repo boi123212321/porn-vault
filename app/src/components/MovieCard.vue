@@ -39,48 +39,53 @@
       </a>
     </v-hover>
 
-    <div v-if="value.studio" class="mt-2 pl-4 text-uppercase caption">
-      <router-link
-        class="hover"
-        style="color: inherit; text-decoration: none"
-        :to="`/studio/${value.studio._id}`"
-      >{{ value.studio.name }}</router-link>
-    </div>
-    <v-card-title :class="`${value.studio ? 'pt-0' : ''}`">
-      <span
-        :title="value.name"
-        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
-      >{{ value.name }}</span>
-    </v-card-title>
-    <v-card-subtitle v-if="value.actors.length" class="pt-0 pb-0">
-      With
-      <span v-html="actorLinks"></span>
-    </v-card-subtitle>
-    <v-card-subtitle class="pt-0 pb-0">{{ value.scenes.length }} scenes</v-card-subtitle>
-    <Rating class="ml-3 mb-2" :value="value.rating" :readonly="true" />
-    <div class="pa-2" v-if="this.value.labels.length && showLabels">
-      <v-chip
-        label
-        class="mr-1 mb-1"
-        small
-        outlined
-        v-for="label in labelNames.slice(0, 5)"
-        :key="label"
-      >{{ label }}</v-chip>
+    <div v-if="showBody">
+      <div v-if="value.studio" class="mt-2 pl-4 text-uppercase caption">
+        <router-link
+          class="hover"
+          style="color: inherit; text-decoration: none"
+          :to="`/studio/${value.studio._id}`"
+        >{{ value.studio.name }}</router-link>
+      </div>
+      <v-card-title :class="`${value.studio ? 'pt-0' : ''}`">
+        <span
+          :title="value.name"
+          style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
+        >{{ value.name }}</span>
+      </v-card-title>
+      <v-card-subtitle v-if="showActors && value.actors.length" class="pt-0 pb-0">
+        With
+        <span v-html="actorLinks"></span>
+      </v-card-subtitle>
+      <v-card-subtitle
+        v-if="showSceneCount"
+        class="pt-0 pb-1"
+      >{{ value.scenes.length }} {{ value.scenes.length == 1 ? 'scene' : 'scenes' }}</v-card-subtitle>
+      <Rating v-if="showRating" class="ml-3 mb-2" :value="value.rating" :readonly="true" />
+      <div class="pa-2" v-if="this.value.labels.length && showLabels">
+        <v-chip
+          label
+          class="mr-1 mb-1"
+          small
+          outlined
+          v-for="label in labelNames.slice(0, 5)"
+          :key="label"
+        >{{ label }}</v-chip>
 
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
-          <v-chip
-            v-on="on"
-            label
-            class="mr-1 mb-1"
-            small
-            outlined
-            v-if="labelNames.length > 5"
-          >...and more</v-chip>
-        </template>
-        {{ labelNames.slice(5, 999).join(', ') }}
-      </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-chip
+              v-on="on"
+              label
+              class="mr-1 mb-1"
+              small
+              outlined
+              v-if="labelNames.length > 5"
+            >...and more</v-chip>
+          </template>
+          {{ labelNames.slice(5, 999).join(', ') }}
+        </v-tooltip>
+      </div>
     </div>
   </v-card>
 </template>
@@ -99,7 +104,11 @@ import Color from "color";
 export default class MovieCard extends Vue {
   @Prop(Object) value!: IMovie;
   @Prop({ default: 0.71 }) ratio!: number;
+  @Prop({ default: true }) showActors!: boolean;
   @Prop({ default: true }) showLabels!: boolean;
+  @Prop({ default: true }) showBody!: boolean;
+  @Prop({ default: true }) showRating!: boolean;
+  @Prop({ default: true }) showSceneCount!: boolean;
 
   get complementary() {
     if (this.cardColor)

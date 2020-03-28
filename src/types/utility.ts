@@ -4,6 +4,10 @@ import * as logger from "../logger";
 
 export type Dictionary<T> = Record<string, T>;
 
+export function removeExtension(file: string) {
+  return file.replace(/\.[^/.]+$/, "");
+}
+
 export function createObjectSet<T extends Record<string, any>>(
   objs: T[],
   key: keyof T & string

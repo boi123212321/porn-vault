@@ -15,6 +15,7 @@ export async function onMovieCreate(movie: Movie, event = "movieCreated") {
   const config = getConfig();
 
   const pluginResult = await runPluginsSerial(config, event, {
+    movie: JSON.parse(JSON.stringify(movie)),
     movieName: movie.name,
     $createLocalImage: async (
       path: string,
@@ -75,6 +76,16 @@ export async function onMovieCreate(movie: Movie, event = "movieCreated") {
 
   if (typeof pluginResult.releaseDate === "number")
     movie.releaseDate = new Date(pluginResult.releaseDate).valueOf();
+
+  const ra = pluginResult.rating;
+  if (typeof ra === "number" && ra >= 0 && ra <= 10 && Number.isInteger(ra))
+    movie.rating = pluginResult.rating;
+
+  if (typeof pluginResult.favorite === "boolean")
+    movie.favorite = pluginResult.favorite;
+
+  if (typeof pluginResult.bookmark === "number")
+    movie.bookmark = pluginResult.bookmark;
 
   if (pluginResult.custom && typeof pluginResult.custom === "object") {
     for (const key in pluginResult.custom) {

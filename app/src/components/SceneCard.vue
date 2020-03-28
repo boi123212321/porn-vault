@@ -136,8 +136,6 @@ export default class SceneCard extends Mixins(SceneMixin) {
   }
 
   mouseenter() {
-    // console.log("playing video");
-
     if (this.playInterval) clearInterval(this.playInterval);
 
     this.playIndex = 60;
@@ -154,12 +152,21 @@ export default class SceneCard extends Mixins(SceneMixin) {
   }
 
   mouseleave() {
-    // @ts-ignore
-    this.$refs.video.setAttribute("src", "");
+    try {
+      // @ts-ignore
+      this.$refs.video.setAttribute("src", "");
+    } catch (error) {}
     if (this.playInterval) {
       // console.log("stopping video");
       clearInterval(this.playInterval);
     }
+  }
+
+  beforeDestroy() {
+    try {
+      // @ts-ignore
+      this.$refs.video.setAttribute("src", "");
+    } catch (error) {}
   }
 
   destroyed() {

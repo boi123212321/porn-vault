@@ -37,10 +37,9 @@ export interface IConfig {
   FFMPEG_PATH: string;
   FFPROBE_PATH: string;
 
-  GENERATE_THUMBNAILS: boolean;
-  GENERATE_MULTIPLE_THUMBNAILS: boolean;
+  GENERATE_SCREENSHOTS: boolean;
   GENERATE_PREVIEWS: boolean;
-  THUMBNAIL_INTERVAL: number;
+  SCREENSHOT_INTERVAL: number;
 
   PASSWORD: string | null;
 
@@ -86,10 +85,9 @@ export const defaultConfig: IConfig = {
   LIBRARY_PATH: process.cwd(),
   FFMPEG_PATH: "",
   FFPROBE_PATH: "",
-  GENERATE_THUMBNAILS: true,
-  GENERATE_MULTIPLE_THUMBNAILS: true,
+  GENERATE_SCREENSHOTS: true,
   GENERATE_PREVIEWS: true,
-  THUMBNAIL_INTERVAL: 120,
+  SCREENSHOT_INTERVAL: 120,
   PASSWORD: null,
   PORT: 3000,
   APPLY_SCENE_LABELS: true,

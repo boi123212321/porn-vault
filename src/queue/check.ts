@@ -4,22 +4,12 @@ import { filterAsync } from "../types/utility";
 import Scene from "../types/scene";
 import Image from "../types/image";
 import { basename } from "path";
-import ProcessingQueue, { IQueueItem } from "../queue/index";
 import * as logger from "../logger";
 import * as database from "../database";
 import { extractLabels, extractActors, extractScenes } from "../extractor";
 import Jimp from "jimp";
 import ora = require("ora");
-import { indices } from "../search/index";
-import { createImageSearchDoc, indexImages } from "../search/image";
-
-async function getAll() {
-  return (await database.find(database.store.queue, {})) as IQueueItem[];
-}
-
-async function getItemByPath(path: string) {
-  return (await getAll()).filter(item => item.path == path)[0];
-}
+import { indexImages } from "../search/image";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
   exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
@@ -55,26 +45,24 @@ export async function checkVideoFolders() {
 
   const unknownVideos = await filterAsync(allFiles, async (path: string) => {
     const scene = await Scene.getSceneByPath(path);
-    const item = await getItemByPath(path);
-    return !scene && !item;
+    return !scene;
   });
 
   logger.log(`Found ${unknownVideos.length} new videos.`);
 
   for (const videoPath of unknownVideos) {
-    const _id = new Scene("")._id;
-    logger.log(`Creating scene queue item with id ${_id}...`);
-    await ProcessingQueue.append({
-      _id,
-      actors: [],
-      filename: basename(videoPath),
-      path: videoPath,
-      labels: [],
-      name: null
-    });
+    try {
+      await Scene.onImport(videoPath);
+    } catch (error) {
+      logger.log(error.stack);
+      logger.error("Error when importing " + videoPath);
+      logger.warn(error.message);
+    }
   }
 
-  logger.warn(`Queued ${unknownVideos.length} new videos.`);
+  logger.warn(
+    `Queued ${unknownVideos.length} new videos for futher processing.`
+  );
 }
 
 async function imageWithPathExists(path: string) {

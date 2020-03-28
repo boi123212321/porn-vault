@@ -8,8 +8,7 @@ import { downloadFile } from "../ffmpeg-download";
 import Image from "../types/image";
 import * as database from "../database/index";
 import * as logger from "../logger";
-import { indices } from "../search/index";
-import { createImageSearchDoc, indexImages } from "../search/image";
+import { indexImages } from "../search/image";
 import Label from "../types/label";
 
 // This function has side effects
@@ -21,6 +20,7 @@ export async function onActorCreate(
   const config = getConfig();
 
   const pluginResult = await runPluginsSerial(config, event, {
+    actor: JSON.parse(JSON.stringify(actor)),
     actorName: actor.name,
     $createLocalImage: async (
       path: string,
@@ -85,6 +85,16 @@ export async function onActorCreate(
         actor.customFields[fields[0]] = pluginResult.custom[key];
     }
   }
+
+  const ra = pluginResult.rating;
+  if (typeof ra === "number" && ra >= 0 && ra <= 10 && Number.isInteger(ra))
+    actor.rating = pluginResult.rating;
+
+  if (typeof pluginResult.favorite === "boolean")
+    actor.favorite = pluginResult.favorite;
+
+  if (typeof pluginResult.bookmark === "number")
+    actor.bookmark = pluginResult.bookmark;
 
   if (pluginResult.labels && Array.isArray(pluginResult.labels)) {
     const labelIds = [] as string[];

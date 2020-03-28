@@ -35,8 +35,6 @@
             </v-card-text>
           </v-card>
 
-          <SearchIndexInfo />
-
           <v-card v-if="scenesWithoutLabels.length" class="mb-3" style="border-radius: 10px">
             <v-card-title>
               <v-icon medium class="mr-2">mdi-account-alert</v-icon>Scenes without labels
@@ -143,7 +141,6 @@ import ActorCard from "../components/ActorCard.vue";
 import IActor from "../types/actor";
 import IScene from "../types/scene";
 import QueueInfo from "../components/QueueInfo.vue";
-import SearchIndexInfo from "../components/SearchIndexInfo.vue";
 import ActorGrid from "../components/ActorGrid.vue";
 import { contextModule } from "../store/context";
 
@@ -151,8 +148,7 @@ import { contextModule } from "../store/context";
   components: {
     ActorCard,
     QueueInfo,
-    ActorGrid,
-    SearchIndexInfo
+    ActorGrid
   }
 })
 export default class Home extends Vue {

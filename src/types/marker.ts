@@ -98,14 +98,6 @@ export default class Marker {
     ).filter(Boolean) as Label[];
   }
 
-  static async filterCustomField(fieldId: string) {
-    await database.update(
-      database.store.markers,
-      {},
-      { $unset: { [`customFields.${fieldId}`]: true } }
-    );
-  }
-
   constructor(name: string, scene: string, time: number) {
     this._id = "mk_" + generateHash();
     this.name = name;

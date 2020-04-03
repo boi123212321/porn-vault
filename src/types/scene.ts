@@ -313,36 +313,12 @@ export default class Scene {
     }
   }
 
-  static async filterCustomField(fieldId: string) {
-    for (const scene of await Scene.getAll()) {
-      if (scene.customFields[fieldId] !== undefined) {
-        delete scene.customFields[fieldId];
-        await sceneCollection.upsert(scene._id, scene);
-      }
-    }
-  }
-
   static async filterStudio(studioId: string) {
     for (const scene of await Scene.getAll()) {
       if (scene.studio == studioId) {
         scene.studio = null;
         await sceneCollection.upsert(scene._id, scene);
       }
-    }
-  }
-
-  static async filterImage(imageId: string) {
-    for (const scene of await Scene.getAll()) {
-      let changed = false;
-      if (scene.thumbnail == imageId) {
-        scene.studio = null;
-        changed = true;
-      }
-      if (scene.preview == imageId) {
-        scene.studio = null;
-        changed = true;
-      }
-      if (changed) await sceneCollection.upsert(scene._id, scene);
     }
   }
 

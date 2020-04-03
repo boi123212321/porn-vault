@@ -102,14 +102,6 @@ export default class Studio {
     );
   }
 
-  static async filterImage(thumbnail: string) {
-    await database.update(
-      database.store.studios,
-      { thumbnail },
-      { $set: { thumbnail: null } }
-    );
-  }
-
   static async getById(_id: string) {
     return (await database.findOne(database.store.studios, {
       _id

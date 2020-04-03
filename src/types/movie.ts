@@ -24,14 +24,6 @@ export default class Movie {
   customFields: any = {};
   studio: string | null = null;
 
-  static async filterCustomField(fieldId: string) {
-    await database.update(
-      database.store.movies,
-      {},
-      { $unset: { [`customFields.${fieldId}`]: true } }
-    );
-  }
-
   static async checkIntegrity() {
     const allMovies = await Movie.getAll();
 
@@ -132,20 +124,6 @@ export default class Movie {
       database.store.movies,
       {},
       { $pull: { scenes: scene } }
-    );
-  }
-
-  static async filterImage(image: string) {
-    await database.update(
-      database.store.movies,
-      { frontCover: image },
-      { $set: { frontCover: null } }
-    );
-
-    await database.update(
-      database.store.movies,
-      { backCover: image },
-      { $set: { backCover: null } }
     );
   }
 

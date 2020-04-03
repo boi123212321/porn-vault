@@ -285,10 +285,6 @@ export default {
       if (image) {
         await Image.remove(image);
         await removeImageDoc(image._id);
-        await Actor.filterImage(image._id);
-        await Scene.filterImage(image._id);
-        await Label.filterImage(image._id);
-        await Movie.filterImage(image._id);
         await CrossReference.clear(image._id);
       }
     }

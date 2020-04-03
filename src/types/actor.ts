@@ -30,15 +30,6 @@ export default class Actor {
     return null;
   }
 
-  static async filterCustomField(fieldId: string) {
-    for (const actor of await Actor.getAll()) {
-      if (actor.customFields[fieldId] !== undefined) {
-        delete actor.customFields[fieldId];
-        await actorCollection.upsert(actor._id, actor);
-      }
-    }
-  }
-
   static async checkIntegrity() {
     const allActors = await Actor.getAll();
 
@@ -85,17 +76,6 @@ export default class Actor {
           await actorCollection.upsert(actor._id, actor);
         }
       }
-    }
-  }
-
-  static async filterImage(imageId: string) {
-    for (const actor of await Actor.getAll()) {
-      let changed = false;
-      if (actor.thumbnail == imageId) actor.thumbnail = null;
-      if (actor.altThumbnail == imageId) actor.altThumbnail = null;
-      if (actor.hero == imageId) actor.hero = null;
-      if (actor.avatar == imageId) actor.avatar = null;
-      if (changed) await actorCollection.upsert(actor._id, actor);
     }
   }
 

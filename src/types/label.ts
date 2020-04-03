@@ -27,14 +27,6 @@ export default class Label {
     }
   }
 
-  static async filterImage(thumbnail: string) {
-    await database.update(
-      database.store.labels,
-      { thumbnail },
-      { $set: { thumbnail: null } }
-    );
-  }
-
   static async remove(_id: string) {
     await database.remove(database.store.labels, { _id });
   }

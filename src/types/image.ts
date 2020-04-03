@@ -35,15 +35,6 @@ export default class Image {
   hash: string | null = null;
   color: string | null = null;
 
-  static async filterCustomField(fieldId: string) {
-    for (const image of await Image.getAll()) {
-      if (image.customFields[fieldId] !== undefined) {
-        delete image.customFields[fieldId];
-        await imageCollection.upsert(image._id, image);
-      }
-    }
-  }
-
   static async color(image: Image) {
     if (!image.path) return null;
     if (image.color) return image.color;

@@ -32,7 +32,6 @@ export default {
   },
   async watches(actor: Actor) {
     const watches = await Actor.getWatches(actor);
-    console.log(actor.name, watches);
     return watches;
   },
   async numScenes(actor: Actor) {

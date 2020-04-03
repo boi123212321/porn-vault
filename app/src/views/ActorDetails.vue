@@ -613,7 +613,7 @@ export default class ActorDetails extends Vue {
   movies = [] as IMovie[];
   images = [] as IImage[];
   collabs = [] as ICollabActor[];
-  showCollabs = true;
+  showCollabs = false;
   lightboxIndex = null as number | null;
 
   activeTab = 0;

@@ -6,6 +6,7 @@ import { indices } from "../../search/index";
 import { createMovieSearchDoc } from "../../search/movie";
 import { onMovieCreate } from "../../plugin_events/movie";
 import CrossReference from "../../types/cross_references";
+import { movieCollection } from "../../database";
 
 type IMovieUpdateOpts = Partial<{
   name: string;
@@ -37,7 +38,7 @@ export default {
       logger.error(error.message);
     }
 
-    await database.insert(database.store.movies, movie);
+    await movieCollection.upsert(movie._id, movie);
     indices.movies.add(await createMovieSearchDoc(movie));
 
     return movie;
@@ -107,12 +108,12 @@ export default {
           movie.customFields = opts.customFields;
         }
 
-        await database.update(database.store.movies, { _id: movie._id }, movie);
+        await movieCollection.upsert(movie._id, movie);
         updatedScenes.push(movie);
         indices.movies.update(movie._id, await createMovieSearchDoc(movie));
       }
     }
 
     return updatedScenes;
-  }
+  },
 };

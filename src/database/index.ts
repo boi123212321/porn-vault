@@ -22,10 +22,11 @@ export let sceneCollection!: Izzy.Collection<Scene>;
 export let imageCollection!: Izzy.Collection<Image>;
 export let crossReferenceCollection!: Izzy.Collection<CrossReference>;
 export let actorCollection!: Izzy.Collection<Actor>;
+export let movieCollection!: Izzy.Collection<Movie>;
 
 let store = {} as {
   labels: DataStore;
-  movies: DataStore;
+  // movies: DataStore;
   studios: DataStore;
   processing: DataStore;
   markers: DataStore;
@@ -34,7 +35,7 @@ let store = {} as {
 
 function buildIndex(store: DataStore, opts: EnsureIndexOptions) {
   return new Promise((resolve, reject) => {
-    store.ensureIndex(opts, err => {
+    store.ensureIndex(opts, (err) => {
       if (err) reject(err);
       else {
         logger.log("Built DB index " + JSON.stringify(opts));
@@ -49,13 +50,13 @@ function loadStore(path: string): Promise<DataStore> {
     const store = new DataStore({
       autoload: true,
       filename: path,
-      onload: err => {
+      onload: (err) => {
         if (err) reject(err);
         else {
           logger.log("Loaded store " + path);
           resolve(store);
         }
-      }
+      },
     });
   });
 }
@@ -67,7 +68,7 @@ export async function loadStores() {
     mkdirp.sync(libraryPath("previews/"));
   } catch (err) {}
 
-  if (args["ignore-integrity"] != true) {
+  if (!args["ignore-integrity"]) {
     const compatLoader = ora("Making .db files compatible (if needed)").start();
 
     await bookmarksToTimestamp(libraryPath("scenes.db"));
@@ -79,7 +80,7 @@ export async function loadStores() {
 
     compatLoader.succeed();
   } else {
-    logger.log("Skipping bookmark integrity");
+    logger.message("Skipping bookmark integrity");
   }
 
   const dbLoader = ora("Loading DB...").start();
@@ -90,12 +91,12 @@ export async function loadStores() {
     [
       {
         name: "from-index",
-        key: "from"
+        key: "from",
       },
       {
         name: "to-index",
-        key: "to"
-      }
+        key: "to",
+      },
     ]
   );
   imageCollection = await Izzy.createCollection(
@@ -104,16 +105,16 @@ export async function loadStores() {
     [
       {
         name: "scene-index",
-        key: "scene"
+        key: "scene",
       },
       {
         name: "studio-index",
-        key: "studio"
+        key: "studio",
       },
       {
         name: "path-index",
-        key: "path"
-      }
+        key: "path",
+      },
     ]
   );
   sceneCollection = await Izzy.createCollection(
@@ -122,21 +123,31 @@ export async function loadStores() {
     [
       {
         name: "studio-index",
-        key: "studio"
+        key: "studio",
       },
       {
         name: "path-index",
-        key: "path"
+        key: "path",
       },
       {
         name: "preview-index",
-        key: "preview"
-      }
+        key: "preview",
+      },
     ]
   );
   actorCollection = await Izzy.createCollection(
     "actors",
     libraryPath("actors.db")
+  );
+  movieCollection = await Izzy.createCollection(
+    "movies",
+    libraryPath("movies.db"),
+    [
+      {
+        name: "studio-index",
+        key: "studio",
+      },
+    ]
   );
 
   logger.log("Created Izzy collections");
@@ -147,39 +158,40 @@ export async function loadStores() {
     await imageCollection.compact();
     await crossReferenceCollection.compact();
     await actorCollection.compact();
+    await movieCollection.compact();
     compactLoader.succeed("Compacted DB");
   } else {
-    logger.log("Skipping compaction");
+    logger.message("Skipping compaction");
   }
 
   logger.log("Loading remaining NeDB stores");
 
   store = {
     labels: await loadStore(libraryPath("labels.db")),
-    movies: await loadStore(libraryPath("movies.db")),
+    // movies: await loadStore(libraryPath("movies.db")),
     studios: await loadStore(libraryPath("studios.db")),
     processing: await loadStore(libraryPath("processing.db")),
     markers: await loadStore(libraryPath("markers.db")),
-    customFields: await loadStore(libraryPath("custom_fields.db"))
+    customFields: await loadStore(libraryPath("custom_fields.db")),
   };
 
   dbLoader.succeed();
 
   const indexLoader = ora("Building DB indices...").start();
 
-  await buildIndex(store.movies, {
-    fieldName: "studio"
-  });
+  /* await buildIndex(store.movies, {
+    fieldName: "studio",
+  }); */
   await buildIndex(store.studios, {
-    fieldName: "parent"
+    fieldName: "parent",
   });
   await buildIndex(store.markers, {
-    fieldName: "scene"
+    fieldName: "scene",
   });
 
   indexLoader.succeed();
 
-  if (args["ignore-integrity"] != true) {
+  if (!args["ignore-integrity"]) {
     const integrityLoader = ora(
       "Checking database integrity. This might take a minute..."
     ).start();
@@ -193,6 +205,8 @@ export async function loadStores() {
     await CrossReference.checkIntegrity();
     await Marker.checkIntegrity();
     integrityLoader.succeed("Integrity check done.");
+  } else {
+    logger.message("Skipping integrity checks");
   }
 }
 
@@ -220,7 +234,7 @@ export function getOne(store: DataStore, skip = 0) {
       .find({})
       .skip(skip)
       .limit(1)
-      .exec(function(err, docs) {
+      .exec(function (err, docs) {
         if (err) return reject(err);
         resolve(docs[0]);
       });
@@ -257,7 +271,7 @@ export function getAll(store: DataStore) {
 
 export function update(store: DataStore, query: any, update: any) {
   return new Promise((resolve, reject) => {
-    store.update(query, update, { multi: true }, err => {
+    store.update(query, update, { multi: true }, (err) => {
       if (err) return reject(err);
       resolve();
     });
@@ -266,7 +280,7 @@ export function update(store: DataStore, query: any, update: any) {
 
 export function remove(store: DataStore, query: any) {
   return new Promise((resolve, reject) => {
-    store.remove(query, err => {
+    store.remove(query, (err) => {
       if (err) return reject(err);
       resolve();
     });

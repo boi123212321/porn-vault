@@ -253,10 +253,8 @@ export default {
 
       if (scene) {
         await Scene.remove(scene);
-        // indices.scenes.remove(scene._id);
         await removeSceneDoc(scene._id);
         await Image.filterScene(scene._id);
-        await Movie.filterScene(scene._id);
 
         if (deleteImages === true) {
           for (const image of await Image.getByScene(scene._id)) {

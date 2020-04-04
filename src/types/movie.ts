@@ -10,6 +10,7 @@ import {
   crossReferenceCollection,
   sceneCollection,
   actorCollection,
+  movieCollection,
 } from "../database";
 
 export default class Movie {
@@ -67,37 +68,26 @@ export default class Movie {
         if (movie.studio && !movie.studio.startsWith("st_")) {
           newMovie.studio = "st_" + movie.studio;
         }
-        await database.insert(database.store.movies, newMovie);
-        await database.remove(database.store.movies, { _id: movie._id });
+        await movieCollection.remove(movie._id);
+        await movieCollection.upsert(newMovie._id, newMovie);
         logger.log(`Changed movie ID: ${movie._id} -> ${movieId}`);
       } else {
         if (movie.studio && !movie.studio.startsWith("st_")) {
-          await database.update(
-            database.store.movies,
-            { _id: movieId },
-            { $set: { studio: "st_" + movie.studio } }
-          );
+          movie.studio = "st_" + movie.studio;
+          await movieCollection.upsert(movie._id, movie);
         }
         if (movie.frontCover && !movie.frontCover.startsWith("im_")) {
-          await database.update(
-            database.store.movies,
-            { _id: movieId },
-            { $set: { frontCover: "im_" + movie.frontCover } }
-          );
+          movie.frontCover = "img_" + movie.frontCover;
+          await movieCollection.upsert(movie._id, movie);
         }
         if (movie.backCover && !movie.backCover.startsWith("im_")) {
-          await database.update(
-            database.store.movies,
-            { _id: movieId },
-            { $set: { backCover: "im_" + movie.backCover } }
-          );
+          movie.backCover = "img_" + movie.backCover;
+          await movieCollection.upsert(movie._id, movie);
         }
-        if (movie.scenes)
-          await database.update(
-            database.store.movies,
-            { _id: movieId },
-            { $unset: { scenes: true } }
-          );
+        if (movie.scenes) {
+          delete movie.scenes;
+          await movieCollection.upsert(movie._id, movie);
+        }
       }
     }
   }
@@ -116,33 +106,24 @@ export default class Movie {
   }
 
   static async filterStudio(studioId: string) {
-    await database.update(
-      database.store.movies,
-      { studio: studioId },
-      { $set: { studio: null } }
-    );
+    for (const movie of await Movie.getAll()) {
+      if (movie.studio == studioId) {
+        movie.studio = null;
+        await movieCollection.upsert(movie._id, movie);
+      }
+    }
   }
 
-  static async filterScene(scene: string) {
-    await database.update(
-      database.store.movies,
-      {},
-      { $pull: { scenes: scene } }
-    );
+  static remove(_id: string) {
+    return movieCollection.remove(_id);
   }
 
-  static async remove(_id: string) {
-    await database.remove(database.store.movies, { _id });
+  static getById(_id: string) {
+    return movieCollection.get(_id);
   }
 
-  static async getById(_id: string) {
-    return (await database.findOne(database.store.movies, {
-      _id,
-    })) as Movie | null;
-  }
-
-  static async getAll() {
-    return (await database.find(database.store.movies, {})) as Movie[];
+  static getAll() {
+    return movieCollection.getAll();
   }
 
   static async getByScene(id: string) {
@@ -155,10 +136,8 @@ export default class Movie {
     ).filter(Boolean) as Movie[];
   }
 
-  static async getByStudio(id: string) {
-    return (await database.find(database.store.movies, {
-      studio: id,
-    })) as Movie[];
+  static getByStudio(studioId: string) {
+    return movieCollection.query("studio-index", studioId);
   }
 
   static async getLabels(movie: Movie) {

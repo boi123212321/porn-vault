@@ -327,6 +327,15 @@ export default class SceneList extends mixins(DrawerMixin) {
           mutation($name: String!) {
             addActor(name: $name) {
               ...ActorFragment
+              labels {
+                _id
+                name
+              }
+              thumbnail {
+                _id
+                color
+              }
+              numScenes
             }
           }
           ${actorFragment}
@@ -352,6 +361,15 @@ export default class SceneList extends mixins(DrawerMixin) {
         mutation($name: String!, $aliases: [String!], $labels: [String!]) {
           addActor(name: $name, aliases: $aliases, labels: $labels) {
             ...ActorFragment
+            labels {
+              _id
+              name
+            }
+            thumbnail {
+              _id
+              color
+            }
+            numScenes
           }
         }
         ${actorFragment}

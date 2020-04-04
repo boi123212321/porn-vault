@@ -1,4 +1,3 @@
-import * as database from "../../database";
 import Actor from "../../types/actor";
 import Label from "../../types/label";
 import Scene from "../../types/scene";
@@ -14,6 +13,7 @@ import { removeSceneDoc, updateSceneDoc } from "../../search/scene";
 import { onSceneCreate } from "../../plugin_events/scene";
 import CrossReference from "../../types/cross_references";
 import { sceneCollection } from "../../database";
+import { removeSceneFromQueue } from "../../queue/processing";
 
 type ISceneUpdateOpts = Partial<{
   favorite: boolean;
@@ -36,8 +36,8 @@ async function runScenePlugins(ids: string[]) {
     let scene = await Scene.getById(id);
 
     if (scene) {
-      const labels = (await Scene.getLabels(scene)).map(l => l._id);
-      const actors = (await Scene.getActors(scene)).map(a => a._id);
+      const labels = (await Scene.getLabels(scene)).map((l) => l._id);
+      const actors = (await Scene.getActors(scene)).map((a) => a._id);
       logger.log("Labels before plugin: ", labels);
       scene = await onSceneCreate(scene, labels, actors, "sceneCustom");
       logger.log("Labels after plugin: ", labels);
@@ -55,7 +55,7 @@ async function runScenePlugins(ids: string[]) {
 
 export default {
   async runAllScenePlugins() {
-    const ids = (await Scene.getAll()).map(a => a._id);
+    const ids = (await Scene.getAll()).map((a) => a._id);
     return runScenePlugins(ids);
   },
 
@@ -135,10 +135,10 @@ export default {
       labels.push(
         ...(
           await Promise.all(
-            extractedActors.map(async id => {
+            extractedActors.map(async (id) => {
               const actor = await Actor.getById(id);
               if (!actor) return [];
-              return (await Actor.getLabels(actor)).map(l => l._id);
+              return (await Actor.getLabels(actor)).map((l) => l._id);
             })
           )
         ).flat()
@@ -162,7 +162,7 @@ export default {
       const scene = await Scene.getById(id);
 
       if (scene) {
-        const sceneLabels = (await Scene.getLabels(scene)).map(l => l._id);
+        const sceneLabels = (await Scene.getLabels(scene)).map((l) => l._id);
         if (typeof opts.name == "string") scene.name = opts.name.trim();
 
         if (typeof opts.description == "string")
@@ -178,7 +178,7 @@ export default {
 
             if (studio) {
               const studioLabels = (await Studio.getLabels(studio)).map(
-                l => l._id
+                (l) => l._id
               );
               logger.log("Applying studio labels to scene");
               await Scene.setLabels(scene, sceneLabels.concat(studioLabels));
@@ -190,7 +190,9 @@ export default {
           const actorIds = [...new Set(opts.actors)];
           await Scene.setActors(scene, actorIds);
 
-          const existingLabels = (await Scene.getLabels(scene)).map(l => l._id);
+          const existingLabels = (await Scene.getLabels(scene)).map(
+            (l) => l._id
+          );
 
           if (config.APPLY_ACTOR_LABELS === true) {
             const actors = (await mapAsync(actorIds, Actor.getById)).filter(
@@ -198,7 +200,7 @@ export default {
             ) as Actor[];
             const labelIds = (await mapAsync(actors, Actor.getLabels))
               .flat()
-              .map(l => l._id);
+              .map((l) => l._id);
 
             logger.log("Applying actor labels to scene");
             await Scene.setLabels(scene, existingLabels.concat(labelIds));
@@ -269,8 +271,13 @@ export default {
         logger.success("Deleted scene " + scene._id);
 
         await CrossReference.clear(scene._id);
+
+        logger.log("Deleting scene from queue (if needed)");
+        try {
+          await removeSceneFromQueue(scene._id);
+        } catch (err) {}
       }
     }
     return true;
-  }
+  },
 };

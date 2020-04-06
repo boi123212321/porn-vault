@@ -80,7 +80,7 @@
     "@types/yaml": "^1.2.0",
     "@types/yargs": "^15.0.4",
     "nodemon": "^2.0.2",
-    "pkg": "^4.4.0",
+    "pkg": "^4.4.6",
     "ts-node": "^8.6.2",
     "typescript": "^3.8.3"
   },

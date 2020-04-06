@@ -34,17 +34,18 @@
       </div>
 
       <span v-else>
-        <v-btn
-          :icon="$vuetify.breakpoint.smAndDown"
-          v-for="item in navItems"
-          :key="item.icon"
-          class="mr-2 text-none"
-          text
-          :to="item.url"
-        >
-          <v-icon :left="$vuetify.breakpoint.mdAndUp">{{ item.icon }}</v-icon>
-          <span v-if="$vuetify.breakpoint.mdAndUp">{{ item.text }}</span>
-        </v-btn>
+        <span v-for="item in navItems" :key="item.icon">
+          <v-btn
+            v-if="!item.mobile || $vuetify.breakpoint.xsOnly"
+            :icon="$vuetify.breakpoint.smAndDown"
+            class="mr-2 text-none"
+            text
+            :to="item.url"
+          >
+            <v-icon :left="$vuetify.breakpoint.mdAndUp">{{ item.icon }}</v-icon>
+            <span v-if="$vuetify.breakpoint.mdAndUp">{{ item.text }}</span>
+          </v-btn>
+        </span>
       </span>
 
       <v-spacer></v-spacer>
@@ -227,6 +228,12 @@ export default class App extends Vue {
   }
 
   navItems = [
+    {
+      icon: "mdi-home",
+      text: "Home",
+      url: "/",
+      mobile: true
+    },
     {
       icon: "mdi-camcorder-box",
       text: "Scenes",

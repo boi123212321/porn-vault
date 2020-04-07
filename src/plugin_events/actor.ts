@@ -65,6 +65,27 @@ export async function onActorCreate(
   )
     actor.thumbnail = pluginResult.thumbnail;
 
+  if (
+    typeof pluginResult.hero == "string" &&
+    pluginResult.hero.startsWith("im_") &&
+    !actor.hero
+  )
+    actor.hero = pluginResult.hero;
+
+  if (
+    typeof pluginResult.altThumbnail == "string" &&
+    pluginResult.altThumbnail.startsWith("im_") &&
+    !actor.altThumbnail
+  )
+    actor.altThumbnail = pluginResult.altThumbnail;
+
+  if (
+    typeof pluginResult.avatar == "string" &&
+    pluginResult.avatar.startsWith("im_") &&
+    !actor.avatar
+  )
+    actor.avatar = pluginResult.avatar;
+
   if (typeof pluginResult.name === "string") actor.name = pluginResult.name;
 
   if (typeof pluginResult.description === "string")

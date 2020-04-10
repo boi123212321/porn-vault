@@ -11,7 +11,7 @@ import { indexImages } from "../search/image";
 import { imageCollection, sceneCollection } from "../database";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
-  exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
+  exclude.some((regStr) => new RegExp(regStr, "i").test(file.toLowerCase()));
 
 export async function checkVideoFolders() {
   const config = getConfig();
@@ -26,7 +26,7 @@ export async function checkVideoFolders() {
     let numFiles = 0;
     const loader = ora(`Scanned ${numFiles} videos`).start();
 
-    await walk(folder, [".mp4"], async path => {
+    await walk(folder, [".mp4"], async (path) => {
       loader.text = `Scanned ${++numFiles} videos`;
       if (
         basename(path).startsWith(".") ||
@@ -35,11 +35,9 @@ export async function checkVideoFolders() {
         logger.log(`Ignoring file ${path}`);
       } else {
         logger.log(`Found matching file ${path}`);
-        logger.log(
-          "Checking if there is already a scene with that path: " +
-            (await Scene.getSceneByPath(path))
-        );
-        if (!(await Scene.getSceneByPath(path))) unknownVideos.push(path);
+        const existingScene = await Scene.getSceneByPath(path);
+        logger.log("Scene with that path exists already: " + !!existingScene);
+        if (!existingScene) unknownVideos.push(path);
       }
     });
 
@@ -124,7 +122,7 @@ export async function checkImageFolders() {
     let numFiles = 0;
     const loader = ora(`Scanned ${numFiles} images`).start();
 
-    await walk(folder, [".jpg", ".jpeg", ".png", ".gif"], async path => {
+    await walk(folder, [".jpg", ".jpeg", ".png", ".gif"], async (path) => {
       loader.text = `Scanned ${++numFiles} images`;
       if (
         basename(path).startsWith(".") ||

@@ -27,7 +27,7 @@ async function downloadTwigs() {
   const downloadName = {
     Windows_NT: "twigs.exe",
     Linux: "twigs_linux",
-    Darwin: "twigs_mac"
+    Darwin: "twigs_mac",
   }[type()] as string;
 
   if (arch() != "x64") {
@@ -35,7 +35,7 @@ async function downloadTwigs() {
     process.exit(1);
   }
 
-  const asset = assets.find(as => as.name == downloadName);
+  const asset = assets.find((as) => as.name == downloadName);
 
   if (!asset) {
     logger.error("Twigs release not found: " + downloadName + " for " + type());
@@ -64,16 +64,18 @@ export function spawnTwigs() {
     logger.log("Spawning Twigs");
     const twigs = spawn("./" + twigsPath, []);
     let responded = false;
-    twigs.on("error", err => {
+    twigs.on("error", (err) => {
       reject(err);
     });
-    twigs.stdout.on("data", data => {
-      logger.twigs(data.toString());
+    twigs.stdout.on("data", (data) => {
       if (!responded) {
         logger.log("Twigs ready");
         responded = true;
         resolve();
       }
+    });
+    twigs.stderr.on("data", (data) => {
+      logger.twigs(data.toString());
     });
   });
 }

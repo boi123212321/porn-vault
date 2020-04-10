@@ -64,9 +64,10 @@ printMaxMemory();
     let queueHead = (await getQueueHead()) as Scene;
 
     while (!!queueHead) {
+      logger.log("Processing " + queueHead.path + "...");
       try {
         let data = {
-          processed: true
+          processed: true,
         } as any;
         let images = [] as any[];
         let thumbs = [] as any[];
@@ -130,8 +131,8 @@ printMaxMemory();
             {
               type: "password",
               name: "password",
-              message: "Enter password"
-            }
+              message: "Enter password",
+            },
           ])
         ).password;
       } while (sha(password) != config.PASSWORD);

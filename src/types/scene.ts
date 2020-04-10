@@ -423,9 +423,6 @@ export default class Scene {
 
   static async getById(_id: string) {
     return sceneCollection.get(_id);
-    /*  return (await database.findOne(database.store.scenes, {
-      _id
-    })) as Scene | null; */
   }
 
   static async getAll(): Promise<Scene[]> {

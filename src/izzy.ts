@@ -40,7 +40,7 @@ async function downloadIzzy() {
   const downloadName = {
     Windows_NT: "izzy.exe",
     Linux: "izzy_linux",
-    Darwin: "izzy_mac"
+    Darwin: "izzy_mac",
   }[type()] as string;
 
   if (arch() != "x64") {
@@ -48,7 +48,7 @@ async function downloadIzzy() {
     process.exit(1);
   }
 
-  const asset = assets.find(as => as.name == downloadName);
+  const asset = assets.find((as) => as.name == downloadName);
 
   if (!asset) {
     logger.error("Izzy release not found: " + downloadName + " for " + type());
@@ -77,16 +77,18 @@ export function spawnIzzy() {
     logger.log("Spawning Izzy");
     const izzy = spawn("./" + izzyPath, []);
     let responded = false;
-    izzy.on("error", err => {
+    izzy.on("error", (err) => {
       reject(err);
     });
-    izzy.stdout.on("data", data => {
-      logger.izzy(data.toString());
+    izzy.stdout.on("data", (data) => {
       if (!responded) {
         logger.log("Izzy ready");
         responded = true;
         resolve();
       }
+    });
+    izzy.stderr.on("data", (data) => {
+      logger.izzy(data.toString());
     });
   });
 }

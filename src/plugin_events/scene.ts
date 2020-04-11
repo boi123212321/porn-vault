@@ -119,7 +119,12 @@ export async function onSceneCreate(
       else if (config.CREATE_MISSING_ACTORS) {
         let actor = new Actor(actorName);
         actorIds.push(actor._id);
-        actor = await onActorCreate(actor, []);
+        try {
+          actor = await onActorCreate(actor, []);
+        } catch (error) {
+          logger.log(error);
+          logger.error(error.message);
+        }
         await actorCollection.upsert(actor._id, actor);
         indices.actors.add(await createActorSearchDoc(actor));
         logger.log("Created actor " + actor.name);

@@ -61,6 +61,7 @@ There's a Discord channel now! Join in to the discussion. https://discord.gg/t49
 - CREATE_MISSING_ACTORS: Create actors returned from plugins when not found in library
 - CREATE_MISSING_STUDIOS: Create studio returned from plugins when not found in library
 - CREATE_MISSING_LABELS: Create labels returned from plugins when not found in library
+- CREATE_MISSING_MOVIES: Create movies returned from plugins when not found in library
 - MAX_LOG_SIZE: Max. amount of logs to store
 - COMPRESS_IMAGE_SIZE: Max. image width to compress thumbnails etc to
 - CACHE_TIME: Global cache time (requires restart when changed)

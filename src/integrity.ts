@@ -19,10 +19,10 @@ export function bookmarksToTimestamp(file: string) {
     const rl = readline.createInterface({
       input: fs.createReadStream(file),
       output: process.stdout,
-      terminal: false
+      terminal: false,
     });
 
-    rl.on("line", line => {
+    rl.on("line", (line) => {
       const item = JSON.parse(line);
       if (item.bookmark !== undefined) {
         if (typeof item.bookmark == "boolean") {
@@ -30,10 +30,11 @@ export function bookmarksToTimestamp(file: string) {
           else item.bookmark = null;
           modified = true;
         }
-      } else {
+      }
+      /* else {
         logger.log("Bookmarks already timestamp... aborting");
         return rl.close();
-      }
+      }*/
       lines.push(JSON.stringify(item));
     });
 

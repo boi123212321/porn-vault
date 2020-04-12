@@ -64,7 +64,11 @@ export default class Movie {
   }
 
   static async getByScene(id: string) {
-    return MovieScene.getByScene(id);
+    return (
+      await mapAsync(await MovieScene.getByScene(id), (ms) =>
+        Movie.getById(ms.movie)
+      )
+    ).filter(Boolean) as Movie[];
   }
 
   static getByStudio(studioId: string) {

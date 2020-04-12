@@ -17,6 +17,7 @@ import LabelledItem from "../types/labelled_item";
 import MovieScene from "../types/movie_scene";
 import ActorReference from "../types/actor_reference";
 import MarkerReference from "../types/marker_reference";
+import { existsAsync } from "../fs/async";
 
 mkdirp.sync("backups/");
 mkdirp.sync("tmp/");
@@ -67,6 +68,13 @@ function loadStore(path: string): Promise<DataStore> {
 }
 
 export async function loadStores() {
+  if (await existsAsync(libraryPath("cross_references.db"))) {
+    logger.message("Looks like you haven't ported your library yet");
+    logger.message("cross_references.db is deprecated and needs to be");
+    logger.message("transformed to new files");
+    process.exit(1);
+  }
+
   try {
     mkdirp.sync(libraryPath("images/"));
     mkdirp.sync(libraryPath("thumbnails/")); // generated screenshots

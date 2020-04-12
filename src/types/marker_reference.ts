@@ -7,7 +7,7 @@ export default class MarkerReference {
   marker: string;
 
   constructor(scene: string, marker: string, type: string) {
-    this._id = "ar_" + generateHash();
+    this._id = "mr_" + generateHash();
     this.scene = scene;
     this.marker = marker;
   }

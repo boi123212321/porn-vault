@@ -2,6 +2,7 @@ import Marker from "../../types/marker";
 import * as database from "../../database";
 import MarkerReference from "../../types/marker_reference";
 import { markerReferenceCollection } from "../../database";
+import LabelledItem from "../../types/labelled_item";
 
 interface ICreateMarkerArgs {
   scene: string;
@@ -44,6 +45,7 @@ export default {
     for (const id of ids) {
       await Marker.remove(id);
       await MarkerReference.removeByMarker(id);
+      await LabelledItem.removeByItem(id);
     }
     return true;
   },

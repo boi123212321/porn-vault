@@ -54,7 +54,6 @@ There's a Discord channel now! Join in to the discussion. https://discord.gg/t49
   - Example: Kali Roses has labels "blonde" & "tattoos". Importing a new video featuring Kali Roses (will be matched if "Kali Roses" is in the video title or path), the newly created scene will automatically inherit "blonde" & "tattoos" + other labels that have been extracted from the title or path.
 - APPLY_STUDIO_LABELS: Same as APPLY_ACTOR_LABELS, but for studios
 - READ_IMAGES_ON_IMPORT: Read image dimensions/hash on import, will greatly increase import time for a big image library (10000+)
-- REMOVE_DANGLING_FILE_REFERENCES: Remove scenes/images from the database that can not be found on disk
 - BACKUP_ON_STARTUP: Whether to create a backup when starting the server
 - MAX_BACKUP_AMOUNT: Max amount of backups in backups/ folder. Oldest one will be deleted, if max amount has been reached.
 - EXCLUDE_FILES: Array of regular expressions that, if any of them match a file name, will cause the file to be ignored

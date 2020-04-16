@@ -46,9 +46,9 @@ imports/
 config\.yaml
 
 twigs
-<<<<<<< Updated upstream
 twigs.exe
-=======
-
->>>>>>> Stashed changes
 images\.json
+
+izzy
+izzy.exe
+compat/cross_references\.db

@@ -22,9 +22,6 @@ export default gql`
       _id
       color
     }
-    preview {
-      _id
-    }
     meta {
       size
       duration

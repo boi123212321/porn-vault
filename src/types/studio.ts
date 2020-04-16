@@ -6,7 +6,8 @@ import Scene from "./scene";
 import Movie from "./movie";
 import { mapAsync } from "./utility";
 import * as logger from "../logger";
-import CrossReference from "./cross_references";
+import { labelledItemCollection } from "../database";
+import LabelledItem from "./labelled_item";
 
 export default class Studio {
   _id: string;
@@ -20,69 +21,7 @@ export default class Studio {
   labels?: string[]; // backwards compatibility
   aliases?: string[];
 
-  static async checkIntegrity() {
-    const allStudios = await Studio.getAll();
-
-    for (const studio of allStudios) {
-      const studioId = studio._id.startsWith("st_")
-        ? studio._id
-        : `st_${studio._id}`;
-
-      if (studio.labels && studio.labels.length) {
-        for (const label of studio.labels) {
-          const labelId = label.startsWith("la_") ? label : `la_${label}`;
-
-          if (!!(await CrossReference.get(studioId, labelId))) {
-            logger.log(
-              `Cross reference ${studioId} -> ${labelId} already exists.`
-            );
-          } else {
-            const cr = new CrossReference(studioId, labelId);
-            await database.insert(database.store.crossReferences, cr);
-            logger.log(
-              `Created cross reference ${cr._id}: ${cr.from} -> ${cr.to}`
-            );
-          }
-        }
-      }
-
-      if (!studio._id.startsWith("st_")) {
-        const newStudio = JSON.parse(JSON.stringify(studio)) as Studio;
-        newStudio._id = studioId;
-        if (newStudio.labels) delete newStudio.labels;
-        if (studio.thumbnail && !studio.thumbnail.startsWith("im_")) {
-          newStudio.thumbnail = "im_" + studio.thumbnail;
-        }
-        if (studio.parent && !studio.parent.startsWith("st_")) {
-          newStudio.parent = "st_" + studio.parent;
-        }
-        await database.insert(database.store.studios, newStudio);
-        await database.remove(database.store.studios, { _id: studio._id });
-        logger.log(`Changed studio ID: ${studio._id} -> ${studioId}`);
-      } else {
-        if (studio.parent && !studio.parent.startsWith("st_")) {
-          await database.update(
-            database.store.studios,
-            { _id: studioId },
-            { $set: { parent: "st_" + studio.parent } }
-          );
-        }
-        if (studio.thumbnail && !studio.thumbnail.startsWith("im_")) {
-          await database.update(
-            database.store.studios,
-            { _id: studioId },
-            { $set: { thumbnail: "im_" + studio.thumbnail } }
-          );
-        }
-        if (studio.labels)
-          await database.update(
-            database.store.studios,
-            { _id: studioId },
-            { $unset: { labels: true } }
-          );
-      }
-    }
-  }
+  static async checkIntegrity() {}
 
   constructor(name: string) {
     this._id = "st_" + generateHash();
@@ -101,17 +40,9 @@ export default class Studio {
     );
   }
 
-  static async filterImage(thumbnail: string) {
-    await database.update(
-      database.store.studios,
-      { thumbnail },
-      { $set: { thumbnail: null } }
-    );
-  }
-
   static async getById(_id: string) {
     return (await database.findOne(database.store.studios, {
-      _id
+      _id,
     })) as Studio | null;
   }
 
@@ -124,7 +55,7 @@ export default class Studio {
     const subStudios = await Studio.getSubStudios(studio._id);
 
     const scenesOfSubStudios = (
-      await Promise.all(subStudios.map(child => Studio.getScenes(child)))
+      await Promise.all(subStudios.map((child) => Studio.getScenes(child)))
     ).flat();
 
     return scenes.concat(scenesOfSubStudios);
@@ -135,7 +66,7 @@ export default class Studio {
 
     const moviesOfSubStudios = (
       await Promise.all(
-        (await Studio.getSubStudios(studio._id)).map(child =>
+        (await Studio.getSubStudios(studio._id)).map((child) =>
           Studio.getMovies(child)
         )
       )
@@ -146,7 +77,7 @@ export default class Studio {
 
   static async getSubStudios(studioId: string) {
     return (await database.find(database.store.studios, {
-      parent: studioId
+      parent: studioId,
     })) as Studio[];
   }
 
@@ -154,43 +85,38 @@ export default class Studio {
     const scenes = await Studio.getScenes(studio);
     const actorIds = [
       ...new Set(
-        (await mapAsync(scenes, Scene.getActors)).flat().map(a => a._id)
-      )
+        (await mapAsync(scenes, Scene.getActors)).flat().map((a) => a._id)
+      ),
     ];
     return (await mapAsync(actorIds, Actor.getById)).filter(Boolean) as Actor[];
   }
 
   static async setLabels(studio: Studio, labelIds: string[]) {
-    const references = await CrossReference.getBySource(studio._id);
+    const references = await LabelledItem.getByItem(studio._id);
 
-    const oldLabelReferences = references
-      .filter(r => r.to.startsWith("la_"))
-      .map(r => r._id);
+    const oldLabelReferences = references.map((r) => r._id);
 
     for (const id of oldLabelReferences) {
-      await database.remove(database.store.crossReferences, { _id: id });
+      await labelledItemCollection.remove(id);
     }
 
     for (const id of [...new Set(labelIds)]) {
-      const crossReference = new CrossReference(studio._id, id);
-      logger.log("Adding actor to scene: " + JSON.stringify(crossReference));
-      await database.insert(database.store.crossReferences, crossReference);
+      const labelledItem = new LabelledItem(studio._id, id, "studio");
+      logger.log("Adding label to studio: " + JSON.stringify(labelledItem));
+      await labelledItemCollection.upsert(labelledItem._id, labelledItem);
     }
   }
 
   static async getLabels(studio: Studio) {
-    const references = await CrossReference.getBySource(studio._id);
-    return (
-      await mapAsync(
-        references.filter(r => r.to.startsWith("la_")),
-        r => Label.getById(r.to)
-      )
-    ).filter(Boolean) as Label[];
+    const references = await LabelledItem.getByItem(studio._id);
+    return (await mapAsync(references, (r) => Label.getById(r.label))).filter(
+      Boolean
+    ) as Label[];
   }
 
   static async inferLabels(studio: Studio) {
     const scenes = await Studio.getScenes(studio);
-    const labelIds = [...new Set(scenes.map(scene => scene.labels).flat())];
+    const labelIds = [...new Set(scenes.map((scene) => scene.labels).flat())];
     return (await mapAsync(labelIds, Label.getById)).filter(Boolean) as Label[];
   }
 }

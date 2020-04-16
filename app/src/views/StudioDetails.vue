@@ -516,8 +516,36 @@ export default class StudioDetails extends Vue {
         query($id: String!) {
           getStudioById(id: $id) {
             ...StudioFragment
+            numScenes
+            labels {
+              _id
+              name
+            }
+            thumbnail {
+              _id
+            }
+            parent {
+              _id
+              name
+              labels {
+                _id
+                name
+              }
+              parent {
+                _id
+                name
+              }
+            }
             actors {
               ...ActorFragment
+              thumbnail {
+                _id
+                color
+              }
+              labels {
+                _id
+                name
+              }
             }
             movies {
               ...MovieFragment
@@ -539,6 +567,14 @@ export default class StudioDetails extends Vue {
             }
             substudios {
               ...StudioFragment
+              numScenes
+              labels {
+                _id
+                name
+              }
+              thumbnail {
+                _id
+              }
             }
           }
         }

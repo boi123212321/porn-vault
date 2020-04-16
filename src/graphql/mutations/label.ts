@@ -6,7 +6,8 @@ import { Dictionary } from "../../types/utility";
 import { stripStr } from "../../extractor";
 import * as logger from "../../logger";
 import { updateSceneDoc } from "../../search/scene";
-import { updateImageDoc } from "../../search/image";
+import { updateImageDoc, isBlacklisted } from "../../search/image";
+import LabelledItem from "../../types/labelled_item";
 
 type ILabelUpdateOpts = Partial<{
   name: string;
@@ -21,9 +22,7 @@ export default {
 
       if (label) {
         await Label.remove(label._id);
-        await database.remove(database.store.crossReferences, {
-          to: label._id
-        });
+        await LabelledItem.removeByLabel(id);
       }
     }
     return true;
@@ -37,9 +36,9 @@ export default {
 
       if (
         perms.includes(stripStr(label.name)) ||
-        label.aliases.some(alias => perms.includes(stripStr(alias)))
+        label.aliases.some((alias) => perms.includes(stripStr(alias)))
       ) {
-        const labels = (await Scene.getLabels(scene)).map(l => l._id);
+        const labels = (await Scene.getLabels(scene)).map((l) => l._id);
         labels.push(label._id);
         await Scene.setLabels(scene, labels);
         await updateSceneDoc(scene);
@@ -48,13 +47,15 @@ export default {
     }
 
     for (const image of await Image.getAll()) {
-      const perms = stripStr(image.path || image.name);
+      const perms = stripStr(image.path ? image.path : image.name);
+
+      if (isBlacklisted(image.name)) continue;
 
       if (
         perms.includes(stripStr(label.name)) ||
-        label.aliases.some(alias => perms.includes(stripStr(alias)))
+        label.aliases.some((alias) => perms.includes(stripStr(alias)))
       ) {
-        const labels = (await Image.getLabels(image)).map(l => l._id);
+        const labels = (await Image.getLabels(image)).map((l) => l._id);
         labels.push(label._id);
         await Image.setLabels(image, labels);
         await updateImageDoc(image);
@@ -91,5 +92,5 @@ export default {
     }
 
     return updatedLabels;
-  }
+  },
 };

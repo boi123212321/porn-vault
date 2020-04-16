@@ -7,7 +7,8 @@ import { stripStr } from "../../extractor";
 import * as logger from "../../logger";
 import { indices } from "../../search/index";
 import { createStudioSearchDoc } from "../../search/studio";
-import { buildSceneIndex, updateSceneDoc } from "../../search/scene";
+import { updateSceneDoc } from "../../search/scene";
+import LabelledItem from "../../types/labelled_item";
 
 type IStudioUpdateOpts = Partial<{
   name: string;
@@ -28,15 +29,8 @@ export default {
       const perms = stripStr(scene.path || scene.name);
 
       if (scene.studio === null && perms.includes(stripStr(studio.name))) {
-        await database.update(
-          database.store.scenes,
-          { _id: scene._id },
-          {
-            $set: {
-              studio: studio._id
-            }
-          }
-        );
+        scene.studio = studio._id;
+        await database.sceneCollection.upsert(scene._id, scene);
         await updateSceneDoc(scene);
         logger.log(`Updated scene ${scene._id}`);
       }
@@ -103,14 +97,9 @@ export default {
         await Movie.filterStudio(studio._id);
         await Image.filterStudio(studio._id);
 
-        await database.remove(database.store.crossReferences, {
-          from: studio._id
-        });
-        await database.remove(database.store.crossReferences, {
-          to: studio._id
-        });
+        await LabelledItem.removeByItem(studio._id);
       }
     }
     return true;
-  }
+  },
 };

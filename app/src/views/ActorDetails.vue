@@ -155,34 +155,8 @@
                   v-if="currentActor.description"
                 >{{ currentActor.description }}</div>
               </div>
-              <div v-if="collabs.length">
-                <v-btn class="mr-2" icon @click="showCollabs=!showCollabs">
-                  <v-icon>{{ showCollabs ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-                </v-btn>
 
-                <span class="font-weight-black subtitle-1">{{ firstName(currentActor.name) }}</span> has appeared alongside:
-              </div>
-              <v-expand-transition>
-                <v-row v-if="showCollabs">
-                  <v-col
-                    v-for="actor in collabs"
-                    :key="actor._id"
-                    cols="6"
-                    sm="4"
-                    md="2"
-                    lg="2"
-                    xl="1"
-                    class="text-center"
-                  >
-                    <router-link :to="`/actor/${actor._id}`">
-                      <v-avatar style="border: 2px solid white" v-ripple size="100">
-                        <v-img :src="collabAvatar(actor)"></v-img>
-                      </v-avatar>
-                    </router-link>
-                    <div class="mt-2 body-2 font-weight-bold">{{ actor.name }}</div>
-                  </v-col>
-                </v-row>
-              </v-expand-transition>
+              <Collabs class="mb-3" :name="currentActor.name" :collabs="collabs" />
             </div>
             <v-tabs
               v-model="activeTab"
@@ -567,6 +541,8 @@ import IImage from "../types/image";
 import ILabel from "../types/label";
 import { contextModule } from "../store/context";
 import CustomFieldSelector from "../components/CustomFieldSelector.vue";
+import Collabs from "../components/Collabs.vue";
+import { ICollabActor } from "../types/actor";
 
 interface ICropCoordinates {
   left: number;
@@ -577,17 +553,6 @@ interface ICropCoordinates {
 
 interface ICropResult {
   coordinates: ICropCoordinates;
-}
-
-type AttachedImage = {
-  _id: string;
-} | null;
-
-interface ICollabActor {
-  _id: string;
-  name: string;
-  thumbnail: AttachedImage;
-  avatar: AttachedImage;
 }
 
 @Component({
@@ -601,7 +566,8 @@ interface ICollabActor {
     ImageUploader,
     CustomFieldSelector,
     MovieCard,
-    CircleStencil
+    CircleStencil,
+    Collabs
   },
   beforeRouteLeave(_to, _from, next) {
     actorModule.setCurrent(null);
@@ -613,7 +579,6 @@ export default class ActorDetails extends Vue {
   movies = [] as IMovie[];
   images = [] as IImage[];
   collabs = [] as ICollabActor[];
-  showCollabs = true;
   lightboxIndex = null as number | null;
 
   activeTab = 0;
@@ -663,25 +628,6 @@ export default class ActorDetails extends Vue {
   pluginLoader = false;
 
   labelSearchQuery = "";
-
-  firstName(name: string) {
-    const tokens = name.split(" ");
-    if (tokens.length <= 3) return tokens[0];
-  }
-
-  collabAvatar(actor: ICollabActor) {
-    if (actor.avatar) {
-      return `${serverBase}/image/${
-        actor.avatar._id
-      }?password=${localStorage.getItem("password")}`;
-    }
-    if (actor.thumbnail) {
-      return `${serverBase}/image/${
-        actor.thumbnail._id
-      }?password=${localStorage.getItem("password")}`;
-    }
-    return `${serverBase}/broken`;
-  }
 
   get avatar() {
     if (!this.currentActor) return null;
@@ -754,6 +700,19 @@ export default class ActorDetails extends Vue {
         mutation($ids: [String!]!) {
           runActorPlugins(ids: $ids) {
             ...ActorFragment
+            numScenes
+            labels {
+              _id
+              name
+            }
+            thumbnail {
+              _id
+              color
+            }
+            altThumbnail {
+              _id
+            }
+            watches
             hero {
               _id
               color
@@ -1472,6 +1431,35 @@ export default class ActorDetails extends Vue {
     this.scenePage = 0;
     this.onLoad();
     this.loadCollabs();
+    this.loadMovies();
+  }
+
+  loadMovies() {
+    ApolloClient.query({
+      query: gql`
+        query($id: String!) {
+          getActorById(id: $id) {
+            movies {
+              ...MovieFragment
+              actors {
+                ...ActorFragment
+              }
+              scenes {
+                ...SceneFragment
+              }
+            }
+          }
+        }
+        ${sceneFragment}
+        ${actorFragment}
+        ${movieFragment}
+      `,
+      variables: {
+        id: (<any>this).$route.params.id
+      }
+    }).then(res => {
+      this.movies = res.data.getActorById.movies;
+    });
   }
 
   loadCollabs() {
@@ -1506,6 +1494,19 @@ export default class ActorDetails extends Vue {
         query($id: String!) {
           getActorById(id: $id) {
             ...ActorFragment
+            numScenes
+            labels {
+              _id
+              name
+            }
+            thumbnail {
+              _id
+              color
+            }
+            altThumbnail {
+              _id
+            }
+            watches
             hero {
               _id
               color
@@ -1513,20 +1514,9 @@ export default class ActorDetails extends Vue {
             avatar {
               _id
             }
-            movies {
-              ...MovieFragment
-              actors {
-                ...ActorFragment
-              }
-              scenes {
-                ...SceneFragment
-              }
-            }
           }
         }
-        ${sceneFragment}
         ${actorFragment}
-        ${movieFragment}
       `,
       variables: {
         id: (<any>this).$route.params.id
@@ -1534,13 +1524,13 @@ export default class ActorDetails extends Vue {
     }).then(res => {
       actorModule.setCurrent(res.data.getActorById);
       this.editCustomFields = res.data.getActorById.customFields;
-      this.movies = res.data.getActorById.movies;
     });
   }
 
   beforeMount() {
     this.onLoad();
     this.loadCollabs();
+    this.loadMovies();
   }
 
   mounted() {

@@ -20,7 +20,7 @@
       <template v-slot:item="{ item }">
         <template>
           <v-list-item-avatar>
-            <img :src="thumbnail(item)" />
+            <img style="object-fit: cover" :src="thumbnail(item)" />
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title v-html="item.name"></v-list-item-title>
@@ -38,6 +38,21 @@ import gql from "graphql-tag";
 import actorFragment from "../fragments/actor";
 import sceneFragment from "../fragments/scene";
 import IScene from "../types/scene";
+
+export function createObjectSet<T extends Record<string, any>>(
+  objs: T[],
+  key: keyof T & string
+) {
+  const dict = {} as { [key: string]: T };
+  for (const obj of objs) {
+    dict[obj[key]] = obj;
+  }
+  const set = [] as T[];
+  for (const key in dict) {
+    set.push(dict[key]);
+  }
+  return set;
+}
 
 @Component
 export default class SceneSelector extends Vue {
@@ -122,15 +137,9 @@ export default class SceneSelector extends Vue {
           query
         }
       });
-
       this.loading = false;
-      this.scenes = result.data.getScenes;
-
-      const ids = [...new Set(this.scenes.map(a => a._id))];
-
-      this.scenes = ids
-        .map(id => this.scenes.find(a => a._id == id))
-        .filter(Boolean) as IScene[];
+      this.scenes.push(...result.data.getScenes);
+      this.scenes = createObjectSet(this.scenes, "_id");
     } catch (err) {
       throw err;
     }

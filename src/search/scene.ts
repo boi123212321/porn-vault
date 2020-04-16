@@ -27,8 +27,8 @@ export async function searchScenes(query: string, random = 0) {
       actors: options.actors.join(","),
       studio: options.studios[0],
       duration_min: options.durationMin || undefined,
-      duration_max: options.durationMax || undefined
-    }
+      duration_max: options.durationMax || undefined,
+    },
   });
 }
 
@@ -113,15 +113,15 @@ export async function createSceneSearchDoc(
     id: scene._id,
     added_on: scene.addedOn,
     name: scene.name,
-    labels: labels.map(l => ({
+    labels: labels.map((l) => ({
       id: l._id,
       name: l.name,
-      aliases: l.aliases
+      aliases: l.aliases,
     })),
-    actors: actors.map(a => ({
+    actors: actors.map((a) => ({
       id: a._id,
       name: a.name,
-      aliases: a.aliases
+      aliases: a.aliases,
     })),
     rating: scene.rating,
     bookmark: scene.bookmark,
@@ -135,6 +135,6 @@ export async function createSceneSearchDoc(
     size: scene.meta.size,
     studio_name: scene.studio
       ? ((await Studio.getById(scene.studio)) || { name: null }).name
-      : null
+      : null,
   };
 }

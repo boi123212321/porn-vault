@@ -693,6 +693,15 @@ export default class MovieDetails extends Vue {
             ...MovieFragment
             actors {
               ...ActorFragment
+              thumbnail {
+                _id
+                color
+              }
+              numScenes
+              labels {
+                _id
+                name
+              }
             }
             scenes {
               ...SceneFragment
@@ -705,6 +714,9 @@ export default class MovieDetails extends Vue {
             }
             studio {
               ...StudioFragment
+              thumbnail {
+                _id
+              }
             }
           }
         }

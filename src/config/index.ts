@@ -30,6 +30,7 @@ export interface IConfig {
   BULK_IMPORT_PATHS: string[];
 
   SCAN_ON_STARTUP: boolean;
+  DO_PROCESSING: boolean;
   SCAN_INTERVAL: number;
 
   LIBRARY_PATH: string;
@@ -53,7 +54,6 @@ export interface IConfig {
   FUZZINESS: number; */
 
   READ_IMAGES_ON_IMPORT: boolean;
-  REMOVE_DANGLING_FILE_REFERENCES: boolean;
 
   BACKUP_ON_STARTUP: boolean;
   MAX_BACKUP_AMOUNT: number;
@@ -66,10 +66,17 @@ export interface IConfig {
   CREATE_MISSING_ACTORS: boolean;
   CREATE_MISSING_STUDIOS: boolean;
   CREATE_MISSING_LABELS: boolean;
+  CREATE_MISSING_MOVIES: boolean;
+
+  ALLOW_PLUGINS_OVERWRITE_SCENE_THUMBNAILS: boolean;
+  ALLOW_PLUGINS_OVERWRITE_ACTOR_THUMBNAILS: boolean;
+  ALLOW_PLUGINS_OVERWRITE_MOVIE_THUMBNAILS: boolean;
 
   MAX_LOG_SIZE: number;
 
   COMPRESS_IMAGE_SIZE: number;
+
+  CACHE_TIME: number;
 }
 
 export const defaultConfig: IConfig = {
@@ -79,11 +86,12 @@ export const defaultConfig: IConfig = {
   BULK_IMPORT_PATHS: [],
 
   SCAN_ON_STARTUP: false,
+  DO_PROCESSING: true,
   SCAN_INTERVAL: 10800000,
   LIBRARY_PATH: process.cwd(),
   FFMPEG_PATH: "",
   FFPROBE_PATH: "",
-  GENERATE_SCREENSHOTS: true,
+  GENERATE_SCREENSHOTS: false,
   GENERATE_PREVIEWS: true,
   SCREENSHOT_INTERVAL: 120,
   PASSWORD: null,
@@ -94,7 +102,6 @@ export const defaultConfig: IConfig = {
   /* USE_FUZZY_SEARCH: true,
   FUZZINESS: 0.25, */
   READ_IMAGES_ON_IMPORT: false,
-  REMOVE_DANGLING_FILE_REFERENCES: false,
   BACKUP_ON_STARTUP: true,
   MAX_BACKUP_AMOUNT: 10,
   EXCLUDE_FILES: [],
@@ -104,14 +111,22 @@ export const defaultConfig: IConfig = {
     sceneCreated: [],
     actorCustom: [],
     sceneCustom: [],
-    movieCreated: []
+    movieCreated: [],
   },
   CREATE_MISSING_ACTORS: false,
   CREATE_MISSING_STUDIOS: false,
   CREATE_MISSING_LABELS: false,
+  CREATE_MISSING_MOVIES: false,
+
+  ALLOW_PLUGINS_OVERWRITE_SCENE_THUMBNAILS: false,
+  ALLOW_PLUGINS_OVERWRITE_ACTOR_THUMBNAILS: false,
+  ALLOW_PLUGINS_OVERWRITE_MOVIE_THUMBNAILS: false,
+
   MAX_LOG_SIZE: 2500,
 
-  COMPRESS_IMAGE_SIZE: 540
+  COMPRESS_IMAGE_SIZE: 720,
+
+  CACHE_TIME: 0,
 };
 
 let loadedConfig;
@@ -144,8 +159,8 @@ export async function checkConfig() {
       type: "confirm",
       name: "yaml",
       message: "Use YAML (instead of JSON) for config file?",
-      default: false
-    }
+      default: false,
+    },
   ]);
 
   loadedConfig = await setupFunction();

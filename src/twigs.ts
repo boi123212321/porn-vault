@@ -27,7 +27,7 @@ async function downloadTwigs() {
   const downloadName = {
     Windows_NT: "twigs.exe",
     Linux: "twigs_linux",
-    Darwin: "twigs_mac"
+    Darwin: "twigs_mac",
   }[type()] as string;
 
   if (arch() != "x64") {
@@ -35,7 +35,7 @@ async function downloadTwigs() {
     process.exit(1);
   }
 
-  const asset = assets.find(as => as.name == downloadName);
+  const asset = assets.find((as) => as.name == downloadName);
 
   if (!asset) {
     logger.error("Twigs release not found: " + downloadName + " for " + type());
@@ -50,29 +50,31 @@ async function downloadTwigs() {
 export async function ensureTwigsExists() {
   if (await existsAsync(twigsPath)) {
     logger.log("Twigs binary found");
-    return true;
+    return 0;
   } else {
-    logger.message("Downloading latest Twigs binary...");
+    logger.message("Downloading latest Twigs (search engine) binary...");
     await downloadTwigs();
-    logger.success("Twigs downloaded. Please restart.");
-    process.exit(0);
+    return 1;
   }
 }
 
 export function spawnTwigs() {
   return new Promise((resolve, reject) => {
+    logger.log("Spawning Twigs");
     const twigs = spawn("./" + twigsPath, []);
     let responded = false;
-    twigs.on("error", err => {
+    twigs.on("error", (err) => {
       reject(err);
     });
-    twigs.stdout.on("data", data => {
-      logger.twigs(data.toString());
+    twigs.stdout.on("data", (data) => {
       if (!responded) {
         logger.log("Twigs ready");
         responded = true;
         resolve();
       }
+    });
+    twigs.stderr.on("data", (data) => {
+      logger.twigs(data.toString());
     });
   });
 }

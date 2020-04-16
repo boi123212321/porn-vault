@@ -405,6 +405,14 @@ export default class ImagesView extends mixins(DrawerMixin) {
           query($query: String) {
             getImages(query: $query) {
               ...ImageFragment
+              labels {
+                _id
+                name
+              }
+              studio {
+                _id
+                name
+              }
               actors {
                 ...ActorFragment
               }

@@ -15,7 +15,6 @@ import { stripStr } from "../extractor";
 import * as logger from "../logger";
 import * as database from "../database/index";
 import CustomField, { CustomFieldTarget } from "../types/custom_field";
-import CrossReference from "../types/cross_references";
 import { inspect } from "util";
 import Movie from "../types/movie";
 import Studio from "../types/studio";
@@ -24,6 +23,12 @@ import { onActorCreate } from "../plugin_events/actor";
 import { isString } from "./schemas/common";
 import { onMovieCreate } from "../plugin_events/movie";
 import { isNumber, isBoolean } from "../types/utility";
+import {
+  imageCollection,
+  actorCollection,
+  actorReferenceCollection,
+} from "../database/index";
+import ActorReference from "../types/actor_reference";
 import { existsAsync } from "../fs/async";
 import { onSceneCreate } from "../plugin_events/scene";
 
@@ -141,7 +146,8 @@ export async function createFromFileData(opts: ICreateOptions) {
         studio.thumbnail = image._id;
 
         if (args["commit-import"])
-          await database.insert(database.store.images, image);
+          // await database.insert(database.store.images, image);
+          await imageCollection.upsert(image._id, image);
       }
 
       if (args["commit-import"])
@@ -176,11 +182,11 @@ export async function createFromFileData(opts: ICreateOptions) {
         image.path = actorToCreate.thumbnail;
         actor.thumbnail = image._id;
 
-        const reference = new CrossReference(image._id, actor._id);
+        const reference = new ActorReference(image._id, actor._id, "image");
 
         if (args["commit-import"]) {
-          await database.insert(database.store.crossReferences, reference);
-          await database.insert(database.store.images, image);
+          await actorReferenceCollection.upsert(reference._id, reference);
+          await imageCollection.upsert(image._id, image);
         }
       }
 
@@ -201,14 +207,13 @@ export async function createFromFileData(opts: ICreateOptions) {
         );
       }
 
-      if (args["commit-import"]) {
-        try {
-          actor = await onActorCreate(actor, actorLabels);
-        } catch (error) {
-          logger.error(error.message);
-        }
-        await database.insert(database.store.actors, actor);
+      try {
+        actor = await onActorCreate(actor, actorLabels);
+      } catch (error) {
+        logger.error(error.message);
       }
+
+      if (args["commit-import"]) await actorCollection.upsert(actor._id, actor);
       createdActors[actorId] = actor;
     }
   }
@@ -231,12 +236,8 @@ export async function createFromFileData(opts: ICreateOptions) {
         image.path = sceneToCreate.thumbnail;
         thumbnail = image._id;
 
-        const reference = new CrossReference(newScene._id, image._id);
-
-        if (args["commit-import"]) {
-          await database.insert(database.store.crossReferences, reference);
-          await database.insert(database.store.images, image);
-        }
+        if (args["commit-import"])
+          await imageCollection.upsert(image._id, image);
       }
 
       if (sceneToCreate.actors) {
@@ -304,7 +305,7 @@ export async function createFromFileData(opts: ICreateOptions) {
         movie.frontCover = image._id;
 
         if (args["commit-import"])
-          await database.insert(database.store.images, image);
+          await imageCollection.upsert(image._id, image);
       }
 
       if (movieToCreate.backCover) {
@@ -313,16 +314,17 @@ export async function createFromFileData(opts: ICreateOptions) {
         movie.backCover = image._id;
 
         if (args["commit-import"])
-          await database.insert(database.store.images, image);
+          await imageCollection.upsert(image._id, image);
       }
 
       if (movieToCreate.spineCover) {
         const image = new Image(`${movie.name} (spine cover)`);
         image.path = movieToCreate.spineCover;
+
         movie.spineCover = image._id;
 
         if (args["commit-import"])
-          await database.insert(database.store.images, image);
+          await imageCollection.upsert(image._id, image);
       }
 
       let scenes = [] as string[];
@@ -338,7 +340,7 @@ export async function createFromFileData(opts: ICreateOptions) {
           logger.error(error.message);
         }
         await Movie.setScenes(movie, scenes);
-        await database.insert(database.store.movies, movie);
+        await database.movieCollection.upsert(movie._id, movie);
       }
       createdMovies[movieId] = movie;
     }

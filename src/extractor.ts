@@ -3,9 +3,10 @@ import Actor from "./types/actor";
 import Studio from "./types/studio";
 import Scene from "./types/scene";
 import CustomField from "./types/custom_field";
+import Movie from "./types/movie";
 
 function ignoreSingleNames(arr: string[]) {
-  return arr.filter(str => str.split(" ").length > 1);
+  return arr.filter((str) => str.split(" ").length > 1);
 }
 
 export function stripStr(str: string) {
@@ -17,7 +18,7 @@ export async function extractFields(str: string): Promise<string[]> {
   const foundFields = [] as string[];
   const allFields = await CustomField.getAll();
 
-  allFields.forEach(field => {
+  allFields.forEach((field) => {
     if (stripStr(str).includes(stripStr(field.name))) {
       foundFields.push(field._id);
     }
@@ -30,10 +31,10 @@ export async function extractLabels(str: string): Promise<string[]> {
   const foundLabels = [] as string[];
   const allLabels = await Label.getAll();
 
-  allLabels.forEach(label => {
+  allLabels.forEach((label) => {
     if (
       stripStr(str).includes(stripStr(label.name)) ||
-      label.aliases.some(alias => stripStr(str).includes(stripStr(alias)))
+      label.aliases.some((alias) => stripStr(str).includes(stripStr(alias)))
     ) {
       foundLabels.push(label._id);
     }
@@ -46,10 +47,10 @@ export async function extractActors(str: string): Promise<string[]> {
   const foundActors = [] as string[];
   const allActors = await Actor.getAll();
 
-  allActors.forEach(actor => {
+  allActors.forEach((actor) => {
     if (
       stripStr(str).includes(stripStr(actor.name)) ||
-      ignoreSingleNames(actor.aliases).some(alias =>
+      ignoreSingleNames(actor.aliases).some((alias) =>
         stripStr(str).includes(stripStr(alias))
       )
     ) {
@@ -64,21 +65,30 @@ export async function extractStudios(str: string): Promise<string[]> {
   const allStudios = await Studio.getAll();
   return allStudios
     .filter(
-      studio =>
+      (studio) =>
         stripStr(str).includes(stripStr(studio.name)) ||
-        (studio.aliases || []).some(alias =>
+        (studio.aliases || []).some((alias) =>
           stripStr(str).includes(stripStr(alias))
         )
     )
     .sort((a, b) => b.name.length - a.name.length)
-    .map(s => s._id);
+    .map((s) => s._id);
 }
 
 // Returns IDs of extracted scenes
 export async function extractScenes(str: string): Promise<string[]> {
   const allScenes = await Scene.getAll();
   return allScenes
-    .filter(scene => stripStr(str).includes(stripStr(scene.name)))
+    .filter((scene) => stripStr(str).includes(stripStr(scene.name)))
     .sort((a, b) => b.name.length - a.name.length)
-    .map(s => s._id);
+    .map((s) => s._id);
+}
+
+// Returns IDs of extracted movies
+export async function extractMovies(str: string): Promise<string[]> {
+  const allMovies = await Movie.getAll();
+  return allMovies
+    .filter((movie) => stripStr(str).includes(stripStr(movie.name)))
+    .sort((a, b) => b.name.length - a.name.length)
+    .map((s) => s._id);
 }

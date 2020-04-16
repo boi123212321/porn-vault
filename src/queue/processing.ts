@@ -3,6 +3,7 @@ export interface ISceneProcessingItem {
 }
 
 import * as database from "../database/index";
+import * as logger from "../logger";
 
 let processing = false;
 
@@ -19,6 +20,7 @@ function getStore() {
 }
 
 export function removeSceneFromQueue(_id: string) {
+  logger.log(`Removing ${_id} from processing queue...`);
   return database.remove(getStore(), { _id });
 }
 

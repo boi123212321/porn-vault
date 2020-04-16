@@ -1,14 +1,16 @@
 import { runPluginsSerial } from "../plugins/index";
 import { libraryPath } from "../types/utility";
-import { extractFields } from "../extractor";
+import { extractFields, extractStudios } from "../extractor";
 import { getConfig } from "../config";
 import { extname } from "path";
 import { downloadFile } from "../ffmpeg-download";
 import Image from "../types/image";
-import * as database from "../database/index";
 import * as logger from "../logger";
 import { indexImages } from "../search/image";
 import Movie from "../types/movie";
+import { imageCollection } from "../database/index";
+import Studio from "../types/studio";
+import * as database from "../database/index";
 
 // This function has side effects
 export async function onMovieCreate(movie: Movie, event = "movieCreated") {
@@ -27,7 +29,8 @@ export async function onMovieCreate(movie: Movie, event = "movieCreated") {
       if (thumbnail) img.name += " (thumbnail)";
       img.path = path;
       logger.log("Created image " + img._id);
-      await database.insert(database.store.images, img);
+      // await database.insert(database.store.images, img);
+      await imageCollection.upsert(img._id, img);
       if (!thumbnail) {
         await indexImages([img]);
       }
@@ -43,29 +46,33 @@ export async function onMovieCreate(movie: Movie, event = "movieCreated") {
       await downloadFile(url, path);
       img.path = path;
       logger.log("Created image " + img._id);
-      await database.insert(database.store.images, img);
+      // await database.insert(database.store.images, img);
+      await imageCollection.upsert(img._id, img);
       if (!thumbnail) {
         await indexImages([img]);
       }
       return img._id;
-    }
+    },
   });
 
   if (
     typeof pluginResult.frontCover == "string" &&
-    pluginResult.frontCover.startsWith("im_")
+    pluginResult.frontCover.startsWith("im_") &&
+    (!movie.frontCover || config.ALLOW_PLUGINS_OVERWRITE_MOVIE_THUMBNAILS)
   )
     movie.frontCover = pluginResult.frontCover;
 
   if (
     typeof pluginResult.backCover == "string" &&
-    pluginResult.backCover.startsWith("im_")
+    pluginResult.backCover.startsWith("im_") &&
+    (!movie.backCover || config.ALLOW_PLUGINS_OVERWRITE_MOVIE_THUMBNAILS)
   )
     movie.backCover = pluginResult.backCover;
 
   if (
     typeof pluginResult.spineCover == "string" &&
-    pluginResult.spineCover.startsWith("im_")
+    pluginResult.spineCover.startsWith("im_") &&
+    (!movie.spineCover || config.ALLOW_PLUGINS_OVERWRITE_MOVIE_THUMBNAILS)
   )
     movie.spineCover = pluginResult.spineCover;
 
@@ -92,6 +99,22 @@ export async function onMovieCreate(movie: Movie, event = "movieCreated") {
       const fields = await extractFields(key);
       if (fields.length)
         movie.customFields[fields[0]] = pluginResult.custom[key];
+    }
+  }
+
+  if (
+    !movie.studio &&
+    pluginResult.studio &&
+    typeof pluginResult.studio === "string"
+  ) {
+    const studioId = (await extractStudios(pluginResult.studio))[0];
+
+    if (studioId) movie.studio = studioId;
+    else if (config.CREATE_MISSING_STUDIOS) {
+      const studio = new Studio(pluginResult.studio);
+      movie.studio = studio._id;
+      await database.insert(database.store.studios, studio);
+      logger.log("Created studio " + studio.name);
     }
   }
 

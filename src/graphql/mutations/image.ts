@@ -1,4 +1,3 @@
-import * as database from "../../database";
 import Actor from "../../types/actor";
 import Label from "../../types/label";
 import Scene from "../../types/scene";
@@ -8,12 +7,14 @@ import { extname } from "path";
 import * as logger from "../../logger";
 import { extractLabels, extractActors } from "../../extractor";
 import { Dictionary, libraryPath, mapAsync } from "../../types/utility";
-import Movie from "../../types/movie";
 import Jimp from "jimp";
 import { statAsync, unlinkAsync } from "../../fs/async";
 import { getConfig } from "../../config";
 import Studio from "../../types/studio";
 import { removeImageDoc, indexImages } from "../../search/image";
+import { imageCollection } from "../../database";
+import LabelledItem from "../../types/labelled_item";
+import ActorReference from "../../types/actor_reference";
 
 type IImageUpdateOpts = Partial<{
   name: string;
@@ -158,9 +159,9 @@ export default {
       if (scene) {
         image.scene = args.scene;
 
-        const sceneActors = (await Scene.getActors(scene)).map(a => a._id);
+        const sceneActors = (await Scene.getActors(scene)).map((a) => a._id);
         actors.push(...sceneActors);
-        const sceneLabels = (await Scene.getLabels(scene)).map(a => a._id);
+        const sceneLabels = (await Scene.getLabels(scene)).map((a) => a._id);
         labels.push(...sceneLabels);
       }
     }
@@ -171,13 +172,13 @@ export default {
     }
 
     // Extract actors
-    const extractedActors = await extractActors(image.path);
+    const extractedActors = await extractActors(sourcePath);
     logger.log(`Found ${extractedActors.length} actors in image path.`);
     actors.push(...extractedActors);
     await Image.setActors(image, actors);
 
     // Extract labels
-    const extractedLabels = await extractLabels(image.path);
+    const extractedLabels = await extractLabels(sourcePath);
     logger.log(`Found ${extractedLabels.length} labels in image path.`);
     labels.push(...extractedLabels);
 
@@ -186,10 +187,10 @@ export default {
       labels.push(
         ...(
           await Promise.all(
-            extractedActors.map(async id => {
+            extractedActors.map(async (id) => {
               const actor = await Actor.getById(id);
               if (!actor) return [];
-              return (await Actor.getLabels(actor)).map(l => l._id);
+              return (await Actor.getLabels(actor)).map((l) => l._id);
             })
           )
         ).flat()
@@ -200,7 +201,8 @@ export default {
 
     // Done
 
-    await database.insert(database.store.images, image);
+    await imageCollection.upsert(image._id, image);
+    // await database.insert(database.store.images, image);
     await indexImages([image]);
     await unlinkAsync(outPath);
     logger.success(`Image '${imageName}' done.`);
@@ -222,13 +224,15 @@ export default {
           const actorIds = [...new Set(opts.actors)];
           await Image.setActors(image, actorIds);
 
-          const existingLabels = (await Image.getLabels(image)).map(l => l._id);
+          const existingLabels = (await Image.getLabels(image)).map(
+            (l) => l._id
+          );
 
           if (config.APPLY_ACTOR_LABELS === true) {
             const actors = (await mapAsync(actorIds, Actor.getById)).filter(
               Boolean
             ) as Actor[];
-            const labelIds = actors.map(ac => ac.labels).flat();
+            const labelIds = actors.map((ac) => ac.labels).flat();
 
             logger.log("Applying actor labels to image");
             await Image.setLabels(image, existingLabels.concat(labelIds));
@@ -266,10 +270,8 @@ export default {
           image.customFields = opts.customFields;
         }
 
-        await database.update(database.store.images, { _id: image._id }, image);
+        await imageCollection.upsert(image._id, image);
         updatedImages.push(image);
-        // indices.images.update(image._id, await createImageSearchDoc(image));
-        // TODO: update image
       } else {
         throw new Error(`Image ${id} not found`);
       }
@@ -285,18 +287,10 @@ export default {
       if (image) {
         await Image.remove(image);
         await removeImageDoc(image._id);
-        await Actor.filterImage(image._id);
-        await Scene.filterImage(image._id);
-        await Label.filterImage(image._id);
-        await Movie.filterImage(image._id);
-        await database.remove(database.store.crossReferences, {
-          from: image._id
-        });
-        await database.remove(database.store.crossReferences, {
-          to: image._id
-        });
+        await LabelledItem.removeByItem(image._id);
+        await ActorReference.removeByItem(image._id);
       }
     }
     return true;
-  }
+  },
 };

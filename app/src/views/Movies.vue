@@ -160,7 +160,6 @@
 import { Component, Vue, Watch } from "vue-property-decorator";
 import ApolloClient, { serverBase } from "../apollo";
 import gql from "graphql-tag";
-import sceneFragment from "../fragments/scene";
 import actorFragment from "../fragments/actor";
 import { contextModule } from "../store/context";
 import InfiniteLoading from "vue-infinite-loading";
@@ -304,15 +303,11 @@ export default class MovieList extends mixins(DrawerMixin) {
                 ...ActorFragment
               }
               scenes {
-                ...SceneFragment
-                actors {
-                  ...ActorFragment
-                }
+                _id
               }
             }
           }
           ${movieFragment}
-          ${sceneFragment}
           ${actorFragment}
         `,
         variables: {
@@ -340,15 +335,11 @@ export default class MovieList extends mixins(DrawerMixin) {
               ...ActorFragment
             }
             scenes {
-              ...SceneFragment
-              actors {
-                ...ActorFragment
-              }
+              _id
             }
           }
         }
         ${movieFragment}
-        ${sceneFragment}
         ${actorFragment}
       `,
       variables: {
@@ -483,15 +474,11 @@ export default class MovieList extends mixins(DrawerMixin) {
                 ...ActorFragment
               }
               scenes {
-                ...SceneFragment
-                actors {
-                  ...ActorFragment
-                }
+                _id
               }
             }
           }
           ${movieFragment}
-          ${sceneFragment}
           ${actorFragment}
         `,
         variables: {

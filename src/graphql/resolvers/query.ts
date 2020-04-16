@@ -14,11 +14,17 @@ import { getStudios } from "./search/studio";
 import { getMovies } from "./search/movie";
 import { twigsVersion } from "../../search/index";
 import { getLength, isProcessing } from "../../queue/processing";
+import {
+  sceneCollection,
+  imageCollection,
+  actorCollection,
+  movieCollection,
+} from "../../database/index";
 
 export default {
   async twigs() {
     return {
-      version: await twigsVersion()
+      version: await twigsVersion(),
     };
   },
 
@@ -28,55 +34,55 @@ export default {
     if (numStudios == 0) return [];
 
     return (await Scene.getAll())
-      .filter(s => s.studio === null)
+      .filter((s) => s.studio === null)
       .slice(0, num || 12);
   },
 
   async getScenesWithoutLabels(_, { num }: { num: number }) {
     return (
-      await mapAsync(await Scene.getAll(), async scene => ({
+      await mapAsync(await Scene.getAll(), async (scene) => ({
         scene,
-        numLabels: (await Scene.getLabels(scene)).length
+        numLabels: (await Scene.getLabels(scene)).length,
       }))
     )
-      .filter(i => i.numLabels == 0)
-      .map(i => i.scene)
+      .filter((i) => i.numLabels == 0)
+      .map((i) => i.scene)
       .slice(0, num || 12);
   },
 
   async getActorsWithoutLabels(_, { num }: { num: number }) {
     return (
-      await mapAsync(await Actor.getAll(), async actor => ({
+      await mapAsync(await Actor.getAll(), async (actor) => ({
         actor,
-        numLabels: (await Actor.getLabels(actor)).length
+        numLabels: (await Actor.getLabels(actor)).length,
       }))
     )
-      .filter(i => i.numLabels == 0)
-      .map(i => i.actor)
+      .filter((i) => i.numLabels == 0)
+      .map((i) => i.actor)
       .slice(0, num || 12);
   },
 
   async getScenesWithoutActors(_, { num }: { num: number }) {
     return (
-      await mapAsync(await Scene.getAll(), async scene => ({
+      await mapAsync(await Scene.getAll(), async (scene) => ({
         scene,
-        numActors: (await Scene.getActors(scene)).length
+        numActors: (await Scene.getActors(scene)).length,
       }))
     )
-      .filter(i => i.numActors == 0)
-      .map(i => i.scene)
+      .filter((i) => i.numActors == 0)
+      .map((i) => i.scene)
       .slice(0, num || 12);
   },
 
   async getActorsWithoutScenes(_, { num }: { num: number }) {
     return (
-      await mapAsync(await Actor.getAll(), async actor => ({
+      await mapAsync(await Actor.getAll(), async (actor) => ({
         actor,
-        numScenes: (await Scene.getByActor(actor._id)).length
+        numScenes: (await Scene.getByActor(actor._id)).length,
       }))
     )
-      .filter(i => i.numScenes == 0)
-      .map(i => i.actor)
+      .filter((i) => i.numScenes == 0)
+      .map((i) => i.actor)
       .slice(0, num || 12);
   },
 
@@ -87,7 +93,7 @@ export default {
   async getQueueInfo() {
     return {
       length: await getLength(),
-      processing: isProcessing()
+      processing: isProcessing(),
     };
   },
 
@@ -131,13 +137,13 @@ export default {
     return labels.sort((a, b) => a.name.localeCompare(b.name));
   },
   async numScenes() {
-    return await database.count(database.store.scenes, {});
+    return await sceneCollection.count();
   },
   async numActors() {
-    return await database.count(database.store.actors, {});
+    return await actorCollection.count();
   },
   async numMovies() {
-    return await database.count(database.store.movies, {});
+    return movieCollection.count();
   },
   async numLabels() {
     return await database.count(database.store.labels, {});
@@ -146,7 +152,7 @@ export default {
     return await database.count(database.store.studios, {});
   },
   async numImages() {
-    return await database.count(database.store.images, {});
+    return await imageCollection.count();
   },
   async actorGraph() {
     const actors = await Actor.getAll();
@@ -167,7 +173,7 @@ export default {
             from: actor._id,
             to: other._id,
             title: collab.scene.name,
-            _id: collab.scene._id
+            _id: collab.scene._id,
           });
         }
       }
@@ -177,7 +183,7 @@ export default {
 
     return {
       actors,
-      links: { items: links }
+      links: { items: links },
     };
   },
   async getSceneLabelUsage() {
@@ -189,14 +195,14 @@ export default {
           ? { label, score: item.score + 1 }
           : {
               label,
-              score: 0
+              score: 0,
             };
       }
     }
     return Object.keys(scores)
-      .map(key => ({
+      .map((key) => ({
         label: scores[key].label,
-        score: scores[key].score
+        score: scores[key].score,
       }))
       .sort((a, b) => b.score - a.score);
   },
@@ -209,15 +215,15 @@ export default {
           ? { label, score: item.score + 1 }
           : {
               label,
-              score: 0
+              score: 0,
             };
       }
     }
     return Object.keys(scores)
-      .map(key => ({
+      .map((key) => ({
         label: scores[key].label,
-        score: scores[key].score
+        score: scores[key].score,
       }))
       .sort((a, b) => b.score - a.score);
-  }
+  },
 };

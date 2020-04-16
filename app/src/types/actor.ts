@@ -1,3 +1,14 @@
+type AttachedImage = {
+  _id: string;
+} | null;
+
+export interface ICollabActor {
+  _id: string;
+  name: string;
+  thumbnail: AttachedImage;
+  avatar: AttachedImage;
+}
+
 export default interface IActor {
   _id: string;
   name: string;

@@ -257,6 +257,18 @@ export default class StudioList extends mixins(DrawerMixin) {
           mutation($name: String!) {
             addStudio(name: $name) {
               ...StudioFragment
+              numScenes
+              thumbnail {
+                _id
+              }
+              labels {
+                _id
+                name
+              }
+              parent {
+                _id
+                name
+              }
             }
           }
           ${studioFragment}
@@ -417,6 +429,18 @@ export default class StudioList extends mixins(DrawerMixin) {
           query($query: String) {
             getStudios(query: $query) {
               ...StudioFragment
+              numScenes
+              thumbnail {
+                _id
+              }
+              labels {
+                _id
+                name
+              }
+              parent {
+                _id
+                name
+              }
             }
           }
           ${studioFragment}

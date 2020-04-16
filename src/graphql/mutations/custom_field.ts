@@ -47,12 +47,6 @@ export default {
   async removeCustomField(_, { id }: { id: string }) {
     await CustomField.remove(id);
 
-    await Actor.filterCustomField(id);
-    await Image.filterCustomField(id);
-    await Movie.filterCustomField(id);
-    await Scene.filterCustomField(id);
-    await Marker.filterCustomField(id);
-
     return true;
   },
   async createCustomField(

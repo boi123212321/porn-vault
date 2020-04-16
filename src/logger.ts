@@ -7,7 +7,7 @@ import { writeFileAsync } from "./fs/async";
 if (process.env.NODE_ENV == "development") {
   debug.enable("porn:*");
 } else {
-  debug.enable("porn:warn,porn:error,porn:message,porn:plugin");
+  debug.enable("porn:success,porn:warn,porn:error,porn:message,porn:plugin");
 }
 
 enum LogType {
@@ -16,7 +16,10 @@ enum LogType {
   ERROR = "error",
   SUCCESS = "success",
   HTTP = "http",
-  MESSAGE = "message"
+  MESSAGE = "message",
+  SEARCH = "search",
+  TWIGS = "twigs",
+  IZZY = "izzy"
 }
 
 interface ILogData {
@@ -92,9 +95,21 @@ export const message = (...args: any) => {
   debug("porn:message")(text);
   appendToLog(createItem(LogType.MESSAGE, text));
 };
-// TODO: merge vvvvvvvvv
-export const search = debug("porn:search");
-export const twigs = debug("porn:twigs");
+export const search = (...args: any) => {
+  const text = merge(...args);
+  debug("porn:twigs")(text);
+  appendToLog(createItem(LogType.SEARCH, text));
+};
+export const twigs = (...args: any) => {
+  const text = merge(...args);
+  debug("porn:twigs")(text);
+  appendToLog(createItem(LogType.TWIGS, text));
+};
+export const izzy = (...args: any) => {
+  const text = merge(...args);
+  debug("porn:izzy")(text);
+  appendToLog(createItem(LogType.IZZY, text));
+};
 
 export const httpLog = (
   req: express.Request,

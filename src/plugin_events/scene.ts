@@ -1,11 +1,12 @@
 import Scene from "../types/scene";
 import { runPluginsSerial } from "../plugins/index";
-import { libraryPath } from "../types/utility";
+import { libraryPath, validRating } from "../types/utility";
 import {
   extractLabels,
   extractStudios,
   extractActors,
-  extractFields
+  extractFields,
+  extractMovies,
 } from "../extractor";
 import { getConfig } from "../config";
 import { extname } from "path";
@@ -20,6 +21,14 @@ import { onActorCreate } from "./actor";
 import { indices } from "../search/index";
 import { createActorSearchDoc } from "../search/actor";
 import { indexImages } from "../search/image";
+import {
+  imageCollection,
+  actorCollection,
+  movieCollection,
+} from "../database/index";
+import Movie from "../types/movie";
+import { onMovieCreate } from "./movie";
+import { createMovieSearchDoc } from "../search/movie";
 
 // This function has side effects
 export async function onSceneCreate(
@@ -45,7 +54,7 @@ export async function onSceneCreate(
       img.path = path;
       img.scene = scene._id;
       logger.log("Created image " + img._id);
-      await database.insert(database.store.images, img);
+      await imageCollection.upsert(img._id, img);
       if (!thumbnail) {
         await indexImages([img]);
       }
@@ -62,21 +71,24 @@ export async function onSceneCreate(
       img.path = path;
       img.scene = scene._id;
       logger.log("Created image " + img._id);
-      await database.insert(database.store.images, img);
+      await imageCollection.upsert(img._id, img);
       if (!thumbnail) {
         await indexImages([img]);
       }
       return img._id;
-    }
+    },
   });
 
   if (
     typeof pluginResult.thumbnail == "string" &&
-    pluginResult.thumbnail.startsWith("im_")
+    pluginResult.thumbnail.startsWith("im_") &&
+    (!scene.thumbnail || config.ALLOW_PLUGINS_OVERWRITE_SCENE_THUMBNAILS)
   )
     scene.thumbnail = pluginResult.thumbnail;
 
   if (typeof pluginResult.name === "string") scene.name = pluginResult.name;
+
+  if (typeof pluginResult.path === "string") scene.path = pluginResult.path;
 
   if (typeof pluginResult.description === "string")
     scene.description = pluginResult.description;
@@ -92,9 +104,7 @@ export async function onSceneCreate(
     }
   }
 
-  const ra = pluginResult.rating;
-  if (typeof ra === "number" && ra >= 0 && ra <= 10 && Number.isInteger(ra))
-    scene.rating = pluginResult.rating;
+  if (validRating(pluginResult.rating)) scene.rating = pluginResult.rating;
 
   if (typeof pluginResult.favorite === "boolean")
     scene.favorite = pluginResult.favorite;
@@ -110,8 +120,13 @@ export async function onSceneCreate(
       else if (config.CREATE_MISSING_ACTORS) {
         let actor = new Actor(actorName);
         actorIds.push(actor._id);
-        actor = await onActorCreate(actor, []);
-        await database.insert(database.store.actors, actor);
+        try {
+          actor = await onActorCreate(actor, []);
+        } catch (error) {
+          logger.log(error);
+          logger.error(error.message);
+        }
+        await actorCollection.upsert(actor._id, actor);
         indices.actors.add(await createActorSearchDoc(actor));
         logger.log("Created actor " + actor.name);
       }
@@ -150,6 +165,32 @@ export async function onSceneCreate(
       scene.studio = studio._id;
       await database.insert(database.store.studios, studio);
       logger.log("Created studio " + studio.name);
+    }
+  }
+
+  if (pluginResult.movie && typeof pluginResult.movie === "string") {
+    const movieId = (await extractMovies(pluginResult.movie))[0];
+
+    if (movieId) {
+      const movie = <Movie>await Movie.getById(movieId);
+      const sceneIds = (await Movie.getScenes(movie)).map((sc) => sc._id);
+      await Movie.setScenes(movie, sceneIds.concat(scene._id));
+      indices.movies.update(movie._id, await createMovieSearchDoc(movie));
+    } else if (config.CREATE_MISSING_STUDIOS) {
+      let movie = new Movie(pluginResult.movie);
+
+      try {
+        movie = await onMovieCreate(movie, "movieCreated");
+      } catch (error) {
+        logger.log(error);
+        logger.error(error.message);
+      }
+
+      await movieCollection.upsert(movie._id, movie);
+      logger.log("Created movie " + movie.name);
+      await Movie.setScenes(movie, [scene._id]);
+      logger.log(`Attached ${scene.name} to movie ${movie.name}`);
+      indices.movies.add(await createMovieSearchDoc(movie));
     }
   }
 

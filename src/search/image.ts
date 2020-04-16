@@ -6,6 +6,7 @@ import extractQueryOptions from "../query_extractor";
 import * as logger from "../logger";
 import { ISearchResults } from "./index";
 import argv from "../args";
+import asyncPool from "tiny-async-pool";
 
 const PAGE_SIZE = 24;
 
@@ -25,8 +26,8 @@ export async function searchImages(query: string) {
       include: options.include.join(","),
       exclude: options.exclude.join(","),
       actors: options.actors.join(","),
-      scene: options.scenes[0]
-    }
+      scene: options.scenes[0],
+    },
   });
 }
 
@@ -67,29 +68,49 @@ const blacklist = [
   "(back cover)",
   "(spine cover)",
   "(hero image)",
-  "(avatar)"
+  "(avatar)",
 ];
 
+export function isBlacklisted(name: string) {
+  return blacklist.some((ending) => name.endsWith(ending));
+}
+
+export const sliceArray = (size: number) => <T>(
+  arr: T[],
+  cb: (value: T[], index: number, arr: T[]) => any
+) => {
+  let index = 0;
+  let slice = arr.slice(index, index + size) as T[];
+  while (slice.length) {
+    const result = cb(slice, index, arr);
+    if (!!result) break;
+    index += size;
+    slice = arr.slice(index, index + size);
+  }
+};
+
+export const getSlices = (size: number) => <T>(arr: T[]) => {
+  const slices = [] as T[][];
+  sliceArray(size)(arr, (slice) => {
+    slices.push(slice);
+  });
+  return slices;
+};
+
 export async function indexImages(images: Image[]) {
-  let docs = [] as IImageSearchDoc[];
-  let numItems = 0;
-  for (const image of images) {
-    if (blacklist.some(ending => image.name.endsWith(ending))) continue;
+  if (!images.length) return 0;
+  const slices = getSlices(2500)(images);
 
-    docs.push(await createImageSearchDoc(image));
-
-    if (docs.length == (argv["index-slice-size"] || 2500)) {
-      await addImageSearchDocs(docs);
-      numItems += docs.length;
-      docs = [];
-    }
-  }
-  if (docs.length) {
+  await asyncPool(4, slices, async (slice) => {
+    const docs = [] as IImageSearchDoc[];
+    await asyncPool(16, slice, async (image) => {
+      if (!isBlacklisted(image.name))
+        docs.push(await createImageSearchDoc(image));
+    });
     await addImageSearchDocs(docs);
-    numItems += docs.length;
-  }
-  docs = [];
-  return numItems;
+  });
+
+  return images.length;
 }
 
 export async function addImageSearchDocs(docs: IImageSearchDoc[]) {
@@ -120,21 +141,21 @@ export async function createImageSearchDoc(
     id: image._id,
     added_on: image.addedOn,
     name: image.name,
-    labels: labels.map(l => ({
+    labels: labels.map((l) => ({
       id: l._id,
       name: l.name,
-      aliases: l.aliases
+      aliases: l.aliases,
     })),
-    actors: actors.map(a => ({
+    actors: actors.map((a) => ({
       id: a._id,
       name: a.name,
-      aliases: a.aliases
+      aliases: a.aliases,
     })),
     rating: image.rating || 0,
     bookmark: image.bookmark,
     favorite: image.favorite,
     scene: image.scene,
     scene_name: null, // TODO:
-    studio_name: null // TODO:
+    studio_name: null, // TODO:
   };
 }

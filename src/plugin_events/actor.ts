@@ -1,6 +1,6 @@
 import Actor from "../types/actor";
 import { runPluginsSerial } from "../plugins/index";
-import { libraryPath } from "../types/utility";
+import { libraryPath, validRating } from "../types/utility";
 import { extractLabels, extractFields } from "../extractor";
 import { getConfig } from "../config";
 import { extname } from "path";
@@ -10,6 +10,7 @@ import * as database from "../database/index";
 import * as logger from "../logger";
 import { indexImages } from "../search/image";
 import Label from "../types/label";
+import { imageCollection } from "../database/index";
 
 // This function has side effects
 export async function onActorCreate(
@@ -33,7 +34,8 @@ export async function onActorCreate(
       img.path = path;
       await Image.setActors(img, [actor._id]);
       logger.log("Created image " + img._id);
-      await database.insert(database.store.images, img);
+      // await database.insert(database.store.images, img);
+      await imageCollection.upsert(img._id, img);
       if (!thumbnail) {
         await indexImages([img]);
       }
@@ -50,41 +52,42 @@ export async function onActorCreate(
       img.path = path;
       await Image.setActors(img, [actor._id]);
       logger.log("Created image " + img._id);
-      await database.insert(database.store.images, img);
+      // await database.insert(database.store.images, img);
+      await imageCollection.upsert(img._id, img);
       if (!thumbnail) {
         await indexImages([img]);
       }
       return img._id;
-    }
+    },
   });
 
   if (
     typeof pluginResult.thumbnail == "string" &&
     pluginResult.thumbnail.startsWith("im_") &&
-    !actor.thumbnail
+    (!actor.thumbnail || config.ALLOW_PLUGINS_OVERWRITE_ACTOR_THUMBNAILS)
   )
     actor.thumbnail = pluginResult.thumbnail;
 
   if (
-    typeof pluginResult.hero == "string" &&
-    pluginResult.hero.startsWith("im_") &&
-    !actor.hero
-  )
-    actor.hero = pluginResult.hero;
-
-  if (
     typeof pluginResult.altThumbnail == "string" &&
     pluginResult.altThumbnail.startsWith("im_") &&
-    !actor.altThumbnail
+    (!actor.altThumbnail || config.ALLOW_PLUGINS_OVERWRITE_ACTOR_THUMBNAILS)
   )
     actor.altThumbnail = pluginResult.altThumbnail;
 
   if (
     typeof pluginResult.avatar == "string" &&
     pluginResult.avatar.startsWith("im_") &&
-    !actor.avatar
+    (!actor.avatar || config.ALLOW_PLUGINS_OVERWRITE_ACTOR_THUMBNAILS)
   )
     actor.avatar = pluginResult.avatar;
+
+  if (
+    typeof pluginResult.hero == "string" &&
+    pluginResult.hero.startsWith("im_") &&
+    (!actor.hero || config.ALLOW_PLUGINS_OVERWRITE_ACTOR_THUMBNAILS)
+  )
+    actor.hero = pluginResult.hero;
 
   if (typeof pluginResult.name === "string") actor.name = pluginResult.name;
 
@@ -107,9 +110,7 @@ export async function onActorCreate(
     }
   }
 
-  const ra = pluginResult.rating;
-  if (typeof ra === "number" && ra >= 0 && ra <= 10 && Number.isInteger(ra))
-    actor.rating = pluginResult.rating;
+  if (validRating(pluginResult.rating)) actor.rating = pluginResult.rating;
 
   if (typeof pluginResult.favorite === "boolean")
     actor.favorite = pluginResult.favorite;

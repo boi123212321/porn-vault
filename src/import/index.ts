@@ -1,6 +1,6 @@
 import { getConfig } from "../config";
 import { walk, existsAsync, readFileAsync } from "../fs/async";
-import { basename, extname } from "path";
+import { basename, extname, resolve } from "path";
 import * as logger from "../logger";
 import { libraryPath } from "../types/utility";
 import YAML from "yaml";
@@ -73,8 +73,14 @@ export async function checkImportFolders() {
     logger.log(`Will ignore files: ${config.EXCLUDE_FILES}`);
 
   for (const folder of config.BULK_IMPORT_PATHS) {
-    logger.log(`Checking import folder: ${folder}...`);
-    await walk(folder, [".json", ".yaml"], async path => {
+    const _path = resolve(folder);
+    logger.log("Scanning import folder: " + _path);
+    if (!(await existsAsync(_path))) {
+      logger.warn("Could not find import folder: " + _path);
+      continue;
+    }
+    logger.log(`Checking import folder: ${_path}...`);
+    await walk(_path, [".json", ".yaml"], async (path) => {
       if (basename(path).startsWith(".")) return;
       if (imported.includes(path)) return;
       newFiles.push(path);

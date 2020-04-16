@@ -24,7 +24,6 @@ export default gql`
     thumbnail: Image
     altThumbnail: Image
     hero: Image
-    images: [Image!]!
     movies: [Movie!]!
     collabs: [Actor!]!
   }

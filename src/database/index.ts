@@ -9,21 +9,31 @@ import Image from "../types/image";
 import ora from "ora";
 import Movie from "../types/movie";
 import Studio from "../types/studio";
-import CrossReference from "../types/cross_references";
 import Marker from "../types/marker";
 import { bookmarksToTimestamp } from "../integrity";
+import { Izzy } from "./internal/index";
 import args from "../args";
+import LabelledItem from "../types/labelled_item";
+import MovieScene from "../types/movie_scene";
+import ActorReference from "../types/actor_reference";
+import MarkerReference from "../types/marker_reference";
+import { existsAsync, unlinkAsync } from "../fs/async";
+import { convertCrossReferences } from "../compat";
 
 mkdirp.sync("backups/");
 mkdirp.sync("tmp/");
 
+export let sceneCollection!: Izzy.Collection<Scene>;
+export let imageCollection!: Izzy.Collection<Image>;
+export let actorCollection!: Izzy.Collection<Actor>;
+export let movieCollection!: Izzy.Collection<Movie>;
+export let labelledItemCollection!: Izzy.Collection<LabelledItem>;
+export let movieSceneCollection!: Izzy.Collection<MovieScene>;
+export let actorReferenceCollection!: Izzy.Collection<ActorReference>;
+export let markerReferenceCollection!: Izzy.Collection<MarkerReference>;
+
 let store = {} as {
-  crossReferences: DataStore;
-  scenes: DataStore;
-  actors: DataStore;
-  images: DataStore;
   labels: DataStore;
-  movies: DataStore;
   studios: DataStore;
   processing: DataStore;
   markers: DataStore;
@@ -32,7 +42,7 @@ let store = {} as {
 
 function buildIndex(store: DataStore, opts: EnsureIndexOptions) {
   return new Promise((resolve, reject) => {
-    store.ensureIndex(opts, err => {
+    store.ensureIndex(opts, (err) => {
       if (err) reject(err);
       else {
         logger.log("Built DB index " + JSON.stringify(opts));
@@ -47,18 +57,25 @@ function loadStore(path: string): Promise<DataStore> {
     const store = new DataStore({
       autoload: true,
       filename: path,
-      onload: err => {
+      onload: (err) => {
         if (err) reject(err);
         else {
           logger.log("Loaded store " + path);
           resolve(store);
         }
-      }
+      },
     });
   });
 }
 
 export async function loadStores() {
+  const crossReferencePath = libraryPath("cross_references.db");
+  if (await existsAsync(crossReferencePath)) {
+    logger.message("Making DB compatible...");
+    await convertCrossReferences();
+    await unlinkAsync(crossReferencePath);
+  }
+
   try {
     mkdirp.sync(libraryPath("images/"));
     mkdirp.sync(libraryPath("thumbnails/")); // generated screenshots
@@ -76,50 +93,163 @@ export async function loadStores() {
     await bookmarksToTimestamp(libraryPath("markers.db"));
 
     compatLoader.succeed();
+  } else {
+    logger.message("Skipping bookmark integrity");
   }
 
   const dbLoader = ora("Loading DB...").start();
 
+  markerReferenceCollection = await Izzy.createCollection(
+    "marker-references",
+    libraryPath("marker_references.db"),
+    [
+      {
+        name: "marker-index",
+        key: "marker",
+      },
+      {
+        name: "scene-index",
+        key: "scene",
+      },
+    ]
+  );
+  actorReferenceCollection = await Izzy.createCollection(
+    "actor-references",
+    libraryPath("actor_references.db"),
+    [
+      {
+        name: "actor-index",
+        key: "actor",
+      },
+      {
+        name: "item-index",
+        key: "item",
+      },
+      {
+        name: "type-index",
+        key: "type",
+      },
+    ]
+  );
+  movieSceneCollection = await Izzy.createCollection(
+    "movie-scenes",
+    libraryPath("movie_scenes.db"),
+    [
+      {
+        name: "movie-index",
+        key: "movie",
+      },
+      {
+        name: "scene-index",
+        key: "scene",
+      },
+    ]
+  );
+  labelledItemCollection = await Izzy.createCollection(
+    "labelled-items",
+    libraryPath("labelled_items.db"),
+    [
+      {
+        name: "label-index",
+        key: "label",
+      },
+      {
+        name: "item-index",
+        key: "item",
+      },
+      {
+        name: "type-index",
+        key: "type",
+      },
+    ]
+  );
+  imageCollection = await Izzy.createCollection(
+    "images",
+    libraryPath("images.db"),
+    [
+      {
+        name: "scene-index",
+        key: "scene",
+      },
+      {
+        name: "studio-index",
+        key: "studio",
+      },
+      {
+        name: "path-index",
+        key: "path",
+      },
+    ]
+  );
+  sceneCollection = await Izzy.createCollection(
+    "scenes",
+    libraryPath("scenes.db"),
+    [
+      {
+        name: "studio-index",
+        key: "studio",
+      },
+      {
+        name: "path-index",
+        key: "path",
+      },
+      {
+        name: "preview-index",
+        key: "preview",
+      },
+    ]
+  );
+  actorCollection = await Izzy.createCollection(
+    "actors",
+    libraryPath("actors.db")
+  );
+  movieCollection = await Izzy.createCollection(
+    "movies",
+    libraryPath("movies.db"),
+    [
+      {
+        name: "studio-index",
+        key: "studio",
+      },
+    ]
+  );
+
+  logger.log("Created Izzy collections");
+
+  if (!args["skip-compaction"]) {
+    const compactLoader = ora("Compacting DB...").start();
+    await sceneCollection.compact();
+    await imageCollection.compact();
+    await labelledItemCollection.compact();
+    await movieSceneCollection.compact();
+    await actorReferenceCollection.compact();
+    await markerReferenceCollection.compact();
+    await actorCollection.compact();
+    await movieCollection.compact();
+    compactLoader.succeed("Compacted DB");
+  } else {
+    logger.message("Skipping compaction");
+  }
+
+  logger.log("Loading remaining NeDB stores");
+
   store = {
-    crossReferences: await loadStore(libraryPath("cross_references.db")),
-    scenes: await loadStore(libraryPath("scenes.db")),
-    actors: await loadStore(libraryPath("actors.db")),
-    images: await loadStore(libraryPath("images.db")),
     labels: await loadStore(libraryPath("labels.db")),
-    movies: await loadStore(libraryPath("movies.db")),
     studios: await loadStore(libraryPath("studios.db")),
     processing: await loadStore(libraryPath("processing.db")),
     markers: await loadStore(libraryPath("markers.db")),
-    customFields: await loadStore(libraryPath("custom_fields.db"))
+    customFields: await loadStore(libraryPath("custom_fields.db")),
   };
 
   dbLoader.succeed();
 
   const indexLoader = ora("Building DB indices...").start();
 
-  await buildIndex(store.crossReferences, {
-    fieldName: "from"
-  });
-  await buildIndex(store.crossReferences, {
-    fieldName: "to"
-  });
-  await buildIndex(store.scenes, {
-    fieldName: "studio"
-  });
-  await buildIndex(store.movies, {
-    fieldName: "studio"
-  });
-  await buildIndex(store.images, {
-    fieldName: "scene"
-  });
-  await buildIndex(store.images, {
-    fieldName: "studio"
-  });
   await buildIndex(store.studios, {
-    fieldName: "parent"
+    fieldName: "parent",
   });
   await buildIndex(store.markers, {
-    fieldName: "scene"
+    fieldName: "scene",
   });
 
   indexLoader.succeed();
@@ -135,9 +265,10 @@ export async function loadStores() {
     await Image.checkIntegrity();
     await Studio.checkIntegrity();
     await Movie.checkIntegrity();
-    await CrossReference.checkIntegrity();
     await Marker.checkIntegrity();
     integrityLoader.succeed("Integrity check done.");
+  } else {
+    logger.message("Skipping integrity checks");
   }
 }
 
@@ -165,7 +296,7 @@ export function getOne(store: DataStore, skip = 0) {
       .find({})
       .skip(skip)
       .limit(1)
-      .exec(function(err, docs) {
+      .exec(function (err, docs) {
         if (err) return reject(err);
         resolve(docs[0]);
       });
@@ -202,7 +333,7 @@ export function getAll(store: DataStore) {
 
 export function update(store: DataStore, query: any, update: any) {
   return new Promise((resolve, reject) => {
-    store.update(query, update, { multi: true }, err => {
+    store.update(query, update, { multi: true }, (err) => {
       if (err) return reject(err);
       resolve();
     });
@@ -211,7 +342,7 @@ export function update(store: DataStore, query: any, update: any) {
 
 export function remove(store: DataStore, query: any) {
   return new Promise((resolve, reject) => {
-    store.remove(query, err => {
+    store.remove(query, (err) => {
       if (err) return reject(err);
       resolve();
     });

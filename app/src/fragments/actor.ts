@@ -11,19 +11,6 @@ export default gql`
     rating
     favorite
     bookmark
-    numScenes
-    labels {
-      _id
-      name
-    }
-    thumbnail {
-      _id
-      color
-    }
-    altThumbnail {
-      _id
-    }
-    watches
     customFields
     availableFields {
       _id

@@ -171,11 +171,12 @@ export default class Scene {
         if (config.APPLY_STUDIO_LABELS === true) {
           const studio = await Studio.getById(scene.studio);
 
-        if (studio) {
-          logger.log("Applying studio labels to scene");
-          sceneLabels.push(
-            ...(await Studio.getLabels(studio)).map((l) => l._id)
-          );
+          if (studio) {
+            logger.log("Applying studio labels to scene");
+            sceneLabels.push(
+              ...(await Studio.getLabels(studio)).map((l) => l._id)
+            );
+          }
         }
       }
     }

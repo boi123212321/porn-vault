@@ -13,6 +13,11 @@ import ffmpeg from "fluent-ffmpeg";
 import jimp from "jimp";
 import YAML from "yaml";
 
+function requireUncached(module: string) {
+  delete require.cache[require.resolve(module)];
+  return require(module);
+}
+
 export async function runPluginsSerial(
   config: IConfig,
   event: string,
@@ -78,7 +83,7 @@ export async function runPlugin(
     if (!(await existsAsync(path)))
       throw new Error(`${pluginName}: definition not found (missing file).`);
 
-    const func = require(path);
+    const func = requireUncached(path);
 
     if (typeof func != "function")
       throw new Error(`${pluginName}: not a valid plugin.`);

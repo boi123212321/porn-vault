@@ -38,7 +38,7 @@
     "@types/color": "^3.0.0",
     "@vue/cli-plugin-babel": "^4.2.3",
     "@vue/cli-plugin-router": "^4.2.3",
-    "@vue/cli-plugin-typescript": "^4.2.3",
+    "@vue/cli-plugin-typescript": "^4.3.1",
     "@vue/cli-plugin-vuex": "^4.2.3",
     "@vue/cli-service": "^4.2.3",
     "sass": "^1.26.3",

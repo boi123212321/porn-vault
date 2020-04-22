@@ -557,6 +557,9 @@ export default class SceneList extends mixins(DrawerMixin) {
                 _id
                 color
               }
+              altThumbnail {
+                _id
+              }
               numScenes
             }
           }

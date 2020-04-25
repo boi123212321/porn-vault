@@ -20,11 +20,15 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Test typescript & app build
+      - name: Test server
         run: |
           npm install
           npm run transpile
           npm run test
+        env:
+          CI: true
+      - name: Test app
+        run: |
           npm run install:app
           npm run build:app
         env:

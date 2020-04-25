@@ -2,7 +2,7 @@ import Actor from "../../types/actor";
 import Scene from "../../types/scene";
 import Image from "../../types/image";
 import { Dictionary } from "../../types/utility";
-import { stripStr } from "../../extractor";
+import { stripStr, isSingleWord, isMatchingActor } from "../../extractor";
 import * as logger from "../../logger";
 import { getConfig } from "../../config/index";
 import { indices } from "../../search/index";
@@ -81,55 +81,51 @@ export default {
     await Actor.setLabels(actor, actorLabels);
     await actorCollection.upsert(actor._id, actor);
 
-    for (const scene of await Scene.getAll()) {
-      const perms = stripStr(scene.path || scene.name);
-
-      if (
-        perms.includes(stripStr(actor.name)) ||
-        actor.aliases.some((alias) => perms.includes(stripStr(alias)))
-      ) {
-        if (config.APPLY_ACTOR_LABELS === true) {
-          const sceneLabels = (await Scene.getLabels(scene)).map((l) => l._id);
-          await Scene.setLabels(scene, sceneLabels.concat(actorLabels));
-          logger.log(`Applied actor labels of new actor to ${scene._id}`);
+    if (isSingleWord(actor.name)) {
+    } else {
+      for (const scene of await Scene.getAll()) {
+        if (isMatchingActor(scene.path || scene.name, actor)) {
+          if (config.APPLY_ACTOR_LABELS === true) {
+            const sceneLabels = (await Scene.getLabels(scene)).map(
+              (l) => l._id
+            );
+            await Scene.setLabels(scene, sceneLabels.concat(actorLabels));
+            logger.log(`Applied actor labels of new actor to ${scene._id}`);
+          }
+          await Scene.setActors(
+            scene,
+            (await Scene.getActors(scene)).map((l) => l._id).concat(actor._id)
+          );
+          try {
+            await updateSceneDoc(scene);
+          } catch (error) {
+            logger.error(error.message);
+          }
+          logger.log(`Updated actors of ${scene._id}`);
         }
-        await Scene.setActors(
-          scene,
-          (await Scene.getActors(scene)).map((l) => l._id).concat(actor._id)
-        );
-        try {
-          await updateSceneDoc(scene);
-        } catch (error) {
-          logger.error(error.message);
-        }
-        logger.log(`Updated actors of ${scene._id}`);
       }
-    }
 
-    for (const image of await Image.getAll()) {
-      const perms = stripStr(image.name);
-
-      if (isBlacklisted(image.name)) continue;
-
-      if (
-        perms.includes(stripStr(actor.name)) ||
-        actor.aliases.some((alias) => perms.includes(stripStr(alias)))
-      ) {
-        if (config.APPLY_ACTOR_LABELS === true) {
-          const imageLabels = (await Image.getLabels(image)).map((l) => l._id);
-          await Image.setLabels(image, imageLabels.concat(actorLabels));
-          logger.log(`Applied actor labels of new actor to ${image._id}`);
+      for (const image of await Image.getAll()) {
+        if (isBlacklisted(image.name)) continue;
+        if (isMatchingActor(image.name, actor)) {
+          if (config.APPLY_ACTOR_LABELS === true) {
+            const imageLabels = (await Image.getLabels(image)).map(
+              (l) => l._id
+            );
+            await Image.setLabels(image, imageLabels.concat(actorLabels));
+            logger.log(`Applied actor labels of new actor to ${image._id}`);
+          }
+          await Image.setActors(
+            image,
+            (await Image.getActors(image)).map((l) => l._id).concat(actor._id)
+          );
+          try {
+            await updateImageDoc(image);
+          } catch (error) {
+            logger.error(error.message);
+          }
+          logger.log(`Updated actors of ${image._id}`);
         }
-        await Image.setActors(
-          image,
-          (await Image.getActors(image)).map((l) => l._id).concat(actor._id)
-        );
-        try {
-          await updateImageDoc(image);
-        } catch (error) {
-          logger.error(error.message);
-        }
-        logger.log(`Updated actors of ${image._id}`);
       }
     }
 

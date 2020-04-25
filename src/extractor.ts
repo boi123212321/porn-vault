@@ -5,8 +5,29 @@ import Scene from "./types/scene";
 import CustomField from "./types/custom_field";
 import Movie from "./types/movie";
 
+export function isSingleWord(str: string) {
+  return str.split(" ").length > 1;
+}
+
 function ignoreSingleNames(arr: string[]) {
-  return arr.filter((str) => str.split(" ").length > 1);
+  return arr.filter((str) => {
+    // Check if string is a viable name
+    if (str.match(/^[a-z0-9']+$/i)) return !isSingleWord(str); // Cut it out if it's just one name
+    // Otherwise, it's probably a regex, so leave it be
+    return true;
+  });
+}
+
+export function isMatchingActor(str: string, actor: Actor) {
+  if (isSingleWord(actor.name)) return false;
+
+  const originalStr = stripStr(str);
+
+  if (originalStr.includes(stripStr(actor.name))) return true;
+
+  return ignoreSingleNames(actor.aliases).some((alias) =>
+    new RegExp(alias, "i").test(originalStr)
+  );
 }
 
 export function stripStr(str: string) {
@@ -48,12 +69,7 @@ export async function extractActors(str: string): Promise<string[]> {
   const allActors = await Actor.getAll();
 
   allActors.forEach((actor) => {
-    if (
-      stripStr(str).includes(stripStr(actor.name)) ||
-      ignoreSingleNames(actor.aliases).some((alias) =>
-        stripStr(str).includes(stripStr(alias))
-      )
-    ) {
+    if (isMatchingActor(str, actor)) {
       foundActors.push(actor._id);
     }
   });

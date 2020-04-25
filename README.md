@@ -68,6 +68,9 @@ There's a Discord channel now! Join in to the discussion. https://discord.gg/t49
 | `MAX_LOG_SIZE` | `2500` | Max. amount of logs to store |
 | `COMPRESS_IMAGE_SIZE` | `720` | Max. image width to compress thumbnails etc to |
 | `CACHE_TIME` | `0` | Global cache time (requires restart when changed) |
+| `ENABLE_HTTPS` | `false` | Enable https instead of http |
+| `HTTPS_KEY` | (empty) | Path to the ssl key file used if ENABLE_HTTPS is activated  |
+| `HTTPS_CERT` | (empty) | Path to the ssl cert file used if ENABLE_HTTPS is activated |
 
 ## How to run
 
@@ -75,6 +78,14 @@ There's a Discord channel now! Join in to the discussion. https://discord.gg/t49
 - Unzip the file
 - Run the application in the terminal of your choice and follow the on-screen instructions
 - Once your app is setup you can visit it on http://localhost:3000 (or your LAN IP equivalent) in your web browser of choice
+
+## Enabling HTTPS
+
+- If you're on Windows you first need to download openssl, you can find the executables here https://wiki.openssl.org/index.php/Binaries
+- Generate a keypair using the command `openssl req -nodes -new -x509 -keyout server.key -out server.cert`
+- Set the `ENABLE_HTTPS` flag in your config to true
+- Change the `HTTPS_KEY` & `HTTPS_CERT` options to your generated key & cert file paths
+- Open https://localhost:3000, ignore the self-generated certificate warning and enjoy an encrypted experience
 
 ## Build from source
 

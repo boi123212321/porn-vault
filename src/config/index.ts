@@ -45,6 +45,9 @@ export interface IConfig {
   PASSWORD: string | null;
 
   PORT: number;
+  ENABLE_HTTPS: boolean;
+  HTTPS_KEY: string;
+  HTTPS_CERT: string;
 
   APPLY_SCENE_LABELS: boolean;
   APPLY_ACTOR_LABELS: boolean;
@@ -96,6 +99,9 @@ export const defaultConfig: IConfig = {
   SCREENSHOT_INTERVAL: 120,
   PASSWORD: null,
   PORT: 3000,
+  ENABLE_HTTPS: false,
+  HTTPS_KEY: "",
+  HTTPS_CERT: "",
   APPLY_SCENE_LABELS: true,
   APPLY_ACTOR_LABELS: true,
   APPLY_STUDIO_LABELS: true,

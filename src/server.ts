@@ -33,6 +33,8 @@ import { spawn } from "child_process";
 import { clearSceneIndex } from "./search/scene";
 import { clearImageIndex } from "./search/image";
 import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
+import https from "https";
+import { fstat, readFile, readFileSync } from "fs";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-manager for discussion & updates"
@@ -121,9 +123,20 @@ export default async () => {
   const config = getConfig();
 
   const port = config.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server running on Port ${port}`);
-  });
+
+  if (config.ENABLE_HTTPS) {
+    https.createServer({
+      key: readFileSync(config.HTTPS_KEY),
+      cert: readFileSync(config.HTTPS_CERT)
+    }, app)
+    .listen(port, () => {
+      console.log(`Server running on Port ${port}`);
+    });
+  } else {
+    app.listen(port, () => {
+      console.log(`Server running on Port ${port}`);
+    });
+  }
 
   app.use("/js", express.static("./app/dist/js"));
   app.use("/css", express.static("./app/dist/css"));

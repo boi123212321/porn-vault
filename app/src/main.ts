@@ -11,6 +11,7 @@ import BindTitle from "./components/BindTitle.vue";
 import DateInput from "./components/DateInput.vue";
 import Rating from "./components/Rating.vue";
 import LabelFilter from "./components/LabelFilter.vue";
+import Divider from "./components/Divider.vue";
 
 Vue.use(VueTheMask);
 
@@ -18,6 +19,7 @@ Vue.component("BindTitle", BindTitle);
 Vue.component("DateInput", DateInput);
 Vue.component("Rating", Rating);
 Vue.component("LabelFilter", LabelFilter);
+Vue.component("Divider", Divider);
 
 Vue.config.productionTip = false;
 

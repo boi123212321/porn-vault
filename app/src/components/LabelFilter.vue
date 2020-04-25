@@ -1,6 +1,8 @@
 <template>
   <div>
     <v-autocomplete
+      solo
+      flat
       single-line
       color="primary"
       v-model="innerValue"
@@ -12,7 +14,7 @@
       label="Select labels"
       @change="onChange"
       hide-details
-      class="mb-2"
+      class="mb-2 mt-0 pt-2"
     >
       <template v-slot:selection="{ index }">
         <span v-if="index == 0">{{ innerValue.length }} labels selected</span>

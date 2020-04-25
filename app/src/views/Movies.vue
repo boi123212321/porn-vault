@@ -3,22 +3,50 @@
     <BindTitle value="Movies" />
     <v-navigation-drawer style="z-index: 14" v-model="drawer" clipped app>
       <v-container>
-        <!-- <v-checkbox v-model="useDVDCoverRatio" label="Use DVD Cover ratio"></v-checkbox> -->
-        <v-text-field clearable color="primary" v-model="query" label="Search query"></v-text-field>
+        <v-text-field
+          solo
+          flat
+          single-line
+          class="mb-2"
+          hide-details
+          clearable
+          color="primary"
+          v-model="query"
+          label="Search query"
+        ></v-text-field>
 
-        <v-subheader>Labels</v-subheader>
-        <v-chip-group
-          active-class="primary--text"
-          :items="allLabels"
-          column
-          v-model="selectedLabels"
-          multiple
-        >
-          <div style="max-height:30vh; overflow-y:scroll">
-            <v-chip label small v-for="label in allLabels" :key="label._id">{{ label.name }}</v-chip>
-          </div>
-        </v-chip-group>
+        <div class="d-flex align-center">
+          <v-btn
+            :color="favoritesOnly ? 'red' : undefined"
+            icon
+            @click="favoritesOnly = !favoritesOnly"
+          >
+            <v-icon>{{ favoritesOnly ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+          </v-btn>
+
+          <v-btn
+            :color="bookmarksOnly ? 'primary' : undefined"
+            icon
+            @click="bookmarksOnly = !bookmarksOnly"
+          >
+            <v-icon>{{ bookmarksOnly ? 'mdi-bookmark' : 'mdi-bookmark-outline' }}</v-icon>
+          </v-btn>
+
+          <v-spacer></v-spacer>
+
+          <Rating @input="ratingFilter = $event" :value="ratingFilter" />
+        </div>
+
+        <Divider icon="mdi-label">Labels</Divider>
+
+        <LabelFilter class="mt-0" v-model="selectedLabels" :items="allLabels" />
+
+        <Divider icon="mdi-sort">Sort</Divider>
+
         <v-select
+          solo
+          flat
+          single-line
           hide-details
           color="primary"
           item-text="text"
@@ -26,8 +54,12 @@
           v-model="sortBy"
           placeholder="Sort by..."
           :items="sortByItems"
+          class="mt-0 pt-0 mb-2"
         ></v-select>
         <v-select
+          solo
+          flat
+          single-line
           :disabled="sortBy == 'relevance'"
           hide-details
           color="primary"
@@ -37,10 +69,6 @@
           placeholder="Sort direction"
           :items="sortDirItems"
         ></v-select>
-        <v-checkbox hide-details v-model="favoritesOnly" label="Show favorites only"></v-checkbox>
-        <v-checkbox hide-details v-model="bookmarksOnly" label="Show bookmarks only"></v-checkbox>
-
-        <Rating @input="ratingFilter = $event" :value="ratingFilter" class="pb-0 pa-2" />
       </v-container>
     </v-navigation-drawer>
 
@@ -214,9 +242,34 @@ export default class MovieList extends mixins(DrawerMixin) {
     return [];
   }
 
+  tryReadLabelsFromLocalStorage(key: string) {
+    return (localStorage.getItem(key) || "")
+      .split(",")
+      .filter(Boolean) as string[];
+  }
+
   waiting = false;
   allLabels = [] as ILabel[];
-  selectedLabels = [] as number[]; // TODO: try to retrieve from localStorage
+  selectedLabels = {
+    include: this.tryReadLabelsFromLocalStorage("pm_movieInclude"),
+    exclude: this.tryReadLabelsFromLocalStorage("pm_movieExclude")
+  };
+
+  @Watch("selectedLabels", { deep: true })
+  onSelectedLabelsChange(val: any) {
+    localStorage.setItem(
+      "pm_movieInclude",
+      this.selectedLabels.include.join(",")
+    );
+    localStorage.setItem(
+      "pm_movieExclude",
+      this.selectedLabels.exclude.join(",")
+    );
+
+    this.page = 0;
+    this.movies = [];
+    this.infiniteId++;
+  }
 
   validCreation = false;
   createMovieDialog = false;
@@ -407,13 +460,6 @@ export default class MovieList extends mixins(DrawerMixin) {
     this.infiniteId++;
   }
 
-  @Watch("selectedLabels")
-  onLabelChange() {
-    this.page = 0;
-    this.movies = [];
-    this.infiniteId++;
-  }
-
   @Watch("query")
   onQueryChange(newVal: string | null) {
     if (this.resetTimeout) {
@@ -451,13 +497,15 @@ export default class MovieList extends mixins(DrawerMixin) {
   async fetchPage() {
     try {
       let include = "";
+      let exclude = "";
 
-      if (this.selectedLabels.length)
-        include =
-          "include:" +
-          this.selectedLabels.map(i => this.allLabels[i]._id).join(",");
+      if (this.selectedLabels.include.length)
+        include = "include:" + this.selectedLabels.include.join(",");
 
-      const query = `query:'${this.query || ""}' ${include} page:${
+      if (this.selectedLabels.exclude.length)
+        exclude = "exclude:" + this.selectedLabels.exclude.join(",");
+
+      const query = `query:'${this.query || ""}' ${include} ${exclude} page:${
         this.page
       } sortDir:${this.sortDir} sortBy:${this.sortBy} favorite:${
         this.favoritesOnly ? "true" : "false"

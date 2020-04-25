@@ -50,15 +50,29 @@
           <Rating @input="ratingFilter = $event" :value="ratingFilter" />
         </div>
 
-        <LabelFilter v-model="selectedLabels" class="mt-2" :items="allLabels" />
+        <Divider icon="mdi-label">Labels</Divider>
 
-        <v-subheader class="mt-4" style="height: 25px">Filter by actor(s)</v-subheader>
+        <LabelFilter class="mt-0" v-model="selectedLabels" :items="allLabels" />
+
+        <Divider icon="mdi-account">Actors</Divider>
+
         <ActorSelector v-model="selectedActors" :multiple="true" />
-        <v-subheader style="height: 25px">Filter by duration</v-subheader>
+
+        <Divider icon="mdi-clock">Duration</Divider>
+
         <v-range-slider hide-details :max="durationMax" v-model="durationRange" color="primary"></v-range-slider>
-        <div class="med--text text-center">{{ durationRange[0] }} min - {{ durationRange[1] }} min</div>
+        <div class="body-1 med--text text-center">
+          <span class="font-weight-bold">{{ durationRange[0] }}</span>
+          min -
+          <span class="font-weight-bold">{{ durationRange[1] }}</span> min
+        </div>
+
+        <Divider icon="mdi-sort">Sort</Divider>
 
         <v-select
+          solo
+          flat
+          single-line
           hide-details
           color="primary"
           item-text="text"
@@ -66,8 +80,12 @@
           v-model="sortBy"
           placeholder="Sort by..."
           :items="sortByItems"
+          class="mt-0 pt-0 mb-2"
         ></v-select>
         <v-select
+          solo
+          flat
+          single-line
           :disabled="sortBy == 'relevance'"
           hide-details
           color="primary"
@@ -299,13 +317,6 @@ export default class SceneList extends mixins(DrawerMixin) {
     this.infiniteId++;
   }
 
-  /* include = (localStorage.getItem("pm_sceneInclude") || "")
-    .split(",")
-    .filter(Boolean) as string[];
-  exclude = (localStorage.getItem("pm_sceneExclude") || "")
-    .split(",")
-    .filter(Boolean) as string[]; */
-
   validCreation = false;
   createSceneDialog = false;
   createSceneName = "";
@@ -397,7 +408,7 @@ export default class SceneList extends mixins(DrawerMixin) {
   selectedScenes = [] as string[];
   deleteSelectedScenesDialog = false;
 
-  resetLabels() {
+  /* resetLabels() {
     this.selectedLabels.include = [];
     this.selectedLabels.exclude = [];
 
@@ -407,26 +418,6 @@ export default class SceneList extends mixins(DrawerMixin) {
 
     localStorage.removeItem("pm_sceneInclude");
     localStorage.removeItem("pm_sceneExclude");
-  }
-
-  // TODO:
-  /* onLabelClick(label: ILabel) {
-    if (this.exclude.includes(label._id))
-      this.exclude = this.exclude.filter(i => i !== label._id);
-    else if (this.include.includes(label._id)) {
-      this.exclude.push(label._id);
-      this.include = this.include.filter(i => i !== label._id);
-    } else {
-      this.include.push(label._id);
-    }
-
-
-    localStorage.setItem("pm_sceneInclude", this.include.join(","));
-    localStorage.setItem("pm_sceneExclude", this.exclude.join(","));
-
-    this.page = 0;
-    this.scenes = [];
-    this.infiniteId++;
   } */
 
   labelClasses(label: ILabel) {

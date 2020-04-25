@@ -14,16 +14,23 @@ export async function getActors(_, { query }: { query: string | undefined }) {
 
     const filters = [] as ((doc: IActorSearchDoc) => boolean)[];
 
-    if (options.bookmark) filters.push(doc => !!doc.bookmark);
+    if (options.bookmark) filters.push((doc) => !!doc.bookmark);
 
-    if (options.favorite) filters.push(doc => doc.favorite);
+    if (options.favorite) filters.push((doc) => doc.favorite);
 
-    if (options.rating) filters.push(doc => doc.rating >= options.rating);
+    if (options.rating) filters.push((doc) => doc.rating >= options.rating);
 
     if (options.include && options.include.length)
-      filters.push(doc => {
-        return options.include.every(id =>
-          doc.labels.map(l => l._id).includes(id)
+      filters.push((doc) => {
+        return options.include.every((id) =>
+          doc.labels.map((l) => l._id).includes(id)
+        );
+      });
+
+    if (options.exclude && options.exclude.length)
+      filters.push((doc) => {
+        return options.exclude.every(
+          (id) => !doc.labels.map((l) => l._id).includes(id)
         );
       });
 
@@ -65,10 +72,10 @@ export async function getActors(_, { query }: { query: string | undefined }) {
       skip: options.page * PAGE_SIZE,
       take: PAGE_SIZE,
       sort: sortMode(options.sortBy, options.sortDir),
-      filters
+      filters,
     });
 
-    const actors = await Promise.all(result.map(i => Actor.getById(i.id)));
+    const actors = await Promise.all(result.map((i) => Actor.getById(i.id)));
     logger.log(`Search done in ${(Date.now() - timeNow) / 1000}s.`);
     return actors.filter(Boolean);
   } catch (error) {

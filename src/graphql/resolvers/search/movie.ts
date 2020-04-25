@@ -13,16 +13,23 @@ export async function getMovies(_, { query }: { query: string | undefined }) {
 
   const filters = [] as ((doc: IMovieSearchDoc) => boolean)[];
 
-  if (options.bookmark) filters.push(doc => !!doc.bookmark);
+  if (options.bookmark) filters.push((doc) => !!doc.bookmark);
 
-  if (options.favorite) filters.push(doc => doc.favorite);
+  if (options.favorite) filters.push((doc) => doc.favorite);
 
-  if (options.rating) filters.push(doc => doc.rating >= options.rating);
+  if (options.rating) filters.push((doc) => doc.rating >= options.rating);
 
   if (options.include && options.include.length)
-    filters.push(doc => {
-      return options.include.every(id =>
-        doc.labels.map(l => l._id).includes(id)
+    filters.push((doc) => {
+      return options.include.every((id) =>
+        doc.labels.map((l) => l._id).includes(id)
+      );
+    });
+
+  if (options.exclude && options.exclude.length)
+    filters.push((doc) => {
+      return options.exclude.every(
+        (id) => !doc.labels.map((l) => l._id).includes(id)
       );
     });
 
@@ -58,10 +65,10 @@ export async function getMovies(_, { query }: { query: string | undefined }) {
     skip: options.page * PAGE_SIZE,
     take: PAGE_SIZE,
     sort: sortMode(options.sortBy, options.sortDir),
-    filters
+    filters,
   });
 
-  const movies = await Promise.all(result.map(i => Movie.getById(i.id)));
+  const movies = await Promise.all(result.map((i) => Movie.getById(i.id)));
   logger.log(`Search done in ${(Date.now() - timeNow) / 1000}s.`);
   return movies.filter(Boolean);
 }

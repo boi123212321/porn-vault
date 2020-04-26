@@ -4,6 +4,11 @@ Manage your ever-growing porn collection
 
 There's a Discord channel now! Join in to the discussion. https://discord.gg/t499hxK
 
+## Support
+
+Bitcoin: 1Bw82zC5FnVtw93ZrcALQTeZBXgtVWH75n
+![Bitcoin Link](/doc/img/btc.png)
+
 ## Features
 
 - EASY, portable (no install) setup (see. [**How to run**](https://github.com/boi123212321/porn-manager#how-to-run))

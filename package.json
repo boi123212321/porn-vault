@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
+  "bin": "build/index.js",
   "scripts": {
     "install:app": "cd app && npm ci && cd ..",
     "transpile": "tsc",

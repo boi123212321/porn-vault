@@ -15,7 +15,7 @@
     "build": "mkdir -p release/app/dist && npm run build:server && npm run build:app && cp -r ./views ./release && cp -r ./assets ./release &&  cp -r ./app/dist ./release/app",
     "build:app": "cd app && npm run build && cd ..",
     "build:server": "tsc && pkg . --targets node8 --options max_old_space_size=8192 --out-path ./release",
-    "build:all": "npm run build:app && tsc && npm run build:linux && npm run build:win && npm run build:mac && npm run build:armv7",
+    "build:all": "npm run build:app && tsc && npm run build:linux && npm run build:win && npm run build:mac",
     "build:armv7": "mkdir -p releases/armv7/app/dist && pkg . --out-path ./releases/armv7 --targets node10-linux-armv7 --options max_old_space_size=8192 && cp -r ./views ./releases/armv7 && cp -r ./assets ./releases/armv7 && cp -r ./app/dist ./releases/armv7/app && npm run zip:armv7",
     "build:linux": "mkdir -p releases/linux/app/dist && pkg . --out-path ./releases/linux --targets node8-linux-x64 --options max_old_space_size=8192 && cp -r ./views ./releases/linux && cp -r ./assets ./releases/linux && cp -r ./app/dist ./releases/linux/app && npm run zip:linux",
     "build:win": "mkdir -p releases/win/app/dist && pkg . --out-path ./releases/win --targets node8-win-x64 --options max_old_space_size=8192 && cp -r ./views ./releases/win && cp -r ./assets ./releases/win &&  cp -r ./app/dist ./releases/win/app && npm run zip:win",

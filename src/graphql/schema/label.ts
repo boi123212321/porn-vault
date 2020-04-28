@@ -3,7 +3,7 @@ import { gql } from "apollo-server-express";
 export default gql`
   extend type Query {
     numLabels: Int!
-    getLabels: [Label!]!
+    getLabels(type: String): [Label!]!
     getLabelById(id: String!): Label
   }
 

@@ -464,7 +464,7 @@ export default class StudioList extends mixins(DrawerMixin) {
     ApolloClient.query({
       query: gql`
         {
-          getLabels {
+          getLabels(type: "studio") {
             _id
             name
             aliases

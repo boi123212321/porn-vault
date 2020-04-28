@@ -542,7 +542,7 @@ export default class MovieList extends mixins(DrawerMixin) {
     ApolloClient.query({
       query: gql`
         {
-          getLabels {
+          getLabels(type: "scene") {
             _id
             name
             aliases

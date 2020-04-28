@@ -508,7 +508,7 @@ export default class ImagesView extends mixins(DrawerMixin) {
     ApolloClient.query({
       query: gql`
         {
-          getLabels {
+          getLabels(type: "image") {
             _id
             name
           }

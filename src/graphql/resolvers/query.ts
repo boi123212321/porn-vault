@@ -2,7 +2,7 @@ import Actor from "../../types/actor";
 import Label from "../../types/label";
 import Scene from "../../types/scene";
 import Movie from "../../types/movie";
-import { mapAsync } from "../../types/utility";
+import { mapAsync, filterAsync } from "../../types/utility";
 import Studio from "../../types/studio";
 import Image from "../../types/image";
 import * as database from "../../database/index";
@@ -21,6 +21,7 @@ import {
   movieCollection,
 } from "../../database/index";
 import SceneView from "../../types/watch";
+import LabelledItem from "../../types/labelled_item";
 
 export default {
   async getWatches(
@@ -142,8 +143,16 @@ export default {
     const fields = await CustomField.getAll();
     return fields.sort((a, b) => a.name.localeCompare(b.name));
   },
-  async getLabels() {
-    const labels = await Label.getAll();
+  async getLabels(_, { type }: { type?: string | null }) {
+    let labels = await Label.getAll();
+
+    if (type) {
+      labels = await filterAsync(labels, async (label) => {
+        const items = await LabelledItem.getByLabel(label._id);
+        return items.some((i) => i.type === type);
+      });
+    }
+
     return labels.sort((a, b) => a.name.localeCompare(b.name));
   },
   async numScenes() {

@@ -470,6 +470,9 @@ export default class ImagesView extends mixins(DrawerMixin) {
               }
               actors {
                 ...ActorFragment
+                avatar {
+                  _id
+                }
               }
               scene {
                 _id

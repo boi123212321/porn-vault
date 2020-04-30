@@ -135,26 +135,11 @@ export default class Image {
   }
 
   static async setLabels(image: Image, labelIds: string[]) {
-    const references = await LabelledItem.getByItem(image._id);
-
-    const oldLabelReferences = references.map((r) => r._id);
-
-    for (const id of oldLabelReferences) {
-      await labelledItemCollection.remove(id);
-    }
-
-    for (const id of [...new Set(labelIds)]) {
-      const labelledItem = new LabelledItem(image._id, id, "image");
-      logger.log("Adding label to image: " + JSON.stringify(labelledItem));
-      await labelledItemCollection.upsert(labelledItem._id, labelledItem);
-    }
+    return Label.setForItem(image._id, labelIds, "image");
   }
 
   static async getLabels(image: Image) {
-    const references = await LabelledItem.getByItem(image._id);
-    return (await mapAsync(references, (r) => Label.getById(r.label))).filter(
-      Boolean
-    ) as Label[];
+    return Label.getForItem(image._id);
   }
 
   static async getImageByPath(path: string) {

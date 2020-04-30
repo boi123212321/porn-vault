@@ -71,26 +71,11 @@ export default class Marker {
   }
 
   static async setLabels(marker: Marker, labelIds: string[]) {
-    const references = await LabelledItem.getByItem(marker._id);
-
-    const oldLabelReferences = references.map((r) => r._id);
-
-    for (const id of oldLabelReferences) {
-      await labelledItemCollection.remove(id);
-    }
-
-    for (const id of [...new Set(labelIds)]) {
-      const labelledItem = new LabelledItem(marker._id, id, "marker");
-      logger.log("Adding label to marker: " + JSON.stringify(labelledItem));
-      await labelledItemCollection.upsert(labelledItem._id, labelledItem);
-    }
+    return Label.setForItem(marker._id, labelIds, "marker");
   }
 
   static async getLabels(marker: Marker) {
-    const references = await LabelledItem.getByItem(marker._id);
-    return (await mapAsync(references, (r) => Label.getById(r.label))).filter(
-      Boolean
-    ) as Label[];
+    return Label.getForItem(marker._id);
   }
 
   constructor(name: string, scene: string, time: number) {

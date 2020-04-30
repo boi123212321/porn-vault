@@ -92,26 +92,11 @@ export default class Studio {
   }
 
   static async setLabels(studio: Studio, labelIds: string[]) {
-    const references = await LabelledItem.getByItem(studio._id);
-
-    const oldLabelReferences = references.map((r) => r._id);
-
-    for (const id of oldLabelReferences) {
-      await labelledItemCollection.remove(id);
-    }
-
-    for (const id of [...new Set(labelIds)]) {
-      const labelledItem = new LabelledItem(studio._id, id, "studio");
-      logger.log("Adding label to studio: " + JSON.stringify(labelledItem));
-      await labelledItemCollection.upsert(labelledItem._id, labelledItem);
-    }
+    return Label.setForItem(studio._id, labelIds, "studio");
   }
 
   static async getLabels(studio: Studio) {
-    const references = await LabelledItem.getByItem(studio._id);
-    return (await mapAsync(references, (r) => Label.getById(r.label))).filter(
-      Boolean
-    ) as Label[];
+    return Label.getForItem(studio._id);
   }
 
   static async inferLabels(studio: Studio) {

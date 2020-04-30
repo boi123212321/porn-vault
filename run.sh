@@ -18,4 +18,4 @@ if [ ! -d images ]
 then
 	mkdir /images
 fi
-/porn-manager
+/porn-vault

@@ -37,7 +37,7 @@ import https from "https";
 import { fstat, readFile, readFileSync } from "fs";
 
 logger.message(
-  "Check https://github.com/boi123212321/porn-manager for discussion & updates"
+  "Check https://github.com/boi123212321/porn-vault for discussion & updates"
 );
 
 let serverReady = false;
@@ -66,7 +66,7 @@ async function scanFolders() {
   await checkVideoFolders();
   logger.success("Scan done.");
   checkImageFolders();
-  
+
   tryStartProcessing().catch((err) => {
     logger.error("Couldn't start processing...");
     logger.error(err.message);
@@ -125,13 +125,17 @@ export default async () => {
   const port = config.PORT || 3000;
 
   if (config.ENABLE_HTTPS) {
-    https.createServer({
-      key: readFileSync(config.HTTPS_KEY),
-      cert: readFileSync(config.HTTPS_CERT)
-    }, app)
-    .listen(port, () => {
-      console.log(`Server running on Port ${port}`);
-    });
+    https
+      .createServer(
+        {
+          key: readFileSync(config.HTTPS_KEY),
+          cert: readFileSync(config.HTTPS_CERT),
+        },
+        app
+      )
+      .listen(port, () => {
+        console.log(`Server running on Port ${port}`);
+      });
   } else {
     app.listen(port, () => {
       console.log(`Server running on Port ${port}`);

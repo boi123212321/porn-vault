@@ -1,5 +1,5 @@
 {
-  "name": "porn-manager",
+  "name": "porn-vault",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
@@ -27,14 +27,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/boi123212321/porn-manager.git"
+    "url": "git+https://github.com/boi123212321/porn-vault.git"
   },
   "author": "boi123212321",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/boi123212321/porn-manager/issues"
+    "url": "https://github.com/boi123212321/porn-vault/issues"
   },
-  "homepage": "https://github.com/boi123212321/porn-manager#readme",
+  "homepage": "https://github.com/boi123212321/porn-vault#readme",
   "dependencies": {
     "apollo-server-express": "^2.12.0",
     "apollo-server-plugin-response-cache": "^0.4.1",

@@ -22,7 +22,7 @@ export default class Rating extends Vue {
   icon(index: number) {
     if (index * 2 <= (this.value || 0)) return "mdi-star";
     if (this.value && this.value % 2 == 1 && index * 2 == this.value + 1)
-      return "mdi-star-half";
+      return "mdi-star-half-full";
     return "mdi-star-outline";
   }
 

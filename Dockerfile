@@ -12,7 +12,7 @@ run cd /app && \
     npm run build
 
 from debian:buster
-COPY --from=build-env /app/release/porn-manager /
+COPY --from=build-env /app/release/porn-vault /
 COPY --from=build-env /app/release/app/ /app
 COPY --from=build-env /app/release/views/  /views
 RUN apt-get update && apt-get  -y install ca-certificates ffmpeg &&  rm -rf /var/lib/apt/lists/*

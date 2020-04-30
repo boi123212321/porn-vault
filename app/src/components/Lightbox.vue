@@ -112,8 +112,8 @@
             :key="actor._id"
           >
             <a :href="`#/actor/${actor._id}`">
-              <v-avatar color="pink" size="80">
-                <v-img class="hover" v-ripple eager :src="thumbnail(actor)"></v-img>
+              <v-avatar style="border: 2px solid white" size="80">
+                <v-img class="hover" v-ripple eager :src="avatar(actor)"></v-img>
               </v-avatar>
             </a>
             <div class="mt-2">{{ actor.name }}</div>
@@ -527,10 +527,10 @@ export default class Lightbox extends Vue {
     return null;
   }
 
-  thumbnail(actor: any) {
-    if (actor.thumbnail)
+  avatar(actor: any) {
+    if (actor.avatar)
       return `${serverBase}/image/${
-        actor.thumbnail._id
+        actor.avatar._id
       }?password=${localStorage.getItem("password")}`;
     return "";
   }

@@ -1,81 +1,110 @@
 <template>
   <v-container fluid>
     <BindTitle value="Settings" />
-    <div class="text-center headline mt-4">Settings</div>
-    <v-row>
-      <v-col :cols="12" :sm="6">
-        <div>
-          <v-subheader>Scene cards aspect ratio</v-subheader>
-          <v-radio-group v-model="sceneRatio">
-            <v-radio color="primary" :value="1" label="Square"></v-radio>
-            <v-radio color="primary" :value="16/9" label="16:9"></v-radio>
-            <v-radio color="primary" :value="4/3" label="4:3"></v-radio>
-          </v-radio-group>
-        </div>
 
-        <div>
-          <v-subheader>Actor cards aspect ratio</v-subheader>
-          <v-radio-group v-model="actorRatio">
-            <v-radio color="primary" :value="1" label="Square"></v-radio>
-            <v-radio color="primary" :value="9/16" label="9:16"></v-radio>
-            <v-radio color="primary" :value="3/4" label="3:4"></v-radio>
-          </v-radio-group>
-        </div>
-      </v-col>
-      <v-col :cols="12" :sm="6">
-        <div>
+    <div style="max-width: 800px" class="mx-auto">
+      <v-card>
+        <v-card-title>Preferences</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col :cols="12" :sm="6">
+              <div>
+                <v-subheader>Scene cards aspect ratio</v-subheader>
+                <v-radio-group v-model="sceneRatio">
+                  <v-radio color="primary" :value="1" label="Square"></v-radio>
+                  <v-radio color="primary" :value="16/9" label="16:9"></v-radio>
+                  <v-radio color="primary" :value="4/3" label="4:3"></v-radio>
+                </v-radio-group>
+              </div>
+
+              <div>
+                <v-subheader>Actor cards aspect ratio</v-subheader>
+                <v-radio-group v-model="actorRatio">
+                  <v-radio color="primary" :value="1" label="Square"></v-radio>
+                  <v-radio color="primary" :value="9/16" label="9:16"></v-radio>
+                  <v-radio color="primary" :value="3/4" label="3:4"></v-radio>
+                </v-radio-group>
+              </div>
+            </v-col>
+            <v-col :cols="12" :sm="6">
+              <div>
+                <v-btn
+                  color="gray darken-4"
+                  depressed
+                  dark
+                  @click="toggleDarkMode"
+                  class="text-none my-3"
+                >{{ this.$vuetify.theme.dark ? "Light mode" : "Dark mode" }}</v-btn>
+              </div>
+              <div>
+                <v-checkbox
+                  color="primary"
+                  hide-details
+                  v-model="scenePauseOnUnfocus"
+                  label="Pause video on window unfocus"
+                />
+                <v-checkbox
+                  color="primary"
+                  hide-details
+                  v-model="showCardLabels"
+                  label="Show card labels on overview"
+                />
+                <v-checkbox
+                  color="primary"
+                  hide-details
+                  label="Fill actor thumbnails"
+                  v-model="fillActorCards"
+                />
+              </div>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+
+      <v-card class="mt-3">
+        <v-card-title>Custom data fields</v-card-title>
+        <v-card-text>
+          <CustomFieldCreator />
+        </v-card-text>
+      </v-card>
+
+      <v-card class="mt-3">
+        <v-card-title class="pb-0">Porn Vault {{ version }}</v-card-title>
+        <v-card-text>
+          <div class="mb-3 med--text">by boi123212321</div>
+
           <v-btn
-            color="gray darken-4"
+            class="text-none"
             depressed
-            dark
-            @click="toggleDarkMode"
-            class="text-none my-3"
-          >{{ this.$vuetify.theme.dark ? "Light mode" : "Dark mode" }}</v-btn>
-        </div>
-        <div>
-          <v-checkbox
+            href="https://github.com/boi123212321/porn-vault"
+            target="_blank"
+          >
+            <v-icon left>mdi-github</v-icon>GitHub
+          </v-btn>
+
+          <v-btn
+            depressed
+            href="https://discord.gg/t499hxK"
+            target="_blank"
+            color="#7289da"
+            light
+            class="text-none ml-2"
+          >
+            <v-icon left>mdi-discord</v-icon>Discord
+          </v-btn>
+
+          <v-btn
+            depressed
+            href="https://github.com/boi123212321/porn-vault#support"
+            target="_blank"
             color="primary"
-            hide-details
-            v-model="scenePauseOnUnfocus"
-            label="Pause video on window unfocus"
-          />
-          <v-checkbox
-            color="primary"
-            hide-details
-            v-model="showCardLabels"
-            label="Show card labels on overview"
-          />
-          <v-checkbox
-            color="primary"
-            hide-details
-            label="Fill actor thumbnails"
-            v-model="fillActorCards"
-          />
-        </div>
-      </v-col>
-    </v-row>
-
-    <div>
-      <div class="text-center headline mb-4">Custom data fields</div>
-      <CustomFieldCreator />
-    </div>
-
-    <div class="text-center">
-      <div class="mt-3 pa-3 d-inline-block" style="border: 1px solid #ddd; border-radius: 8px">
-        <div class="title">porn-manager (name TBD)</div>
-
-        <div class="med--text">by boi123212321</div>
-
-        <v-btn
-          depressed
-          href="https://github.com/boi123212321/porn-manager"
-          target="_blank"
-          color="primary mt-3"
-          :class="`text-none ${$vuetify.theme.dark ? 'black--text' : 'white--text'}`"
-        >
-          <v-icon left>mdi-github-circle</v-icon>GitHub
-        </v-btn>
-      </div>
+            class="text-none ml-2"
+            :class="$vuetify.theme.dark ? 'black--text' : ''"
+          >
+            <v-icon left>mdi-currency-btc</v-icon>Support
+          </v-btn>
+        </v-card-text>
+      </v-card>
     </div>
   </v-container>
 </template>
@@ -91,6 +120,8 @@ import { contextModule } from "../store/context";
   }
 })
 export default class About extends Vue {
+  version = "0.20";
+
   set fillActorCards(val: boolean) {
     localStorage.setItem("pm_fillActorCards", val.toString());
     contextModule.toggleActorCardStyle(val);

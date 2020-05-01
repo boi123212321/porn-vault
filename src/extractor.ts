@@ -4,6 +4,7 @@ import Studio from "./types/studio";
 import Scene from "./types/scene";
 import CustomField from "./types/custom_field";
 import Movie from "./types/movie";
+import * as logger from "./logger";
 
 export function isSingleWord(str: string) {
   return str.split(" ").length == 1;
@@ -29,19 +30,22 @@ export function isMatchingItem(
   item: { name: string; aliases?: string[] },
   ignoreSingle: boolean
 ) {
-  if (ignoreSingle && isSingleWord(item.name)) return false;
+  logger.log(`Checking if ${item.name} matches ${str}`);
 
   const originalStr = stripStr(str);
 
-  if (originalStr.includes(stripStr(item.name))) return true;
+  if (!ignoreSingle || !isSingleWord(item.name))
+    if (originalStr.includes(stripStr(item.name))) return true;
 
   const aliases = ignoreSingle
     ? ignoreSingleNames(item.aliases || [])
     : item.aliases || [];
 
   return aliases.some((alias) => {
-    if (isRegex(alias))
+    if (isRegex(alias)) {
+      logger.log("Regex: " + alias + " for " + originalStr);
       return new RegExp(alias.replace("regex:", ""), "i").test(originalStr);
+    }
     return originalStr.includes(stripStr(alias));
   });
 }

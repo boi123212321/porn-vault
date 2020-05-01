@@ -2,6 +2,14 @@ export default [
   [
     "jill kassidy swallowed",
     {
+      name: "Kassidy",
+      aliases: [],
+    },
+    false,
+  ],
+  [
+    "jill kassidy swallowed",
+    {
       name: "Jill Kassidy",
       aliases: [],
     },
@@ -12,6 +20,14 @@ export default [
     {
       name: "Jill Kassidy",
       aliases: [],
+    },
+    true,
+  ],
+  [
+    "Jill Kassidy - Jill’s Oral Expertise - Swallowed",
+    {
+      name: "abcdef abc",
+      aliases: ["regex:kassidy"],
     },
     true,
   ],

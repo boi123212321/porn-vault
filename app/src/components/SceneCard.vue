@@ -72,7 +72,7 @@
       <span v-html="actorLinks"></span>
     </v-card-subtitle>
     <Rating @change="rate" class="ml-3 mb-2" :value="value.rating" />
-    <div class="pa-2" v-if="this.value.labels.length && showLabels">
+    <div class="py-1 px-4" v-if="this.value.labels.length && showLabels">
       <v-chip
         label
         class="mr-1 mb-1"

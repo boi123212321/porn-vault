@@ -31,10 +31,13 @@ export async function createBackup(amount = 10) {
     "movies.db",
     "studios.db",
     "scenes.db",
+    "markers.db",
     "actor_references.db",
     "marker_references.db",
     "movie_scenes.db",
     "labelled_items.db",
+    "custom_fields.db",
+    "scene_views.db",
   ];
 
   try {

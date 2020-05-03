@@ -4,6 +4,7 @@ import { sceneSchema } from "./schemas/scene";
 import { actorSchema } from "./schemas/actor";
 import { studioSchema } from "./schemas/studio";
 import { labelSchema } from "./schemas/label";
+import { markerSchema } from "./schemas/marker";
 import { customFieldSchema } from "./schemas/custom_field";
 import { IImportedCustomField } from "./types";
 
@@ -11,7 +12,7 @@ export function validateImportFile(parsedFile: Dictionary<any>) {
   if (parsedFile.movies) {
     if (typeof parsedFile.movies !== "object" || parsedFile.movies === null)
       return [
-        new Error(".movies needs to be a dictionary of movies (id => movie)")
+        new Error(".movies needs to be a dictionary of movies (id => movie)"),
       ];
 
     for (const movie of Object.values(parsedFile.movies)) {
@@ -23,7 +24,7 @@ export function validateImportFile(parsedFile: Dictionary<any>) {
   if (parsedFile.scenes) {
     if (typeof parsedFile.scenes !== "object" || parsedFile.scenes === null)
       return [
-        new Error(".scenes needs to be a dictionary of scenes (id => scene)")
+        new Error(".scenes needs to be a dictionary of scenes (id => scene)"),
       ];
 
     for (const scene of Object.values(parsedFile.scenes)) {
@@ -35,7 +36,7 @@ export function validateImportFile(parsedFile: Dictionary<any>) {
   if (parsedFile.actors) {
     if (typeof parsedFile.actors !== "object" || parsedFile.actors === null)
       return [
-        new Error(".actors needs to be a dictionary of actors (id => actor)")
+        new Error(".actors needs to be a dictionary of actors (id => actor)"),
       ];
 
     for (const actor of Object.values(parsedFile.actors)) {
@@ -47,7 +48,9 @@ export function validateImportFile(parsedFile: Dictionary<any>) {
   if (parsedFile.studios) {
     if (typeof parsedFile.studios !== "object" || parsedFile.studios === null)
       return [
-        new Error(".studios needs to be a dictionary of studios (id => studio)")
+        new Error(
+          ".studios needs to be a dictionary of studios (id => studio)"
+        ),
       ];
 
     for (const studio of Object.values(parsedFile.studios)) {
@@ -59,11 +62,25 @@ export function validateImportFile(parsedFile: Dictionary<any>) {
   if (parsedFile.labels) {
     if (typeof parsedFile.labels !== "object" || parsedFile.labels === null)
       return [
-        new Error(".labels needs to be a dictionary of labels (id => label)")
+        new Error(".labels needs to be a dictionary of labels (id => label)"),
       ];
 
     for (const label of Object.values(parsedFile.labels)) {
       const errors = labelSchema.validate(<any>label);
+      if (errors.length) return errors;
+    }
+  }
+
+  if (parsedFile.markers) {
+    if (typeof parsedFile.markers !== "object" || parsedFile.markers === null)
+      return [
+        new Error(
+          ".markers needs to be a dictionary of markers (id => marker)"
+        ),
+      ];
+
+    for (const marker of Object.values(parsedFile.markers)) {
+      const errors = markerSchema.validate(<any>marker);
       if (errors.length) return errors;
     }
   }
@@ -76,7 +93,7 @@ export function validateImportFile(parsedFile: Dictionary<any>) {
       return [
         new Error(
           ".custom needs to be a dictionary of custom fields (id => field)"
-        )
+        ),
       ];
 
     for (const field of Object.values(parsedFile.customFields)) {

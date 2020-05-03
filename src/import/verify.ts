@@ -7,6 +7,7 @@ import Studio from "../types/studio";
 import { existsSync } from "fs";
 import Label from "../types/label";
 import { Dictionary } from "../types/utility";
+import Marker from "../types/marker";
 
 async function checkDuplicates(opts: ICreateOptions) {
   if (opts.actors) {
@@ -48,6 +49,13 @@ async function checkDuplicates(opts: ICreateOptions) {
     for (const studioId in opts.studios) {
       const studioInDb = await Studio.getById(studioId);
       if (studioInDb) throw new Error(`Studio ${studioId} already exists!`);
+    }
+  }
+
+  if (opts.markers) {
+    for (const markerId in opts.markers) {
+      const markerInDb = await Marker.getById(markerId);
+      if (markerInDb) throw new Error(`Marker ${markerId} already exists!`);
     }
   }
 }
@@ -176,6 +184,17 @@ async function checkScenes(opts: ICreateOptions) {
   }
 }
 
+async function checkMarkers(opts: ICreateOptions) {
+  if (opts.markers) {
+    for (const markerId in opts.markers) {
+      const newScene = opts.markers[markerId];
+
+      if (newScene.labels)
+        await checkIfLabelsExist(newScene.labels, opts.labels);
+    }
+  }
+}
+
 async function checkStudios(opts: ICreateOptions) {
   if (opts.studios) {
     for (const studioId in opts.studios) {
@@ -220,4 +239,5 @@ export async function verifyFileData(opts: ICreateOptions) {
   await checkStudios(opts);
   await checkScenes(opts);
   await checkMovies(opts);
+  await checkMarkers(opts);
 }

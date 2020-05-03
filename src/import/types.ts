@@ -49,6 +49,16 @@ export interface IImportedLabel {
   aliases?: string[] | null;
 }
 
+export interface IImportedMarker {
+  name: string;
+  scene: string;
+  rating?: number | null;
+  bookmark?: number | null;
+  favorite?: boolean | null;
+  labels?: string[] | null;
+  time: number;
+}
+
 export interface IImportedStudio {
   name: string;
   parent: string;

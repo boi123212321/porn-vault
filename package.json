@@ -76,7 +76,7 @@
     "@types/mkdirp": "^1.0.0",
     "@types/mocha": "^7.0.2",
     "@types/nedb": "^1.8.9",
-    "@types/node": "^13.9.1",
+    "@types/node": "^13.13.4",
     "@types/pug": "^2.0.4",
     "@types/rimraf": "^3.0.0",
     "@types/tiny-async-pool": "^1.0.0",

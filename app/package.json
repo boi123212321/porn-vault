@@ -18,7 +18,7 @@
     "core-js": "^3.6.4",
     "graphql-tag": "^2.10.3",
     "hotkeys-js": "^3.7.6",
-    "moment": "^2.24.0",
+    "moment": "^2.25.1",
     "roboto-fontface": "*",
     "vue": "^2.6.11",
     "vue-advanced-cropper": "^0.16.1",

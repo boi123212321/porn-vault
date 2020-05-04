@@ -58,7 +58,7 @@
     "n-stopwords": "^1.1.0",
     "nedb": "^1.8.0",
     "node-vibrant": "^3.1.5",
-    "ora": "^4.0.3",
+    "ora": "^4.0.4",
     "rimraf": "^3.0.2",
     "tiny-async-pool": "^1.1.0",
     "validate": "^5.1.0",

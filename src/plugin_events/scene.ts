@@ -26,6 +26,7 @@ import {
   actorCollection,
   movieCollection,
   viewCollection,
+  labelCollection,
 } from "../database/index";
 import Movie from "../types/movie";
 import { onMovieCreate } from "./movie";
@@ -160,7 +161,7 @@ export async function onSceneCreate(
       } else if (config.CREATE_MISSING_LABELS) {
         const label = new Label(labelName);
         labelIds.push(label._id);
-        await database.insert(database.store.labels, label);
+        await labelCollection.upsert(label._id, label);
         logger.log("Created label " + label.name);
       }
     }

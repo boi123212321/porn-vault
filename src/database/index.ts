@@ -33,9 +33,9 @@ export let movieSceneCollection!: Izzy.Collection<MovieScene>;
 export let actorReferenceCollection!: Izzy.Collection<ActorReference>;
 export let markerReferenceCollection!: Izzy.Collection<MarkerReference>;
 export let viewCollection!: Izzy.Collection<SceneView>;
+export let labelCollection!: Izzy.Collection<Label>;
 
 let store = {} as {
-  labels: DataStore;
   studios: DataStore;
   processing: DataStore;
   markers: DataStore;
@@ -100,6 +100,12 @@ export async function loadStores() {
   }
 
   const dbLoader = ora("Loading DB...").start();
+
+  labelCollection = await Izzy.createCollection(
+    "labels",
+    libraryPath("labels.db"),
+    []
+  );
 
   viewCollection = await Izzy.createCollection(
     "scene_views",
@@ -240,6 +246,7 @@ export async function loadStores() {
     await actorCollection.compact();
     await movieCollection.compact();
     await viewCollection.compact();
+    await labelCollection.compact();
     compactLoader.succeed("Compacted DB");
   } else {
     logger.message("Skipping compaction");
@@ -248,7 +255,6 @@ export async function loadStores() {
   logger.log("Loading remaining NeDB stores");
 
   store = {
-    labels: await loadStore(libraryPath("labels.db")),
     studios: await loadStore(libraryPath("studios.db")),
     processing: await loadStore(libraryPath("processing.db")),
     markers: await loadStore(libraryPath("markers.db")),

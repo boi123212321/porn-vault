@@ -30,6 +30,7 @@ import {
   actorReferenceCollection,
   insert,
   markerReferenceCollection,
+  labelCollection,
 } from "../database/index";
 import ActorReference from "../types/actor_reference";
 import { existsAsync } from "../fs/async";
@@ -106,7 +107,7 @@ export async function createFromFileData(opts: ICreateOptions) {
             logger.log(`Updated labels of ${scene._id}.`);
           }
         }
-        await database.insert(database.store.labels, label);
+        await labelCollection.upsert(label._id, label);
       }
       createdLabels[labelId] = label;
     }

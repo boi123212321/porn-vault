@@ -19,6 +19,7 @@ import {
   imageCollection,
   actorCollection,
   movieCollection,
+  labelCollection,
 } from "../../database/index";
 import SceneView from "../../types/watch";
 import LabelledItem from "../../types/labelled_item";
@@ -165,7 +166,7 @@ export default {
     return movieCollection.count();
   },
   async numLabels() {
-    return await database.count(database.store.labels, {});
+    return labelCollection.count();
   },
   async numStudios() {
     return await database.count(database.store.studios, {});

@@ -74,7 +74,7 @@
           <div class="mb-3 med--text">by boi123212321</div>
 
           <v-btn
-            class="text-none"
+            class="text-none mr-2 mb-2"
             depressed
             href="https://github.com/boi123212321/porn-vault"
             target="_blank"
@@ -88,7 +88,7 @@
             target="_blank"
             color="#7289da"
             light
-            class="text-none ml-2"
+            class="text-none mr-2 mb-2"
           >
             <v-icon left>mdi-discord</v-icon>Discord
           </v-btn>
@@ -98,7 +98,7 @@
             href="https://github.com/boi123212321/porn-vault#support"
             target="_blank"
             color="primary"
-            class="text-none ml-2"
+            class="text-none mb-2"
             :class="$vuetify.theme.dark ? 'black--text' : ''"
           >
             <v-icon left>mdi-currency-btc</v-icon>Support

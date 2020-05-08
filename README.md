@@ -83,6 +83,58 @@ Bitcoin: 1Bw82zC5FnVtw93ZrcALQTeZBXgtVWH75n
 - Run the application in the terminal of your choice and follow the on-screen instructions
 - Once your app is setup you can visit it on http://localhost:3000 (or your LAN IP equivalent) in your web browser of choice
 
+### docker
+
+You can build a docker image yourself with the `Dockerfile` at the root of this repository.
+
+```
+docker create \
+  --name=porn-vault \
+  -p 3000:3000 \
+  -v /etc/localtime:/etc/localtime:ro \
+  -v /path/to/library_parent_dir:/config \
+  -v /path/to/config.json:/config.json \
+  -v /path/to/first/videos:/videos_1 \
+  -v /path/to/more/videos:/videos_2 \
+  -v /path/to/first/images:/images_1 \
+  -v /path/to/more/images:/images_2 \
+  --restart unless-stopped \
+  .
+```
+
+### docker-compose
+
+```
+version: "3"
+services:
+  porn-vault:
+    build: ./path/to/Dockerfile_directory
+    container_name: porn-vault
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/path/to/library_parent_dir:/config"
+      - "/path/to/config.json:/config.json"
+      - "/path/to/first/videos:/videos_1"
+      - "/path/to/more/videos:/videos_2"
+      - "/path/to/first/images:/images_1"
+      - "/path/to/more/images:/images_2"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+```
+
+### Docker parameters
+
+The container requires some parameters for the app to run correctly. These parameters are separated by a colon and indicate `<external>:<internal>` respectively. For example, `-p 8080:3000` would expose port `3000` from inside the container to be accessible from the host's IP on port `8080` outside the container.
+
+|               Parameter                | Function                                                                                                                 |
+| :------------------------------------: | ------------------------------------------------------------------------------------------------------------------------ |
+|               `-p 3000`                | The port for the porn-vault webinterface                                                                                 |
+| `-v /config.json` OR `-v /config.yaml` | Location of the config file to read from                                                                                 |
+|              `-v /config`              | Directory for the `LIBRARY_PATH` parameter in the config file. This allows for the database to be persisted on the host. |
+|              `-v /videos`              | A directory for the `VIDEO_PATHS` parameter                                                                              |
+|              `-v /images`              | A directory for the `IMAGE_PATHS` parameter                                                                              |
+
 ## Enabling HTTPS
 
 - If you're on Windows you first need to download openssl, you can find the executables here https://wiki.openssl.org/index.php/Binaries

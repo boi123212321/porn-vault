@@ -8,7 +8,7 @@ There's a Discord channel! Join in to the discussion: https://discord.gg/t499hxK
 
 Bitcoin: 1Bw82zC5FnVtw93ZrcALQTeZBXgtVWH75n
 
-![Bitcoin Link](/doc/img/btc.png)
+![Bitcoin Link](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/btc.png)
 
 ## Contribute
 
@@ -122,45 +122,45 @@ See the [docker readme](doc/docker.md)
 
 ### Scene collection
 
-![Scenes](/doc/img/scene_collection.jpg)
+![Scenes](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/scene_collection.jpg)
 
 ### Scene page
 
-![Scene page](/doc/img/scene_details.jpg)
+![Scene page](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/scene_details.jpg)
 
 ### Actor collection
 
-![Actors](/doc/img/actor_collection.jpg)
+![Actors](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/actor_collection.jpg)
 
 ### Actor page
 
-![Actor page](/doc/img/actor_details.jpg)
+![Actor page](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/actor_details.jpg)
 
 ### Movie collection
 
-![Movies](/doc/img/movie_collection.jpg)
+![Movies](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/movie_collection.jpg)
 
 ### Movie page
 
-![Movie page](/doc/img/movie_details.jpg)
+![Movie page](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/movie_details.jpg)
 
 ### Image collection
 
 You can do everything you can do with scenes (e.g. rate/favorite/bookmark/label) with images as well - useful if you run an image collection only.
-![Scene details](/doc/img/image_collection.jpg)
+![Scene details](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/image_collection.jpg)
 
 ### Image details
 
-![Image details](/doc/img/image_details.jpg)
+![Image details](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/image_details.jpg)
 
 ### Studio collection
 
-![Studios](/doc/img/studio_collection.jpg)
+![Studios](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/studio_collection.jpg)
 
 ### Parent studio
 
-![Studios](/doc/img/parent_studio.jpg)
+![Studios](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/parent_studio.jpg)
 
 ### Mobile
 
-![Dark mode](/doc/img/mobile.jpg)
+![Dark mode](https://raw.githubusercontent.com/boi123212321/porn-vault/master/doc/img/mobile.jpg)

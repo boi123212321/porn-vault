@@ -65,6 +65,7 @@ export default class VideoWatcher {
 
       if (!existingScene) {
         this.videoProcessingQueue.push(path);
+        logger.log(`Added video to processing queue '${path}'.`);
       }
     }
   }

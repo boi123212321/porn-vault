@@ -36,6 +36,7 @@ import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
 import https from "https";
 import { fstat, readFile, readFileSync } from "fs";
 import VideoWatcher from "./queue/videoWatcher";
+import ImageWatcher from "./queue/imageWatcher";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-vault for discussion & updates"
@@ -65,40 +66,33 @@ async function tryStartProcessing() {
 async function scanFolders() {
   logger.message("Scanning folders...");
 
-  // TODO: use a callback instead of promise
-  // so that we can launch 'tryStartProcessing' when new files are added
+  const config = getConfig();
 
-  const watchPromise = new Promise((resolve) => {
+  const watchVideosPromise = new Promise((resolve) => {
     // TODO: store the watcher instance so we can stop/start
-    try {
-      const videoWatcher = new VideoWatcher(resolve);
-    } catch (err) {
-      logger.error("Error watching video paths ");
-      logger.error(err);
-      throw err;
-    }
-  });
-  const checkImagePromise = new Promise((resolve) => {
-    // TODO:
-    logger.message("images resolved");
-    // checkImageFolders();
-    resolve();
+
+    // TODO: use a callback instead of promise
+    // so that we can launch 'tryStartProcessing' when new files are added
+
+    const videoWatcher = new VideoWatcher(resolve);
   });
 
-  Promise.all([watchPromise, checkImagePromise])
-    .then(() => {
-      logger.success("Scan done.");
-      tryStartProcessing().catch((err) => {
-        logger.error("Couldn't start processing...");
-        logger.error(err.message);
-      });
-    })
-    .catch((error) => {
-      logger.error(
-        "Error watching videos and folders, cannot start processing"
-      );
-      logger.error(error);
+  // TODO: store the watcher instance so we can stop/start
+  const imageWatcher = new ImageWatcher(config.READ_IMAGES_ON_IMPORT);
+  // checkImageFolders();
+
+  try {
+    await watchVideosPromise;
+
+    logger.success("Scan done.");
+    tryStartProcessing().catch((err) => {
+      logger.error("Couldn't start processing...");
+      logger.error(err.message);
     });
+  } catch (error) {
+    logger.error("Error watching videos and folders, cannot start processing");
+    logger.error(error);
+  }
 }
 
 export default async () => {

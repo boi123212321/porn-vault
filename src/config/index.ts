@@ -32,6 +32,8 @@ export interface IConfig {
   SCAN_ON_STARTUP: boolean;
   DO_PROCESSING: boolean;
   SCAN_INTERVAL: number;
+  WATCH_LIBRARY: boolean;
+  WATCH_POLLING_INTERVAL: number;
 
   LIBRARY_PATH: string;
 
@@ -91,6 +93,8 @@ export const defaultConfig: IConfig = {
   SCAN_ON_STARTUP: false,
   DO_PROCESSING: true,
   SCAN_INTERVAL: 10800000,
+  WATCH_LIBRARY: false,
+  WATCH_POLLING_INTERVAL: 1 * 1000,
   LIBRARY_PATH: process.cwd(),
   FFMPEG_PATH: "",
   FFPROBE_PATH: "",

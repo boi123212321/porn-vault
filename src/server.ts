@@ -35,6 +35,7 @@ import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
 import https from "https";
 import { fstat, readFile, readFileSync } from "fs";
 import LibraryWatcher from "./queue/libraryWatcher";
+import { checkImageFolders, checkVideoFolders } from "./queue/check";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-vault for discussion & updates"
@@ -42,6 +43,9 @@ logger.message(
 
 let serverReady = false;
 let setupMessage = "Setting up...";
+
+let libraryWatcher: LibraryWatcher | null;
+let scheduledScanTimeout: NodeJS.Timeout | null;
 
 async function tryStartProcessing() {
   const queueLen = await getLength();
@@ -66,26 +70,53 @@ async function scanFolders() {
 
   const config = getConfig();
 
-  // TODO: store the watcher outside so we can start/stop
-  let libraryWatcher;
-
-  const videoProcessingCompletedPromise = new Promise((resolve) => {
-    // TODO: use a callback instead of promise
-    // so that we can launch 'tryStartProcessing' when new files are added
-    libraryWatcher = new LibraryWatcher(resolve, config.READ_IMAGES_ON_IMPORT);
-  });
-
-  try {
-    await videoProcessingCompletedPromise;
-
-    logger.success("Video scan done.");
-    tryStartProcessing().catch((err) => {
+  const processLibrary = async () => {
+    try {
+      await tryStartProcessing();
+    } catch (err) {
       logger.error("Couldn't start processing...");
       logger.error(err.message);
-    });
-  } catch (error) {
-    logger.error("Error watching library, cannot start processing videos");
-    logger.error(error);
+    }
+
+    // When this round of processing is done, we assume
+    // it's because the whole library is already scanned.
+    // So only now, we can schedule another scan
+    scheduleManualScan();
+  };
+
+  if (config.WATCH_LIBRARY) {
+    if (libraryWatcher) {
+      await libraryWatcher.stopWatching();
+      libraryWatcher = null;
+    } else {
+      const libraryWatcher = new LibraryWatcher(
+        processLibrary, // TODO: debounce?
+        config.READ_IMAGES_ON_IMPORT
+      );
+    }
+  } else {
+    await checkVideoFolders();
+    logger.success("Scan done.");
+
+    // Do not await
+    checkImageFolders(config.READ_IMAGES_ON_IMPORT);
+
+    // Do not await
+    processLibrary();
+  }
+}
+
+function scheduleManualScan() {
+  const config = getConfig();
+
+  if (scheduledScanTimeout) {
+    clearTimeout(scheduledScanTimeout);
+    scheduledScanTimeout = null;
+  }
+
+  if (config.SCAN_INTERVAL > 0) {
+    logger.message(`Setting up a manual scan in ${config.SCAN_INTERVAL}ms`);
+    scheduledScanTimeout = setTimeout(scanFolders, config.SCAN_INTERVAL);
   }
 }
 
@@ -262,20 +293,25 @@ export default async () => {
 
   watchConfig();
 
+  let willAutoIntervalScan = false;
+
   if (config.SCAN_ON_STARTUP) {
+    willAutoIntervalScan = true;
     await scanFolders();
   } else {
     logger.warn(
-      "Scanning folders is currently disabled. Enable in config.json & restart."
+      "Scanning folders on startup is currently disabled. Enable in config.json & restart."
     );
   }
 
-  // if (config.DO_PROCESSING) {
-  //   tryStartProcessing().catch((err) => {
-  //     logger.error("Couldn't start processing...");
-  //     logger.error(err.message);
-  //   });
-  // }
+  if (config.DO_PROCESSING) {
+    tryStartProcessing().catch((err) => {
+      logger.error("Couldn't start processing...");
+      logger.error(err.message);
+    });
+  }
 
-  if (config.SCAN_INTERVAL > 0) setInterval(scanFolders, config.SCAN_INTERVAL);
+  if (!willAutoIntervalScan) {
+    scheduleManualScan();
+  }
 };

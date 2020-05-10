@@ -10,6 +10,7 @@ import ora = require("ora");
 import { indexImages } from "../search/image";
 import { imageCollection, sceneCollection } from "../database";
 import { fileIsExcluded } from "../types/utility";
+import { imageWithPathExists } from "./utility";
 
 export async function checkVideoFolders() {
   const config = getConfig();
@@ -57,11 +58,6 @@ export async function checkVideoFolders() {
   logger.warn(
     `Queued ${unknownVideos.length} new videos for further processing.`
   );
-}
-
-async function imageWithPathExists(path: string) {
-  const image = await Image.getImageByPath(path);
-  return !!image;
 }
 
 async function processImage(imagePath: string, readImage = true) {

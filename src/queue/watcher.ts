@@ -34,6 +34,8 @@ export default class Watcher {
       awaitWriteFinish: true,
     };
 
+    logger.log(`[watcher]: Will watch folders: ${watchPaths}.`);
+
     if (excludePaths.length) {
       logger.log(`[watcher]: Will ignore files: ${excludePaths}.`);
     }

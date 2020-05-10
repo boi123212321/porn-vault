@@ -35,8 +35,7 @@ import { clearImageIndex } from "./search/image";
 import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
 import https from "https";
 import { fstat, readFile, readFileSync } from "fs";
-import VideoWatcher from "./queue/videoWatcher";
-import ImageWatcher from "./queue/imageWatcher";
+import LibraryWatcher from "./queue/libraryWatcher";
 
 logger.message(
   "Check https://github.com/boi123212321/porn-vault for discussion & updates"
@@ -68,29 +67,25 @@ async function scanFolders() {
 
   const config = getConfig();
 
-  const watchVideosPromise = new Promise((resolve) => {
-    // TODO: store the watcher instance so we can stop/start
+  // TODO: store the watcher outside so we can start/stop
+  let libraryWatcher;
 
+  const videoProcessingCompletedPromise = new Promise((resolve) => {
     // TODO: use a callback instead of promise
     // so that we can launch 'tryStartProcessing' when new files are added
-
-    const videoWatcher = new VideoWatcher(resolve);
+    libraryWatcher = new LibraryWatcher(resolve, config.READ_IMAGES_ON_IMPORT);
   });
 
-  // TODO: store the watcher instance so we can stop/start
-  const imageWatcher = new ImageWatcher(config.READ_IMAGES_ON_IMPORT);
-  // checkImageFolders();
-
   try {
-    await watchVideosPromise;
+    await videoProcessingCompletedPromise;
 
-    logger.success("Scan done.");
+    logger.success("Video scan done.");
     tryStartProcessing().catch((err) => {
       logger.error("Couldn't start processing...");
       logger.error(err.message);
     });
   } catch (error) {
-    logger.error("Error watching videos and folders, cannot start processing");
+    logger.error("Error watching library, cannot start processing videos");
     logger.error(error);
   }
 }

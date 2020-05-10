@@ -10,7 +10,6 @@ import { indexImages } from "../search/image";
 import Image from "../types/image";
 import { fileIsExcluded } from "../types/utility";
 import { imageWithPathExists } from "./utility";
-import Watcher from "./watcher";
 
 export default class ImageWatcher {
   private config: IConfig;
@@ -19,7 +18,7 @@ export default class ImageWatcher {
   private readImageDimensionsBeforeInitialScanComplete: boolean;
   private onProcessingCompleted?: () => void;
 
-  private didCompleteInitialScan: boolean;
+  private getDidInitialScanComplete: () => boolean;
 
   /**
    * @param onProcessingCompleted - called once the image processing is complete
@@ -28,31 +27,19 @@ export default class ImageWatcher {
    */
   constructor(
     readImageDimensionsBeforeInitialScanComplete: boolean,
-    onProcessingCompleted?: () => void,
-    onInitialScanCompleted?: () => void
+    getDidInitialScanComplete: () => boolean,
+    onProcessingCompleted?: () => void
   ) {
     this.config = getConfig();
 
     this.readImageDimensionsBeforeInitialScanComplete = readImageDimensionsBeforeInitialScanComplete;
     this.onProcessingCompleted = onProcessingCompleted;
 
-    this.didCompleteInitialScan = false;
+    this.getDidInitialScanComplete = getDidInitialScanComplete;
 
     this.imageProcessingQueue = queue(this.processImagePath, 1);
     this.imageProcessingQueue.drain(this.onProcessingQueueEmptied.bind(this));
     this.imageProcessingQueue.error(this.onProcessingQueueError.bind(this));
-
-    const watcher = new Watcher(
-      this.config.IMAGE_PATHS,
-      this.config.EXCLUDE_FILES,
-      this.onImagePathAdded.bind(this),
-      () => {
-        this.didCompleteInitialScan = true;
-        if (onInitialScanCompleted) {
-          onInitialScanCompleted();
-        }
-      }
-    );
   }
 
   /**
@@ -62,19 +49,25 @@ export default class ImageWatcher {
    * @param path - the path newly added to the watch image
    * folders
    */
-  private async onImagePathAdded(path: string) {
-    logger.log("[imageWatcher]: on add ", path);
-
+  public async tryProcessImage(path: string) {
     if (
       ![".jpg", ".jpeg", ".png", ".gif"].includes(extname(path)) ||
       basename(path).startsWith(".") ||
       fileIsExcluded(this.config.EXCLUDE_FILES, path)
-    )
+    ) {
+      logger.log(`[imageWatcher]: Ignoring file ${path}`);
       return;
+    }
 
-    if (await imageWithPathExists(path)) {
-      logger.log(`Image '${path}' already exists`);
-    } else {
+    logger.log(`[imageWatcher]: Found matching file ${path}`);
+
+    const existingImage = await imageWithPathExists(path);
+    logger.log(
+      "[imageWatcher]: Scene with that path exists already ?: " +
+        !!existingImage
+    );
+
+    if (!existingImage) {
       this.imageProcessingQueue.push(path);
       logger.log(`Added image to processing queue '${path}'.`);
     }
@@ -93,7 +86,7 @@ export default class ImageWatcher {
       image.path = imagePath;
 
       if (
-        this.didCompleteInitialScan ||
+        this.getDidInitialScanComplete() ||
         this.readImageDimensionsBeforeInitialScanComplete
       ) {
         const jimpImage = await Jimp.read(imagePath);

@@ -5,7 +5,6 @@ import { getConfig, IConfig } from "../config";
 import * as logger from "../logger";
 import Scene from "../types/scene";
 import { fileIsExcluded } from "../types/utility";
-import Watcher from "./watcher";
 
 export default class VideoWatcher {
   private config: IConfig;
@@ -15,13 +14,8 @@ export default class VideoWatcher {
 
   /**
    * @param onProcessingCompleted - called once the video processing is complete
-   * @param onInitialScanCompleted - called once the initial scan of the video
-   * folders is complete
    */
-  constructor(
-    onProcessingCompleted: () => void,
-    onInitialScanCompleted?: () => void
-  ) {
+  constructor(onProcessingCompleted: () => void) {
     this.config = getConfig();
 
     this.onProcessingCompleted = onProcessingCompleted;
@@ -29,13 +23,6 @@ export default class VideoWatcher {
     this.videoProcessingQueue = queue(this.processVideoPath, 1);
     this.videoProcessingQueue.drain(this.onProcessingQueueEmptied.bind(this));
     this.videoProcessingQueue.error(this.onProcessingQueueError.bind(this));
-
-    const watcher = new Watcher(
-      this.config.VIDEO_PATHS,
-      this.config.EXCLUDE_FILES,
-      this.onVideoPathAdded.bind(this),
-      onInitialScanCompleted
-    );
   }
 
   /**
@@ -45,28 +32,27 @@ export default class VideoWatcher {
    * @param path - the path newly added to the watch video
    * folders
    */
-  private async onVideoPathAdded(path: string) {
-    logger.log("[videoWatcher]: on add ", path);
-
+  public async tryProcessVideo(path: string) {
     if (
       ![".mp4", ".webm"].includes(extname(path)) ||
       basename(path).startsWith(".") ||
       fileIsExcluded(this.config.EXCLUDE_FILES, path)
     ) {
-      logger.log(`[videoWatcher]:Ignoring file ${path}`);
+      logger.log(`[videoWatcher]: Ignoring file ${path}`);
       return;
-    } else {
-      logger.log(`[videoWatcher]:Found matching file ${path}`);
-      const existingScene = await Scene.getSceneByPath(path);
-      logger.log(
-        "[videoWatcher]: Scene with that path exists already ?: " +
-          !!existingScene
-      );
+    }
 
-      if (!existingScene) {
-        this.videoProcessingQueue.push(path);
-        logger.log(`Added video to processing queue '${path}'.`);
-      }
+    logger.log(`[videoWatcher]: Found matching file ${path}`);
+
+    const existingScene = await Scene.getSceneByPath(path);
+    logger.log(
+      "[videoWatcher]: Scene with that path exists already ?: " +
+        !!existingScene
+    );
+
+    if (!existingScene) {
+      this.videoProcessingQueue.push(path);
+      logger.log(`Added video to processing queue '${path}'.`);
     }
   }
 

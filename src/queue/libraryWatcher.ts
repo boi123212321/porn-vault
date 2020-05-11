@@ -29,14 +29,15 @@ const createWatchPaths = (videoPaths, imagePaths) => {
     );
   });
 
-  return [...videoGlobs, ...imageGlobs];
+  // Return unique globs
+  return [...new Set([...videoGlobs, ...imageGlobs])];
 };
 
 export default class LibraryWatcher {
   private config: IConfig;
 
-  private videoWatcher: VideoQueue;
-  private imageWatcher: ImageQueue;
+  private videoQueue: VideoQueue;
+  private imageQueue: ImageQueue;
 
   private watcher: Watcher;
 
@@ -53,9 +54,9 @@ export default class LibraryWatcher {
   ) {
     this.config = getConfig();
 
-    this.videoWatcher = new VideoQueue(onVideoProcesingQueueEmpty);
+    this.videoQueue = new VideoQueue(onVideoProcesingQueueEmpty);
 
-    this.imageWatcher = new ImageQueue();
+    this.imageQueue = new ImageQueue();
 
     const watchPaths = createWatchPaths(
       this.config.VIDEO_PATHS,
@@ -63,15 +64,17 @@ export default class LibraryWatcher {
     );
 
     this.watcher = new Watcher(
-      watchPaths,
-      this.config.EXCLUDE_FILES,
+      {
+        includePaths: watchPaths,
+        excludePaths: this.config.EXCLUDE_FILES,
+        pollingInterval: this.config.WATCH_POLLING_INTERVAL,
+      },
       this.onPathAdded.bind(this),
       () => {
         if (onInitialScanCompleted) {
           onInitialScanCompleted();
         }
-      },
-      { pollingInterval: this.config.WATCH_POLLING_INTERVAL }
+      }
     );
   }
   /**
@@ -93,11 +96,11 @@ export default class LibraryWatcher {
 
     // No need to await these
     if (SUPPORTED_VIDEO_EXTENSIONS.includes(extname(addedPath))) {
-      this.videoWatcher.addPathToQueue(addedPath);
+      this.videoQueue.addPathToQueue(addedPath);
     }
 
     if (SUPPORTED_IMAGE_EXTENSIONS.includes(extname(addedPath))) {
-      this.imageWatcher.addPathToQueue(addedPath);
+      this.imageQueue.addPathToQueue(addedPath);
     }
   }
 }

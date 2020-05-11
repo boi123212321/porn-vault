@@ -3,10 +3,14 @@ import chokidar, { FSWatcher, WatchOptions } from "chokidar";
 import * as logger from "../logger";
 
 interface WatcherOptions {
+  includePaths?: string[];
+  excludePaths?: string[];
   pollingInterval?: number;
 }
 
 const DEFAULT_OPTIONS = {
+  includePaths: [],
+  excludePaths: [],
   pollingInterval: 2 * 1000,
 };
 
@@ -18,33 +22,32 @@ export default class Watcher {
   private watchOptions: WatchOptions;
 
   /**
-   * @param watchPaths - the paths to watch
-   * @param excludePaths - paths to exclude from emitting events for
+   * @param options - options for what and how to watch
    * @param onPathAdded - callback for when a new path is discovered
    * @param onReadyCallback - called when the initial scan is complete
    */
   constructor(
-    watch: string[],
-    exclude: string[],
+    options: WatcherOptions,
     onPathAdded: (path: string) => void,
-    onReadyCallback: () => void,
-    options: WatcherOptions
+    onReadyCallback: () => void
   ) {
-    // Clone arrays to prevent mutation on original
-    const watchPaths = [...watch];
-    const excludePaths = [...exclude];
-
     const mergedOptions = {
       ...DEFAULT_OPTIONS,
       ...options,
     };
 
+    const watchPaths = [...mergedOptions.includePaths];
+    const excludePaths = [...mergedOptions.excludePaths];
+
     this.watchOptions = {
+      // Main options
       ignored: excludePaths,
-      usePolling: mergedOptions.pollingInterval > 0, // Helps to avoid overloading a network device
+      awaitWriteFinish: true,
+      // Polling options. Polling is needed for docker mounts
+      // and recommended for network mounts
+      usePolling: mergedOptions.pollingInterval > 0,
       interval: mergedOptions.pollingInterval,
       binaryInterval: mergedOptions.pollingInterval,
-      awaitWriteFinish: true,
     };
 
     logger.log(`[watcher]: Will watch folders: ${watchPaths}.`);

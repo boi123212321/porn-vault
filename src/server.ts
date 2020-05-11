@@ -90,8 +90,7 @@ async function scanFolders() {
       libraryWatcher = null;
     } else {
       const libraryWatcher = new LibraryWatcher(
-        processLibrary, // TODO: debounce?
-        config.READ_IMAGES_ON_IMPORT
+        processLibrary // TODO: debounce?
       );
     }
   } else {

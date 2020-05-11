@@ -11,22 +11,16 @@ export default class LibraryWatcher {
   private imageWatcher: ImageWatcher;
 
   private watcher: Watcher;
-  private completedInitialScan: boolean;
 
   constructor(
     onVideoProcesingQueueEmpty: () => void,
-    readImageDimensionsBeforeInitialScanComplete: boolean,
     onInitialScanCompleted?: () => void
   ) {
     this.config = getConfig();
-    this.completedInitialScan = false;
 
     this.videoWatcher = new VideoWatcher(onVideoProcesingQueueEmpty);
 
-    this.imageWatcher = new ImageWatcher(
-      readImageDimensionsBeforeInitialScanComplete,
-      this.didInitialScanComplete.bind(this)
-    );
+    this.imageWatcher = new ImageWatcher();
 
     const watchPaths = [
       ...new Set([...this.config.VIDEO_PATHS, ...this.config.IMAGE_PATHS]),
@@ -37,7 +31,6 @@ export default class LibraryWatcher {
       this.config.EXCLUDE_FILES,
       this.onPathAdded.bind(this),
       () => {
-        this.completedInitialScan = true;
         if (onInitialScanCompleted) {
           onInitialScanCompleted();
         }
@@ -63,9 +56,5 @@ export default class LibraryWatcher {
     // No need to await these
     this.videoWatcher.tryProcessVideo(path);
     this.imageWatcher.tryProcessImage(path);
-  }
-
-  private didInitialScanComplete() {
-    return this.completedInitialScan;
   }
 }

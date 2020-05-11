@@ -18,27 +18,17 @@ export default class ImageWatcher {
   private config: IConfig;
   private imageProcessingQueue: AsyncQueue<string>;
 
-  private readImageDimensionsBeforeInitialScanComplete: boolean;
   private onProcessingCompleted?: () => void;
-
-  private getDidInitialScanComplete: () => boolean;
 
   /**
    * @param onProcessingCompleted - called once the image processing is complete
    * @param onInitialScanCompleted - called once the initial scan of the image
    * folders is complete
    */
-  constructor(
-    readImageDimensionsBeforeInitialScanComplete: boolean,
-    getDidInitialScanComplete: () => boolean,
-    onProcessingCompleted?: () => void
-  ) {
+  constructor(onProcessingCompleted?: () => void) {
     this.config = getConfig();
 
-    this.readImageDimensionsBeforeInitialScanComplete = readImageDimensionsBeforeInitialScanComplete;
     this.onProcessingCompleted = onProcessingCompleted;
-
-    this.getDidInitialScanComplete = getDidInitialScanComplete;
 
     this.imageProcessingQueue = queue(this.processImagePath, 1);
     this.imageProcessingQueue.drain(this.onProcessingQueueEmptied.bind(this));
@@ -79,12 +69,8 @@ export default class ImageWatcher {
    * @param callback - callback to execute once the path is processed
    */
   private async processImagePath(imagePath: string, callback: () => void) {
-    const readImage =
-      this.getDidInitialScanComplete() ||
-      this.readImageDimensionsBeforeInitialScanComplete;
-
     try {
-      await processImage(imagePath, readImage);
+      await processImage(imagePath, this.config.READ_IMAGES_ON_IMPORT);
     } catch (error) {
       logger.log(error.stack);
       logger.error("[imageWatcher]: Error when importing " + imagePath);

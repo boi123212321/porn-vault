@@ -113,7 +113,7 @@ async function scanFolders(forceManualScan = false) {
 
   // If we switched to manual scans: destroy the watcher
   if (libraryWatcher) {
-    logger.message("File watcher was active previously, will destroy...");
+    logger.message("File watcher was previously active, will destroy...");
     // Do not await
     libraryWatcher
       .stopWatching()
@@ -368,3 +368,18 @@ export default async () => {
     scheduleManualScan();
   }
 };
+
+export async function killServer() {
+  logger.message("Cleaning up server resources");
+
+  try {
+    if (libraryWatcher) {
+      logger.message("File watcher was previously active, will destroy...");
+
+      await libraryWatcher.stopWatching();
+    }
+  } catch (err) {
+    logger.error("Error cleaning up server resourced");
+    logger.error(err);
+  }
+}

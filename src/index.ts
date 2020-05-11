@@ -1,4 +1,4 @@
-import startServer from "./server";
+import startServer, { killServer } from "./server";
 import { checkConfig, getConfig, IConfig } from "./config/index";
 import inquirer from "inquirer";
 import * as logger from "./logger";
@@ -23,7 +23,11 @@ function killProcess(code = 0) {
       logger.log("Killing izzy...");
       izzyProcess.kill();
     }
-    process.exit(code);
+    // Attempts to clean up server before the process closes
+    killServer().then(() => {
+      logger.message("Killed server");
+      process.exit(code);
+    });
   };
 }
 

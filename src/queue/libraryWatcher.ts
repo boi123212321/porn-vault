@@ -1,12 +1,12 @@
 import { getConfig, IConfig } from "../config";
 import * as logger from "../logger";
-import ImageWatcher from "./image/imageWatcher";
-import VideoWatcher from "./video/videoWatcher";
-import Watcher from "./watcher";
 import {
-  SUPPORTED_VIDEO_EXTENSIONS,
   SUPPORTED_IMAGE_EXTENSIONS,
+  SUPPORTED_VIDEO_EXTENSIONS,
 } from "./constants";
+import ImageQueue from "./image/imageQueue";
+import VideoQueue from "./video/videoQueue";
+import Watcher from "./watcher";
 
 /**
  * Generates an array of glob paths to watch for the library
@@ -33,8 +33,8 @@ const createWatchPaths = (videoPaths, imagePaths) => {
 export default class LibraryWatcher {
   private config: IConfig;
 
-  private videoWatcher: VideoWatcher;
-  private imageWatcher: ImageWatcher;
+  private videoWatcher: VideoQueue;
+  private imageWatcher: ImageQueue;
 
   private watcher: Watcher;
 
@@ -51,9 +51,9 @@ export default class LibraryWatcher {
   ) {
     this.config = getConfig();
 
-    this.videoWatcher = new VideoWatcher(onVideoProcesingQueueEmpty);
+    this.videoWatcher = new VideoQueue(onVideoProcesingQueueEmpty);
 
-    this.imageWatcher = new ImageWatcher();
+    this.imageWatcher = new ImageQueue();
 
     const watchPaths = createWatchPaths(
       this.config.VIDEO_PATHS,
@@ -84,11 +84,13 @@ export default class LibraryWatcher {
     logger.log("[libraryWatcher]: Did stop watching");
   }
 
-  private onPathAdded(path) {
-    logger.log(`[libraryWatcher]: found path ${path}`);
+  private onPathAdded(addedPath) {
+    logger.log(
+      `[libraryWatcher]: found path ${addedPath}, passing to appropriate queues`
+    );
 
     // No need to await these
-    this.videoWatcher.tryProcessVideo(path);
-    this.imageWatcher.tryProcessImage(path);
+    this.videoWatcher.addPathToQueue(addedPath);
+    this.imageWatcher.addPathToQueue(addedPath);
   }
 }

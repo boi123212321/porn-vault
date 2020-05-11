@@ -1,38 +1,32 @@
 import queue, { AsyncQueue } from "async/queue";
-import Jimp from "jimp";
-import { basename } from "path";
 
 import { getConfig, IConfig } from "../../config";
-import { imageCollection } from "../../database";
-import { extractActors, extractLabels, extractScenes } from "../../extractor";
 import * as logger from "../../logger";
-import { indexImages } from "../../search/image";
-import Image from "../../types/image";
 import {
   imageWithPathExists,
   isImportableImage,
   processImage,
 } from "./utility";
 
-export default class ImageWatcher {
+export default class ImageQueue {
   private config: IConfig;
   private imageProcessingQueue: AsyncQueue<string>;
 
-  private onProcessingCompleted?: () => void;
+  private onQueueEmptiedCb?: () => void;
 
   /**
-   * @param onProcessingCompleted - called once the image processing is complete
+   * @param onQueueEmptiedCb - called once the image processing is complete
    * @param onInitialScanCompleted - called once the initial scan of the image
    * folders is complete
    */
-  constructor(onProcessingCompleted?: () => void) {
+  constructor(onQueueEmptiedCb?: () => void) {
     this.config = getConfig();
 
-    this.onProcessingCompleted = onProcessingCompleted;
+    this.onQueueEmptiedCb = onQueueEmptiedCb;
 
-    this.imageProcessingQueue = queue(this.processImagePath, 1);
-    this.imageProcessingQueue.drain(this.onProcessingQueueEmptied.bind(this));
-    this.imageProcessingQueue.error(this.onProcessingQueueError.bind(this));
+    this.imageProcessingQueue = queue(this.importImageFromPath, 1);
+    this.imageProcessingQueue.drain(this.onImportQueueEmptied.bind(this));
+    this.imageProcessingQueue.error(this.onImportQueueError.bind(this));
   }
 
   /**
@@ -42,7 +36,7 @@ export default class ImageWatcher {
    * @param path - the path newly added to the watch image
    * folders
    */
-  public async tryProcessImage(path: string) {
+  public async addPathToQueue(path: string) {
     if (!isImportableImage(path)) {
       logger.log(`[imageWatcher]: Ignoring file ${path}`);
       return;
@@ -68,7 +62,7 @@ export default class ImageWatcher {
    * @param path - the path to process
    * @param callback - callback to execute once the path is processed
    */
-  private async processImagePath(imagePath: string, callback: () => void) {
+  private async importImageFromPath(imagePath: string, callback: () => void) {
     try {
       await processImage(imagePath, this.config.READ_IMAGES_ON_IMPORT);
     } catch (error) {
@@ -80,15 +74,15 @@ export default class ImageWatcher {
     callback();
   }
 
-  private onProcessingQueueEmptied() {
+  private onImportQueueEmptied() {
     logger.log("[imageWatcher]: Processing queue empty");
 
-    if (this.onProcessingCompleted) {
-      this.onProcessingCompleted();
+    if (this.onQueueEmptiedCb) {
+      this.onQueueEmptiedCb();
     }
   }
 
-  private onProcessingQueueError(error: Error, task: string) {
+  private onImportQueueError(error: Error, task: string) {
     logger.error("[imageWatcher]: path processing encountered an error");
     logger.error(error);
   }

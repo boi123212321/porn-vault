@@ -1,28 +1,27 @@
 import queue, { AsyncQueue } from "async/queue";
-import { basename, extname } from "path";
 
 import { getConfig, IConfig } from "../../config";
 import * as logger from "../../logger";
 import Scene from "../../types/scene";
-import { fileIsExcluded } from "../../types/utility";
+import { isImportableVideo } from "./utility";
 
-export default class VideoWatcher {
+export default class VideoQueue {
   private config: IConfig;
   private videoProcessingQueue: AsyncQueue<string>;
 
-  private onProcessingCompleted: () => void;
+  private onQueueEmptiedCb?: () => void;
 
   /**
-   * @param onProcessingCompleted - called once the video processing is complete
+   * @param onQueueEmptiedCb - called once the video processing is complete
    */
-  constructor(onProcessingCompleted: () => void) {
+  constructor(onQueueEmptiedCb?: () => void) {
     this.config = getConfig();
 
-    this.onProcessingCompleted = onProcessingCompleted;
+    this.onQueueEmptiedCb = onQueueEmptiedCb;
 
-    this.videoProcessingQueue = queue(this.processVideoPath, 1);
-    this.videoProcessingQueue.drain(this.onProcessingQueueEmptied.bind(this));
-    this.videoProcessingQueue.error(this.onProcessingQueueError.bind(this));
+    this.videoProcessingQueue = queue(this.importVideoFromPath, 1);
+    this.videoProcessingQueue.drain(this.onImportQueueEmptied.bind(this));
+    this.videoProcessingQueue.error(this.onImportQueueError.bind(this));
   }
 
   /**
@@ -32,12 +31,8 @@ export default class VideoWatcher {
    * @param path - the path newly added to the watch video
    * folders
    */
-  public async tryProcessVideo(path: string) {
-    if (
-      ![".mp4", ".webm"].includes(extname(path)) ||
-      basename(path).startsWith(".") ||
-      fileIsExcluded(this.config.EXCLUDE_FILES, path)
-    ) {
+  public async addPathToQueue(path: string) {
+    if (!isImportableVideo(path)) {
       logger.log(`[videoWatcher]: Ignoring file ${path}`);
       return;
     }
@@ -62,7 +57,7 @@ export default class VideoWatcher {
    * @param path - the path to process
    * @param callback - callback to execute once the path is processed
    */
-  private async processVideoPath(path: string, callback: () => void) {
+  private async importVideoFromPath(path: string, callback: () => void) {
     try {
       await Scene.onImport(path);
     } catch (error) {
@@ -74,12 +69,15 @@ export default class VideoWatcher {
     callback();
   }
 
-  private onProcessingQueueEmptied() {
+  private onImportQueueEmptied() {
     logger.log("[videoWatcher]: Processing queue empty");
-    this.onProcessingCompleted();
+
+    if (this.onQueueEmptiedCb) {
+      this.onQueueEmptiedCb();
+    }
   }
 
-  private onProcessingQueueError(error: Error, task: string) {
+  private onImportQueueError(error: Error, task: string) {
     logger.error("[videoWatcher]: path processing encountered an error");
     logger.error(error);
   }

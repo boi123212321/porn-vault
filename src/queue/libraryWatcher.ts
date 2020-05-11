@@ -3,6 +3,32 @@ import * as logger from "../logger";
 import ImageWatcher from "./image/imageWatcher";
 import VideoWatcher from "./video/videoWatcher";
 import Watcher from "./watcher";
+import {
+  SUPPORTED_VIDEO_EXTENSIONS,
+  SUPPORTED_IMAGE_EXTENSIONS,
+} from "./constants";
+
+/**
+ * Generates an array of glob paths to watch for the library
+ *
+ * @param videoPaths - paths to watch for videos
+ * @param imagePaths - paths to watch for images
+ */
+const createWatchPaths = (videoPaths, imagePaths) => {
+  const videoGlobs = videoPaths.flatMap((path) => {
+    return SUPPORTED_VIDEO_EXTENSIONS.map(
+      (extension) => `${path}/**/*${extension}`
+    );
+  });
+
+  const imageGlobs = imagePaths.flatMap((path) => {
+    return SUPPORTED_IMAGE_EXTENSIONS.map(
+      (extension) => `${path}/**/*${extension}`
+    );
+  });
+
+  return [...videoGlobs, ...imageGlobs];
+};
 
 export default class LibraryWatcher {
   private config: IConfig;
@@ -29,9 +55,10 @@ export default class LibraryWatcher {
 
     this.imageWatcher = new ImageWatcher();
 
-    const watchPaths = [
-      ...new Set([...this.config.VIDEO_PATHS, ...this.config.IMAGE_PATHS]),
-    ];
+    const watchPaths = createWatchPaths(
+      this.config.VIDEO_PATHS,
+      this.config.IMAGE_PATHS
+    );
 
     this.watcher = new Watcher(
       watchPaths,

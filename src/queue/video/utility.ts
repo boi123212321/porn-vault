@@ -1,13 +1,14 @@
 import { basename, extname } from "path";
 
-import { fileIsExcluded } from "../../types/utility";
 import { getConfig } from "../../config";
+import { fileIsExcluded } from "../../types/utility";
+import { SUPPORTED_VIDEO_EXTENSIONS } from "../constants";
 
 export function isImportableVideo(path) {
   const config = getConfig();
 
   return (
-    [".mp4", ".webm"].includes(extname(path)) &&
+    SUPPORTED_VIDEO_EXTENSIONS.includes(extname(path)) &&
     !basename(path).startsWith(".") &&
     !fileIsExcluded(config.EXCLUDE_FILES, path)
   );

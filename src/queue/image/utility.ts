@@ -8,12 +8,13 @@ import * as logger from "../../logger";
 import { indexImages } from "../../search/image";
 import Image from "../../types/image";
 import { fileIsExcluded } from "../../types/utility";
+import { SUPPORTED_IMAGE_EXTENSIONS } from "../constants";
 
 export function isImportableImage(path) {
   const config = getConfig();
 
   return (
-    [".jpg", ".jpeg", ".png", ".gif"].includes(extname(path)) &&
+    SUPPORTED_IMAGE_EXTENSIONS.includes(extname(path)) &&
     !basename(path).startsWith(".") &&
     !fileIsExcluded(config.EXCLUDE_FILES, path)
   );

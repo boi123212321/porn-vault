@@ -160,6 +160,7 @@ export async function scanFolders(isScheduledManualScan = false) {
     logger.message(
       "Received request to scan, but a scan is already in progress. Will skip this one"
     );
+    return;
   }
 
   if (isScheduledManualScan) {

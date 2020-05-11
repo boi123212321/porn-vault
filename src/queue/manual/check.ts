@@ -13,33 +13,53 @@ import {
 } from "../constants";
 import {
   getFoundImagesCount,
+  getOldFoundImagesCount,
+  getOldFoundVideosCount,
   importImagePaths,
   importVideoPaths,
   resetFoundImagesCount,
+  resetFoundVideosCount,
 } from "../importManager";
 
 export async function checkVideoFolders() {
   const config = getConfig();
 
+  resetFoundVideosCount();
+
   const unknownVideos = [] as string[];
 
-  if (config.EXCLUDE_FILES.length)
+  if (config.EXCLUDE_FILES.length) {
     logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
+  }
 
   for (const folder of config.VIDEO_PATHS) {
-    logger.message(`Scanning ${folder} for videos...`);
+    logger.message(`Scanning folder "${folder}": for videos...`);
     let numFolderFiles = 0;
-    const loader = ora(`Scanned ${numFolderFiles} videos`).start();
+    const loader = ora(
+      `Scanned ${numFolderFiles} videos in folder, total: ${
+        unknownVideos.length
+      }/${getOldFoundVideosCount()}`
+    ).start();
 
     await walk(folder, SUPPORTED_VIDEO_EXTENSIONS, async (path) => {
-      loader.text = `Scanned ${++numFolderFiles} videos`;
+      loader.text = `Scanned ${++numFolderFiles} videos, total: ${
+        unknownVideos.length
+      }/${getOldFoundVideosCount()}`;
       unknownVideos.push(path);
     });
 
-    loader.succeed(`${folder} done (${numFolderFiles} videos)`);
+    loader.succeed(
+      `folder "${folder}": done (${numFolderFiles} videos), total: ${
+        unknownVideos.length
+      }/${getOldFoundVideosCount()}`
+    );
   }
 
-  logger.log(`Found ${unknownVideos.length} new videos.`);
+  logger.log(
+    `Found ${unknownVideos.length} new videos, total: ${
+      unknownVideos.length
+    }/${getOldFoundVideosCount()}`
+  );
 
   logger.warn(
     `Queued ${unknownVideos.length} new videos for further processing.`
@@ -62,19 +82,25 @@ export async function checkImageFolders() {
     logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
 
   for (const folder of config.IMAGE_PATHS) {
-    logger.message(`Scanning ${folder} for images...`);
+    logger.message(`Scanning folder "${folder}": for images...`);
     let numFolderFiles = 0;
-    const loader = ora(`Scanned ${numFolderFiles} images`).start();
+    const loader = ora(
+      `Scanned ${numFolderFiles} images, total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`
+    ).start();
 
     await walk(folder, SUPPORTED_IMAGE_EXTENSIONS, async (path) => {
-      loader.text = `Scanned ${++numFolderFiles} images`;
+      loader.text = `Scanned ${++numFolderFiles} images, total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`;
       importImagePaths(path);
     });
 
-    loader.succeed(`${folder} done (${numFolderFiles} images)`);
+    loader.succeed(
+      `folder "${folder}": done (${numFolderFiles} images), total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`
+    );
   }
 
-  logger.warn(`Added ${getFoundImagesCount()} new images`);
+  logger.warn(
+    `Added ${getFoundImagesCount()} new images, total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`
+  );
 }
 export async function checkPreviews() {
   const config = getConfig();

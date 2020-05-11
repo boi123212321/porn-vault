@@ -65,8 +65,16 @@ async function tryStartProcessing() {
   }
 }
 
-async function scanFolders() {
-  logger.message("Scanning library folders...");
+/**
+ * @param forceManualScan - if should force a manual scan,
+ * even if we are in watch mode
+ */
+async function scanFolders(forceManualScan = false) {
+  if (forceManualScan) {
+    logger.message("Scheduled library scan starting...");
+  } else {
+    logger.message("Scanning library folders...");
+  }
 
   const config = getConfig();
 
@@ -84,7 +92,7 @@ async function scanFolders() {
     scheduleManualScan();
   };
 
-  if (config.WATCH_LIBRARY) {
+  if (!forceManualScan && config.WATCH_LIBRARY) {
     logger.message("Scanning library via file watching");
 
     if (libraryWatcher) {
@@ -158,7 +166,10 @@ function scheduleManualScan() {
 
   if (config.SCAN_INTERVAL > 0) {
     logger.message(`Setting up a manual scan in ${config.SCAN_INTERVAL}ms`);
-    scheduledScanTimeout = setTimeout(scanFolders, config.SCAN_INTERVAL);
+    scheduledScanTimeout = setTimeout(
+      () => scanFolders(true),
+      config.SCAN_INTERVAL
+    );
   }
 }
 

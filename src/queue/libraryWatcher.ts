@@ -1,3 +1,5 @@
+import { extname } from "path";
+
 import { getConfig, IConfig } from "../config";
 import * as logger from "../logger";
 import {
@@ -90,7 +92,12 @@ export default class LibraryWatcher {
     );
 
     // No need to await these
-    this.videoWatcher.addPathToQueue(addedPath);
-    this.imageWatcher.addPathToQueue(addedPath);
+    if (SUPPORTED_VIDEO_EXTENSIONS.includes(extname(addedPath))) {
+      this.videoWatcher.addPathToQueue(addedPath);
+    }
+
+    if (SUPPORTED_IMAGE_EXTENSIONS.includes(extname(addedPath))) {
+      this.imageWatcher.addPathToQueue(addedPath);
+    }
   }
 }

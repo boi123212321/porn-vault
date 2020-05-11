@@ -317,10 +317,11 @@ export default class Scene {
   }
 
   static async getMarkers(scene: Scene) {
-    const references = await MarkerReference.getByScene(scene._id);
+    return Marker.getByScene(scene._id);
+    /* const references = await MarkerReference.getByScene(scene._id);
     return (await mapAsync(references, (r) => Marker.getById(r.marker))).filter(
       Boolean
-    ) as Marker[];
+    ) as Marker[]; */
   }
 
   static async getMovies(scene: Scene) {

@@ -28,8 +28,11 @@ import {
   imageCollection,
   actorCollection,
   actorReferenceCollection,
-  insert,
-  markerReferenceCollection,
+  //markerReferenceCollection,
+  labelCollection,
+  customFieldCollection,
+  markerCollection,
+  studioCollection,
 } from "../database/index";
 import ActorReference from "../types/actor_reference";
 import { existsAsync } from "../fs/async";
@@ -106,7 +109,7 @@ export async function createFromFileData(opts: ICreateOptions) {
             logger.log(`Updated labels of ${scene._id}.`);
           }
         }
-        await database.insert(database.store.labels, label);
+        await labelCollection.upsert(label._id, label);
       }
       createdLabels[labelId] = label;
     }
@@ -125,7 +128,7 @@ export async function createFromFileData(opts: ICreateOptions) {
       field.values = [...new Set(fieldToCreate.values || [])];
 
       if (args["commit-import"])
-        await database.insert(database.store.customFields, field);
+        await customFieldCollection.upsert(field._id, field);
       createdFields[fieldId] = field;
     }
   }
@@ -157,8 +160,9 @@ export async function createFromFileData(opts: ICreateOptions) {
           await imageCollection.upsert(image._id, image);
       }
 
-      if (args["commit-import"])
-        await database.insert(database.store.studios, studio);
+      if (args["commit-import"]) {
+        await studioCollection.upsert(studio._id, studio);
+      }
       createdStudios[studioId] = studio;
     }
   }
@@ -380,14 +384,14 @@ export async function createFromFileData(opts: ICreateOptions) {
       if (args["commit-import"]) {
         await Marker.setLabels(marker, labels);
 
-        const reference = new MarkerReference(
+        /* const reference = new MarkerReference(
           markerToCreate.scene,
           marker._id,
           "marker"
         );
-        await markerReferenceCollection.upsert(reference._id, reference);
+        await markerReferenceCollection.upsert(reference._id, reference); */
 
-        await insert(database.store.markers, marker);
+        await markerCollection.upsert(marker._id, marker);
       }
       createdMarkers[markerId] = marker;
     }

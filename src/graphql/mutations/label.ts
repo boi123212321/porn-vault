@@ -3,11 +3,12 @@ import Label from "../../types/label";
 import Scene from "../../types/scene";
 import Image from "../../types/image";
 import { Dictionary } from "../../types/utility";
-import { stripStr, isMatchingItem } from "../../extractor";
+import { isMatchingItem } from "../../extractor";
 import * as logger from "../../logger";
 import { updateSceneDoc } from "../../search/scene";
 import { updateImageDoc, isBlacklisted } from "../../search/image";
 import LabelledItem from "../../types/labelled_item";
+import { labelCollection } from "../../database";
 
 type ILabelUpdateOpts = Partial<{
   name: string;
@@ -53,7 +54,7 @@ export default {
       }
     }
 
-    await database.insert(database.store.labels, label);
+    await labelCollection.upsert(label._id, label);
     return label;
   },
 
@@ -74,7 +75,7 @@ export default {
 
         if (typeof opts.thumbnail == "string") label.thumbnail = opts.thumbnail;
 
-        await database.update(database.store.labels, { _id: label._id }, label);
+        await labelCollection.upsert(label._id, label);
         updatedLabels.push(label);
       } else {
         throw new Error(`Label ${id} not found`);

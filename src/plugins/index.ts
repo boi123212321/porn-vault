@@ -47,6 +47,7 @@ export async function runPluginsSerial(
     logger.message(`Running plugin ${pluginName}:`);
     try {
       const pluginResult = await runPlugin(config, pluginName, {
+        data: JSON.parse(JSON.stringify(result)),
         event,
         ...inject,
         pluginArgs,

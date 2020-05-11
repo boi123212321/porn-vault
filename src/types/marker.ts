@@ -1,4 +1,3 @@
-import * as database from "../database";
 import { generateHash } from "../hash";
 import Scene from "./scene";
 import * as logger from "../logger";
@@ -7,7 +6,11 @@ import Label from "./label";
 import Image from "./image";
 import * as path from "path";
 import { singleScreenshot } from "../ffmpeg/screenshot";
-import { imageCollection, labelledItemCollection } from "../database";
+import {
+  imageCollection,
+  labelledItemCollection,
+  markerCollection,
+} from "../database";
 import LabelledItem from "./labelled_item";
 
 export default class Marker {
@@ -15,7 +18,7 @@ export default class Marker {
   name: string;
   addedOn = +new Date();
   favorite: boolean = false;
-  bookmark: number | null = null; // TODO: replace with timestamp
+  bookmark: number | null = null;
   rating: number = 0;
   customFields: any = {};
   scene: string;
@@ -23,7 +26,7 @@ export default class Marker {
   thumbnail?: string | null = null;
 
   static async getAll() {
-    return (await database.find(database.store.markers, {})) as Marker[];
+    return markerCollection.getAll();
   }
 
   static async checkIntegrity() {
@@ -49,6 +52,7 @@ export default class Marker {
     const imagePath = path.join(libraryPath("thumbnails/"), image._id) + ".jpg";
     image.path = imagePath;
     image.scene = marker.scene;
+    marker.thumbnail = image._id;
 
     const actors = (await Scene.getActors(scene)).map((l) => l._id);
     await Image.setActors(image, actors);
@@ -57,17 +61,8 @@ export default class Marker {
     await Image.setLabels(image, labels);
 
     await singleScreenshot(scene.path, imagePath, marker.time + 15);
-    // await database.insert(database.store.images, image);
     await imageCollection.upsert(image._id, image);
-    await database.update(
-      database.store.markers,
-      { _id: marker._id },
-      {
-        $set: {
-          thumbnail: image._id,
-        },
-      }
-    );
+    await markerCollection.upsert(marker._id, marker);
   }
 
   static async setLabels(marker: Marker, labelIds: string[]) {
@@ -100,17 +95,21 @@ export default class Marker {
     this.time = Math.round(time);
   }
 
+  static async getByScene(sceneId: string) {
+    return markerCollection.query("scene-index", sceneId);
+  }
+
   static async getById(_id: string) {
-    return (await database.findOne(database.store.markers, {
-      _id,
-    })) as Marker | null;
+    return markerCollection.get(_id);
   }
 
   static async remove(_id: string) {
-    await database.remove(database.store.markers, { _id });
+    await markerCollection.remove(_id);
   }
 
-  static async removeByScene(scene: Scene) {
-    await database.remove(database.store.markers, { scene: scene._id });
+  static async removeByScene(sceneId: string) {
+    for (const marker of await Marker.getByScene(sceneId)) {
+      await Marker.remove(marker._id);
+    }
   }
 }

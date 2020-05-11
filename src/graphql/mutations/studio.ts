@@ -9,6 +9,7 @@ import { indices } from "../../search/index";
 import { createStudioSearchDoc } from "../../search/studio";
 import { updateSceneDoc } from "../../search/scene";
 import LabelledItem from "../../types/labelled_item";
+import { studioCollection } from "../../database";
 
 type IStudioUpdateOpts = Partial<{
   name: string;
@@ -36,7 +37,7 @@ export default {
       }
     }
 
-    await database.insert(database.store.studios, studio);
+    await studioCollection.upsert(studio._id, studio);
     indices.studios.add(await createStudioSearchDoc(studio));
     return studio;
   },
@@ -72,11 +73,7 @@ export default {
         if (Array.isArray(opts.labels))
           await Studio.setLabels(studio, opts.labels);
 
-        await database.update(
-          database.store.studios,
-          { _id: studio._id },
-          studio
-        );
+        await studioCollection.upsert(studio._id, studio);
         updatedStudios.push(studio);
         indices.studios.update(studio._id, await createStudioSearchDoc(studio));
       }
@@ -90,7 +87,7 @@ export default {
       const studio = await Studio.getById(id);
 
       if (studio) {
-        await Studio.remove(studio);
+        await studioCollection.remove(studio._id);
         indices.studios.remove(studio._id);
         await Studio.filterStudio(studio._id);
         await Scene.filterStudio(studio._id);

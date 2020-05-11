@@ -1,8 +1,8 @@
-import { markerReferenceCollection } from "../database/index";
+// import { markerReferenceCollection } from "../database/index";
 import { generateHash } from "../hash";
 
 export default class MarkerReference {
-  _id: string;
+  /* _id: string;
   scene: string;
   marker: string;
 
@@ -46,5 +46,5 @@ export default class MarkerReference {
 
   static async removeById(_id: string) {
     await markerReferenceCollection.remove(_id);
-  }
+  } */
 }

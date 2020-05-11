@@ -2,7 +2,7 @@ import CustomField, {
   CustomFieldType,
   CustomFieldTarget,
 } from "../../types/custom_field";
-import * as database from "../../database";
+import { customFieldCollection } from "../../database";
 
 export default {
   async updateCustomField(
@@ -30,11 +30,7 @@ export default {
 
       if (field.unit !== undefined) field.unit = unit || null;
 
-      await database.update(
-        database.store.customFields,
-        { _id: field._id },
-        field
-      );
+      await customFieldCollection.upsert(field._id, field);
 
       return field;
     } else throw new Error("Custom field not found");
@@ -74,7 +70,7 @@ export default {
       }
     }
 
-    await database.insert(database.store.customFields, field);
+    await customFieldCollection.upsert(field._id, field);
     return field;
   },
 };

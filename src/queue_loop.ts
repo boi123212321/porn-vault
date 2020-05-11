@@ -40,6 +40,8 @@ export async function queueLoop(config: IConfig) {
         } else {
           logger.error(`Error generating preview.`);
         }
+      } else {
+        logger.message("Skipping preview generation");
       }
 
       if (config.GENERATE_SCREENSHOTS) {
@@ -58,7 +60,10 @@ export async function queueLoop(config: IConfig) {
           image.meta.size = file.size;
           images.push(image);
         }
+      } else {
+        logger.message("Skipping screenshot generation");
       }
+
       await Axios.post(
         `http://localhost:${config.PORT}/queue/${queueHead._id}?password=${config.PASSWORD}`,
         { scene: data, thumbs, images }

@@ -18,7 +18,7 @@ const files = [
   ["labelled_items.db", "li_"],
 ];
 
-function transferMarkerReferences(obj) {
+/* function transferMarkerReferences(obj) {
   fs.appendFileSync(
     libraryPath("marker_references.db"),
     JSON.stringify({
@@ -27,7 +27,7 @@ function transferMarkerReferences(obj) {
       marker: obj.to,
     }) + "\n"
   );
-}
+} */
 
 function transferActorReferences(obj) {
   fs.appendFileSync(
@@ -96,7 +96,7 @@ export function convertCrossReferences() {
           if (obj.to.startsWith("la_")) return transferLabel(obj);
           if (obj.from.startsWith("mo_")) return transferMovieScene(obj);
           if (obj.to.startsWith("ac_")) return transferActorReferences(obj);
-          if (obj.to.startsWith("mk_")) return transferMarkerReferences(obj);
+          // if (obj.to.startsWith("mk_")) return transferMarkerReferences(obj);
         } catch (error) {
           console.error(error.message, line);
           process.exit(1);

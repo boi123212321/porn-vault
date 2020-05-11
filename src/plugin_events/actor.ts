@@ -10,7 +10,7 @@ import * as database from "../database/index";
 import * as logger from "../logger";
 import { indexImages } from "../search/image";
 import Label from "../types/label";
-import { imageCollection } from "../database/index";
+import { imageCollection, labelCollection } from "../database/index";
 
 // This function has side effects
 export async function onActorCreate(
@@ -129,7 +129,7 @@ export async function onActorCreate(
       } else if (config.CREATE_MISSING_LABELS) {
         const label = new Label(labelName);
         labelIds.push(label._id);
-        await database.insert(database.store.labels, label);
+        await labelCollection.upsert(label._id, label);
         logger.log("Created label " + label.name);
       }
     }

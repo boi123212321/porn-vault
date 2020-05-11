@@ -1,4 +1,3 @@
-import * as database from "../database";
 import { generateHash } from "../hash";
 import Label from "./label";
 import Actor from "./actor";
@@ -6,7 +5,7 @@ import Scene from "./scene";
 import Movie from "./movie";
 import { mapAsync } from "./utility";
 import * as logger from "../logger";
-import { labelledItemCollection } from "../database";
+import { labelledItemCollection, studioCollection } from "../database";
 import LabelledItem from "./labelled_item";
 
 export default class Studio {
@@ -28,26 +27,25 @@ export default class Studio {
     this.name = name;
   }
 
-  static async remove(studio: Studio) {
-    await database.remove(database.store.studios, { _id: studio._id });
+  static async remove(studioId: string) {
+    await studioCollection.remove(studioId);
   }
 
   static async filterStudio(studioId: string) {
-    await database.update(
-      database.store.studios,
-      { parent: studioId },
-      { $set: { parent: null } }
-    );
+    for (const studio of await Studio.getAll()) {
+      if (studio.parent == studioId) {
+        studio.parent = null;
+        await studioCollection.upsert(studio._id, studio);
+      }
+    }
   }
 
   static async getById(_id: string) {
-    return (await database.findOne(database.store.studios, {
-      _id,
-    })) as Studio | null;
+    return studioCollection.get(_id);
   }
 
   static async getAll() {
-    return (await database.find(database.store.studios, {})) as Studio[];
+    return studioCollection.getAll();
   }
 
   static async getScenes(studio: Studio): Promise<Scene[]> {
@@ -76,9 +74,7 @@ export default class Studio {
   }
 
   static async getSubStudios(studioId: string) {
-    return (await database.find(database.store.studios, {
-      parent: studioId,
-    })) as Studio[];
+    return studioCollection.query("parent-index", studioId);
   }
 
   static async getActors(studio: Studio) {

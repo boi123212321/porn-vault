@@ -1,6 +1,7 @@
 import * as database from "../database";
 import { generateHash } from "../hash";
 import * as logger from "../logger";
+import { labelCollection } from "../database";
 
 export default class Label {
   _id: string;
@@ -12,17 +13,15 @@ export default class Label {
   static async checkIntegrity() {}
 
   static async remove(_id: string) {
-    await database.remove(database.store.labels, { _id });
+    await labelCollection.remove(_id);
   }
 
   static async getById(_id: string) {
-    return (await database.findOne(database.store.labels, {
-      _id,
-    })) as Label | null;
+    return await labelCollection.get(_id);
   }
 
   static async getAll() {
-    return (await database.find(database.store.labels, {})) as Label[];
+    return await labelCollection.getAll();
   }
 
   static async find(name: string) {

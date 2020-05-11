@@ -1,11 +1,6 @@
-import { existsAsync } from "./fs/async";
-import Scene from "./types/scene";
-import Image from "./types/image";
 import * as logger from "./logger";
-import { getConfig } from "./config/index";
 import fs from "fs";
 import readline from "readline";
-import { imageCollection, sceneCollection } from "./database/index";
 
 export function bookmarksToTimestamp(file: string) {
   if (!fs.existsSync(file)) return;

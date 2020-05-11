@@ -8,9 +8,8 @@ import Image from "../types/image";
 import * as logger from "../logger";
 import { indexImages } from "../search/image";
 import Movie from "../types/movie";
-import { imageCollection } from "../database/index";
+import { imageCollection, studioCollection } from "../database/index";
 import Studio from "../types/studio";
-import * as database from "../database/index";
 import { createStudioSearchDoc } from "../search/studio";
 import { indices } from "../search";
 
@@ -115,7 +114,7 @@ export async function onMovieCreate(movie: Movie, event = "movieCreated") {
     else if (config.CREATE_MISSING_STUDIOS) {
       const studio = new Studio(pluginResult.studio);
       movie.studio = studio._id;
-      await database.insert(database.store.studios, studio);
+      await studioCollection.upsert(studio._id, studio);
       indices.studios.add(await createStudioSearchDoc(studio));
       logger.log("Created studio " + studio.name);
     }

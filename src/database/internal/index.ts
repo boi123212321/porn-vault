@@ -19,7 +19,7 @@ export namespace Izzy {
       const res = await Axios.get(
         `http://localhost:7999/collection/${this.name}/count`
       );
-      return res.data.count;
+      return res.data.count as number;
     }
 
     async compact() {

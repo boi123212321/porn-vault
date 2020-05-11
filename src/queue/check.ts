@@ -59,14 +59,15 @@ export async function checkVideoFolders() {
   );
 }
 
-export async function checkImageFolders(readImages) {
+export async function checkImageFolders() {
   const config = getConfig();
 
   logger.log("Checking image folders...");
 
   let numAddedImages = 0;
 
-  if (!readImages) logger.warn("Reading images on import is disabled.");
+  if (!config.READ_IMAGES_ON_IMPORT)
+    logger.warn("Reading images on import is disabled.");
 
   if (config.EXCLUDE_FILES.length)
     logger.log(`Will ignore files: ${config.EXCLUDE_FILES}.`);
@@ -81,7 +82,7 @@ export async function checkImageFolders(readImages) {
       if (!isImportableImage(path)) return;
 
       if (!(await imageWithPathExists(path))) {
-        await processImage(path, readImages);
+        await processImage(path, config.READ_IMAGES_ON_IMPORT);
         numAddedImages++;
         logger.log(`Added image '${path}'.`);
       } else {

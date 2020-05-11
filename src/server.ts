@@ -168,7 +168,7 @@ async function scanFolders(forceManualScan = false) {
   // Launch image import AFTER the video succeeds/fails
   try {
     logger.message("Launching manual image library scan");
-    await checkImageFolders(config.READ_IMAGES_ON_IMPORT);
+    await checkImageFolders();
     logger.success("Manual image library scan done.");
   } catch (err) {
     logger.error("Manual image library scan failed");

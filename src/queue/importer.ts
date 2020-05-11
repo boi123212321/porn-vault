@@ -4,7 +4,20 @@ import { getConfig } from "../config";
 import * as logger from "../logger";
 import { checkImageFolders, checkVideoFolders } from "./check";
 import LibraryWatcher from "./libraryWatcher";
-import { getLength, isProcessing, setProcessingStatus } from "./processing";
+import {
+  getLength,
+  isProcessing,
+  setProcessingStatus,
+  getHead,
+} from "./processing";
+
+/**
+ * How many times to attempt to start the processing
+ * worker before abandoning
+ */
+const MAX_START_PROCESSING_WORKER_TRIES = 3;
+
+let oldProcessingHead: { _id: string } | null = null;
 
 let libraryWatcher: LibraryWatcher | null;
 let scheduledScanTimeout: NodeJS.Timeout | null;
@@ -18,11 +31,21 @@ export function getIsManualScanningLibrary() {
 /**
  * Starts the processing worker only if it is ***not already***
  * started
+ *
+ * @param currentAttemptCount - the number of this attempt to start
+ * the processing worker
  * @returns resolves only if
- * - the worker is started and then: 1. finishes the queue OR 2. exits for some reason
+ * - the worker is started and then: 1. finishes the queue OR 2. fails to start/exits for some reason
  * - the queue is empty
  */
-async function tryStartProcessing() {
+async function tryStartProcessing(currentAttemptCount = 1) {
+  if (currentAttemptCount > MAX_START_PROCESSING_WORKER_TRIES) {
+    logger.warn(
+      `Failed to start the processing worker after ${currentAttemptCount} tries, will stop`
+    );
+    return Promise.resolve();
+  }
+
   return new Promise(async (resolve, reject) => {
     const queueLen = await getLength();
 
@@ -35,6 +58,8 @@ async function tryStartProcessing() {
     } else if (queueLen > 0) {
       logger.message("Starting processing worker...");
       setProcessingStatus(true);
+
+      oldProcessingHead = await getHead();
 
       const processingWorker = spawn(
         process.argv[0],
@@ -56,13 +81,46 @@ async function tryStartProcessing() {
         resolve();
       });
 
-      processingWorker.on("error", (err) => {
+      processingWorker.on("error", async (err) => {
         // The 'error' event is emitted whenever:
         // The process could not be spawned, or
         // The process could not be killed, or
         // Sending a message to the child process failed.
-        logger.error("Processing process exited errored out");
+        logger.error("Processing process encountered an error, may exit");
         logger.error(err);
+
+        if (!isProcessing()) {
+          logger.message(
+            "The processing was already finished, assuming that the error is non fatal"
+          );
+          resolve();
+          return; // Ensure execution of this handler is stopped
+        }
+
+        logger.message(
+          "The processing was ongoing. Will attempt to check if the worker failed to spawn"
+        );
+
+        try {
+          const currentProcessingHead = await getHead();
+          const isOnSameScene =
+            oldProcessingHead &&
+            currentProcessingHead &&
+            oldProcessingHead._id === currentProcessingHead._id;
+
+          // If on error, we are still processing and the queue is on
+          // the same scene as when we started, assume the worker
+          // failed to start
+          if (isOnSameScene) {
+            resolve(tryStartProcessing(currentAttemptCount + 1));
+          }
+        } catch (err) {
+          logger.warn(
+            "Could not detect if the worker exited because of a failure to start, or for some other reason"
+          );
+        }
+
+        setProcessingStatus(false);
 
         resolve();
       });
@@ -94,17 +152,17 @@ export async function processLibrary() {
  * config to either do a manual scan or watch the library files.
  * If there is an ongoing ***manual*** scan, will do nothing
  *
- * @param forceManualScan - if should do a manual scan,
+ * @param isScheduledManualScan - if should do a manual scan,
  * even if we are in watch mode. Will not execute if one is already ongoing
  */
-export async function scanFolders(forceManualScan = false) {
+export async function scanFolders(isScheduledManualScan = false) {
   if (isManualScanningLibrary) {
     logger.message(
       "Received request to scan, but a scan is already in progress. Will skip this one"
     );
   }
 
-  if (forceManualScan) {
+  if (isScheduledManualScan) {
     logger.message("Scheduled manual library scan starting...");
   } else {
     logger.message("Scanning library folders...");
@@ -112,7 +170,7 @@ export async function scanFolders(forceManualScan = false) {
 
   const config = getConfig();
 
-  if (!forceManualScan && config.WATCH_LIBRARY) {
+  if (!isScheduledManualScan && config.WATCH_LIBRARY) {
     logger.message("Scanning library via file watching");
 
     if (libraryWatcher) {

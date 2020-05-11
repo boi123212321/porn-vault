@@ -85,24 +85,39 @@ async function scanFolders() {
   };
 
   if (config.WATCH_LIBRARY) {
-    if (libraryWatcher) {
-      await libraryWatcher.stopWatching();
-      libraryWatcher = null;
-    } else {
-      const libraryWatcher = new LibraryWatcher(
-        processLibrary // TODO: debounce?
-      );
-    }
-  } else {
-    await checkVideoFolders();
-    logger.success("Scan done.");
-
-    // Do not await
-    checkImageFolders(config.READ_IMAGES_ON_IMPORT);
-
-    // Do not await
-    processLibrary();
+    logger.message("Scanning via file watching");
+    const libraryWatcher = new LibraryWatcher(
+      processLibrary // TODO: debounce?
+    );
+    return;
   }
+
+  logger.message("Scanning via manual scan");
+
+  // If we switched to manual scans; destroy the watcher
+  if (libraryWatcher) {
+    // Do not await
+    libraryWatcher
+      .stopWatching()
+      .then(() => {
+        libraryWatcher = null;
+      })
+      .catch((err) => {
+        logger.error(
+          "Error stopping file watch while switching to manual scan"
+        );
+        logger.error(err);
+      });
+  }
+
+  await checkVideoFolders();
+  logger.success("Scan done.");
+
+  // Do not await
+  checkImageFolders(config.READ_IMAGES_ON_IMPORT);
+
+  // Do not await
+  processLibrary();
 }
 
 function scheduleManualScan() {

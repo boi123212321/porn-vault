@@ -12,6 +12,13 @@ export default class LibraryWatcher {
 
   private watcher: Watcher;
 
+  /**
+   *
+   * @param onVideoProcesingQueueEmpty - Called every time the video import
+   * queue is emptied
+   * @param onInitialScanCompleted - Called when the initial scan of the library
+   * is complete
+   */
   constructor(
     onVideoProcesingQueueEmpty: () => void,
     onInitialScanCompleted?: () => void

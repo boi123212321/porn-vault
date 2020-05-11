@@ -94,7 +94,7 @@ export const defaultConfig: IConfig = {
   DO_PROCESSING: true,
   SCAN_INTERVAL: 10800000,
   WATCH_LIBRARY: false,
-  WATCH_POLLING_INTERVAL: 1 * 1000,
+  WATCH_POLLING_INTERVAL: 0,
   LIBRARY_PATH: process.cwd(),
   FFMPEG_PATH: "",
   FFPROBE_PATH: "",

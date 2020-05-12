@@ -56,7 +56,9 @@
               <v-icon>mdi-calendar</v-icon>
               <v-subheader>Release Date</v-subheader>
             </div>
-            <div class="med--text pa-2">{{ new Date(currentMovie.releaseDate).toDateString() }}</div>
+            <div
+              class="med--text pa-2"
+            >{{ new Date(currentMovie.releaseDate).toDateString(undefined, { timeZone: "UTC" }) }}</div>
           </div>
 
           <div v-if="currentMovie.description">

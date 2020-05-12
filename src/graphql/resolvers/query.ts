@@ -7,20 +7,12 @@ import {
   studioCollection,
 } from "../../database";
 import {
-  getImageImportQueueLength,
-  isImageImportQueueRunning,
-} from "../../queue/image/imageQueue";
-import {
-  getFoundImagesCount,
-  getFoundVideosCount,
-  getOldFoundImagesCount,
-  getOldFoundVideosCount,
+  getFoundCountForLibraryType,
+  getOldFoundCountForLibraryType,
+  getQueueLengthForLibraryType,
+  isQueueRunningForLibraryType,
 } from "../../queue/importManager";
 import { getLength, isProcessing } from "../../queue/processing";
-import {
-  getVideoImportQueueLength,
-  isVideoImportQueueRunning,
-} from "../../queue/video/videoQueue";
 import { twigsVersion } from "../../search";
 import Actor from "../../types/actor";
 import CustomField from "../../types/custom_field";
@@ -117,19 +109,19 @@ export default {
 
   getVideoImportInfo() {
     return {
-      currentFoundCount: getFoundVideosCount(),
-      oldFoundCount: getOldFoundVideosCount(),
-      importQueueLength: getVideoImportQueueLength(),
-      running: isVideoImportQueueRunning(),
+      currentFoundCount: getFoundCountForLibraryType("VIDEOS"),
+      oldFoundCount: getOldFoundCountForLibraryType("VIDEOS"),
+      importQueueLength: getQueueLengthForLibraryType("VIDEOS"),
+      running: isQueueRunningForLibraryType("VIDEOS"),
     };
   },
 
   getImageImportInfo() {
     return {
-      currentFoundCount: getFoundImagesCount(),
-      oldFoundCount: getOldFoundImagesCount(),
-      importQueueLength: getImageImportQueueLength(),
-      running: isImageImportQueueRunning(),
+      currentFoundCount: getFoundCountForLibraryType("IMAGES"),
+      oldFoundCount: getOldFoundCountForLibraryType("IMAGES"),
+      importQueueLength: getQueueLengthForLibraryType("IMAGES"),
+      running: isQueueRunningForLibraryType("IMAGES"),
     };
   },
 

@@ -2,43 +2,20 @@ import { queue } from "async";
 
 import * as logger from "../../logger";
 import Scene from "../../types/scene";
+import { LibraryTypeQueueManager } from "../constants";
 import { isImportableVideo } from "./utility";
 
 const onVideoQueueEmptiedListeners: (() => void)[] = [];
 
-export function onVideoQueueEmptied(fn: () => void) {
+export function attachOnVideoQueueEmptiedListener(fn: () => void) {
   onVideoQueueEmptiedListeners.push(fn);
 }
+
+// QUEUE EXECUTION
 
 const videoProcessingQueue = queue(importVideoFromPath, 1);
 videoProcessingQueue.drain(onImportQueueEmptied);
 videoProcessingQueue.error(onImportQueueError);
-
-/**
- * Handles a new path in the video folders.
- * If it is a supported video, adds it to the processing queue
- *
- * @param path - the path newly added to the watch video
- * folders
- */
-export async function addVideoPathToQueue(path: string) {
-  if (!isImportableVideo(path)) {
-    logger.log(`[videoQueue]: Ignoring file ${path}`);
-    return;
-  }
-
-  logger.log(`[videoQueue]: Found matching file ${path}`);
-
-  const existingScene = await Scene.getSceneByPath(path);
-  logger.log(
-    "[videoQueue]: Scene with that path exists already ?: " + !!existingScene
-  );
-
-  if (!existingScene) {
-    videoProcessingQueue.push(path);
-    logger.log(`[videoQueue]: Added video to processing queue '${path}'.`);
-  }
-}
 
 /**
  * Processes a path in the queue by importing the scene
@@ -71,10 +48,42 @@ function onImportQueueError(error: Error, task: string) {
   logger.error(error);
 }
 
-export function getVideoImportQueueLength() {
-  return videoProcessingQueue.length();
+// QUEUE MANAGEMENT
+
+/**
+ * Handles a new path in the video folders.
+ * If it is a supported video, adds it to the processing queue
+ *
+ * @param path - the path newly added to the watch video
+ * folders
+ */
+export async function addVideoPathToQueue(...paths: string[]) {
+  for (const path of paths) {
+    if (!isImportableVideo(path)) {
+      logger.log(`[videoQueue]: Ignoring file ${path}`);
+      return;
+    }
+
+    logger.log(`[videoQueue]: Found matching file ${path}`);
+
+    const existingScene = await Scene.getSceneByPath(path);
+    logger.log(
+      "[videoQueue]: Scene with that path exists already ?: " + !!existingScene
+    );
+
+    if (!existingScene) {
+      videoProcessingQueue.push(path);
+      logger.log(`[videoQueue]: Added video to processing queue '${path}'.`);
+    }
+  }
 }
 
-export function isVideoImportQueueRunning() {
-  return videoProcessingQueue.running();
-}
+export const VideoImportQueueManager: LibraryTypeQueueManager = {
+  attachOnQueueEmptiedListener: attachOnVideoQueueEmptiedListener,
+  addPathsToQueue: addVideoPathToQueue,
+  getQueueLength: () => videoProcessingQueue.length(),
+  resumeQueue: () => videoProcessingQueue.resume(),
+  pauseQueue: () => videoProcessingQueue.pause(),
+  getRunningCount: () => videoProcessingQueue.running(),
+  isQueueRunning: () => videoProcessingQueue.running() > 0,
+};

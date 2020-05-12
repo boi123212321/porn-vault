@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 
 import { getConfig } from "../config";
 import * as logger from "../logger";
+import { attachOnQueueEmptiedListenerForLibraryType } from "./importManager";
 import { checkImageFolders, checkVideoFolders } from "./manual/check";
 import {
   getHead,
@@ -9,7 +10,6 @@ import {
   isProcessing,
   setProcessingStatus,
 } from "./processing";
-import { onVideoQueueEmptied } from "./video/videoQueue";
 import {
   initLibraryWatcher,
   isWatchingLibrary,
@@ -28,7 +28,12 @@ let scheduledScanTimeout: NodeJS.Timeout | null;
 
 let isManualScanningLibrary = false;
 
-onVideoQueueEmptied(processLibrary);
+attachOnQueueEmptiedListenerForLibraryType("VIDEOS", () => {
+  logger.message(
+    "[importer]: notified that video import queue is empty, will start processing"
+  );
+  processLibrary();
+});
 
 export function getIsManualScanningLibrary() {
   return isManualScanningLibrary;
@@ -190,8 +195,12 @@ export async function scanFolders(isScheduledManualScan = false) {
     if (isWatchingLibrary()) {
       logger.message("Already watching library, will not recreate watcher");
     } else {
-      initLibraryWatcher(() => {
-        logger.message("Finished library watch initialization");
+      initLibraryWatcher({
+        videos: () => {
+          logger.message("Videos library watching has been initialized");
+          // We do not need to call 'processLibrary' here, since it will be done
+          // when the import queue is emptied
+        },
       });
     }
 
@@ -222,12 +231,8 @@ export async function scanFolders(isScheduledManualScan = false) {
     logger.error(err);
   }
 
-  // If the video import failed halfway through, we still want to
-  // process the videos that did import
-  logger.message(
-    "Will now start processing the imported videos (if not already ongoing)"
-  );
-  processLibrary(); // Do not await
+  // Video processing will start automatically once the import
+  // queue is emptied
 
   // Launch image import AFTER the video succeeds/fails
   try {

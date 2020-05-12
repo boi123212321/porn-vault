@@ -1,69 +1,139 @@
-import * as logger from "../logger";
-import { addImagePathToQueue } from "./image/imageQueue";
-import { addVideoPathToQueue } from "./video/videoQueue";
+import { LibraryTypeQueueManager, LibraryTypes } from "./constants";
+import { ImageImportQueueManager } from "./image/imageQueue";
+import { VideoImportQueueManager } from "./video/videoQueue";
 
-export type onQueueEmptied = () => void;
+const LibraryQueueManagerMapping: {
+  [key in LibraryTypes]: LibraryTypeQueueManager;
+} = {
+  [LibraryTypes.VIDEOS]: VideoImportQueueManager,
+  [LibraryTypes.IMAGES]: ImageImportQueueManager,
+};
 
-let oldNumFoundVideoPaths = 0;
-let numFoundVideoPaths = 0;
+export function attachOnQueueEmptiedListenerForLibraryType(
+  libraryType: keyof typeof LibraryTypes,
+  callback: () => void
+) {
+  LibraryQueueManagerMapping[
+    LibraryTypes[libraryType]
+  ].attachOnQueueEmptiedListener(callback);
+}
 
-let oldNumFoundImagePaths = 0;
-let numFoundImagePaths = 0;
+const LibraryTypeImporterMapping: {
+  [key in LibraryTypes]: (...paths: string[]) => void;
+} = {
+  [LibraryTypes.VIDEOS]: importVideoPaths,
+  [LibraryTypes.IMAGES]: importImagePaths,
+};
+
+export function importPathsForLibraryType(
+  libraryType: keyof typeof LibraryTypes,
+  ...paths: string[]
+) {
+  // Use our custom importers
+  const importer = LibraryTypeImporterMapping[LibraryTypes[libraryType]];
+  importer(...paths);
+}
+
+function importVideoPaths(...addedPaths: string[]) {
+  incrementFoundCountForLibraryType("VIDEOS", addedPaths.length);
+  LibraryQueueManagerMapping[LibraryTypes.VIDEOS].addPathsToQueue(
+    ...addedPaths
+  );
+}
+
+function importImagePaths(...addedPaths: string[]) {
+  incrementFoundCountForLibraryType("IMAGES", addedPaths.length);
+  LibraryQueueManagerMapping[LibraryTypes.IMAGES].addPathsToQueue(
+    ...addedPaths
+  );
+}
+
+export function getQueueLengthForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  return LibraryQueueManagerMapping[LibraryTypes[libraryType]].getQueueLength();
+}
+
+export function resumeQueueForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  LibraryQueueManagerMapping[LibraryTypes[libraryType]].resumeQueue();
+}
+
+export function pauseQueueForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  LibraryQueueManagerMapping[LibraryTypes[libraryType]].pauseQueue();
+}
+
+export function getRunningCountForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  return LibraryQueueManagerMapping[
+    LibraryTypes[libraryType]
+  ].getRunningCount();
+}
+
+export function isQueueRunningForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  return LibraryQueueManagerMapping[LibraryTypes[libraryType]].isQueueRunning();
+}
+
+// COUNTS
+
+const foundItemsCounts: {
+  [key in LibraryTypes]: { oldCount: number; count: number };
+} = {
+  [LibraryTypes.VIDEOS]: {
+    oldCount: 0,
+    count: 0,
+  },
+  [LibraryTypes.IMAGES]: {
+    oldCount: 0,
+    count: 0,
+  },
+};
 
 /**
- * @param paths - the image and/or video paths to import
+ * Saves the current count to the "old" count, and then resets the
+ * current count
+ *
+ * @param libraryType the library type to query
  */
-export function importPaths(...paths: string[]) {
-  importVideoPaths(...paths);
-  importImagePaths(...paths);
+export function resetFoundCountForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  const typeCounts = foundItemsCounts[LibraryTypes[libraryType]];
+  typeCounts.oldCount = typeCounts.count;
+  typeCounts.count = 0;
 }
 
 /**
- * @param paths - the video paths to import
+ *
+ * @param libraryType the library type to query
+ * @returns the current found count
  */
-export function importVideoPaths(...addedPaths: string[]) {
-  for (const addedPath of addedPaths) {
-    logger.log(`[importManager]: handling new video path ${addedPath}`);
+export function getFoundCountForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  return foundItemsCounts[LibraryTypes[libraryType]].count;
+}
 
-    numFoundVideoPaths++;
-    addVideoPathToQueue(addedPath);
-  }
+function incrementFoundCountForLibraryType(
+  libraryType: keyof typeof LibraryTypes,
+  addedCount = 1
+) {
+  foundItemsCounts[LibraryTypes[libraryType]].count += addedCount;
 }
 
 /**
- * @param paths - the image paths to import
+ *
+ * @param libraryType the library type to query
+ * @returns the "old" found count
  */
-export function importImagePaths(...addedPaths: string[]) {
-  for (const addedPath of addedPaths) {
-    logger.log(`[importManager]: handling new image path ${addedPath}`);
-
-    numFoundImagePaths++;
-    addImagePathToQueue(addedPath);
-  }
-}
-
-export function resetFoundVideosCount() {
-  oldNumFoundVideoPaths = numFoundVideoPaths;
-  numFoundVideoPaths = 0;
-}
-
-export function getFoundVideosCount() {
-  return numFoundVideoPaths;
-}
-
-export function getOldFoundVideosCount() {
-  return oldNumFoundVideoPaths;
-}
-
-export function resetFoundImagesCount() {
-  oldNumFoundImagePaths = numFoundImagePaths;
-  numFoundImagePaths = 0;
-}
-
-export function getFoundImagesCount() {
-  return numFoundImagePaths;
-}
-
-export function getOldFoundImagesCount() {
-  return oldNumFoundImagePaths;
+export function getOldFoundCountForLibraryType(
+  libraryType: keyof typeof LibraryTypes
+) {
+  return foundItemsCounts[LibraryTypes[libraryType]].oldCount;
 }

@@ -10,21 +10,22 @@ import Scene from "../../types/scene";
 import {
   SUPPORTED_IMAGE_EXTENSIONS,
   SUPPORTED_VIDEO_EXTENSIONS,
+  LibraryTypes,
 } from "../constants";
 import {
-  getFoundImagesCount,
-  getOldFoundImagesCount,
-  getOldFoundVideosCount,
-  importImagePaths,
-  importVideoPaths,
-  resetFoundImagesCount,
-  resetFoundVideosCount,
+  importPathsForLibraryType,
+  resetFoundCountForLibraryType,
+  getOldFoundCountForLibraryType,
+  pauseQueueForLibraryType,
+  resumeQueueForLibraryType,
 } from "../importManager";
 
 export async function checkVideoFolders() {
   const config = getConfig();
 
-  resetFoundVideosCount();
+  // Pause import execution while we walk the library
+  pauseQueueForLibraryType("VIDEOS");
+  resetFoundCountForLibraryType("VIDEOS");
 
   const unknownVideos = [] as string[];
 
@@ -38,34 +39,36 @@ export async function checkVideoFolders() {
     const loader = ora(
       `Scanned ${numFolderFiles} videos in folder, total: ${
         unknownVideos.length
-      }/${getOldFoundVideosCount()}`
+      }/${getOldFoundCountForLibraryType("VIDEOS")}`
     ).start();
 
     await walk(folder, SUPPORTED_VIDEO_EXTENSIONS, async (path) => {
       loader.text = `Scanned ${++numFolderFiles} videos, total: ${
         unknownVideos.length
-      }/${getOldFoundVideosCount()}`;
+      }/${getOldFoundCountForLibraryType("VIDEOS")}`;
       unknownVideos.push(path);
+      importPathsForLibraryType("VIDEOS", path);
     });
 
     loader.succeed(
       `folder "${folder}": done (${numFolderFiles} videos), total: ${
         unknownVideos.length
-      }/${getOldFoundVideosCount()}`
+      }/${getOldFoundCountForLibraryType("VIDEOS")}`
     );
   }
 
   logger.log(
     `Found ${unknownVideos.length} new videos, total: ${
       unknownVideos.length
-    }/${getOldFoundVideosCount()}`
+    }/${getOldFoundCountForLibraryType("VIDEOS")}`
   );
 
   logger.warn(
     `Queued ${unknownVideos.length} new videos for further processing.`
   );
 
-  importVideoPaths(...unknownVideos);
+  // Once everything has been queued, resume import execution
+  resumeQueueForLibraryType("VIDEOS");
 }
 
 export async function checkImageFolders() {
@@ -73,7 +76,7 @@ export async function checkImageFolders() {
 
   logger.log("Checking image folders...");
 
-  resetFoundImagesCount();
+  resetFoundCountForLibraryType("IMAGES");
 
   if (!config.READ_IMAGES_ON_IMPORT)
     logger.warn("Reading images on import is disabled.");
@@ -85,21 +88,31 @@ export async function checkImageFolders() {
     logger.message(`Scanning folder "${folder}": for images...`);
     let numFolderFiles = 0;
     const loader = ora(
-      `Scanned ${numFolderFiles} images, total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`
+      `Scanned ${numFolderFiles} images, total: ${getOldFoundCountForLibraryType(
+        "IMAGES"
+      )}/${getOldFoundCountForLibraryType("IMAGES")}`
     ).start();
 
     await walk(folder, SUPPORTED_IMAGE_EXTENSIONS, async (path) => {
-      loader.text = `Scanned ${++numFolderFiles} images, total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`;
-      importImagePaths(path);
+      loader.text = `Scanned ${++numFolderFiles} images, total: ${getOldFoundCountForLibraryType(
+        "IMAGES"
+      )}/${getOldFoundCountForLibraryType("IMAGES")}`;
+      importPathsForLibraryType("IMAGES", path);
     });
 
     loader.succeed(
-      `folder "${folder}": done (${numFolderFiles} images), total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`
+      `folder "${folder}": done (${numFolderFiles} images), total: ${getOldFoundCountForLibraryType(
+        "IMAGES"
+      )}/${getOldFoundCountForLibraryType("IMAGES")}`
     );
   }
 
   logger.warn(
-    `Added ${getFoundImagesCount()} new images, total: ${getFoundImagesCount()}/${getOldFoundImagesCount()}`
+    `Added ${getOldFoundCountForLibraryType(
+      "IMAGES"
+    )} new images, total: ${getOldFoundCountForLibraryType(
+      "IMAGES"
+    )}/${getOldFoundCountForLibraryType("IMAGES")}`
   );
 }
 export async function checkPreviews() {

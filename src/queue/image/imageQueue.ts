@@ -2,6 +2,7 @@ import { queue } from "async";
 
 import { getConfig } from "../../config";
 import * as logger from "../../logger";
+import { LibraryTypeQueueManager } from "../constants";
 import {
   imageWithPathExists,
   isImportableImage,
@@ -10,9 +11,11 @@ import {
 
 const onImageQueueEmptiedListeners: (() => void)[] = [];
 
-export function onImageQueueEmptied(fn: () => void) {
+function attachOnImageQueueEmptiedListener(fn: () => void) {
   onImageQueueEmptiedListeners.push(fn);
 }
+
+// QUEUE EXECUTION
 
 const imageProcessingQueue = queue(importImageFromPath, 1);
 imageProcessingQueue.drain(onImportQueueEmptied);
@@ -50,6 +53,8 @@ function onImportQueueError(error: Error, task: string) {
   logger.error(error);
 }
 
+// QUEUE MANAGEMENT
+
 /**
  * Handles a new path in the image folders.
  * If it is a supported image, adds it to the processing queue
@@ -57,29 +62,33 @@ function onImportQueueError(error: Error, task: string) {
  * @param path - the path newly added to the watch image
  * folders
  */
-export async function addImagePathToQueue(path: string) {
-  if (!isImportableImage(path)) {
-    logger.log(`[imageQueue]: Ignoring file ${path}`);
-    return;
+async function addImagePathsToQueue(...paths: string[]) {
+  for (const path of paths) {
+    if (!isImportableImage(path)) {
+      logger.log(`[imageQueue]: Ignoring file ${path}`);
+      return;
+    }
+
+    logger.log(`[imageQueue]: Found matching file ${path}`);
+
+    const existingImage = await imageWithPathExists(path);
+    logger.log(
+      "[imageQueue]: Scene with that path exists already ?: " + !!existingImage
+    );
+
+    if (!existingImage) {
+      imageProcessingQueue.push(path);
+      logger.log(`[imageQueue]: Added image to processing queue '${path}'.`);
+    }
   }
-
-  logger.log(`[imageQueue]: Found matching file ${path}`);
-
-  const existingImage = await imageWithPathExists(path);
-  logger.log(
-    "[imageQueue]: Scene with that path exists already ?: " + !!existingImage
-  );
-
-  if (!existingImage) {
-    imageProcessingQueue.push(path);
-    logger.log(`[imageQueue]: Added image to processing queue '${path}'.`);
-  }
 }
 
-export function getImageImportQueueLength() {
-  return imageProcessingQueue.length();
-}
-
-export function isImageImportQueueRunning() {
-  return imageProcessingQueue.running();
-}
+export const ImageImportQueueManager: LibraryTypeQueueManager = {
+  attachOnQueueEmptiedListener: attachOnImageQueueEmptiedListener,
+  addPathsToQueue: addImagePathsToQueue,
+  getQueueLength: () => imageProcessingQueue.length(),
+  resumeQueue: () => imageProcessingQueue.resume(),
+  pauseQueue: () => imageProcessingQueue.pause(),
+  getRunningCount: () => imageProcessingQueue.running(),
+  isQueueRunning: () => imageProcessingQueue.running() > 0,
+};

@@ -86,7 +86,7 @@
                   <div
                     v-if="currentActor.bornOn"
                     class="py-1"
-                  >Born on {{ new Date(currentActor.bornOn).toDateString() }}</div>
+                  >Born on {{ new Date(currentActor.bornOn).toDateString(undefined, { timeZone: "UTC" }) }}</div>
 
                   <v-tooltip bottom class="py-1">
                     <template v-slot:activator="{ on }">

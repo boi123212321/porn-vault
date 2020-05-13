@@ -66,6 +66,7 @@
               item-text="name"
               placeholder="Nationality"
               :items="countries"
+              clearable
             ></v-autocomplete>
           </v-form>
         </v-card-text>

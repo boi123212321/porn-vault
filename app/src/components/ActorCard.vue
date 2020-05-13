@@ -48,15 +48,13 @@
       </a>
     </v-hover>
 
-    <v-card-title>
-      <Flag v-if="value.nationality" :width="25" :value="value.nationality.alpha2" />
-      <div
-        class="ml-1"
-        :title="value.name"
-        style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis"
-      >
-        {{ value.name }}
-        <span class="subtitle-1 med--text" v-if="value.bornOn">({{ value.age }})</span>
+    <v-card-title class="pt-2">
+      <div class="d-flex text-truncate">
+        <Flag class="mr-1" v-if="value.nationality" :width="25" :value="value.nationality.alpha2" />
+        <div :title="value.name" class="text-truncate">
+          {{ value.name }}
+          <span class="subtitle-1 med--text" v-if="value.bornOn">({{ value.age }})</span>
+        </div>
       </div>
     </v-card-title>
     <v-card-subtitle

@@ -36,6 +36,7 @@
         @change="onInnerValueChange"
         hide-details
         :suffix="field.unit"
+        clearable
       />
 
       <v-text-field

@@ -18,4 +18,3 @@ jobs:
         repository: endqwerty/porn-vault
         tag_with_ref: true
         tag_with_sha: true
-    - name: Build and push the Docker image

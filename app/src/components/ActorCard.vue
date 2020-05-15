@@ -29,6 +29,13 @@
               @click.stop.prevent="favorite"
               icon
               style="background: #fafafa;"
+            > >
+            <v-btn
+              light
+              class="elevation-2 mr-1"
+              @click.stop.prevent="favorite"
+              icon
+              style="background: #fafafa;"
             >
               <v-icon
                 :color="value.favorite ? 'red' : undefined"

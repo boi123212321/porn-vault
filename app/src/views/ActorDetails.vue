@@ -271,6 +271,51 @@
                             </template>
                             <span>Set as actor thumbnail</span>
                           </v-tooltip>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                light
+                                v-on="on"
+                                @click.native.stop="setAsAltThumbnail(image._id)"
+                                class="elevation-2 mb-2"
+                                icon
+                                style="background: #fafafa;"
+                              >
+                                <v-icon>mdi-image</v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Set as alt thumbnail</span>
+                          </v-tooltip>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                light
+                                v-on="on"
+                                @click.native.stop="setAsAvatar(image._id)"
+                                class="elevation-2 mb-2"
+                                icon
+                                style="background: #fafafa;"
+                              >
+                                <v-icon>mdi-image</v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Set as alt thumbnail</span>
+                          </v-tooltip>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                light
+                                v-on="on"
+                                @click.native.stop="setAsHero(image._id)"
+                                class="elevation-2 mb-2"
+                                icon
+                                style="background: #fafafa;"
+                              >
+                                <v-icon>mdi-image</v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Set as alt thumbnail</span>
+                          </v-tooltip>
                         </template>
                       </ImageCard>
                     </v-col>

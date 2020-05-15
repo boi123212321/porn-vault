@@ -269,55 +269,53 @@
                                   <v-icon>mdi-image</v-icon>
                                 </v-btn>
                               </template>
-                              <span>Set as actor thumbnail</span>
-                            </v-tooltip>
-                          <template v-show="showIcons" v-slot:action>
-                            <v-tooltip top>
-                              <template v-slot:activator="{ on }">
-                                <v-btn
-                                  light
-                                  v-on="on"
-                                  @click.native.stop="setAsAltThumbnail(image._id)"
-                                  class="elevation-2 mb-2"
-                                  icon
-                                  style="background: #fafafa;"
-                                >
-                                  <v-icon>mdi-filter_2</v-icon>
-                                </v-btn>
-                              </template>
-                              <span>Set as alt thumbnail</span>
-                            </v-tooltip>
-                            <v-tooltip top>
-                              <template v-slot:activator="{ on }">
-                                <v-btn
-                                  light
-                                  v-on="on"
-                                  @click.native.stop="setAsAvatar(image._id)"
-                                  class="elevation-2 mb-2"
-                                  icon
-                                  style="background: #fafafa;"
-                                >
-                                  <v-icon>mdi-camera_alt</v-icon>
-                                </v-btn>
-                              </template>
-                              <span>Set as Avatar</span>
-                            </v-tooltip>
-                            <v-tooltip top>
-                              <template v-slot:activator="{ on }">
-                                <v-btn
-                                  light
-                                  v-on="on"
-                                  @click.native.stop="setAsHero(image._id)"
-                                  class="elevation-2 mb-2"
-                                  icon
-                                  style="background: #fafafa;"
-                                >
-                                  <v-icon>mdi-filter_hdr</v-icon>
-                                </v-btn>
-                              </template>
-                              <span>Set as Hero</span>
-                            </v-tooltip>
-                          </template>
+                            <span>Set as actor thumbnail</span>
+                          </v-tooltip>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                light
+                                v-on="on"
+                                @click.native.stop="setAsAltThumbnail(image._id)"
+                                class="elevation-2 mb-2"
+                                icon
+                                style="background: #fafafa;"
+                              >
+                                <v-icon>mdi-filter_2</v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Set as alt thumbnail</span>
+                          </v-tooltip>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                light
+                                v-on="on"
+                                @click.native.stop="setAsAvatar(image._id)"
+                                class="elevation-2 mb-2"
+                                icon
+                                style="background: #fafafa;"
+                              >
+                                <v-icon>mdi-camera_alt</v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Set as Avatar</span>
+                          </v-tooltip>
+                          <v-tooltip top>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                light
+                                v-on="on"
+                                @click.native.stop="setAsHero(image._id)"
+                                class="elevation-2 mb-2"
+                                icon
+                                style="background: #fafafa;"
+                              >
+                                <v-icon>mdi-filter_hdr</v-icon>
+                              </v-btn>
+                            </template>
+                            <span>Set as Hero</span>
+                          </v-tooltip>
                         </template>
                       </ImageCard>
                     </v-col>

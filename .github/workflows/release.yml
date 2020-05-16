@@ -8,7 +8,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+<<<<<<< HEAD
     - uses: actions/checkout@v2
+=======
+    - uses: actions/checkout@v1
+>>>>>>> 42b0d82bff05c2ccd97f51b847e4678aa57a0e11
     - uses: actions/setup-node@v1
       with:
         node-version: '10.x'

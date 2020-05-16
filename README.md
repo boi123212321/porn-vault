@@ -122,6 +122,10 @@ See the [docker readme](doc/docker.md)
   - `npm run build`
   - And run the built executable in the release/ folder
 
+## Plugin development
+
+See https://github.com/boi123212321/porn-vault/blob/dev/doc/plugins_intro.md
+
 ## Images
 
 ### Scene collection

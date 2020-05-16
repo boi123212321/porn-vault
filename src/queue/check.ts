@@ -26,19 +26,21 @@ export async function checkVideoFolders() {
     let numFiles = 0;
     const loader = ora(`Scanned ${numFiles} videos`).start();
 
-    await walk(folder, [".mp4", ".webm"], async (path) => {
-      loader.text = `Scanned ${++numFiles} videos`;
-      if (
-        basename(path).startsWith(".") ||
-        fileIsExcluded(config.EXCLUDE_FILES, path)
-      ) {
-        logger.log(`Ignoring file ${path}`);
-      } else {
-        logger.log(`Found matching file ${path}`);
-        const existingScene = await Scene.getSceneByPath(path);
-        logger.log("Scene with that path exists already: " + !!existingScene);
-        if (!existingScene) unknownVideos.push(path);
-      }
+    await walk({
+      dir: folder,
+      exclude: config.EXCLUDE_FILES,
+      extensions: [".mp4", ".webm"],
+      cb: async (path) => {
+        loader.text = `Scanned ${++numFiles} videos`;
+        if (basename(path).startsWith(".")) {
+          logger.log(`Ignoring file ${path}`);
+        } else {
+          logger.log(`Found matching file ${path}`);
+          const existingScene = await Scene.getSceneByPath(path);
+          logger.log("Scene with that path exists already: " + !!existingScene);
+          if (!existingScene) unknownVideos.push(path);
+        }
+      },
     });
 
     loader.succeed(`${folder} done (${numFiles} videos)`);
@@ -122,21 +124,22 @@ export async function checkImageFolders() {
     let numFiles = 0;
     const loader = ora(`Scanned ${numFiles} images`).start();
 
-    await walk(folder, [".jpg", ".jpeg", ".png", ".gif"], async (path) => {
-      loader.text = `Scanned ${++numFiles} images`;
-      if (
-        basename(path).startsWith(".") ||
-        fileIsExcluded(config.EXCLUDE_FILES, path)
-      )
-        return;
+    await walk({
+      dir: folder,
+      extensions: [".jpg", ".jpeg", ".png", ".gif"],
+      exclude: config.EXCLUDE_FILES,
+      cb: async (path) => {
+        loader.text = `Scanned ${++numFiles} images`;
+        if (basename(path).startsWith(".")) return;
 
-      if (!(await imageWithPathExists(path))) {
-        await processImage(path, config.READ_IMAGES_ON_IMPORT);
-        numAddedImages++;
-        logger.log(`Added image '${path}'.`);
-      } else {
-        logger.log(`Image '${path}' already exists`);
-      }
+        if (!(await imageWithPathExists(path))) {
+          await processImage(path, config.READ_IMAGES_ON_IMPORT);
+          numAddedImages++;
+          logger.log(`Added image '${path}'.`);
+        } else {
+          logger.log(`Image '${path}' already exists`);
+        }
+      },
     });
 
     loader.succeed(`${folder} done`);

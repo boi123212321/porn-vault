@@ -5,10 +5,10 @@ import {
   readdir,
   readFile,
   writeFile,
-  copyFile
+  copyFile,
 } from "fs";
 import { promisify } from "util";
-import { join, extname } from "path";
+import { join, extname, resolve } from "path";
 import * as logger from "../logger";
 import rimraf from "rimraf";
 
@@ -21,30 +21,42 @@ export const writeFileAsync = promisify(writeFile);
 export const copyFileAsync = promisify(copyFile);
 export const rimrafAsync = promisify(rimraf);
 
-export async function walk(
-  dir: string,
-  exts = [] as string[],
-  cb: (file: string) => Promise<void>
-) {
+const pathIsExcluded = (exclude: string[], path: string) =>
+  exclude.some((regStr) => new RegExp(regStr, "i").test(path.toLowerCase()));
+
+const validExtension = (exts: string[], path: string) =>
+  exts.includes(extname(path).toLowerCase());
+
+export interface IWalkOptions {
+  dir: string;
+  extensions: string[];
+  cb: (file: string) => Promise<void>;
+  exclude: string[];
+}
+
+export async function walk(options: IWalkOptions) {
+  const root = resolve(options.dir);
+
   let folderStack = [] as string[];
-  folderStack.push(dir);
+  folderStack.push(root);
 
   while (folderStack.length) {
     const top = folderStack.pop();
     if (!top) break;
-    logger.log("Walking folder " + top + "...");
+    logger.log(`Walking folder ${top}`);
     const filesInDir = await readdirAsync(top);
 
     for (const file of filesInDir) {
       const path = join(top, file);
-      const stat = await statAsync(path);
+      if (pathIsExcluded(options.exclude, path)) continue;
 
+      const stat = await statAsync(path);
       if (stat.isDirectory()) {
         logger.log("Pushed folder " + path);
         folderStack.push(path);
-      } else if (exts.includes(extname(file).toLowerCase())) {
-        logger.log("Found file " + file + "...");
-        await cb(path);
+      } else if (validExtension(options.extensions, file)) {
+        logger.log("Found file " + file);
+        await options.cb(resolve(path));
       }
     }
   }

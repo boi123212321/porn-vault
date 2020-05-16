@@ -11,6 +11,7 @@
     "start": "node build",
     "mon": "NODE_ENV=development nodemon build/",
     "dev": "NODE_ENV=development node --max_old_space_size=8192 -r ts-node/register ./src/index.ts",
+    "dev:once": "NODE_ENV=development node build",
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
     "build": "mkdir -p release/app/dist && npm run build:server && npm run build:app && cp -r ./views ./release && cp -r ./assets ./release &&  cp -r ./app/dist ./release/app",
     "build:app": "cd app && npm run build && cd ..",

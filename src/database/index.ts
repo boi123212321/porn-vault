@@ -9,13 +9,12 @@ import ora from "ora";
 import Movie from "../types/movie";
 import Studio from "../types/studio";
 import Marker from "../types/marker";
-import { bookmarksToTimestamp } from "../integrity";
+import { bookmarksToTimestamp, absolutifyPaths } from "../integrity";
 import { Izzy } from "./internal/index";
 import args from "../args";
 import LabelledItem from "../types/labelled_item";
 import MovieScene from "../types/movie_scene";
 import ActorReference from "../types/actor_reference";
-import MarkerReference from "../types/marker_reference";
 import { existsAsync, unlinkAsync } from "../fs/async";
 import { convertCrossReferences } from "../compat";
 import SceneView from "../types/watch";
@@ -63,6 +62,9 @@ export async function loadStores() {
     await bookmarksToTimestamp(libraryPath("movies.db"));
     await bookmarksToTimestamp(libraryPath("studios.db"));
     await bookmarksToTimestamp(libraryPath("markers.db"));
+
+    await absolutifyPaths(libraryPath("scenes.db"));
+    await absolutifyPaths(libraryPath("images.db"));
 
     compatLoader.succeed();
   } else {

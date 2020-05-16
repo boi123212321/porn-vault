@@ -80,11 +80,17 @@ export async function checkImportFolders() {
       continue;
     }
     logger.log(`Checking import folder: ${_path}...`);
-    await walk(_path, [".json", ".yaml"], async (path) => {
-      if (basename(path).startsWith(".")) return;
-      if (imported.includes(path)) return;
-      newFiles.push(path);
-      imported.push(path);
+
+    await walk({
+      dir: _path,
+      extensions: [".json", ".yaml"],
+      exclude: [],
+      cb: async (path) => {
+        if (basename(path).startsWith(".")) return;
+        if (imported.includes(path)) return;
+        newFiles.push(path);
+        imported.push(path);
+      },
     });
   }
 

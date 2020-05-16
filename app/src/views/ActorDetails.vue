@@ -311,7 +311,7 @@
                                 icon
                                 style="background: #fafafa;"
                               >
-                                <v-icon>mdi-filter_hdr</v-icon>
+                                <v-icon>mdi-image-filter-hdr</v-icon>
                               </v-btn>
                             </template>
                             <span>Set as Hero</span>

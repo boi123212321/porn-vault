@@ -1,0 +1,22 @@
+## Build from source
+
+- Install [Git](https://git-scm.com/)
+- Install [Node.js](https://nodejs.org/en/)
+- Clone the repository
+  - `git clone https://github.com/boi123212321/porn-vault.git`
+- Install dependencies
+  - `npm install`
+  - `npm install typescript -g`
+  - `npm install ts-node -g`
+- Build web app dependencies
+  - `cd app`
+  - `npm install`
+- Run web app in dev mode (in app/ folder)
+  - `npm run serve`
+- Build web app (in app/ folder)
+  - `npm run build`
+- Run server in dev mode (in root folder)
+  - `npm run mon`
+- Run server in release mode (in root folder)
+  - `npm run build`
+  - And run the built executable in the release/ folder

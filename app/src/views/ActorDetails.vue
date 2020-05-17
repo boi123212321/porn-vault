@@ -299,6 +299,7 @@
                       >
                         <template v-slot:action>
                           <v-speed-dial
+                            class="image-speed-dial"
                             :id="image._id"
                             open-on-hover
                             top
@@ -1798,7 +1799,7 @@ export default class ActorDetails extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.v-speed-dial__list {
+.image-speed-dial > .v-speed-dial__list {
   padding: 0px;
 }
 .thumb-margin-top {

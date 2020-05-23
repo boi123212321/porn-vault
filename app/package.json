@@ -18,7 +18,7 @@
     "core-js": "^3.6.4",
     "graphql-tag": "^2.10.3",
     "hotkeys-js": "^3.7.6",
-    "moment": "^2.25.3",
+    "moment": "^2.26.0",
     "roboto-fontface": "*",
     "vue": "^2.6.11",
     "vue-advanced-cropper": "^0.16.1",
@@ -45,7 +45,7 @@
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "vue-cli-plugin-vuetify": "^2.0.5",
-    "typescript": "~3.8.3",
+    "typescript": "~3.9.3",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.4.3"
   }

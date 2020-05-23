@@ -224,6 +224,7 @@ export default class StudioList extends mixins(DrawerMixin) {
       for (const name of this.studiosBulkImport) {
         await this.createStudioWithName(name);
       }
+      this.refreshPage();
       this.bulkImportDialog = false;
     } catch (error) {
       console.error(error);
@@ -357,8 +358,6 @@ export default class StudioList extends mixins(DrawerMixin) {
           name
         }
       });
-
-      this.studios.unshift(res.data.addStudio);
     } catch (error) {
       console.error(error);
     }

@@ -2,7 +2,7 @@
   <v-card :dark="!!cardColor || $vuetify.theme.dark" :color="cardColor" v-if="value" tile>
     <v-hover v-slot:default="{ hover }">
       <a :href="`#/movie/${value._id}`">
-        <v-img contain :aspect-ratio="ratio" v-ripple eager :src="frontCover">
+        <v-img :aspect-ratio="ratio" v-ripple eager :src="frontCover">
           <v-fade-transition>
             <v-img eager :aspect-ratio="ratio" :src="backCover" v-if="hover"></v-img>
           </v-fade-transition>
@@ -197,7 +197,7 @@ export default class MovieCard extends Vue {
       return `${serverBase}/image/${
         this.value.frontCover._id
       }?password=${localStorage.getItem("password")}`;
-    return ``;
+    return `${serverBase}/broken`;
   }
 
   get backCover() {

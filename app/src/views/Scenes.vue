@@ -241,9 +241,9 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog :persistent="isUploadingScene" v-model="uploadDialog" max-width="400px">
+    <!-- <v-dialog :persistent="isUploadingScene" v-model="uploadDialog" max-width="400px">
       <SceneUploader @update-state="isUploadingScene = $event" @uploaded="scenes.unshift($event)" />
-    </v-dialog>
+    </v-dialog>-->
 
     <v-dialog v-model="deleteSelectedScenesDialog" max-width="400px">
       <v-card>
@@ -551,7 +551,7 @@ export default class SceneList extends mixins(DrawerMixin) {
       }
     })
       .then(res => {
-        this.scenes.unshift(res.data.addScene);
+        this.refreshPage();
         this.createSceneDialog = false;
         this.createSceneName = "";
         this.createSceneActors = [];

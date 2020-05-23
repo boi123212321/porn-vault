@@ -270,6 +270,7 @@ export default class MovieList extends mixins(DrawerMixin) {
       for (const name of this.moviesBulkImport) {
         await this.createMovieWithName(name);
       }
+      this.refreshPage();
       this.bulkImportDialog = false;
     } catch (error) {
       console.error(error);
@@ -411,7 +412,6 @@ export default class MovieList extends mixins(DrawerMixin) {
         }
       })
         .then(res => {
-          this.movies.unshift(res.data.addMovie);
           resolve(res.data.addMovie);
         })
         .catch(err => {
@@ -444,7 +444,7 @@ export default class MovieList extends mixins(DrawerMixin) {
       }
     })
       .then(res => {
-        this.movies.unshift(res.data.addMovie);
+        this.refreshPage();
         this.createMovieDialog = false;
         this.createMovieName = "";
         this.createMovieScenes = [];

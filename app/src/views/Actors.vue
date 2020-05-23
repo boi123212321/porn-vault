@@ -309,6 +309,7 @@ export default class ActorList extends mixins(DrawerMixin) {
       for (const name of this.actorsBulkImport) {
         await this.createActorWithName(name);
       }
+      this.refreshPage();
       this.bulkImportDialog = false;
     } catch (error) {
       console.error(error);
@@ -454,7 +455,6 @@ export default class ActorList extends mixins(DrawerMixin) {
         }
       })
         .then(res => {
-          this.actors.unshift(res.data.addActor);
           resolve();
         })
         .catch(err => {
@@ -490,7 +490,7 @@ export default class ActorList extends mixins(DrawerMixin) {
       }
     })
       .then(res => {
-        this.actors.unshift(res.data.addActor);
+        this.refreshPage();
         this.createActorDialog = false;
         this.createActorName = "";
         this.createActorAliases = [];

@@ -21,7 +21,7 @@
     "moment": "^2.26.0",
     "roboto-fontface": "*",
     "vue": "^2.6.11",
-    "vue-advanced-cropper": "^0.16.1",
+    "vue-advanced-cropper": "^0.16.5",
     "vue-class-component": "^7.2.3",
     "vue-infinite-loading": "^2.4.5",
     "vue-property-decorator": "^8.4.2",

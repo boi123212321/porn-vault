@@ -43,9 +43,7 @@
                     <div style="position: relative" class="text-center">
                       <img class="avatar" :src="thumbnail" />
 
-                      <div
-                        style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;"
-                      >
+                      <div style="position: absolute; left: 0; top: 0; width: 100%; height: 100%;">
                         <v-fade-transition>
                           <v-img
                             style="z-index: 5"
@@ -60,11 +58,7 @@
                   </template>
                 </v-hover>
 
-                <Rating
-                  @change="rate"
-                  :value="currentActor.rating"
-                  class="my-2 text-center"
-                />
+                <Rating @change="rate" :value="currentActor.rating" class="my-2 text-center" />
 
                 <div class="pa-2">
                   <v-chip
@@ -74,8 +68,7 @@
                     outlined
                     v-for="label in labelNames"
                     :key="label"
-                    >{{ label }}</v-chip
-                  >
+                  >{{ label }}</v-chip>
                   <v-chip
                     label
                     color="primary"
@@ -87,8 +80,7 @@
                         $vuetify.theme.dark ? 'black--text' : 'white--text'
                       }`
                     "
-                    >+ Add</v-chip
-                  >
+                  >+ Add</v-chip>
                 </div>
               </v-col>
 
@@ -102,15 +94,13 @@
                   <div
                     v-if="currentActor.aliases.length"
                     class="py-1 med--text body-2"
-                  >
-                    a.k.a. {{ currentActor.aliases.join(", ") }}
-                  </div>
+                  >a.k.a. {{ currentActor.aliases.join(", ") }}</div>
                   <div v-if="currentActor.bornOn" class="py-1">
                     Born on
                     {{
-                      new Date(currentActor.bornOn).toDateString(undefined, {
-                        timeZone: "UTC"
-                      })
+                    new Date(currentActor.bornOn).toDateString(undefined, {
+                    timeZone: "UTC"
+                    })
                     }}
                   </div>
 
@@ -123,17 +113,15 @@
                         <span class="med-text">views</span>
                       </div>
                     </template>
-                    <span v-if="currentActor.watches.length"
-                      >Last watched:
+                    <span v-if="currentActor.watches.length">
+                      Last watched:
                       {{
-                        new Date(
-                          currentActor.watches[currentActor.watches.length - 1]
-                        ).toLocaleString()
-                      }}</span
-                    >
-                    <span v-else
-                      >You haven't watched {{ currentActor.name }} yet!</span
-                    >
+                      new Date(
+                      currentActor.watches[currentActor.watches.length - 1]
+                      ).toLocaleString()
+                      }}
+                    </span>
+                    <span v-else>You haven't watched {{ currentActor.name }} yet!</span>
                   </v-tooltip>
                   <v-divider class="mt-2"></v-divider>
                   <div class="text-center mt-2">
@@ -142,8 +130,7 @@
                       text
                       class="text-none"
                       @click="imageDialog = true"
-                      >Manage images</v-btn
-                    >
+                    >Manage images</v-btn>
                   </div>
 
                   <div class="text-center mt-2">
@@ -153,8 +140,7 @@
                       text
                       class="text-none"
                       @click="runPlugins"
-                      >Run plugins</v-btn
-                    >
+                    >Run plugins</v-btn>
                   </div>
                 </div>
               </v-col>
@@ -167,16 +153,13 @@
                   <v-icon>mdi-text</v-icon>
                   <v-subheader>Description</v-subheader>
                 </div>
-                <div class="pa-2 med--text" v-if="currentActor.description">
-                  {{ currentActor.description }}
-                </div>
+                <div
+                  class="pa-2 med--text"
+                  v-if="currentActor.description"
+                >{{ currentActor.description }}</div>
               </div>
 
-              <Collabs
-                class="mb-3"
-                :name="currentActor.name"
-                :collabs="collabs"
-              />
+              <Collabs class="mb-3" :name="currentActor.name" :collabs="collabs" />
             </div>
             <v-tabs
               v-model="activeTab"
@@ -198,8 +181,7 @@
                   text
                   @click="updateCustomFields"
                   :disabled="!hasUpdatedFields"
-                  >Update</v-btn
-                >
+                >Update</v-btn>
               </div>
               <CustomFieldSelector
                 :fields="currentActor.availableFields"
@@ -270,9 +252,7 @@
               <div v-if="images.length">
                 <div class="d-flex align-center">
                   <v-spacer></v-spacer>
-                  <h1 class="font-weight-light mr-3">
-                    {{ images.length }} Images
-                  </h1>
+                  <h1 class="font-weight-light mr-3">{{ images.length }} Images</h1>
                   <v-btn @click="openUploadDialog" icon>
                     <v-icon>mdi-upload</v-icon>
                   </v-btn>
@@ -298,93 +278,34 @@
                         :contain="true"
                       >
                         <template v-slot:action>
-                          <v-speed-dial
-                            class="image-speed-dial"
-                            :id="image._id"
-                            open-on-hover
-                            top
-                            right
-                            direction="bottom"
-                            transition="slide-y-transition"
-                          >
-                            <template v-slot:activator>
-                              <v-tooltip top>
-                                <template v-slot:activator="{ on }">
-                                  <v-btn
-                                    :id="image._id"
-                                    fab
-                                    small
-                                    light
-                                    v-on="on"
-                                    @click.native.stop="
-                                      setAsThumbnail(image._id)
-                                    "
-                                    class="elevation-2 mb-2"
-                                    icon
-                                    style="background: #fafafa;"
-                                  >
-                                    <v-icon>mdi-image</v-icon>
-                                  </v-btn>
-                                </template>
-                                <span>Set as actor thumbnail</span>
-                              </v-tooltip>
+                          <v-menu offset-y>
+                            <template v-slot:activator="{ on }">
+                              <v-btn
+                                style="background: #000000aa"
+                                @click.native.stop
+                                icon
+                                v-on="on"
+                              >
+                                <v-icon class="white--text">mdi-menu</v-icon>
+                              </v-btn>
                             </template>
-                            <v-tooltip top>
-                              <template v-slot:activator="{ on }">
-                                <v-btn
-                                  fab
-                                  small
-                                  light
-                                  v-on="on"
-                                  @click.native.stop="
-                                    setAsAltThumbnail(image._id)
-                                  "
-                                  class="elevation-2 mb-2"
-                                  icon
-                                  style="background: #fafafa;"
-                                >
-                                  <v-icon
-                                    >mdi-numeric-2-box-multiple-outline</v-icon
-                                  >
-                                </v-btn>
-                              </template>
-                              <span>Set as alt thumbnail</span>
-                            </v-tooltip>
-                            <v-tooltip top>
-                              <template v-slot:activator="{ on }">
-                                <v-btn
-                                  fab
-                                  small
-                                  light
-                                  v-on="on"
-                                  @click.native.stop="setAsAvatar(image._id)"
-                                  class="elevation-2 mb-2"
-                                  icon
-                                  style="background: #fafafa;"
-                                >
-                                  <v-icon>mdi-camera</v-icon>
-                                </v-btn>
-                              </template>
-                              <span>Set as Avatar</span>
-                            </v-tooltip>
-                            <v-tooltip top>
-                              <template v-slot:activator="{ on }">
-                                <v-btn
-                                  fab
-                                  small
-                                  light
-                                  v-on="on"
-                                  @click.native.stop="setAsHero(image._id)"
-                                  class="elevation-2 mb-2"
-                                  icon
-                                  style="background: #fafafa;"
-                                >
-                                  <v-icon>mdi-image-filter-hdr</v-icon>
-                                </v-btn>
-                              </template>
-                              <span>Set as Hero</span>
-                            </v-tooltip>
-                          </v-speed-dial>
+                            <v-list>
+                              <v-list-item v-ripple @click="setAsThumbnail(image._id)">
+                                <v-list-item-title>Set as thumbnail</v-list-item-title>
+                              </v-list-item>
+                              <v-list-item v-ripple @click="setAsAltThumbnail(image._id)">
+                                <v-list-item-title>Set as alt. thumbnail</v-list-item-title>
+                              </v-list-item>
+                              <v-list-item v-ripple @click="setAsAvatar(image._id)">
+                                <v-list-item-title>Set as avatar</v-list-item-title>
+                              </v-list-item>
+                              <v-list-item v-ripple @click="setAsHero(image._id)">
+                                <v-list-item-title>Set as hero</v-list-item-title>
+                              </v-list-item>
+                              <v-divider></v-divider>
+                              <v-list-item v-ripple @click="lightboxIndex = index">Show details</v-list-item>
+                            </v-list>
+                          </v-menu>
                         </template>
                       </ImageCard>
                     </v-col>
@@ -455,9 +376,7 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="editLabels" text color="primary" class="text-none"
-            >Edit</v-btn
-          >
+          <v-btn @click="editLabels" text color="primary" class="text-none">Edit</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -507,8 +426,7 @@
             text
             class="text-none"
             @click="uploadAvatar"
-            >Upload</v-btn
-          >
+          >Upload</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -541,17 +459,14 @@
             text
             class="text-none"
             @click="uploadThumbnail"
-            >Upload</v-btn
-          >
+          >Upload</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="altThumbnailDialog" max-width="600px">
       <v-card v-if="currentActor" :loading="altThumbnailLoader">
-        <v-card-title
-          >Set alt. thumbnail for '{{ currentActor.name }}'</v-card-title
-        >
+        <v-card-title>Set alt. thumbnail for '{{ currentActor.name }}'</v-card-title>
         <v-card-text>
           <v-file-input
             color="primary"
@@ -577,17 +492,14 @@
             text
             class="text-none"
             @click="uploadAltThumbnail"
-            >Upload</v-btn
-          >
+          >Upload</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
     <v-dialog v-model="heroDialog" max-width="600px">
       <v-card v-if="currentActor" :loading="heroLoader">
-        <v-card-title
-          >Set hero image for '{{ currentActor.name }}'</v-card-title
-        >
+        <v-card-title>Set hero image for '{{ currentActor.name }}'</v-card-title>
         <v-card-text>
           <v-file-input
             color="primary"
@@ -613,8 +525,7 @@
             text
             class="text-none"
             @click="uploadHero"
-            >Upload</v-btn
-          >
+          >Upload</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -627,20 +538,14 @@
             <v-col class="text-center pa-2" cols="12" sm="6">
               <v-hover>
                 <template v-slot:default="{ hover }">
-                  <v-img
-                    contain
-                    height="200px"
-                    :src="thumbnail"
-                    v-if="currentActor.thumbnail"
-                  >
+                  <v-img contain height="200px" :src="thumbnail" v-if="currentActor.thumbnail">
                     <v-fade-transition>
                       <v-overlay v-if="hover" absolute color="primary">
                         <v-btn
                           class="black--text text-none"
                           color="error"
                           @click="setAsThumbnail(null)"
-                          >Delete</v-btn
-                        >
+                        >Delete</v-btn>
                       </v-overlay>
                     </v-fade-transition>
                   </v-img>
@@ -651,8 +556,7 @@
                 text
                 class="mt-1 text-none"
                 @click="thumbnailDialog = true"
-                >Change thumbnail</v-btn
-              >
+              >Change thumbnail</v-btn>
             </v-col>
 
             <v-col class="text-center pa-2" cols="12" sm="6">
@@ -670,8 +574,7 @@
                           class="black--text text-none"
                           color="error"
                           @click="setAsAltThumbnail(null)"
-                          >Delete</v-btn
-                        >
+                        >Delete</v-btn>
                       </v-overlay>
                     </v-fade-transition>
                   </v-img>
@@ -682,27 +585,20 @@
                 text
                 class="mt-1 text-none"
                 @click="altThumbnailDialog = true"
-                >Change alt. thumbnail</v-btn
-              >
+              >Change alt. thumbnail</v-btn>
             </v-col>
 
             <v-col class="text-center pa-2" cols="12" sm="6">
               <v-hover>
                 <template v-slot:default="{ hover }">
-                  <v-img
-                    contain
-                    height="200px"
-                    :src="avatar"
-                    v-if="currentActor.avatar"
-                  >
+                  <v-img contain height="200px" :src="avatar" v-if="currentActor.avatar">
                     <v-fade-transition>
                       <v-overlay v-if="hover" absolute color="primary">
                         <v-btn
                           class="black--text text-none"
                           color="error"
                           @click="setAsAvatar(null)"
-                          >Delete</v-btn
-                        >
+                        >Delete</v-btn>
                       </v-overlay>
                     </v-fade-transition>
                   </v-img>
@@ -713,27 +609,20 @@
                 text
                 class="mt-1 text-none"
                 @click="avatarDialog = true"
-                >Change avatar</v-btn
-              >
+              >Change avatar</v-btn>
             </v-col>
 
             <v-col class="text-center pa-2" cols="12" sm="6">
               <v-hover>
                 <template v-slot:default="{ hover }">
-                  <v-img
-                    contain
-                    height="200px"
-                    :src="heroImage"
-                    v-if="currentActor.hero"
-                  >
+                  <v-img contain height="200px" :src="heroImage" v-if="currentActor.hero">
                     <v-fade-transition>
                       <v-overlay v-if="hover" absolute color="primary">
                         <v-btn
                           class="black--text text-none"
                           color="error"
                           @click="setAsHero(null)"
-                          >Delete</v-btn
-                        >
+                        >Delete</v-btn>
                       </v-overlay>
                     </v-fade-transition>
                   </v-img>
@@ -744,8 +633,7 @@
                 text
                 class="mt-1 text-none"
                 @click="heroDialog = true"
-                >Change hero image</v-btn
-              >
+              >Change hero image</v-btn>
             </v-col>
           </v-row>
         </v-card-text>
@@ -1806,9 +1694,6 @@ export default class ActorDetails extends Vue {
 </script>
 
 <style lang="scss" scoped>
-.image-speed-dial::v-deep .v-speed-dial__list {
-  padding: 0px;
-}
 .thumb-margin-top {
   margin-top: -160px;
 }

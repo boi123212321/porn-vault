@@ -5,7 +5,6 @@
       class="hover"
       :src="imageLink(image)"
       :alt="image.name"
-      :title="image.name"
       width="100%"
       height="100%"
       min-height="100px"

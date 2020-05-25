@@ -1,5 +1,5 @@
 import { walk } from "../src/fs/async";
-import tests from "./walk.fixture";
+import tests from "./fixtures/walk.fixture";
 import { expect } from "chai";
 import { isAbsolute } from "path";
 

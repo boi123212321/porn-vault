@@ -10,7 +10,7 @@ import { removeExtension } from "../src/types/utility";
 
 describe("String functions", () => {
   describe("removeExtension", () => {
-    const tests = require("./remove_extension.fixture").default;
+    const tests = require("./fixtures/remove_extension.fixture").default;
     for (const test of tests) {
       it("Should work as expected", () => {
         expect(removeExtension(test[0])).equals(test[1]);
@@ -50,7 +50,7 @@ describe("String functions", () => {
   });
 
   describe("Strip string", () => {
-    const tests = require("./strip_string.fixture").default;
+    const tests = require("./fixtures/strip_string.fixture").default;
     for (const test of tests) {
       it("Should work as expected", () => {
         expect(stripStr(test[0])).equals(test[1]);
@@ -59,7 +59,7 @@ describe("String functions", () => {
   });
 
   describe("Is matching actor", () => {
-    const tests = require("./matching_actor.fixture").default;
+    const tests = require("./fixtures/matching_actor.fixture").default;
     for (const test of tests) {
       it(`Should ${test[2] ? "" : "not "}match ${test[1].name}`, () => {
         expect(isMatchingItem(test[0], test[1], true)).equals(test[2]);
@@ -68,7 +68,7 @@ describe("String functions", () => {
   });
 
   describe("Is matching label", () => {
-    const tests = require("./matching_label.fixture").default;
+    const tests = require("./fixtures/matching_label.fixture").default;
     for (const test of tests) {
       it(`Should ${test[2] ? "" : "not "}match ${test[1].name}`, () => {
         expect(isMatchingItem(test[0], test[1], false)).equals(test[2]);

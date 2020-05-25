@@ -1,6 +1,6 @@
 export default [
   {
-    path: "test/files",
+    path: "test/fixtures/files",
     exclude: [],
     extensions: [".jpg"],
     expected: {
@@ -8,7 +8,7 @@ export default [
     },
   },
   {
-    path: "test/files",
+    path: "test/fixtures/files",
     exclude: [],
     extensions: [".mp4"],
     expected: {
@@ -16,7 +16,7 @@ export default [
     },
   },
   {
-    path: "test/files",
+    path: "test/fixtures/files",
     exclude: [],
     extensions: [".jpg", ".mp4"],
     expected: {
@@ -24,7 +24,7 @@ export default [
     },
   },
   {
-    path: "test/files",
+    path: "test/fixtures/files",
     exclude: ["some_"],
     extensions: [".jpg"],
     expected: {

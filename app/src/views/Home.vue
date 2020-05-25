@@ -6,9 +6,11 @@
         <v-col cols="12" sm="6">
           <Stats />
           <QueueInfo />
+          <!-- <SearchTimes /> -->
         </v-col>
         <v-col cols="12" sm="6">
           <TopActors />
+          <RandomActors />
         </v-col>
       </v-row>
     </div>
@@ -28,7 +30,9 @@ import QueueInfo from "../components/QueueInfo.vue";
 import ActorGrid from "../components/ActorGrid.vue";
 import { contextModule } from "../store/context";
 import TopActors from "../components/TopActors.vue";
+import RandomActors from "../components/RandomActors.vue";
 import Stats from "../components/Stats.vue";
+import SearchTimes from "../components/SearchTimes.vue";
 
 @Component({
   components: {
@@ -36,7 +40,9 @@ import Stats from "../components/Stats.vue";
     QueueInfo,
     ActorGrid,
     TopActors,
-    Stats
+    RandomActors,
+    Stats,
+    SearchTimes
   }
 })
 export default class Home extends Vue {}

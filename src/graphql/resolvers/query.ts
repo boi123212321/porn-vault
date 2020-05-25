@@ -8,7 +8,7 @@ import Image from "../../types/image";
 import CustomField from "../../types/custom_field";
 import { getImages } from "./search/image";
 import { getScenes } from "./search/scene";
-import { getActors } from "./search/actor";
+import { getActors, getUnwatchedActors } from "./search/actor";
 import { getStudios } from "./search/studio";
 import { getMovies } from "./search/movie";
 import { getLength, isProcessing } from "../../queue/processing";
@@ -93,6 +93,8 @@ export default {
   async topActors(_, { skip, take }: { skip: number; take: number }) {
     return await Actor.getTopActors(skip, take);
   },
+
+  getUnwatchedActors,
 
   async getQueueInfo() {
     return {

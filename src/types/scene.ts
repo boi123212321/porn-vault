@@ -4,7 +4,7 @@ import ffmpeg, { FfprobeData } from "fluent-ffmpeg";
 import asyncPool from "tiny-async-pool";
 import { getConfig } from "../config";
 import * as logger from "../logger";
-import { libraryPath, mapAsync, removeExtension } from "./utility";
+import { libraryPath, removeExtension } from "./utility";
 import Label from "./label";
 import Actor from "./actor";
 import { statAsync, readdirAsync, unlinkAsync, rimrafAsync } from "../fs/async";
@@ -30,13 +30,10 @@ import {
   imageCollection,
   sceneCollection,
   actorCollection,
-  labelledItemCollection,
   actorReferenceCollection,
   viewCollection,
 } from "../database";
-import LabelledItem from "./labelled_item";
 import ActorReference from "./actor_reference";
-import MarkerReference from "./marker_reference";
 import SceneView from "./watch";
 
 export function runFFprobe(file: string): Promise<FfprobeData> {
@@ -95,6 +92,10 @@ export default class Scene {
   meta = new SceneMeta();
   studio: string | null = null;
   processed?: boolean = false;
+
+  static calculateScore(scene: Scene, numViews: number) {
+    return numViews + +scene.favorite * 5 + scene.rating;
+  }
 
   static async onImport(videoPath: string, extractInfo = true) {
     logger.log("Importing " + videoPath);

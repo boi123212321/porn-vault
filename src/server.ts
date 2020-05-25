@@ -33,6 +33,9 @@ import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
 import { spawnGianna, giannaVersion, resetGianna } from "./gianna";
 import https from "https";
 import { readFileSync } from "fs";
+import boxen from "boxen";
+import { index as sceneIndex } from "./search/scene";
+import { index as imageIndex } from "./search/image";
 
 let serverReady = false;
 let setupMessage = "Setting up...";
@@ -77,6 +80,13 @@ export default async () => {
   app.use(cors);
 
   app.use(httpLog);
+
+  app.get("/search/timings/scenes", async (req, res) => {
+    res.json(await sceneIndex.times());
+  });
+  app.get("/search/timings/images", async (req, res) => {
+    res.json(await imageIndex.times());
+  });
 
   app.get("/debug/timings/scenes", async (req, res) => {
     res.json(await sceneCollection.times());
@@ -132,11 +142,11 @@ export default async () => {
         app
       )
       .listen(port, () => {
-        console.log(`Server running on Port ${port}`);
+        logger.message(`HTTPS Server running on Port ${port}`);
       });
   } else {
     app.listen(port, () => {
-      console.log(`Server running on Port ${port}`);
+      logger.message(`Server running on Port ${port}`);
     });
   }
 
@@ -242,6 +252,14 @@ export default async () => {
   await buildIndices();
 
   serverReady = true;
+
+  const protocol = config.ENABLE_HTTPS ? "https" : "http";
+
+  console.log(
+    boxen(`PORN VAULT READY\nOpen ${protocol}://localhost:${port}/`, {
+      padding: 1,
+    })
+  );
 
   // checkPreviews();
 

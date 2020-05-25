@@ -52,6 +52,13 @@ export namespace Gianna {
       this.name = name;
     }
 
+    async times() {
+      const res = await Axios.get(
+        `http://localhost:${getConfig().GIANNA_PORT}/index/${this.name}/times`
+      );
+      return res.data.query_times as [number, number][];
+    }
+
     async clear() {
       await Axios.delete(
         `http://localhost:${getConfig().GIANNA_PORT}/index/${this.name}/clear`

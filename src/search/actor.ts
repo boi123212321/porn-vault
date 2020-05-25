@@ -118,7 +118,11 @@ export async function buildActorIndex() {
   return index;
 }
 
-export async function searchActors(query: string, shuffleSeed = "default") {
+export async function searchActors(
+  query: string,
+  shuffleSeed = "default",
+  transformFilter?: (tree: Gianna.IFilterTreeGrouping) => void
+) {
   const options = extractQueryOptions(query);
   logger.log(`Searching actors for '${options.query}'...`);
 
@@ -133,6 +137,10 @@ export async function searchActors(query: string, shuffleSeed = "default") {
   filterRating(filter, options);
   filterInclude(filter, options);
   filterExclude(filter, options);
+
+  if (transformFilter) {
+    transformFilter(filter);
+  }
 
   if (options.sortBy) {
     if (options.sortBy === "$shuffle") {

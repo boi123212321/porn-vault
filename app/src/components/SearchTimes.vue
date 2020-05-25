@@ -1,11 +1,9 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col sm="12" md="12">
-        <canvas id="chart"></canvas>
-      </v-col>
-    </v-row>
-  </v-container>
+  <v-card class="mb-3" style="border-radius: 10px">
+    <v-card-text>
+      <canvas id="scene-search-times"></canvas>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script lang="ts">
@@ -19,28 +17,21 @@ import Chart from "chart.js";
 @Component({
   components: {}
 })
-export default class Debug extends Vue {
+export default class SearchTimes extends Vue {
   sceneQueryTimes = [] as { x: number; y: number }[];
-  actorQueryTimes = [] as { x: number; y: number }[];
   imageQueryTimes = [] as { x: number; y: number }[];
 
   fetchLoader = false;
 
   get chartData() {
     return {
-      labels: this.actorQueryTimes.map(i => new Date(i.x).toLocaleTimeString()),
+      labels: this.sceneQueryTimes.map(i => new Date(i.x).toLocaleTimeString()),
       datasets: [
         {
           fill: false,
           label: "Scene Query times",
           backgroundColor: "#79ffa0",
           data: this.sceneQueryTimes
-        },
-        {
-          fill: false,
-          label: "Actor Query times",
-          backgroundColor: "#79a0ff",
-          data: this.actorQueryTimes
         },
         {
           fill: false,
@@ -55,37 +46,25 @@ export default class Debug extends Vue {
   async getTimes() {
     this.fetchLoader = true;
 
-    this.actorQueryTimes = (
-      await Axios.get(serverBase + "/debug/timings/actors")
-    ).data
-      .slice(-1000)
-      .filter(i => i[1] < 5000)
-      .map(i => ({
-        x: i[0],
-        y: i[1]
-      }));
-
     this.sceneQueryTimes = (
-      await Axios.get(serverBase + "/debug/timings/scenes")
+      await Axios.get(serverBase + "/search/timings/scenes")
     ).data
       .slice(-1000)
-      .filter(i => i[1] < 10000)
       .map(i => ({
         x: i[0],
-        y: i[1]
+        y: i[1] / 1000 / 1000
       }));
 
     this.imageQueryTimes = (
-      await Axios.get(serverBase + "/debug/timings/images")
+      await Axios.get(serverBase + "/search/timings/images")
     ).data
       .slice(-1000)
-      .filter(i => i[1] < 10000)
       .map(i => ({
         x: i[0],
-        y: i[1]
+        y: i[1] / 1000 / 1000
       }));
 
-    var myLineChart = new Chart("chart", {
+    var myLineChart = new Chart("scene-search-times", {
       type: "line",
       data: this.chartData,
       options: {

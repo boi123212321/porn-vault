@@ -1,3 +1,5 @@
+import * as logger from "./logger";
+
 export interface IQueryOptions {
   query?: string;
   include: string[];
@@ -117,7 +119,7 @@ export default (query?: string) => {
   }
 
   if (!options.query && options.sortBy == "relevance") {
-    console.log("No search query, defaulting to addedOn");
+    logger.log("No search query, defaulting to addedOn");
     options.sortBy = "addedOn";
     options.sortDir = "desc";
   }

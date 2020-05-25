@@ -40,11 +40,13 @@ export interface ISceneSearchDoc {
   studioName: string | null;
   resolution: number | null;
   size: number | null;
+  score: number;
 }
 
 async function createSceneSearchDoc(scene: Scene): Promise<ISceneSearchDoc> {
   const labels = await Scene.getLabels(scene);
   const actors = await Scene.getActors(scene);
+  const numViews = await SceneView.getCount(scene._id);
 
   return {
     _id: scene._id,
@@ -57,7 +59,7 @@ async function createSceneSearchDoc(scene: Scene): Promise<ISceneSearchDoc> {
     rating: scene.rating,
     bookmark: scene.bookmark,
     favorite: scene.favorite,
-    numViews: await SceneView.getCount(scene._id),
+    numViews,
     duration: scene.meta.duration,
     releaseDate: scene.releaseDate,
     studio: scene.studio,
@@ -66,6 +68,7 @@ async function createSceneSearchDoc(scene: Scene): Promise<ISceneSearchDoc> {
     studioName: scene.studio
       ? ((await Studio.getById(scene.studio)) || { name: null }).name
       : null,
+    score: Scene.calculateScore(scene, numViews),
   };
 }
 

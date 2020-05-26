@@ -52,7 +52,7 @@
     "graphql-type-long": "^0.1.1",
     "handlebars": "^4.7.6",
     "inquirer": "7.1.0",
-    "jimp": "^0.9.3",
+    "jimp": "^0.12.1",
     "js-sha512": "^0.8.0",
     "lru-cache": "^5.1.1",
     "merge-img": "^2.1.3",

@@ -2,10 +2,12 @@
   <v-container>
     <BindTitle value="Home" />
     <div class="mx-auto" style="max-width: 800px">
-      <v-row>
+      <v-row dense>
         <v-col cols="12" sm="6">
           <Stats />
           <QueueInfo />
+          <SceneLabelUsage />
+          <ActorLabelUsage />
           <!-- <SearchTimes /> -->
         </v-col>
         <v-col cols="12" sm="6">
@@ -33,6 +35,8 @@ import TopActors from "../components/TopActors.vue";
 import RandomActors from "../components/RandomActors.vue";
 import Stats from "../components/Stats.vue";
 import SearchTimes from "../components/SearchTimes.vue";
+import ActorLabelUsage from "../components/ActorLabelUsage.vue";
+import SceneLabelUsage from "../components/SceneLabelUsage.vue";
 
 @Component({
   components: {
@@ -42,7 +46,9 @@ import SearchTimes from "../components/SearchTimes.vue";
     TopActors,
     RandomActors,
     Stats,
-    SearchTimes
+    SearchTimes,
+    ActorLabelUsage,
+    SceneLabelUsage
   }
 })
 export default class Home extends Vue {}

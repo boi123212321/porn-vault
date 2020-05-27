@@ -97,6 +97,27 @@ export default class Scene {
     return numViews + +scene.favorite * 5 + scene.rating;
   }
 
+  static async getLabelUsage() {
+    const scores = {} as Record<string, { label: Label; score: number }>;
+    for (const scene of await Scene.getAll()) {
+      for (const label of await Scene.getLabels(scene)) {
+        const item = scores[label._id];
+        scores[label._id] = item
+          ? { label, score: item.score + 1 }
+          : {
+              label,
+              score: 0,
+            };
+      }
+    }
+    return Object.keys(scores)
+      .map((key) => ({
+        label: scores[key].label,
+        score: scores[key].score,
+      }))
+      .sort((a, b) => b.score - a.score);
+  }
+
   static async onImport(videoPath: string, extractInfo = true) {
     logger.log("Importing " + videoPath);
     const config = getConfig();

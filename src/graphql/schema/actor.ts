@@ -56,7 +56,6 @@ export default gql`
     getActorsWithoutScenes(num: Int): [Actor!]!
     getActorsWithoutLabels(num: Int): [Actor!]!
     actorGraph: ActorGraph!
-    getActorLabelUsage: [ScoredLabels!]!
   }
 
   input ActorUpdateOpts {

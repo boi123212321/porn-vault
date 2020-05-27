@@ -12,6 +12,9 @@ export function mountApolloServer(app: express.Application) {
     cacheControl: {
       defaultMaxAge: Math.max(0, config.CACHE_TIME),
     },
+    context: ({ req }) => ({
+      req,
+    }),
   });
   server.applyMiddleware({ app, path: "/ql" });
 }

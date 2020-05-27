@@ -73,6 +73,27 @@ export default class Actor {
     return numScenes / 5 + numViews + +actor.favorite * 5 + actor.rating;
   }
 
+  static async getLabelUsage() {
+    const scores = {} as Record<string, { label: Label; score: number }>;
+    for (const actor of await Actor.getAll()) {
+      for (const label of await Actor.getLabels(actor)) {
+        const item = scores[label._id];
+        scores[label._id] = item
+          ? { label, score: item.score + 1 }
+          : {
+              label,
+              score: 0,
+            };
+      }
+    }
+    return Object.keys(scores)
+      .map((key) => ({
+        label: scores[key].label,
+        score: scores[key].score,
+      }))
+      .sort((a, b) => b.score - a.score);
+  }
+
   static async getTopActors(skip = 0, take = 0) {
     const result = await searchActors(
       `query:'' sortBy:score sortDir:desc skip:${skip} take:${take}`

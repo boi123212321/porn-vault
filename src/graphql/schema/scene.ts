@@ -13,11 +13,6 @@ export default gql`
     fps: Float
   }
 
-  type ScoredLabels {
-    label: Label!
-    score: Int!
-  }
-
   type SceneSearchResults {
     numItems: Int!
     numPages: Int!
@@ -31,7 +26,6 @@ export default gql`
     getScenesWithoutActors(num: Int): [Scene!]!
     getScenesWithoutLabels(num: Int): [Scene!]!
     getScenesWithoutStudios(num: Int): [Scene!]!
-    getSceneLabelUsage: [ScoredLabels!]!
   }
 
   type Scene {

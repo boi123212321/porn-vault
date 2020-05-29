@@ -35,7 +35,6 @@ import {
 } from "../database";
 import ActorReference from "./actor_reference";
 import SceneView from "./watch";
-import scene from 'graphql/resolvers/scene';
 
 export function runFFprobe(file: string): Promise<FfprobeData> {
   return new Promise((resolve, reject) => {

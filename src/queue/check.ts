@@ -11,7 +11,7 @@ import { indexImages } from "../search/image";
 import { imageCollection, sceneCollection } from "../database";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
-  exclude.some((regStr) => new RegExp(regStr, "i").test(file.toLowerCase()));
+  exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
 
 export async function checkVideoFolders() {
   const config = getConfig();
@@ -25,28 +25,28 @@ export async function checkVideoFolders() {
     logger.message(`Scanning ${folder} for videos...`);
     let numFiles = 0;
     const loader = ora(`Scanned ${numFiles} videos`).start();
-    const existingScenes = await Scene.getAll()
+    const existingScenes = await Scene.getAll();
     const existingScenesMap = existingScenes.reduce((acc, curr) => {
       acc.set(curr.path, curr._id);
       return acc;
-    }, new Map())
+    }, new Map());
 
     await walk({
       dir: folder,
       exclude: config.EXCLUDE_FILES,
       extensions: [".mp4", ".webm"],
-      cb: async (path) => {
+      cb: async path => {
         loader.text = `Scanned ${++numFiles} videos`;
         if (basename(path).startsWith(".")) {
           logger.log(`Ignoring file ${path}`);
         } else {
           logger.log(`Found matching file ${path}`);
           const existingScene = existingScenesMap.has(path);
-          if (existingScene) existingScenesMap.delete(path)
+          if (existingScene) existingScenesMap.delete(path);
           logger.log("Scene with that path exists already: " + !!existingScene);
           if (!existingScene) unknownVideos.push(path);
         }
-      },
+      }
     });
     //push existingScenesMap to collection since those are the paths not found.
     loader.succeed(`${folder} done (${numFiles} videos)`);
@@ -134,7 +134,7 @@ export async function checkImageFolders() {
       dir: folder,
       extensions: [".jpg", ".jpeg", ".png", ".gif"],
       exclude: config.EXCLUDE_FILES,
-      cb: async (path) => {
+      cb: async path => {
         loader.text = `Scanned ${++numFiles} images`;
         if (basename(path).startsWith(".")) return;
 
@@ -145,7 +145,7 @@ export async function checkImageFolders() {
         } else {
           logger.log(`Image '${path}' already exists`);
         }
-      },
+      }
     });
 
     loader.succeed(`${folder} done`);

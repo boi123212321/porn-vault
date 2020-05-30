@@ -289,10 +289,6 @@ export default class Scene {
     }
   }
 
-  static async deleteUnverifiedScenes(debug: boolean) {
-
-  }
-
   static async watch(scene: Scene) {
     logger.log("Watch scene " + scene._id);
     const watchItem = new SceneView(scene._id, +new Date());

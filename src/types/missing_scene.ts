@@ -3,12 +3,13 @@ export interface IMissingSceneItem {
   path: string;
 }
 
-import { sceneCollection } from "../database/index";
+import { sceneCollection, missingSceneCollection } from "../database/index";
 import * as logger from "../logger";
-import { missingSceneCollection } from "../database/index";
-export async function emptyRecycleBin() {
+export async function purgeMissingScenes() {
   const items = await missingSceneCollection.getAll();
+  logger.log(`collected ${items.length} missing scenes`);
   items.forEach(async item => {
+    logger.log(`removing scene: ${item.path}`);
     await sceneCollection
       .remove(item._id)
       .catch(err =>
@@ -19,8 +20,9 @@ export async function emptyRecycleBin() {
     await missingSceneCollection.remove(item._id);
   });
 }
-export async function clearRecycleBin() {
+export async function resetMissingScenes() {
   const items = await missingSceneCollection.getAll();
+  logger.log(`Removing ${items.length} items from the recycle bin collection`)
   items.forEach(async item => {
     await missingSceneCollection.remove(item._id);
   });

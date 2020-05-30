@@ -250,7 +250,8 @@ export async function loadStores() {
 
   missingSceneCollection = await Izzy.createCollection(
     "missing-scenes",
-    libraryPath("missing-scenes.db")
+    libraryPath("missing-scenes.db"),
+    []
   );
 
   logger.log("Created Izzy collections");

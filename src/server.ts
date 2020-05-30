@@ -11,7 +11,6 @@ import {
   actorCollection,
   imageCollection,
   sceneCollection,
-  missingSceneCollection,
 } from "./database/index";
 import { existsAsync } from "./fs/async";
 import { createBackup } from "./backup";
@@ -28,7 +27,7 @@ import {
   isProcessing,
   setProcessingStatus,
 } from "./queue/processing";
-import { emptyRecycleBin, clearRecycleBin } from "./types/missing_scene";
+import { purgeMissingScenes } from "./types/missing_scene";
 import queueRouter from "./queue_router";
 import { spawn } from "child_process";
 import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
@@ -80,7 +79,7 @@ async function scanFolders() {
 }
 async function emptyRecycle() {
   logger.message("Emptying recycle bin...");
-  await emptyRecycleBin();
+  await purgeMissingScenes();
   logger.success("Scan done.");
 }
 
@@ -324,6 +323,7 @@ export default async () => {
 
   if (config.SCAN_ON_STARTUP) {
     await scanFolders();
+    await emptyRecycle();
   } else {
     logger.warn(
       "Scanning folders is currently disabled. Enable in config.json & restart."

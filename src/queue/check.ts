@@ -13,7 +13,7 @@ import {
   sceneCollection,
   missingSceneCollection,
 } from "../database";
-import { clearRecycleBin } from "../types/missing_scene";
+import { resetMissingScenes } from "../types/missing_scene";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
   exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
@@ -35,7 +35,7 @@ export async function checkVideoFolders() {
       acc.set(curr.path, curr._id);
       return acc;
     }, new Map());
-    await clearRecycleBin();
+    await resetMissingScenes();
     await walk({
       dir: folder,
       exclude: config.EXCLUDE_FILES,
@@ -53,8 +53,15 @@ export async function checkVideoFolders() {
         }
       },
     });
+    logger.log(`found ${existingScenesMap.size} missing files`);
     existingScenesMap.forEach(async scene => {
-      await missingSceneCollection.upsert(scene._id, scene.path);
+      const _id = scene._id;
+      const path = scene.path;
+      await missingSceneCollection
+        .upsert(scene._id, { _id, path })
+        .then(result => {
+          logger.log(`Add Scene to recycle bin: ${result}`);
+        });
     });
     loader.succeed(`${folder} done (${numFiles} videos)`);
   }

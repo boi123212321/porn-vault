@@ -1,6 +1,15 @@
-export interface IMissingSceneItem {
+// export interface IMissingSceneItem {
+//   _id: string;
+//   path: string;
+// }
+
+export default class MissingScene {
   _id: string;
   path: string;
+  constructor(_id: string, path: string) {
+    this._id = _id;
+    this.path = path;
+  }
 }
 
 import { sceneCollection, missingSceneCollection } from "../database/index";
@@ -22,7 +31,7 @@ export async function purgeMissingScenes() {
 }
 export async function resetMissingScenes() {
   const items = await missingSceneCollection.getAll();
-  logger.log(`Removing ${items.length} items from the recycle bin collection`)
+  logger.log(`Removing ${items.length} items from the recycle bin collection`);
   items.forEach(async item => {
     await missingSceneCollection.remove(item._id);
   });

@@ -323,7 +323,6 @@ export default async () => {
 
   if (config.SCAN_ON_STARTUP) {
     await scanFolders();
-    await emptyRecycle();
   } else {
     logger.warn(
       "Scanning folders is currently disabled. Enable in config.json & restart."

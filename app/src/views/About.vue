@@ -4,6 +4,32 @@
 
     <div style="max-width: 800px" class="mx-auto">
       <v-card>
+        <v-card-title>System Actions</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-btn
+              color="primary"
+              depressed
+              disabled
+              :dark="this.$vuetify.theme.dark ? false : true"
+              :light="this.$vuetify.theme.dark ? true : false"
+              @click="emptyRecycleBin"
+              class="text-none mr-2 mb-2"
+              >Scan Files</v-btn
+            >
+            <v-btn
+              color="error"
+              depressed
+              :dark="this.$vuetify.theme.dark ? false : true"
+              :light="this.$vuetify.theme.dark ? true : false"
+              @click="emptyRecycleBin"
+              class="text-none mr-2 mb-2"
+              >Empty Recycle Bin
+            </v-btn>
+          </v-row>
+        </v-card-text>
+      </v-card>
+      <v-card>
         <v-card-title>Preferences</v-card-title>
         <v-card-text>
           <v-row>
@@ -39,17 +65,8 @@
                 <v-btn
                   color="gray darken-4"
                   depressed
-                  dark
-                  @click="emptyRecycleBin"
-                  class="text-none my-3"
-                  >Empty Recycle Bin</v-btn
-                >
-              </div>
-              <div>
-                <v-btn
-                  color="gray darken-4"
-                  depressed
-                  dark
+                  :dark="this.$vuetify.theme.dark ? false : true"
+                  :light="this.$vuetify.theme.dark ? true : false"
                   @click="toggleDarkMode"
                   class="text-none my-3"
                   >{{

@@ -14,6 +14,7 @@ import {
   missingSceneCollection,
 } from "../database";
 import { resetMissingScenes } from "../types/missing_scene";
+import MissingScene from "../types/missing_scene";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
   exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
@@ -54,14 +55,11 @@ export async function checkVideoFolders() {
       },
     });
     logger.log(`found ${existingScenesMap.size} missing files`);
-    existingScenesMap.forEach(async scene => {
-      const _id = scene._id;
-      const path = scene.path;
-      await missingSceneCollection
-        .upsert(scene._id, { _id, path })
-        .then(result => {
-          logger.log(`Add Scene to recycle bin: ${result}`);
-        });
+    existingScenesMap.forEach(async (value, key) => {
+      const _id = value;
+      const path = key;
+      logger.log(`Adding this item ${_id} and ${path}`);
+      await missingSceneCollection.upsert(_id, new MissingScene(_id, path));
     });
     loader.succeed(`${folder} done (${numFiles} videos)`);
   }

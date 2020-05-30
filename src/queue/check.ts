@@ -8,7 +8,12 @@ import { extractLabels, extractActors, extractScenes } from "../extractor";
 import Jimp from "jimp";
 import ora = require("ora");
 import { indexImages } from "../search/image";
-import { imageCollection, sceneCollection } from "../database";
+import {
+  imageCollection,
+  sceneCollection,
+  missingSceneCollection,
+} from "../database";
+import { clearRecycleBin } from "../types/missing_scene";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
   exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
@@ -30,7 +35,7 @@ export async function checkVideoFolders() {
       acc.set(curr.path, curr._id);
       return acc;
     }, new Map());
-
+    await clearRecycleBin();
     await walk({
       dir: folder,
       exclude: config.EXCLUDE_FILES,
@@ -46,9 +51,11 @@ export async function checkVideoFolders() {
           logger.log("Scene with that path exists already: " + !!existingScene);
           if (!existingScene) unknownVideos.push(path);
         }
-      }
+      },
     });
-    //push existingScenesMap to collection since those are the paths not found.
+    existingScenesMap.forEach(async scene => {
+      await missingSceneCollection.upsert(scene._id, scene.path);
+    });
     loader.succeed(`${folder} done (${numFiles} videos)`);
   }
 
@@ -145,7 +152,7 @@ export async function checkImageFolders() {
         } else {
           logger.log(`Image '${path}' already exists`);
         }
-      }
+      },
     });
 
     loader.succeed(`${folder} done`);

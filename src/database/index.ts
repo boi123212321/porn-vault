@@ -20,7 +20,7 @@ import { convertCrossReferences } from "../compat";
 import SceneView from "../types/watch";
 import CustomField from "../types/custom_field";
 import { ISceneProcessingItem } from "../queue/processing";
-import { ISceneRecyclingItem } from "../queue/recycling";
+import { IMissingSceneItem } from "../types/missing_scene";
 
 mkdirp.sync("backups/");
 mkdirp.sync("tmp/");
@@ -39,7 +39,7 @@ export let customFieldCollection!: Izzy.Collection<CustomField>;
 export let markerCollection!: Izzy.Collection<Marker>;
 export let studioCollection!: Izzy.Collection<Studio>;
 export let processingCollection!: Izzy.Collection<ISceneProcessingItem>;
-export let recyclingCollection!: Izzy.Collection<ISceneProcessingItem>;
+export let missingSceneCollection!: Izzy.Collection<IMissingSceneItem>;
 
 export async function loadStores() {
   const crossReferencePath = libraryPath("cross_references.db");
@@ -248,6 +248,11 @@ export async function loadStores() {
     []
   );
 
+  missingSceneCollection = await Izzy.createCollection(
+    "missing-scenes",
+    libraryPath("missing-scenes.db")
+  );
+
   logger.log("Created Izzy collections");
 
   if (!args["skip-compaction"]) {
@@ -266,6 +271,7 @@ export async function loadStores() {
     await markerCollection.compact();
     await studioCollection.compact();
     await processingCollection.compact();
+    await missingSceneCollection.compact();
     compactLoader.succeed("Compacted DB");
   } else {
     logger.message("Skipping compaction");

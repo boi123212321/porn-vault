@@ -58,7 +58,6 @@ export async function checkVideoFolders() {
     existingScenesMap.forEach(async (value, key) => {
       const _id = value;
       const path = key;
-      logger.log(`Adding this item ${_id} and ${path}`);
       await missingSceneCollection.upsert(_id, new MissingScene(_id, path));
     });
     loader.succeed(`${folder} done (${numFiles} videos)`);

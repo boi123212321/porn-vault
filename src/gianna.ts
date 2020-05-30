@@ -1,7 +1,7 @@
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { type, arch } from "os";
 import * as logger from "./logger";
-import { existsAsync, unlinkAsync} from "./fs/async";
+import { existsAsync, unlinkAsync } from "./fs/async";
 import Axios from "axios";
 import { downloadFile } from "./ffmpeg-download";
 import { chmodSync } from "fs";

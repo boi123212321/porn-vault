@@ -8,10 +8,16 @@ import { extractLabels, extractActors, extractScenes } from "../extractor";
 import Jimp from "jimp";
 import ora = require("ora");
 import { indexImages } from "../search/image";
-import { imageCollection, sceneCollection } from "../database";
+import {
+  imageCollection,
+  sceneCollection,
+  missingSceneCollection,
+} from "../database";
+import { resetMissingScenes } from "../types/missing_scene";
+import MissingScene from "../types/missing_scene";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
-  exclude.some((regStr) => new RegExp(regStr, "i").test(file.toLowerCase()));
+  exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
 
 export async function checkVideoFolders() {
   const config = getConfig();
@@ -25,26 +31,35 @@ export async function checkVideoFolders() {
     logger.message(`Scanning ${folder} for videos...`);
     let numFiles = 0;
     const loader = ora(`Scanned ${numFiles} videos`).start();
-    if (config.DELETE_UNVERIFIED) await Scene.flagAllExisting(false)
-
+    const existingScenes = await Scene.getAll();
+    const existingScenesMap = existingScenes.reduce((acc, curr) => {
+      acc.set(curr.path, curr._id);
+      return acc;
+    }, new Map());
+    await resetMissingScenes();
     await walk({
       dir: folder,
       exclude: config.EXCLUDE_FILES,
       extensions: [".mp4", ".webm"],
-      cb: async (path) => {
+      cb: async path => {
         loader.text = `Scanned ${++numFiles} videos`;
         if (basename(path).startsWith(".")) {
           logger.log(`Ignoring file ${path}`);
         } else {
           logger.log(`Found matching file ${path}`);
-          const existingScene = await Scene.getSceneByPath(path);
-          if (config.DELETE_UNVERIFIED && existingScene) await Scene.flagExisting(existingScene, true)
+          const existingScene = existingScenesMap.has(path);
+          if (existingScene) existingScenesMap.delete(path);
           logger.log("Scene with that path exists already: " + !!existingScene);
           if (!existingScene) unknownVideos.push(path);
         }
       },
     });
-    if(config.DELETE_UNVERIFIED) await Scene.deleteUnverifiedScenes(config.DELETE_UNVERIFIED_DEBUG)
+    logger.log(`found ${existingScenesMap.size} missing files`);
+    existingScenesMap.forEach(async (value, key) => {
+      const _id = value;
+      const path = key;
+      await missingSceneCollection.upsert(_id, new MissingScene(_id, path));
+    });
     loader.succeed(`${folder} done (${numFiles} videos)`);
   }
 
@@ -130,7 +145,7 @@ export async function checkImageFolders() {
       dir: folder,
       extensions: [".jpg", ".jpeg", ".png", ".gif"],
       exclude: config.EXCLUDE_FILES,
-      cb: async (path) => {
+      cb: async path => {
         loader.text = `Scanned ${++numFiles} images`;
         if (basename(path).startsWith(".")) return;
 

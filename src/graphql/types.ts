@@ -10,6 +10,7 @@ import movieSchema from "./schema/movie";
 import labelSchema from "./schema/label";
 import customFieldSchema from "./schema/custom_field";
 import markerSchema from "./schema/marker";
+import missingSceneSchema from "./schema/missing_scene"
 
 export default makeExecutableSchema({
   typeDefs: [
@@ -21,7 +22,9 @@ export default makeExecutableSchema({
     movieSchema,
     labelSchema,
     customFieldSchema,
-    markerSchema
+    markerSchema,
+    missingSceneSchema
+
   ],
   resolvers: RootResolver,
   resolverValidationOptions: {

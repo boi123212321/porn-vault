@@ -1,8 +1,9 @@
 // TS bindings for Izzy
 
 import Axios from "axios";
-import * as logger from "../../logger";
+// import * as logger from "../../logger";
 import { getConfig } from "../../config/index";
+// import { logger } from 'handlebars';
 
 export namespace Izzy {
   export interface IIndexCreation {

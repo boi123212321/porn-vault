@@ -27,6 +27,7 @@ import {
   isProcessing,
   setProcessingStatus,
 } from "./queue/processing";
+import { purgeMissingScenes } from "./types/missing_scene";
 import queueRouter from "./queue_router";
 import { spawn } from "child_process";
 import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
@@ -56,7 +57,7 @@ async function tryStartProcessing() {
       cwd: process.cwd(),
       detached: false,
       stdio: "inherit",
-    }).on("exit", (code) => {
+    }).on("exit", code => {
       logger.warn("Processing process exited with code " + code);
       setProcessingStatus(false);
     });
@@ -71,10 +72,15 @@ async function scanFolders() {
   logger.success("Scan done.");
   checkImageFolders();
 
-  tryStartProcessing().catch((err) => {
+  tryStartProcessing().catch(err => {
     logger.error("Couldn't start processing...");
     logger.error(err.message);
   });
+}
+async function emptyRecycle() {
+  logger.message("Emptying recycle bin...");
+  await purgeMissingScenes();
+  logger.success("Scan done.");
 }
 
 export default async () => {
@@ -257,6 +263,10 @@ export default async () => {
     scanFolders();
     res.json("Started scan.");
   });
+  app.get("/empty-recycle-bin", (req, res) => {
+    emptyRecycle();
+    res.json("Emptying recycle bin.");
+  });
 
   if (config.BACKUP_ON_STARTUP === true) {
     setupMessage = "Creating backup...";
@@ -320,7 +330,7 @@ export default async () => {
   }
 
   if (config.DO_PROCESSING) {
-    tryStartProcessing().catch((err) => {
+    tryStartProcessing().catch(err => {
       logger.error("Couldn't start processing...");
       logger.error(err.message);
     });

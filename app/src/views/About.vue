@@ -4,6 +4,32 @@
 
     <div style="max-width: 800px" class="mx-auto">
       <v-card>
+        <v-card-title>System Actions</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-btn
+              color="primary"
+              depressed
+              disabled
+              :dark="this.$vuetify.theme.dark ? false : true"
+              :light="this.$vuetify.theme.dark ? true : false"
+              @click="emptyRecycleBin"
+              class="text-none mr-2 mb-2"
+              >Scan Files</v-btn
+            >
+            <v-btn
+              color="error"
+              depressed
+              :dark="this.$vuetify.theme.dark ? false : true"
+              :light="this.$vuetify.theme.dark ? true : false"
+              @click="emptyRecycleBin"
+              class="text-none mr-2 mb-2"
+              >Empty Recycle Bin
+            </v-btn>
+          </v-row>
+        </v-card-text>
+      </v-card>
+      <v-card>
         <v-card-title>Preferences</v-card-title>
         <v-card-text>
           <v-row>
@@ -12,8 +38,12 @@
                 <v-subheader>Scene cards aspect ratio</v-subheader>
                 <v-radio-group v-model="sceneRatio">
                   <v-radio color="primary" :value="1" label="Square"></v-radio>
-                  <v-radio color="primary" :value="16/9" label="16:9"></v-radio>
-                  <v-radio color="primary" :value="4/3" label="4:3"></v-radio>
+                  <v-radio
+                    color="primary"
+                    :value="16 / 9"
+                    label="16:9"
+                  ></v-radio>
+                  <v-radio color="primary" :value="4 / 3" label="4:3"></v-radio>
                 </v-radio-group>
               </div>
 
@@ -21,8 +51,12 @@
                 <v-subheader>Actor cards aspect ratio</v-subheader>
                 <v-radio-group v-model="actorRatio">
                   <v-radio color="primary" :value="1" label="Square"></v-radio>
-                  <v-radio color="primary" :value="9/16" label="9:16"></v-radio>
-                  <v-radio color="primary" :value="3/4" label="3:4"></v-radio>
+                  <v-radio
+                    color="primary"
+                    :value="9 / 16"
+                    label="9:16"
+                  ></v-radio>
+                  <v-radio color="primary" :value="3 / 4" label="3:4"></v-radio>
                 </v-radio-group>
               </div>
             </v-col>
@@ -31,10 +65,14 @@
                 <v-btn
                   color="gray darken-4"
                   depressed
-                  dark
+                  :dark="this.$vuetify.theme.dark ? false : true"
+                  :light="this.$vuetify.theme.dark ? true : false"
                   @click="toggleDarkMode"
                   class="text-none my-3"
-                >{{ this.$vuetify.theme.dark ? "Light mode" : "Dark mode" }}</v-btn>
+                  >{{
+                    this.$vuetify.theme.dark ? "Light mode" : "Dark mode"
+                  }}</v-btn
+                >
               </div>
               <div>
                 <v-checkbox
@@ -112,12 +150,14 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import CustomFieldCreator from "../components/CustomFieldCreator.vue";
+import gql from "graphql-tag";
 import { contextModule } from "../store/context";
+import ApolloClient from "../apollo";
 
 @Component({
   components: {
-    CustomFieldCreator
-  }
+    CustomFieldCreator,
+  },
 })
 export default class About extends Vue {
   version = "0.22";
@@ -175,6 +215,17 @@ export default class About extends Vue {
       // @ts-ignore
       this.$vuetify.theme.dark ? "true" : "false"
     );
+  }
+  emptyRecycleBin() {
+    ApolloClient.mutate({
+      mutation: gql`
+        mutation {
+          emptyRecycleBin
+        }
+      `,
+    }).then(onFulfilled => {
+      console.log(`emptied recycle bin ${onFulfilled.data}`);
+    });
   }
 }
 </script>

@@ -290,16 +290,7 @@ export default class Scene {
   }
 
   static async deleteUnverifiedScenes(debug: boolean) {
-    const allScenes = await Scene.getAll();
-    for (const scene of allScenes) {
-      if (!scene.verifiedExisting) {
-        if(debug) {
-          logger.log("Would remove the scene " + scene.name + " at " + scene.path)
-        } else {
-          await sceneCollection.remove(scene._id)
-        }
-      }
-    }
+
   }
 
   static async watch(scene: Scene) {

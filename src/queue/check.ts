@@ -13,8 +13,8 @@ import {
   sceneCollection,
   missingSceneCollection,
 } from "../database";
-import { resetMissingScenes } from "../types/missing_scene";
-import MissingScene from "../types/missing_scene";
+import { resetMissingItems } from "../types/missing_item";
+import MissingScene from "../types/missing_item";
 
 const fileIsExcluded = (exclude: string[], file: string) =>
   exclude.some(regStr => new RegExp(regStr, "i").test(file.toLowerCase()));
@@ -36,7 +36,7 @@ export async function checkVideoFolders() {
       acc.set(curr.path, curr._id);
       return acc;
     }, new Map());
-    await resetMissingScenes();
+    await resetMissingItems();
     await walk({
       dir: folder,
       exclude: config.EXCLUDE_FILES,

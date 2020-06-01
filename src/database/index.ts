@@ -20,7 +20,7 @@ import { convertCrossReferences } from "../compat";
 import SceneView from "../types/watch";
 import CustomField from "../types/custom_field";
 import { ISceneProcessingItem } from "../queue/processing";
-import MissingScene from "../types/missing_scene";
+import MissingScene from "../types/missing_item";
 
 mkdirp.sync("backups/");
 mkdirp.sync("tmp/");

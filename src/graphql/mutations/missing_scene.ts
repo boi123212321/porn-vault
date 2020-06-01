@@ -1,10 +1,10 @@
 import Movie from "../../types/movie";
 import * as logger from "../../logger";
-import { purgeMissingScenes } from "../../types/missing_scene";
+import { purgeMissingItems } from "../../types/missing_item";
 
 export default {
   async emptyRecycleBin() {
-    await purgeMissingScenes();
+    await purgeMissingItems();
     return true;
   },
 };

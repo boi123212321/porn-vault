@@ -15,8 +15,19 @@
               :light="!this.$vuetify.theme.dark"
               @click="emptyRecycleBin"
               class="text-none mr-2 mb-2"
-              >Scan Files</v-btn
             >
+              Scan Files
+            </v-btn>
+            <v-btn
+              color="secondary"
+              depressed
+              :dark="this.$vuetify.theme.dark"
+              :light="!this.$vuetify.theme.dark"
+              @click="emptyRecycleBin"
+              class="text-none mr-2 mb-2"
+            >
+              Scan for missing Files
+            </v-btn>
             <v-btn
               color="error"
               depressed
@@ -24,7 +35,8 @@
               :light="!this.$vuetify.theme.dark"
               @click="emptyRecycleBin"
               class="text-none mr-2 mb-2"
-              >Empty Recycle Bin
+            >
+              Empty Recycle Bin
             </v-btn>
           </v-row>
         </v-card-text>

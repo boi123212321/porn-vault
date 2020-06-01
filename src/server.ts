@@ -27,7 +27,7 @@ import {
   isProcessing,
   setProcessingStatus,
 } from "./queue/processing";
-import { purgeMissingScenes } from "./types/missing_scene";
+import { purgeMissingItems } from "./types/missing_item";
 import queueRouter from "./queue_router";
 import { spawn } from "child_process";
 import { spawnIzzy, izzyVersion, resetIzzy } from "./izzy";
@@ -79,7 +79,7 @@ async function scanFolders() {
 }
 async function emptyRecycle() {
   logger.message("Emptying recycle bin...");
-  await purgeMissingScenes();
+  await purgeMissingItems();
   logger.success("Scan done.");
 }
 
@@ -264,11 +264,11 @@ export default async () => {
     res.json("Started scan.");
   });
   app.get("/empty-recycle-bin", async (req, res) => {
-    try{
+    try {
       await emptyRecycle();
       res.json("Emptying recycle bin.");
     } catch {
-      res.status(500).json("Error occured emptying the recycle bin.")
+      res.status(500).json("Error occured emptying the recycle bin.");
     }
   });
 

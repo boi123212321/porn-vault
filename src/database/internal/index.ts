@@ -1,9 +1,7 @@
 // TS bindings for Izzy
 
 import Axios from "axios";
-// import * as logger from "../../logger";
 import { getConfig } from "../../config/index";
-// import { logger } from 'handlebars';
 
 export namespace Izzy {
   export interface IIndexCreation {
@@ -62,7 +60,6 @@ export namespace Izzy {
     }
 
     async get(id: string) {
-      //logger.log(`Getting ${this.name}/${id}...`);
       try {
         const res = await Axios.get(
           `http://localhost:${getConfig().IZZY_PORT}/collection/${
@@ -78,7 +75,6 @@ export namespace Izzy {
     }
 
     async getBulk(items: string[]) {
-      //logger.log(`Getting bulk from ${this.name}...`);
       const res = await Axios.post(
         `http://localhost:${getConfig().IZZY_PORT}/collection/${
           this.name
@@ -89,7 +85,6 @@ export namespace Izzy {
     }
 
     async query(index: string, key: string | null) {
-      //logger.log(`Getting indexed: ${this.name}/${key}...`);
       const res = await Axios.get(
         `http://localhost:${getConfig().IZZY_PORT}/collection/${
           this.name
@@ -99,7 +94,6 @@ export namespace Izzy {
     }
 
     async times() {
-      //logger.log(`Getting times: ${this.name}...`);
       const res = await Axios.get(
         `http://localhost:${getConfig().IZZY_PORT}/collection/${
           this.name

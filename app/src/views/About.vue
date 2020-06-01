@@ -11,8 +11,8 @@
               color="primary"
               depressed
               disabled
-              :dark="this.$vuetify.theme.dark ? false : true"
-              :light="this.$vuetify.theme.dark ? true : false"
+              :dark="this.$vuetify.theme.dark"
+              :light="!this.$vuetify.theme.dark"
               @click="emptyRecycleBin"
               class="text-none mr-2 mb-2"
               >Scan Files</v-btn
@@ -20,8 +20,8 @@
             <v-btn
               color="error"
               depressed
-              :dark="this.$vuetify.theme.dark ? false : true"
-              :light="this.$vuetify.theme.dark ? true : false"
+              :dark="this.$vuetify.theme.dark"
+              :light="!this.$vuetify.theme.dark"
               @click="emptyRecycleBin"
               class="text-none mr-2 mb-2"
               >Empty Recycle Bin
@@ -65,8 +65,8 @@
                 <v-btn
                   color="gray darken-4"
                   depressed
-                  :dark="this.$vuetify.theme.dark ? false : true"
-                  :light="this.$vuetify.theme.dark ? true : false"
+                  :dark="this.$vuetify.theme.dark"
+                  :light="!this.$vuetify.theme.dark"
                   @click="toggleDarkMode"
                   class="text-none my-3"
                   >{{
@@ -223,8 +223,8 @@ export default class About extends Vue {
           emptyRecycleBin
         }
       `,
-    }).then(onFulfilled => {
-      console.log(`emptied recycle bin ${onFulfilled.data}`);
+    }).then(res => {
+      console.log(`emptied recycle bin ${res.data}`);
     });
   }
 }

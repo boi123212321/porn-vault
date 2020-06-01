@@ -263,9 +263,13 @@ export default async () => {
     scanFolders();
     res.json("Started scan.");
   });
-  app.get("/empty-recycle-bin", (req, res) => {
-    emptyRecycle();
-    res.json("Emptying recycle bin.");
+  app.get("/empty-recycle-bin", async (req, res) => {
+    try{
+      await emptyRecycle();
+      res.json("Emptying recycle bin.");
+    } catch {
+      res.status(500).json("Error occured emptying the recycle bin.")
+    }
   });
 
   if (config.BACKUP_ON_STARTUP === true) {

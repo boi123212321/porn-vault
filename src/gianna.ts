@@ -98,7 +98,7 @@ export function spawnGianna() {
       reject(err);
     });
     giannaProcess.stdout.on("data", (data) => {
-      if (responded) {
+      if (!responded) {
         logger.log("Gianna ready on port " + port);
         responded = true;
         resolve();

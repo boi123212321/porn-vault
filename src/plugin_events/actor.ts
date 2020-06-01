@@ -1,6 +1,6 @@
 import Actor from "../types/actor";
 import { runPluginsSerial } from "../plugins/index";
-import { libraryPath, validRating } from "../types/utility";
+import { libraryPath, validRating, extensionFromUrl } from "../types/utility";
 import { extractLabels, extractFields } from "../extractor";
 import { getConfig } from "../config";
 import { extname } from "path";
@@ -48,7 +48,7 @@ export async function onActorCreate(
       logger.log("Creating image from " + url);
       const img = new Image(name);
       if (thumbnail) img.name += " (thumbnail)";
-      const ext = extname(url);
+      const ext = extensionFromUrl(url);
       const path = libraryPath(`images/${img._id}${ext}`);
       await downloadFile(url, path);
       img.path = path;

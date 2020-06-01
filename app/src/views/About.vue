@@ -223,7 +223,7 @@ export default class About extends Vue {
           emptyRecycleBin
         }
       `,
-    }).then(onFulfilled => {
+    }).then(res => {
       console.log(`emptied recycle bin ${onFulfilled.data}`);
     });
   }

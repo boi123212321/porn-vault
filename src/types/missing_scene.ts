@@ -48,7 +48,9 @@ export async function purgeMissingScenes() {
     logger.log("Deleting scene from queue (if needed)");
     try {
       await removeSceneFromQueue(item._id);
-    } catch (err) {}
+    } catch (err) {
+      // Do nothing, does not matter if this fails
+    }
 
     await missingSceneCollection.remove(item._id);
 

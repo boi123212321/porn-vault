@@ -2,7 +2,7 @@ import ffmpeg from "fluent-ffmpeg";
 import inquirer from "inquirer";
 
 import args from "./args";
-import { checkConfig, getConfig, IConfig } from "./config/index";
+import { checkConfig, getConfig, IConfig } from "./config";
 import { validateFFMPEGPaths } from "./config/validate";
 import { applyExitHooks } from "./exit";
 import { deleteGianna, ensureGiannaExists } from "./gianna";
@@ -13,9 +13,10 @@ import { checkUnusedPlugins, validatePlugins } from "./plugins/validate";
 import { queueLoop } from "./queue_loop";
 import startServer from "./server";
 import { isRegExp } from "./types/utility";
+
 const sha = require("js-sha512").sha512;
 
-export async function onConfigLoad(config: IConfig) {
+export async function onConfigLoad(config: IConfig): Promise<void> {
   validatePlugins(config);
   checkUnusedPlugins(config);
 
@@ -54,7 +55,7 @@ if (!process.env.PREVENT_STARTUP)
     if (args["process-queue"] === true) {
       await queueLoop(config);
     } else {
-      if (config.PASSWORD && process.env.NODE_ENV != "development") {
+      if (config.PASSWORD && process.env.NODE_ENV !== "development") {
         let password;
         do {
           password = (
@@ -66,7 +67,7 @@ if (!process.env.PREVENT_STARTUP)
               },
             ])
           ).password;
-        } while (sha(password) != config.PASSWORD);
+        } while (sha(password) !== config.PASSWORD);
       }
 
       if (args["update-gianna"]) {

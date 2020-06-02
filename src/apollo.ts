@@ -5,7 +5,7 @@ import express from "express";
 import { getConfig } from "./config";
 import schema from "./graphql/types";
 
-export function mountApolloServer(app: express.Application) {
+export function mountApolloServer(app: express.Application): void {
   const config = getConfig();
   const server = new ApolloServer({
     plugins: [responseCachePlugin()],

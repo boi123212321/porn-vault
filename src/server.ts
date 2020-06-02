@@ -49,7 +49,7 @@ async function tryStartProcessing() {
       detached: false,
       stdio: "inherit",
     }).on("exit", (code) => {
-      logger.warn("Processing process exited with code " + code);
+      logger.warn(`Processing process exited with code ${code}`);
       setProcessingStatus(false);
     });
   } else if (!queueLen) {
@@ -69,7 +69,7 @@ async function scanFolders() {
   });
 }
 
-export default async () => {
+export default async (): Promise<void> => {
   logger.message("Check https://github.com/boi123212321/porn-vault for discussion & updates");
 
   const app = express();
@@ -260,7 +260,7 @@ export default async () => {
     await loadStores();
   } catch (error) {
     logger.error(error);
-    logger.error("Error while loading database: " + error.message);
+    logger.error(`Error while loading database: ${error.message}`);
     logger.warn("Try restarting, if the error persists, your database may be corrupted");
     process.exit(1);
   }
@@ -307,5 +307,8 @@ export default async () => {
     });
   }
 
-  if (config.SCAN_INTERVAL > 0) setInterval(scanFolders, config.SCAN_INTERVAL);
+  if (config.SCAN_INTERVAL > 0)
+    setInterval(() => {
+      scanFolders();
+    }, config.SCAN_INTERVAL);
 };

@@ -10,13 +10,13 @@ import * as logger from "./logger";
 
 export let izzyProcess!: ChildProcessWithoutNullStreams;
 
-export const izzyPath = type() == "Windows_NT" ? "izzy.exe" : "izzy";
+export const izzyPath = type() === "Windows_NT" ? "izzy.exe" : "izzy";
 
-export async function deleteIzzy() {
+export async function deleteIzzy(): Promise<void> {
   await unlinkAsync(izzyPath);
 }
 
-export async function resetIzzy() {
+export async function resetIzzy(): Promise<void> {
   try {
     await Axios.delete(`http://localhost:${getConfig().IZZY_PORT}/collection`);
   } catch (error) {
@@ -26,7 +26,7 @@ export async function resetIzzy() {
   }
 }
 
-export async function izzyVersion() {
+export async function izzyVersion(): Promise<string | null> {
   try {
     const res = await Axios.get(`http://localhost:${getConfig().IZZY_PORT}/`);
     return res.data.version as string;
@@ -57,12 +57,12 @@ async function downloadIzzy() {
     Darwin: "izzy_mac",
   }[type()] as string;
 
-  if (arch() != "x64") {
+  if (arch() !== "x64") {
     logger.error("Unsupported architecture " + arch());
     process.exit(1);
   }
 
-  const asset = assets.find((as) => as.name == downloadName);
+  const asset = assets.find((as) => as.name === downloadName);
 
   if (!asset) {
     logger.error("Izzy release not found: " + downloadName + " for " + type());
@@ -74,7 +74,7 @@ async function downloadIzzy() {
   chmodSync(izzyPath, "111");
 }
 
-export async function ensureIzzyExists() {
+export async function ensureIzzyExists(): Promise<0 | 1> {
   if (await existsAsync(izzyPath)) {
     logger.log("Izzy binary found");
     return 0;
@@ -85,7 +85,7 @@ export async function ensureIzzyExists() {
   }
 }
 
-export function spawnIzzy() {
+export function spawnIzzy(): Promise<void> {
   return new Promise((resolve, reject) => {
     logger.log("Spawning Izzy");
 
@@ -98,7 +98,7 @@ export function spawnIzzy() {
     });
     izzyProcess.stdout.on("data", (data) => {
       if (!responded) {
-        logger.log("Izzy ready on port " + port);
+        logger.log(`Izzy ready on port ${port}`);
         responded = true;
         resolve();
       }

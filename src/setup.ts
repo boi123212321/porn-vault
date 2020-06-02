@@ -8,7 +8,7 @@ import { existsAsync } from "./fs/async";
 import * as logger from "./logger";
 const sha = require("js-sha512").sha512;
 
-export default async () => {
+export default async (): Promise<IConfig> => {
   const { downloadFFMPEG } = await inquirer.prompt([
     {
       type: "confirm",
@@ -52,7 +52,7 @@ export default async () => {
           },
         ])
       ).password;
-    } while (password != confirmPassword);
+    } while (password !== confirmPassword);
   }
 
   const { useVideoFolders } = await inquirer.prompt([
@@ -81,11 +81,11 @@ export default async () => {
         ])
       ).path;
 
-      if (path != "done") {
+      if (path !== "done") {
         if (await existsAsync(path)) videoFolders.push(path);
         else logger.error(`Could not find ${path}`);
       }
-    } while (path != "done");
+    } while (path !== "done");
   }
 
   const { useImageFolders } = await inquirer.prompt([
@@ -114,11 +114,11 @@ export default async () => {
         ])
       ).path;
 
-      if (path != "done") {
+      if (path !== "done") {
         if (await existsAsync(path)) imageFolders.push(path);
         else logger.error(`Could not find ${path}`);
       }
-    } while (path != "done");
+    } while (path !== "done");
   }
 
   const config = JSON.parse(JSON.stringify(defaultConfig)) as IConfig;

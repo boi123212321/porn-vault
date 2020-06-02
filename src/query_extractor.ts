@@ -40,7 +40,7 @@ const parseWords = (str = "") =>
     )
     .a.filter(Boolean);
 
-export default (query?: string) => {
+export default (query?: string): IQueryOptions => {
   const options: IQueryOptions = {
     include: [],
     exclude: [],
@@ -102,22 +102,22 @@ export default (query?: string) => {
         options.durationMax = parseInt(value) || null;
         break;
       case "favorite":
-        options[operation] = value == "true";
+        options[operation] = value === "true";
         break;
       case "bookmark":
-        options[operation] = value == "true";
+        options[operation] = value === "true";
         break;
       case "sortBy":
         options[operation] = value;
         break;
       case "sortDir":
         if (["asc", "desc"].includes(value)) options[operation] = <"asc" | "desc">value;
-        else throw `Query error: Unsupported sort direction '${value}'`;
+        else throw new Error(`Query error: Unsupported sort direction '${value}'`);
         break;
     }
   }
 
-  if (!options.query && options.sortBy == "relevance") {
+  if (!options.query && options.sortBy === "relevance") {
     logger.log("No search query, defaulting to addedOn");
     options.sortBy = "addedOn";
     options.sortDir = "desc";

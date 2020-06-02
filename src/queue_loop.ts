@@ -12,13 +12,13 @@ async function getQueueHead(config: IConfig) {
     .data;
 }
 
-export async function queueLoop(config: IConfig) {
+export async function queueLoop(config: IConfig): Promise<void> {
   try {
     let queueHead = (await getQueueHead(config)) as Scene;
 
     while (queueHead) {
       try {
-        logger.log("Processing " + queueHead.path + "...");
+        logger.log(`Processing ${queueHead.path}...`);
         const data = {
           processed: true,
         } as any;
@@ -81,7 +81,7 @@ export async function queueLoop(config: IConfig) {
     logger.success("Processing done.");
     process.exit(0);
   } catch (error) {
-    logger.error("Processing error:" + error.message);
+    logger.error(`Processing error: ${error.message}`);
     process.exit(1);
   }
 }

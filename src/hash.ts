@@ -1,4 +1,4 @@
-export function randomString(length = 8) {
+export function randomString(length = 8): string {
   let result = "";
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   const charactersLength = characters.length;
@@ -8,6 +8,6 @@ export function randomString(length = 8) {
   return result;
 }
 
-export function generateHash() {
+export function generateHash(): string {
   return new Date().valueOf().toString(36) + randomString();
 }

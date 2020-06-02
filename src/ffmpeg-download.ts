@@ -6,7 +6,7 @@ import * as os from "os";
 import { existsAsync } from "./fs/async";
 import * as logger from "./logger";
 
-const FFMpegVersions = {
+const FFMpegVersions: Record<string, Record<string, string>> = {
   Linux: {
     ia32: "https://github.com/kribblo/node-ffmpeg-installer/raw/master/platforms/linux-ia32/ffmpeg",
     x64: "https://github.com/kribblo/node-ffmpeg-installer/raw/master/platforms/linux-x64/ffmpeg",
@@ -22,7 +22,7 @@ const FFMpegVersions = {
   },
 };
 
-const FFProbeVersions = {
+const FFProbeVersions: Record<string, Record<string, string>> = {
   Linux: {
     ia32:
       "https://github.com/SavageCore/node-ffprobe-installer/raw/master/platforms/linux-ia32/ffprobe",
@@ -41,21 +41,21 @@ const FFProbeVersions = {
   },
 };
 
-export function getFFMpegURL() {
+export function getFFMpegURL(): string {
   const sys = os.type();
   const arch = os.arch();
 
   return FFMpegVersions[sys][arch];
 }
 
-export function getFFProbeURL() {
+export function getFFProbeURL(): string {
   const sys = os.type();
   const arch = os.arch();
 
   return FFProbeVersions[sys][arch];
 }
 
-export async function downloadFile(url: string, file: string) {
+export async function downloadFile(url: string, file: string): Promise<void> {
   try {
     if (await existsAsync(file)) return;
 

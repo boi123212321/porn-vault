@@ -4,7 +4,7 @@ import readline from "readline";
 
 import * as logger from "./logger";
 
-export function transformFile(file: string, cb: (str: string) => string | false) {
+export function transformFile(file: string, cb: (str: string) => string | false): Promise<void> {
   return new Promise((resolve, reject) => {
     if (!fs.existsSync(file)) return resolve();
 
@@ -42,7 +42,7 @@ export function transformFile(file: string, cb: (str: string) => string | false)
   });
 }
 
-export async function absolutifyPaths(file: string) {
+export async function absolutifyPaths(file: string): Promise<void> {
   logger.log("Absolutifying paths in " + file);
   await transformFile(file, (line) => {
     let modified = false;
@@ -56,7 +56,7 @@ export async function absolutifyPaths(file: string) {
   });
 }
 
-export async function bookmarksToTimestamp(file: string) {
+export async function bookmarksToTimestamp(file: string): Promise<void> {
   logger.log("Replacing bookmarks with timestamps in " + file);
   await transformFile(file, (line) => {
     let modified = false;

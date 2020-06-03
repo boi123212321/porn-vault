@@ -35,13 +35,13 @@ export default class MovieScene {
     }
   }
 
-  static async removeByMovie(id: string) {
+  static async removeByMovie(id: string): Promise<void> {
     for (const ref of await MovieScene.getByMovie(id)) {
       await MovieScene.removeById(ref._id);
     }
   }
 
-  static async removeById(_id: string) {
+  static async removeById(_id: string): Promise<void> {
     await movieSceneCollection.remove(_id);
   }
 }

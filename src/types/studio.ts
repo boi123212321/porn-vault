@@ -18,7 +18,7 @@ export default class Studio {
   labels?: string[]; // backwards compatibility
   aliases?: string[];
 
-  static async checkIntegrity() {}
+  static async checkIntegrity(): Promise<void> {}
 
   constructor(name: string) {
     this._id = "st_" + generateHash();

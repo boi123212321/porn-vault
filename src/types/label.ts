@@ -11,7 +11,7 @@ export default class Label {
   addedOn = +new Date();
   thumbnail: string | null = null;
 
-  static async checkIntegrity() {}
+  static async checkIntegrity(): Promise<void> {}
 
   static async remove(_id: string): Promise<void> {
     await labelCollection.remove(_id);

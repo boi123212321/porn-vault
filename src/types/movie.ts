@@ -29,7 +29,7 @@ export default class Movie {
   customFields: any = {};
   studio: string | null = null;
 
-  static async checkIntegrity() {}
+  static async checkIntegrity(): Promise<void> {}
 
   static async calculateDuration(movie: Movie): Promise<number | null> {
     const scenesWithSource = (await Movie.getScenes(movie)).filter(

@@ -66,7 +66,7 @@ export default class Image {
     return null;
   }
 
-  static async checkIntegrity() {}
+  static async checkIntegrity(): Promise<void> {}
 
   static async remove(image: Image): Promise<void> {
     await imageCollection.remove(image._id);

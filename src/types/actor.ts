@@ -34,7 +34,7 @@ export default class Actor {
     return null;
   }
 
-  static async checkIntegrity() {}
+  static async checkIntegrity(): Promise<void> {}
 
   static async remove(actor: Actor): Promise<Actor> {
     return actorCollection.remove(actor._id);

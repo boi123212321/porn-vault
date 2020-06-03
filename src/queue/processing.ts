@@ -7,15 +7,15 @@ export interface ISceneProcessingItem {
 
 let processing = false;
 
-export function setProcessingStatus(value: boolean) {
+export function setProcessingStatus(value: boolean): void {
   processing = value;
 }
 
-export function isProcessing() {
+export function isProcessing(): boolean {
   return processing;
 }
 
-export function removeSceneFromQueue(_id: string) {
+export function removeSceneFromQueue(_id: string): Promise<ISceneProcessingItem> {
   logger.log(`Removing ${_id} from processing queue...`);
   return processingCollection.remove(_id);
 }
@@ -29,6 +29,6 @@ export async function getHead(): Promise<ISceneProcessingItem | null> {
   return items[0] || null;
 }
 
-export function enqueueScene(_id: string) {
+export function enqueueScene(_id: string): Promise<ISceneProcessingItem> {
   return processingCollection.upsert(_id, { _id });
 }

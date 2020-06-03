@@ -11,10 +11,7 @@ import Image from "../types/image";
 import Scene from "../types/scene";
 import ora = require("ora");
 
-const fileIsExcluded = (exclude: string[], file: string) =>
-  exclude.some((regStr) => new RegExp(regStr, "i").test(file.toLowerCase()));
-
-export async function checkVideoFolders() {
+export async function checkVideoFolders(): Promise<void> {
   const config = getConfig();
 
   const unknownVideos = [] as string[];
@@ -37,7 +34,7 @@ export async function checkVideoFolders() {
         } else {
           logger.log(`Found matching file ${path}`);
           const existingScene = await Scene.getSceneByPath(path);
-          logger.log("Scene with that path exists already: " + !!existingScene);
+          logger.log(`Scene with that path exists already: ${!!existingScene}`);
           if (!existingScene) unknownVideos.push(path);
         }
       },
@@ -104,7 +101,7 @@ async function processImage(imagePath: string, readImage = true) {
   }
 }
 
-export async function checkImageFolders() {
+export async function checkImageFolders(): Promise<void> {
   const config = getConfig();
 
   logger.log("Checking image folders...");
@@ -144,7 +141,7 @@ export async function checkImageFolders() {
   logger.warn(`Added ${numAddedImages} new images`);
 }
 
-export async function checkPreviews() {
+export async function checkPreviews(): Promise<void> {
   const config = getConfig();
 
   if (!config.GENERATE_PREVIEWS) {

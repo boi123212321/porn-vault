@@ -81,17 +81,17 @@ async function addSceneSearchDocs(docs: ISceneSearchDoc[]) {
   return res;
 }
 
-export async function updateScenes(scenes: Scene[]) {
+export async function updateScenes(scenes: Scene[]): Promise<void> {
   return index.update(await mapAsync(scenes, createSceneSearchDoc));
 }
 
-export async function indexScenes(scenes: Scene[]) {
+export async function indexScenes(scenes: Scene[]): Promise<number> {
   let docs = [] as ISceneSearchDoc[];
   let numItems = 0;
   for (const scene of scenes) {
     docs.push(await createSceneSearchDoc(scene));
 
-    if (docs.length == (argv["index-slice-size"] || 5000)) {
+    if (docs.length === (argv["index-slice-size"] || 5000)) {
       await addSceneSearchDocs(docs);
       numItems += docs.length;
       docs = [];
@@ -105,7 +105,10 @@ export async function indexScenes(scenes: Scene[]) {
   return numItems;
 }
 
-export async function searchScenes(query: string, shuffleSeed = "default") {
+export async function searchScenes(
+  query: string,
+  shuffleSeed = "default"
+): Promise<Gianna.ISearchResults> {
   const options = extractQueryOptions(query);
   logger.log(`Searching scenes for '${options.query}'...`);
 
@@ -160,7 +163,7 @@ export async function searchScenes(query: string, shuffleSeed = "default") {
   });
 }
 
-export async function buildSceneIndex() {
+export async function buildSceneIndex(): Promise<Gianna.Index<ISceneSearchDoc>> {
   index = await Gianna.createIndex("scenes", FIELDS);
 
   const timeNow = +new Date();

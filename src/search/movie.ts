@@ -75,17 +75,17 @@ async function addMovieSearchDocs(docs: IMovieSearchDoc[]) {
   return res;
 }
 
-export async function updateMovies(movies: Movie[]) {
+export async function updateMovies(movies: Movie[]): Promise<void> {
   return index.update(await mapAsync(movies, createMovieSearchDoc));
 }
 
-export async function indexMovies(movies: Movie[]) {
+export async function indexMovies(movies: Movie[]): Promise<number> {
   let docs = [] as IMovieSearchDoc[];
   let numItems = 0;
   for (const movie of movies) {
     docs.push(await createMovieSearchDoc(movie));
 
-    if (docs.length == (argv["index-slice-size"] || 5000)) {
+    if (docs.length === (argv["index-slice-size"] || 5000)) {
       await addMovieSearchDocs(docs);
       numItems += docs.length;
       docs = [];
@@ -99,7 +99,7 @@ export async function indexMovies(movies: Movie[]) {
   return numItems;
 }
 
-export async function buildMovieIndex() {
+export async function buildMovieIndex(): Promise<Gianna.Index<IMovieSearchDoc>> {
   index = await Gianna.createIndex("movies", FIELDS);
 
   const timeNow = +new Date();
@@ -113,7 +113,10 @@ export async function buildMovieIndex() {
   return index;
 }
 
-export async function searchMovies(query: string, shuffleSeed = "default") {
+export async function searchMovies(
+  query: string,
+  shuffleSeed = "default"
+): Promise<Gianna.ISearchResults> {
   const options = extractQueryOptions(query);
   logger.log(`Searching scenes for '${options.query}'...`);
 

@@ -4,7 +4,7 @@ import { buildMovieIndex } from "./movie";
 import { buildSceneIndex } from "./scene";
 import { buildStudioIndex } from "./studio";
 
-export async function buildIndices() {
+export async function buildIndices(): Promise<void> {
   await buildSceneIndex();
   await buildActorIndex();
   await buildMovieIndex();

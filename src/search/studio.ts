@@ -51,17 +51,17 @@ async function addStudioSearchDocs(docs: IStudioSearchDoc[]) {
   return res;
 }
 
-export async function updateStudios(studios: Studio[]) {
+export async function updateStudios(studios: Studio[]): Promise<void> {
   return index.update(await mapAsync(studios, createStudioSearchDoc));
 }
 
-export async function indexStudios(studios: Studio[]) {
+export async function indexStudios(studios: Studio[]): Promise<number> {
   let docs = [] as IStudioSearchDoc[];
   let numItems = 0;
   for (const studio of studios) {
     docs.push(await createStudioSearchDoc(studio));
 
-    if (docs.length == (argv["index-slice-size"] || 5000)) {
+    if (docs.length === (argv["index-slice-size"] || 5000)) {
       await addStudioSearchDocs(docs);
       numItems += docs.length;
       docs = [];
@@ -75,7 +75,7 @@ export async function indexStudios(studios: Studio[]) {
   return numItems;
 }
 
-export async function buildStudioIndex() {
+export async function buildStudioIndex(): Promise<Gianna.Index<IStudioSearchDoc>> {
   index = await Gianna.createIndex("studios", FIELDS);
 
   const timeNow = +new Date();
@@ -89,7 +89,10 @@ export async function buildStudioIndex() {
   return index;
 }
 
-export async function searchStudios(query: string, shuffleSeed = "default") {
+export async function searchStudios(
+  query: string,
+  shuffleSeed = "default"
+): Promise<Gianna.ISearchResults> {
   const options = extractQueryOptions(query);
   logger.log(`Searching scenes for '${options.query}'...`);
 

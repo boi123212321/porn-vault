@@ -1,4 +1,3 @@
-import Axios from "axios";
 import ora from "ora";
 import asyncPool from "tiny-async-pool";
 
@@ -15,7 +14,7 @@ import {
   filterRating,
   filterStudios,
 } from "./common";
-import { Gianna } from "./internal/index";
+import { Gianna } from "./internal";
 
 const PAGE_SIZE = 24;
 
@@ -39,7 +38,7 @@ export interface IImageSearchDoc {
   studioName: string | null;
 }
 
-export async function updateImages(images: Image[]) {
+export async function updateImages(images: Image[]): Promise<void> {
   return index.update(await mapAsync(images, createImageSearchDoc));
 }
 
@@ -54,14 +53,14 @@ const blacklist = [
   "(avatar)",
 ];
 
-export function isBlacklisted(name: string) {
+export function isBlacklisted(name: string): boolean {
   return blacklist.some((ending) => name.endsWith(ending));
 }
 
 export const sliceArray = (size: number) => <T>(
   arr: T[],
   cb: (value: T[], index: number, arr: T[]) => any
-) => {
+): void => {
   let index = 0;
   let slice = arr.slice(index, index + size);
   while (slice.length) {
@@ -72,7 +71,7 @@ export const sliceArray = (size: number) => <T>(
   }
 };
 
-export const getSlices = (size: number) => <T>(arr: T[]) => {
+export const getSlices = (size: number) => <T>(arr: T[]): T[][] => {
   const slices = [] as T[][];
   sliceArray(size)(arr, (slice) => {
     slices.push(slice);
@@ -80,7 +79,7 @@ export const getSlices = (size: number) => <T>(arr: T[]) => {
   return slices;
 };
 
-export async function indexImages(images: Image[]) {
+export async function indexImages(images: Image[]): Promise<number> {
   if (!images.length) return 0;
   const slices = getSlices(2500)(images);
 
@@ -95,7 +94,7 @@ export async function indexImages(images: Image[]) {
   return images.length;
 }
 
-export async function addImageSearchDocs(docs: IImageSearchDoc[]) {
+export async function addImageSearchDocs(docs: IImageSearchDoc[]): Promise<void> {
   logger.log(`Indexing ${docs.length} items...`);
   const timeNow = +new Date();
   const res = await index.index(docs);
@@ -103,7 +102,7 @@ export async function addImageSearchDocs(docs: IImageSearchDoc[]) {
   return res;
 }
 
-export async function buildImageIndex() {
+export async function buildImageIndex(): Promise<Gianna.Index<IImageSearchDoc>> {
   index = await Gianna.createIndex("images", FIELDS);
 
   const timeNow = +new Date();
@@ -138,7 +137,10 @@ export async function createImageSearchDoc(image: Image): Promise<IImageSearchDo
   };
 }
 
-export async function searchImages(query: string, shuffleSeed = "default") {
+export async function searchImages(
+  query: string,
+  shuffleSeed = "default"
+): Promise<Gianna.ISearchResults> {
   const options = extractQueryOptions(query);
   logger.log(`Searching images for '${options.query}'...`);
 

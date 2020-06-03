@@ -69,17 +69,17 @@ export async function createActorSearchDoc(actor: Actor): Promise<IActorSearchDo
   };
 }
 
-export async function updateActors(scenes: Actor[]) {
+export async function updateActors(scenes: Actor[]): Promise<void> {
   return index.update(await mapAsync(scenes, createActorSearchDoc));
 }
 
-export async function indexActors(scenes: Actor[]) {
+export async function indexActors(scenes: Actor[]): Promise<number> {
   let docs = [] as IActorSearchDoc[];
   let numItems = 0;
   for (const scene of scenes) {
     docs.push(await createActorSearchDoc(scene));
 
-    if (docs.length == (argv["index-slice-size"] || 5000)) {
+    if (docs.length === (argv["index-slice-size"] || 5000)) {
       await addActorSearchDocs(docs);
       numItems += docs.length;
       docs = [];
@@ -93,7 +93,7 @@ export async function indexActors(scenes: Actor[]) {
   return numItems;
 }
 
-export async function addActorSearchDocs(docs: IActorSearchDoc[]) {
+export async function addActorSearchDocs(docs: IActorSearchDoc[]): Promise<void> {
   logger.log(`Indexing ${docs.length} items...`);
   const timeNow = +new Date();
   const res = await index.index(docs);
@@ -101,7 +101,7 @@ export async function addActorSearchDocs(docs: IActorSearchDoc[]) {
   return res;
 }
 
-export async function buildActorIndex() {
+export async function buildActorIndex(): Promise<Gianna.Index<IActorSearchDoc>> {
   index = await Gianna.createIndex("actors", FIELDS);
 
   const timeNow = +new Date();
@@ -119,7 +119,7 @@ export async function searchActors(
   query: string,
   shuffleSeed = "default",
   transformFilter?: (tree: Gianna.IFilterTreeGrouping) => void
-) {
+): Promise<Gianna.ISearchResults> {
   const options = extractQueryOptions(query);
   logger.log(`Searching actors for '${options.query}'...`);
 

@@ -1,7 +1,7 @@
 import { IQueryOptions } from "../query_extractor";
 import { Gianna } from "./internal";
 
-export function filterDuration(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterDuration(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   if (options.durationMin) {
     filter.children.push({
       condition: {
@@ -25,7 +25,7 @@ export function filterDuration(filter: Gianna.IFilterTreeGrouping, options: IQue
   }
 }
 
-export function filterFavorites(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterFavorites(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   if (options.favorite) {
     filter.children.push({
       condition: {
@@ -38,7 +38,7 @@ export function filterFavorites(filter: Gianna.IFilterTreeGrouping, options: IQu
   }
 }
 
-export function filterBookmark(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterBookmark(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   if (options.bookmark) {
     filter.children.push({
       condition: {
@@ -51,7 +51,7 @@ export function filterBookmark(filter: Gianna.IFilterTreeGrouping, options: IQue
   }
 }
 
-export function filterRating(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterRating(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   filter.children.push({
     condition: {
       operation: ">",
@@ -62,7 +62,7 @@ export function filterRating(filter: Gianna.IFilterTreeGrouping, options: IQuery
   });
 }
 
-export function filterInclude(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterInclude(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   if (options.include.length) {
     filter.children.push({
       type: "AND",
@@ -78,7 +78,7 @@ export function filterInclude(filter: Gianna.IFilterTreeGrouping, options: IQuer
   }
 }
 
-export function filterExclude(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterExclude(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   if (options.exclude.length) {
     filter.children.push({
       type: "AND",
@@ -99,7 +99,7 @@ export function filterExclude(filter: Gianna.IFilterTreeGrouping, options: IQuer
   }
 }
 
-export function filterActors(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterActors(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   if (options.actors.length) {
     filter.children.push({
       type: "AND",
@@ -115,7 +115,7 @@ export function filterActors(filter: Gianna.IFilterTreeGrouping, options: IQuery
   }
 }
 
-export function filterStudios(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions) {
+export function filterStudios(filter: Gianna.IFilterTreeGrouping, options: IQueryOptions): void {
   if (options.studios.length) {
     filter.children.push({
       type: "OR",

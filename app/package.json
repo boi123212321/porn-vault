@@ -29,7 +29,7 @@
     "vue-scroll-behavior": "^0.2.0",
     "vue-the-mask": "^0.11.1",
     "vue-vis-network": "^1.0.2",
-    "vuetify": "^2.2.15",
+    "vuetify": "^2.2.31",
     "vuex": "^3.4.0",
     "vuex-class-modules": "^1.1.2",
     "yaml": "^1.9.2"

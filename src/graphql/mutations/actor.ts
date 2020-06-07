@@ -112,7 +112,7 @@ export default {
         }
       }
 
-      for (const image of await Image.getAll()) {
+      /* for (const image of await Image.getAll()) {
         if (isBlacklisted(image.name)) continue;
         if (isMatchingItem(image.name, actor, true)) {
           if (config.APPLY_ACTOR_LABELS === true) {
@@ -133,7 +133,7 @@ export default {
           }
           logger.log(`Updated actors of ${image._id}`);
         }
-      }
+      } */
     }
 
     await indexActors([actor]);

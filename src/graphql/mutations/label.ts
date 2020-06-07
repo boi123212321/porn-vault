@@ -41,7 +41,7 @@ export default {
       }
     }
 
-    for (const image of await Image.getAll()) {
+    /* for (const image of await Image.getAll()) {
       if (isBlacklisted(image.name)) continue;
 
       if (isMatchingItem(image.path || image.name, label, false)) {
@@ -51,7 +51,7 @@ export default {
         await updateImages([image]);
         logger.log(`Updated labels of ${image._id}.`);
       }
-    }
+    } */
 
     await labelCollection.upsert(label._id, label);
     return label;

@@ -128,10 +128,11 @@ export default class Scene {
     scene.meta.dimensions = { width: -1, height: -1 };
     scene.path = videoPath;
 
-    const streams = (await runFFprobe(scene.path)).streams;
+    //fix for webm files without a duration
+    const probe = (await runFFprobe(scene.path));
 
     let foundCorrectStream = false;
-    for (const stream of streams) {
+    for (const stream of probe.streams) {
       if (stream.width && stream.height) {
         scene.meta.dimensions.width = stream.width;
         scene.meta.dimensions.height = stream.height;
@@ -149,9 +150,13 @@ export default class Scene {
         break;
       }
     }
+    //fix for webm files without a duration
+    if(scene.meta.duration === null){
+      scene.meta.duration = parseInt(probe.format.duration!.toString());
+    }
 
     if (!foundCorrectStream) {
-      logger.log(streams);
+      logger.log(probe.streams);
       throw new Error("Could not get video stream...broken file?");
     }
 

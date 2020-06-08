@@ -10,17 +10,55 @@
 import { transcode, canPlayInputVideo } from "../src/import/transcode";
 import { expect } from "chai";
 import path from "path";
-import { existsSync, unlinkSync, renameSync } from "fs";
+import { existsSync, unlinkSync, renameSync, chmodSync, unlink } from "fs";
+import { getFFMpegURL, getFFProbeURL, downloadFile } from "../src/ffmpeg-download";
+import ffmpeg from "fluent-ffmpeg";
 
 const basePath = 'test/fixtures/files'
+const ffmpegURL = getFFMpegURL();
+const ffprobeURL = getFFProbeURL();
+
+const ffmpegPath = path.join(basePath, path.basename(ffmpegURL));
+const ffprobePath = path.join(basePath, path.basename(ffprobeURL));
 
 describe("Transcode videos", ()=>{
-    describe("Process 3GP video", ()=>{
+    before(async function(){
+        this.timeout(20000);
+        //setup the ffmpeg environment similar to the actual vault    
+        try {
+          await downloadFile(ffmpegURL, ffmpegPath);
+          await downloadFile(ffprobeURL, ffprobePath);
+        } catch (error) {
+          console.log(error);
+          process.exit(1);
+        }
+    
+        try {
+          console.log("CHMOD binaries...");
+          chmodSync(ffmpegPath, "111");
+          chmodSync(ffprobePath, "111");
+        } catch (error) {
+          console.error("Could not make FFMPEG binaries executable");
+        }
+    
+        ffmpeg.setFfmpegPath(ffmpegPath);
+        ffmpeg.setFfprobePath(ffprobePath);
+    });
+    after(()=>{
+        //remove our downloaded files
+        unlinkSync(ffmpegPath);
+        unlinkSync(ffprobePath);
+    });
+
+
+    describe("Process 3GP video", function(){
         const baseName = 'small001';
         const file = path.join(basePath, `${baseName}.3gp`);
         const expected = path.join(basePath, `${baseName}.mp4`);
         const renamedOriginal = path.join(basePath, `$_${baseName}.3gp`);
-
+        
+        this.slow(500);
+        
         after(()=>{
             //remove our expected output
             unlinkSync(expected);
@@ -48,11 +86,13 @@ describe("Transcode videos", ()=>{
         });        
     });
 
-    describe("Process FLV video", ()=>{
+    describe("Process FLV video", function(){
         const baseName = 'small002';
         const file = path.join(basePath, `${baseName}.flv`);
         const expected = path.join(basePath, `${baseName}.mp4`);
         const renamedOriginal = path.join(basePath, `$_${baseName}.flv`);
+        
+        this.slow(500);
 
         after(()=>{
             //remove our expected output
@@ -81,7 +121,9 @@ describe("Transcode videos", ()=>{
         });        
     });
 
-    describe("Process MP4 video", ()=>{
+    describe("Process MP4 video", function(){
+        this.slow(100);
+
         const file = path.join(basePath, 'small003.mp4');
 
         it("Should match codec white-list", async ()=>{            
@@ -94,7 +136,9 @@ describe("Transcode videos", ()=>{
         });
     });
 
-    describe("Process OGV video", ()=>{
+    describe("Process OGV video", function(){
+        this.slow(100);
+
         const file = path.join(basePath, 'small004.ogv');
 
         it("Should match codec white-list", async ()=>{            
@@ -107,7 +151,9 @@ describe("Transcode videos", ()=>{
         });
     });
 
-    describe("Process WebM video", ()=>{
+    describe("Process WebM video", function(){
+        this.slow(100);
+        
         const file = path.join(basePath, 'small005.webm');
 
         it("Should match codec white-list", async ()=>{            

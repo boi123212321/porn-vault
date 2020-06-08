@@ -4,9 +4,7 @@ import * as logger from "../logger";
 import path, { basename } from "path";
 import { existsSync, renameSync, statSync, utimesSync } from "fs";
 import { generateHash } from "../hash";
-import * as readline from 'readline';
-
-let currentProgress = 0;
+import ProgressBar from "cli-progress";
 
 //compatible codecs for html5 video element (mp4/webm)
 const vcodecs = ['h264','vp8','vp9','av1', 'theora'];
@@ -70,22 +68,14 @@ const onTranscodeStart = async (cmd:string, sceneName:string, transcodeOptions:s
     logger.message(`Using transcoding options: ${transcodeOptions}`);
 };
 
-const onTranscodeProgress = async (args:any, sceneName:string)=>{
-    const progress = (args.percent * 1) / 5;
-    if(currentProgress !== progress){
-      readline.cursorTo(process.stdout, 0);            
-      const progressBar = `${'='.repeat(progress)}${' '.repeat(20-progress)}`;
-      let outString = `Processing of ${sceneName}: [${progressBar}]`;            
-      process.stdout.write(outString);
-      currentProgress = progress;
-    }
-};
-
 export const transcodeFile = (input:string, output:string, sceneName:string, transcodeOptions:string[], preserveDates:boolean):Promise<string>=>{
   return new Promise(async(resolve, reject)=>{
+    const downloadBar = new ProgressBar.SingleBar({},ProgressBar.Presets.legacy);
     ffmpeg(input)
     .on('end', async ()=>{
-      process.stdout.write('\n');
+      //process.stdout.write('\n');
+      downloadBar.update(100);  //fix for ffmpeg progress percentage 'slop'
+      downloadBar.stop();
       logger.success(`Transcoded file ${input} to ${output}`);            
       const oldPath = input;
       if(preserveDates){
@@ -102,8 +92,14 @@ export const transcodeFile = (input:string, output:string, sceneName:string, tra
       logger.error(err.message);
       resolve(input);
     })
-    .on('start', async  (cmd)=>onTranscodeStart(cmd, sceneName, transcodeOptions))
-    .on('progress', async (args)=>onTranscodeProgress(args, sceneName))
+    .on('start', async  (cmd)=>{
+      onTranscodeStart(cmd, sceneName, transcodeOptions)
+      downloadBar.start(100, 0);
+    })
+    .on('progress', async (args)=>{
+      const percent = Math.round(args.percent);
+      downloadBar.update(percent);
+    })
     .addOptions(transcodeOptions)
     .save(output);
   });  

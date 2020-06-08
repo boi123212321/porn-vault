@@ -1,6 +1,5 @@
 import { studioCollection } from "../database";
 import { generateHash } from "../hash";
-import * as logger from "../logger";
 import Actor from "./actor";
 import Label from "./label";
 import Movie from "./movie";
@@ -18,6 +17,7 @@ export default class Studio {
   parent: string | null = null;
   aliases?: string[];
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   static async checkIntegrity(): Promise<void> {}
 
   constructor(name: string) {

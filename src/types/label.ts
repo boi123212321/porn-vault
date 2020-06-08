@@ -11,6 +11,7 @@ export default class Label {
   addedOn = +new Date();
   thumbnail: string | null = null;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   static async checkIntegrity(): Promise<void> {}
 
   static async remove(_id: string): Promise<void> {

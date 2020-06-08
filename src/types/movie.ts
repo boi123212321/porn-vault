@@ -29,6 +29,7 @@ export default class Movie {
   customFields: any = {};
   studio: string | null = null;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   static async checkIntegrity(): Promise<void> {}
 
   static async calculateDuration(movie: Movie): Promise<number | null> {

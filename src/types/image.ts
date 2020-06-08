@@ -66,6 +66,7 @@ export default class Image {
     return null;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   static async checkIntegrity(): Promise<void> {}
 
   static async remove(image: Image): Promise<void> {

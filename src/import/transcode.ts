@@ -4,6 +4,7 @@ import * as logger from "../logger";
 import path, { basename } from "path";
 import { existsSync, renameSync, statSync, utimesSync } from "fs";
 import { generateHash } from "../hash";
+import * as readline from 'readline';
 
 let currentProgress = 0;
 
@@ -72,7 +73,7 @@ const onTranscodeStart = async (cmd:string, sceneName:string, transcodeOptions:s
 const onTranscodeProgress = async (args:any, sceneName:string)=>{
     const progress = (args.percent * 1) / 5;
     if(currentProgress !== progress){
-      process.stdout.cursorTo(0);            
+      readline.cursorTo(process.stdout, 0);            
       const progressBar = `${'='.repeat(progress)}${' '.repeat(20-progress)}`;
       let outString = `Processing of ${sceneName}: [${progressBar}]`;            
       process.stdout.write(outString);

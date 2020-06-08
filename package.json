@@ -63,7 +63,7 @@
     "rimraf": "^3.0.2",
     "tiny-async-pool": "^1.1.0",
     "validate": "^5.1.0",
-    "yaml": "^1.9.2",
+    "yaml": "^1.10.0",
     "yargs": "^15.3.1"
   },
   "devDependencies": {
@@ -75,7 +75,7 @@
     "@types/graphql": "^14.5.0",
     "@types/inquirer": "^6.5.0",
     "@types/lru-cache": "^5.1.0",
-    "@types/mkdirp": "^1.0.0",
+    "@types/mkdirp": "^1.0.1",
     "@types/mocha": "^7.0.2",
     "@types/node": "^14.0.6",
     "@types/pug": "^2.0.4",

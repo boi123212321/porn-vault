@@ -1,4 +1,4 @@
-name: Build test
+name: Build server
 
 on:
   push:
@@ -25,11 +25,5 @@ jobs:
           npm install
           npm run transpile
           npm run test
-        env:
-          CI: true
-      - name: Test app
-        run: |
-          npm run install:app
-          npm run build:app
         env:
           CI: true

@@ -18,12 +18,12 @@ export const transcode = async (scenePath:string, sceneName:string, transcodeOpt
         }
 
         if(!(await canPlayInputVideo(scenePath))){
-          //transcode the file
+          // transcode the file
           logger.message(`Transcoding file ${scenePath}`);
           const folderPath = path.dirname(scenePath);
           let outputFilename = `${sceneName}.mp4`;
           if(outputFileExists(path.join(folderPath, outputFilename))) {
-            //ensure we have a unique output filename
+            // ensure we have a unique output filename
             outputFilename = `${sceneName}_${generateHash()}.mp4`;
           }
           const outfile = path.join(folderPath, outputFilename);
@@ -43,7 +43,6 @@ export const canPlayInputVideo = async (path:string):Promise<boolean>=>{
     let vcodec = '';
     let acodec = '';
     for(const stream of streams){
-        //logger.message(stream.codec_name);
         if(vcodecs.indexOf(stream.codec_name!) !== -1) {
             isVCompat = true;
             vcodec = stream.codec_name!;
@@ -53,7 +52,7 @@ export const canPlayInputVideo = async (path:string):Promise<boolean>=>{
             acodec = stream.codec_name!;
         }
     }
-    //a video without an audio stream can still be compatible
+    // a video without an audio stream can still be compatible
     return (isVCompat && isACompat) || (isVCompat && !isACompat && vcodec !== '' && acodec === '');
 };
 
@@ -63,7 +62,6 @@ const outputFileExists = (path:string):boolean => {
 };
 
 const onTranscodeStart = async (cmd:string, sceneName:string, transcodeOptions:string[]) => {
-    //logger.message(cmd);
     logger.message(`Starting transcoding of ${sceneName}`);
     logger.message(`Using transcoding options: ${transcodeOptions}`);
 };
@@ -73,18 +71,17 @@ export const transcodeFile = (input:string, output:string, sceneName:string, tra
     const downloadBar = new ProgressBar.SingleBar({},ProgressBar.Presets.legacy);
     ffmpeg(input)
     .on('end', async ()=>{
-      //process.stdout.write('\n');
-      downloadBar.update(100);  //fix for ffmpeg progress percentage 'slop'
+      downloadBar.update(100);  // fix for ffmpeg progress percentage 'slop'
       downloadBar.stop();
       logger.success(`Transcoded file ${input} to ${output}`);            
       const oldPath = input;
       if(preserveDates){
-        //update the modified/accessed date of our new copy
+        // update the modified/accessed date of our new copy
         const fsStats =  statSync(oldPath);
         utimesSync(output, fsStats.atime, fsStats.mtime);
       }
-      //rename the old file with a leading '$_' so we ignore it on the next scan
-      //also so we can easily search for and remove it later
+      // rename the old file with a leading '$_' so we ignore it on the next scan
+      // also so we can easily search for and remove it later
       renameSync(oldPath, path.join(path.dirname(oldPath), `$_${basename(oldPath)}`));         
       resolve(output);
     })

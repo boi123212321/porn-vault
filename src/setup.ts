@@ -6,7 +6,7 @@ import { defaultConfig, IConfig } from "./config/index";
 import { downloadFile, getFFMpegURL, getFFProbeURL } from "./ffmpeg-download";
 import { existsAsync } from "./fs/async";
 import * as logger from "./logger";
-const sha = require("js-sha512").sha512;
+import { sha512 } from "./types/utility";
 
 export default async (): Promise<IConfig> => {
   const { downloadFFMPEG } = await inquirer.prompt([
@@ -151,7 +151,7 @@ export default async (): Promise<IConfig> => {
     config.FFPROBE_PATH = path.resolve(ffprobePath);
   }
 
-  if (usePassword) config.PASSWORD = sha(password);
+  if (usePassword) config.PASSWORD = sha512(password);
 
   if (useVideoFolders) config.VIDEO_PATHS = videoFolders;
 

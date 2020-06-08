@@ -45,11 +45,9 @@ export function transformFile(file: string, cb: (str: string) => string | false)
 export async function absolutifyPaths(file: string): Promise<void> {
   logger.log("Absolutifying paths in " + file);
   await transformFile(file, (line) => {
-    let modified = false;
     const item = JSON.parse(line) as { path?: string | null };
     if (item.path && !nodepath.isAbsolute(item.path)) {
       item.path = nodepath.resolve(item.path);
-      modified = true;
       return JSON.stringify(item);
     }
     return false;
@@ -59,7 +57,6 @@ export async function absolutifyPaths(file: string): Promise<void> {
 export async function bookmarksToTimestamp(file: string): Promise<void> {
   logger.log("Replacing bookmarks with timestamps in " + file);
   await transformFile(file, (line) => {
-    let modified = false;
     const item = JSON.parse(line) as {
       bookmark?: number | boolean | null;
       addedOn: number;
@@ -68,7 +65,6 @@ export async function bookmarksToTimestamp(file: string): Promise<void> {
       if (typeof item.bookmark === "boolean") {
         if (item.bookmark) item.bookmark = item.addedOn;
         else item.bookmark = null;
-        modified = true;
         return JSON.stringify(item);
       }
     }

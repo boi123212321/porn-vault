@@ -2,6 +2,10 @@ import * as path from "path";
 
 import { getConfig } from "../config/index";
 import * as logger from "../logger";
+const shaModule = require("js-sha512") as {
+  sha512: (str: string) => string;
+};
+export const sha512 = shaModule.sha512;
 
 export type Dictionary<T> = Record<string, T>;
 

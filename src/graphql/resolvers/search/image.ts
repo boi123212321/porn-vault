@@ -5,11 +5,7 @@ import Image from "../../../types/image";
 
 export async function getImages(
   _: unknown,
-  {
-    query,
-    auto, // TODO: deprecated?
-    seed,
-  }: { query: string | undefined; auto?: boolean | null; seed?: string }
+  { query, seed }: { query: string | undefined; seed?: string }
 ): Promise<
   | {
       numItems: number;

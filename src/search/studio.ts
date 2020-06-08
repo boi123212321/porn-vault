@@ -111,12 +111,15 @@ export async function searchStudios(
   if (options.sortBy) {
     if (options.sortBy === "$shuffle") {
       sort = {
+        // eslint-disable-next-line camelcase
         sort_by: "$shuffle",
+        // eslint-disable-next-line camelcase
         sort_asc: false,
+        // eslint-disable-next-line camelcase
         sort_type: shuffleSeed,
       };
     } else {
-      const sortType = {
+      const sortType: string = {
         addedOn: "number",
         name: "string",
         // rating: "number",
@@ -124,8 +127,11 @@ export async function searchStudios(
         numScenes: "number",
       }[options.sortBy];
       sort = {
+        // eslint-disable-next-line camelcase
         sort_by: options.sortBy,
+        // eslint-disable-next-line camelcase
         sort_asc: options.sortDir === "asc",
+        // eslint-disable-next-line camelcase
         sort_type: sortType,
       };
     }

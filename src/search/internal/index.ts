@@ -15,8 +15,11 @@ export namespace Gianna {
   }
 
   export interface ISortOptions {
+    // eslint-disable-next-line camelcase
     sort_by: string;
+    // eslint-disable-next-line camelcase
     sort_asc: boolean;
+    // eslint-disable-next-line camelcase
     sort_type: string;
   }
 
@@ -24,6 +27,7 @@ export namespace Gianna {
     property: string;
     type: string;
     operation: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any;
   }
 
@@ -52,10 +56,11 @@ export namespace Gianna {
     }
 
     async times(): Promise<[number, number][]> {
-      const res = await Axios.get(
+      const res = await Axios.get<{ query_times: [number, number][] }>(
         `http://localhost:${getConfig().GIANNA_PORT}/index/${this.name}/times`
       );
-      return res.data.query_times as [number, number][];
+      // eslint-disable-next-line camelcase
+      return res.data.query_times;
     }
 
     async clear(): Promise<void> {
@@ -87,8 +92,11 @@ export namespace Gianna {
         `http://localhost:${getConfig().GIANNA_PORT}/index/${this.name}/search`,
         {
           filter: opts.filter,
+          // eslint-disable-next-line camelcase
           sort_by: opts.sort?.sort_by,
+          // eslint-disable-next-line camelcase
           sort_asc: opts.sort?.sort_asc,
+          // eslint-disable-next-line camelcase
           sort_type: opts.sort?.sort_type,
         },
         {

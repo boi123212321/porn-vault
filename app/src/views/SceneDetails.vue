@@ -550,12 +550,12 @@ interface ICropResult {
     ImageUploader,
     MarkerItem,
     CustomFieldSelector,
-    VideoPlayer
+    VideoPlayer,
   },
   beforeRouteLeave(_to, _from, next) {
     sceneModule.setCurrent(null);
     next();
-  }
+  },
 })
 export default class SceneDetails extends Vue {
   $refs!: {
@@ -660,13 +660,13 @@ export default class SceneDetails extends Vue {
         ${movieFragment}
       `,
       variables: {
-        ids: [this.currentScene._id]
-      }
+        ids: [this.currentScene._id],
+      },
     })
-      .then(res => {
+      .then((res) => {
         sceneModule.setCurrent(res.data.runScenePlugins[0]);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       })
       .finally(() => {
@@ -688,15 +688,15 @@ export default class SceneDetails extends Vue {
       variables: {
         ids: [this.currentScene._id],
         opts: {
-          customFields: this.editCustomFields
-        }
-      }
+          customFields: this.editCustomFields,
+        },
+      },
     })
-      .then(res => {
+      .then((res) => {
         sceneModule.setCustomFields(res.data.updateScenes[0].customFields);
         this.hasUpdatedFields = false;
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
   }
@@ -715,10 +715,10 @@ export default class SceneDetails extends Vue {
       variables: {
         // @ts-ignore
         id: this.currentScene._id,
-        sec: this.$refs.player.currentProgress()
-      }
+        sec: this.$refs.player.currentProgress(),
+      },
     })
-      .then(res => {
+      .then((res) => {
         sceneModule.setThumbnail(res.data.screenshotScene._id);
       })
       .finally(() => {
@@ -734,10 +734,10 @@ export default class SceneDetails extends Vue {
         }
       `,
       variables: {
-        ids: [id]
-      }
-    }).then(res => {
-      this.markers = this.markers.filter(m => m._id != id);
+        ids: [id],
+      },
+    }).then((res) => {
+      this.markers = this.markers.filter((m) => m._id != id);
     });
   }
 
@@ -784,11 +784,9 @@ export default class SceneDetails extends Vue {
         rating: this.markerRating,
         favorite: this.markerFavorite,
         bookmark: this.markerBookmark ? Date.now() : null,
-        labels: this.selectedMarkerLabels
-          .map(i => this.allLabels[i])
-          .map(l => l._id)
-      }
-    }).then(res => {
+        labels: this.selectedMarkerLabels.map((i) => this.allLabels[i]).map((l) => l._id),
+      },
+    }).then((res) => {
       this.markers.unshift(res.data.createMarker);
 
       this.markers.sort((a, b) => a.time - b.time);
@@ -798,15 +796,11 @@ export default class SceneDetails extends Vue {
   }
 
   formatTime(secs: number) {
-    return moment()
-      .startOf("day")
-      .seconds(secs)
-      .format("H:mm:ss");
+    return moment().startOf("day").seconds(secs).format("H:mm:ss");
   }
 
   currentTimeFormatted() {
-    if (this.$refs.player)
-      return this.formatTime(this.$refs.player.currentProgress());
+    if (this.$refs.player) return this.formatTime(this.$refs.player.currentProgress());
   }
 
   openMarkerDialog() {
@@ -829,9 +823,9 @@ export default class SceneDetails extends Vue {
 
   get videoPath() {
     if (this.currentScene)
-      return `${serverBase}/scene/${
-        this.currentScene._id
-      }?password=${localStorage.getItem("password")}`;
+      return `${serverBase}/scene/${this.currentScene._id}?password=${localStorage.getItem(
+        "password"
+      )}`;
   }
 
   @Watch("currentScene.actors", { deep: true })
@@ -848,7 +842,7 @@ export default class SceneDetails extends Vue {
       left: Math.round(crop.coordinates.left),
       top: Math.round(crop.coordinates.top),
       width: Math.round(crop.coordinates.width),
-      height: Math.round(crop.coordinates.height)
+      height: Math.round(crop.coordinates.height),
     };
   }
 
@@ -914,14 +908,14 @@ export default class SceneDetails extends Vue {
           left: this.crop.left,
           top: this.crop.top,
           width: this.crop.width,
-          height: this.crop.height
+          height: this.crop.height,
         },
-        actors: this.currentScene.actors.map(a => a._id),
-        labels: this.currentScene.labels.map(a => a._id),
-        compress: true
-      }
+        actors: this.currentScene.actors.map((a) => a._id),
+        labels: this.currentScene.labels.map((a) => a._id),
+        compress: true,
+      },
     })
-      .then(res => {
+      .then((res) => {
         const image = res.data.uploadImage;
         this.images.unshift(image);
         this.setAsThumbnail(image._id);
@@ -946,28 +940,20 @@ export default class SceneDetails extends Vue {
         }
       `,
       variables: {
-        ids: [this.images[index]._id]
-      }
+        ids: [this.images[index]._id],
+      },
     })
-      .then(res => {
+      .then((res) => {
         this.images.splice(index, 1);
         this.lightboxIndex = null;
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       })
       .finally(() => {});
   }
 
-  updateImage({
-    index,
-    key,
-    value
-  }: {
-    index: number;
-    key: string;
-    value: any;
-  }) {
+  updateImage({ index, key, value }: { index: number; key: string; value: any }) {
     const images = this.images[index];
     images[key] = value;
     Vue.set(this.images, index, images);
@@ -985,8 +971,8 @@ export default class SceneDetails extends Vue {
 
       const result = await ApolloClient.query({
         query: gql`
-          query($query: String, $auto: Boolean) {
-            getImages(query: $query, auto: $auto) {
+          query($query: String) {
+            getImages(query: $query) {
               items {
                 ...ImageFragment
                 actors {
@@ -1004,8 +990,7 @@ export default class SceneDetails extends Vue {
         `,
         variables: {
           query,
-          auto: true
-        }
+        },
       });
 
       return result.data.getImages.items;
@@ -1015,7 +1000,7 @@ export default class SceneDetails extends Vue {
   }
 
   infiniteHandler($state) {
-    this.fetchPage().then(items => {
+    this.fetchPage().then((items) => {
       if (items.length) {
         this.page++;
         this.images.push(...items);
@@ -1042,14 +1027,14 @@ export default class SceneDetails extends Vue {
       variables: {
         ids: [this.currentScene._id],
         opts: {
-          thumbnail: id
-        }
-      }
+          thumbnail: id,
+        },
+      },
     })
-      .then(res => {
+      .then((res) => {
         sceneModule.setThumbnail(id);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
   }
@@ -1073,17 +1058,15 @@ export default class SceneDetails extends Vue {
       variables: {
         ids: [this.currentScene._id],
         opts: {
-          labels: this.selectedLabels
-            .map(i => this.allLabels[i])
-            .map(l => l._id)
-        }
-      }
+          labels: this.selectedLabels.map((i) => this.allLabels[i]).map((l) => l._id),
+        },
+      },
     })
-      .then(res => {
+      .then((res) => {
         sceneModule.setLabels(res.data.updateScenes[0].labels);
         this.labelSelectorDialog = false;
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       })
       .finally(() => {
@@ -1101,7 +1084,7 @@ export default class SceneDetails extends Vue {
             aliases
           }
         }
-      `
+      `,
     });
 
     this.allLabels = res.data.getLabels;
@@ -1112,14 +1095,14 @@ export default class SceneDetails extends Vue {
 
     if (!this.allLabels.length) {
       this.loadLabels()
-        .then(res => {
+        .then((res) => {
           if (!this.currentScene) return;
-          this.selectedLabels = this.currentScene.labels.map(l =>
-            this.allLabels.findIndex(k => k._id == l._id)
+          this.selectedLabels = this.currentScene.labels.map((l) =>
+            this.allLabels.findIndex((k) => k._id == l._id)
           );
           this.labelSelectorDialog = true;
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
         });
     } else {
@@ -1128,15 +1111,12 @@ export default class SceneDetails extends Vue {
   }
 
   get videoDuration() {
-    if (this.currentScene)
-      return this.formatTime(this.currentScene.meta.duration);
+    if (this.currentScene) return this.formatTime(this.currentScene.meta.duration);
     return "";
   }
 
   imageLink(image: any) {
-    return `${serverBase}/image/${image._id}?password=${localStorage.getItem(
-      "password"
-    )}`;
+    return `${serverBase}/image/${image._id}?password=${localStorage.getItem("password")}`;
   }
 
   rate($event) {
@@ -1155,17 +1135,17 @@ export default class SceneDetails extends Vue {
       variables: {
         ids: [this.currentScene._id],
         opts: {
-          rating
-        }
-      }
-    }).then(res => {
+          rating,
+        },
+      },
+    }).then((res) => {
       sceneModule.setRating(rating);
     });
   }
 
   get labelNames() {
     if (!this.currentScene) return [];
-    return this.currentScene.labels.map(l => l.name).sort();
+    return this.currentScene.labels.map((l) => l.name).sort();
   }
 
   get thumbnail() {
@@ -1177,11 +1157,7 @@ export default class SceneDetails extends Vue {
   }
 
   get studioLogo() {
-    if (
-      this.currentScene &&
-      this.currentScene.studio &&
-      this.currentScene.studio.thumbnail
-    )
+    if (this.currentScene && this.currentScene.studio && this.currentScene.studio.thumbnail)
       return `${serverBase}/image/${
         this.currentScene.studio.thumbnail._id
       }?password=${localStorage.getItem("password")}`;
@@ -1244,9 +1220,9 @@ export default class SceneDetails extends Vue {
         ${movieFragment}
       `,
       variables: {
-        id: (<any>this).$route.params.id
-      }
-    }).then(res => {
+        id: (<any>this).$route.params.id,
+      },
+    }).then((res) => {
       if (!res.data.getSceneById) return this.$router.replace("/scenes");
 
       sceneModule.setCurrent(res.data.getSceneById);
@@ -1266,7 +1242,7 @@ export default class SceneDetails extends Vue {
 
   goToPreviousMarker() {
     const progress = this.$refs.player.currentProgress();
-    const prevMarkers = this.markers.filter(m => m.time < progress - 5);
+    const prevMarkers = this.markers.filter((m) => m.time < progress - 5);
     if (prevMarkers.length) {
       const prevMarker = prevMarkers.pop() as {
         _id: string;
@@ -1279,7 +1255,7 @@ export default class SceneDetails extends Vue {
 
   goToNextMarker() {
     const progress = this.$refs.player.currentProgress();
-    const nextMarker = this.markers.find(m => m.time > progress);
+    const nextMarker = this.markers.find((m) => m.time > progress);
     if (nextMarker) this.$refs.player.seek(nextMarker.time, nextMarker.name);
   }
 
@@ -1300,7 +1276,7 @@ export default class SceneDetails extends Vue {
       return false;
     });
 
-    hotkeys("*", ev => {
+    hotkeys("*", (ev) => {
       if (ev.keyCode == 37) this.$refs.player.seekRel(-5);
       else if (ev.keyCode == 39) this.$refs.player.seekRel(5);
       else if (ev.keyCode == 145) {

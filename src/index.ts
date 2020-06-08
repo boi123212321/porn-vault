@@ -12,9 +12,7 @@ import { printMaxMemory } from "./mem";
 import { checkUnusedPlugins, validatePlugins } from "./plugins/validate";
 import { queueLoop } from "./queue_loop";
 import startServer from "./server";
-import { isRegExp } from "./types/utility";
-
-const sha = require("js-sha512").sha512;
+import { isRegExp, sha512 } from "./types/utility";
 
 export async function onConfigLoad(config: IConfig): Promise<void> {
   validatePlugins(config);
@@ -67,7 +65,7 @@ if (!process.env.PREVENT_STARTUP)
               },
             ])
           ).password;
-        } while (sha(password) !== config.PASSWORD);
+        } while (sha512(password) !== config.PASSWORD);
       }
 
       if (args["update-gianna"]) {

@@ -16,12 +16,13 @@ export default class Marker {
   favorite = false;
   bookmark: number | null = null;
   rating = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customFields: any = {};
   scene: string;
   time: number; // Time in scene in seconds
   thumbnail?: string | null = null;
 
-  static async getAll() {
+  static async getAll(): Promise<Marker[]> {
     return markerCollection.getAll();
   }
 
@@ -29,8 +30,6 @@ export default class Marker {
     const allMarkers = await Marker.getAll();
 
     for (const marker of allMarkers) {
-      const markerId = marker._id.startsWith("st_") ? marker._id : `st_${marker._id}`;
-
       if (!marker.thumbnail) {
         await this.createMarkerThumbnail(marker);
       }

@@ -79,6 +79,7 @@ export default class Scene {
   favorite = false;
   bookmark: number | null = null;
   rating = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customFields: any = {};
   path: string | null = null;
   streamLinks: string[] = [];
@@ -395,7 +396,7 @@ export default class Scene {
   }
 
   static async generatePreview(scene: Scene): Promise<string | null> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       if (!scene.path) {
         logger.warn("No scene path, aborting preview generation.");
         return resolve();
@@ -430,7 +431,7 @@ export default class Scene {
 
       await asyncPool(4, timestamps, (timestamp) => {
         const index = timestamps.findIndex((s) => s === timestamp);
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           logger.log(`Creating thumbnail ${index}...`);
           ffmpeg(options.file)
             .on("end", () => {

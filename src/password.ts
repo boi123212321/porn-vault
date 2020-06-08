@@ -3,7 +3,7 @@ import { readFileSync } from "fs";
 
 import { getConfig } from "./config";
 import * as logger from "./logger";
-const sha = require("js-sha512").sha512 as (str: string) => string;
+import { sha512 } from "./types/utility";
 
 const SIGN_IN_HTML = readFileSync("./views/signin.html", "utf-8");
 
@@ -17,7 +17,7 @@ export function checkPassword(
 
   if (
     !config.PASSWORD ||
-    sha(req.query.password) === config.PASSWORD ||
+    sha512(req.query.password) === config.PASSWORD ||
     req.query.password === config.PASSWORD
   ) {
     return res.json(config.PASSWORD);
@@ -37,7 +37,7 @@ export function passwordHandler(
   if (
     req.headers["x-pass"] &&
     (req.headers["x-pass"] === config.PASSWORD ||
-      sha(<string>req.headers["x-pass"]) === config.PASSWORD)
+      sha512(<string>req.headers["x-pass"]) === config.PASSWORD)
   ) {
     logger.log("Auth OK");
     return next();
@@ -45,7 +45,7 @@ export function passwordHandler(
 
   if (
     req.query.password &&
-    (req.query.password === config.PASSWORD || sha(req.query.password) === config.PASSWORD)
+    (req.query.password === config.PASSWORD || sha512(req.query.password) === config.PASSWORD)
   ) {
     logger.log("Auth OK");
     return next();

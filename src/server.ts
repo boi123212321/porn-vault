@@ -216,7 +216,7 @@ export default async (): Promise<void> => {
     } else next(404);
   });
 
-  app.use("/image/:image", async (req, res, next) => {
+  app.use("/image/:image", async (req, res) => {
     const image = await Image.getById(req.params.image);
 
     if (image && image.path) {
@@ -232,12 +232,10 @@ export default async (): Promise<void> => {
 
   mountApolloServer(app);
 
-  app.use(
-    (err: number, req: express.Request, res: express.Response, next: express.NextFunction) => {
-      if (typeof err === "number") return res.sendStatus(err);
-      return res.sendStatus(500);
-    }
-  );
+  app.use((err: number, req: express.Request, res: express.Response) => {
+    if (typeof err === "number") return res.sendStatus(err);
+    return res.sendStatus(500);
+  });
 
   app.use("/queue", queueRouter);
 

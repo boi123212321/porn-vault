@@ -46,9 +46,7 @@ export default gql`
 
   extend type Query {
     numImages: Int!
-    # auto = true will prevent thumbnails, previews and screenshots from being filtered out
-    # TODO: deprecated? -----v
-    getImages(query: String, auto: Boolean, seed: String): ImageSearchResults!
+    getImages(query: String, seed: String): ImageSearchResults!
     getImageById(id: String!): Image
   }
 

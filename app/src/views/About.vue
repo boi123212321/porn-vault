@@ -59,54 +59,62 @@
             </v-col>
           </v-row>
 
-          <v-subheader>Results Per Page</v-subheader>
+          <v-subheader>Results per page</v-subheader>
           <v-row>             
-            <v-col :cols="12" :sm="6">
-              <v-form>
-                <div>
-                  <v-text-field
-                    :rules="perPageInputRules"
-                    color="primary"
-                    v-model="scenesPerPage"
-                    placeholder="24"
-                    label="Scenes Per Page"
-                  />
-                  <v-text-field
-                    :rules="perPageInputRules"
-                    color="primary"
-                    v-model="actorsPerPage"
-                    placeholder="24"
-                    label="Actors Per Page"
-                  />
-                  <v-text-field
-                    :rules="perPageInputRules"
-                    color="primary"
-                    v-model="moviesPerPage"
-                    placeholder="24"
-                    label="Movies Per Page"
-                  />
-                </div>
-              </v-form>
+            <v-col :cols="4" :sm="4">
+              <div>
+                <v-text-field
+                  :rules="perPageInputRules"
+                  color="primary"
+                  v-model="scenesPerPage"
+                  placeholder="24"
+                  label="Scenes per page"
+                />
+              </div>
             </v-col>
-            <v-col :cols="12" :sm="6">
-              <v-form>
-                <div>
-                  <v-text-field
-                    :rules="perPageInputRules"
-                    color="primary"
-                    v-model="studiosPerPage"
-                    placeholder="24"
-                    label="Studios Per Page"
-                  />
-                  <v-text-field
-                    :rules="perPageInputRules"
-                    color="primary"
-                    v-model="imagesPerPage"
-                    placeholder="24"
-                    label="Images Per Page"
-                  />
-                </div>
-              </v-form>
+            <v-col :cols="4" :sm="4">
+              <div>
+                <v-text-field
+                  :rules="perPageInputRules"
+                  color="primary"
+                  v-model="actorsPerPage"
+                  placeholder="24"
+                  label="Actors per page"
+                />
+              </div>
+            </v-col>
+            <v-col :cols="4" :sm="4">
+              <div>
+                <v-text-field
+                  :rules="perPageInputRules"
+                  color="primary"
+                  v-model="moviesPerPage"
+                  placeholder="24"
+                  label="Movies per page"
+                />
+              </div>
+            </v-col>
+            <v-col :cols="4" :sm="4">
+              <div>
+                <v-text-field
+                  :rules="perPageInputRules"
+                  color="primary"
+                  v-model="studiosPerPage"
+                  placeholder="24"
+                  label="Studios per page"
+                />
+              </div>
+            </v-col>
+            <v-col :cols="4" :sm="4">
+              <div>
+                <v-text-field
+                  :rules="perPageInputRules"
+                  color="primary"
+                  v-model="imagesPerPage"
+                  placeholder="24"
+                  label="Images per page"
+                />
+              </div>
             </v-col>
           </v-row>
         </v-card-text>

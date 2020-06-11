@@ -6,6 +6,11 @@ class ContextModule extends VuexModule {
 
   sceneAspectRatio = 1;
   actorAspectRatio = 1;
+  scenesPerPage = 24;
+  actorsPerPage = 24;
+  moviesPerPage = 24;
+  studiosPerPage = 24;
+  imagesPerPage = 24;
   scenePauseOnUnfocus = false;
   showCardLabels = true;
 
@@ -46,6 +51,31 @@ class ContextModule extends VuexModule {
   @Mutation
   setActorAspectRatio(val: number) {
     this.actorAspectRatio = val;
+  }
+
+  @Mutation
+  setScenesPerPage(val: number) {
+    this.scenesPerPage = val;
+  }
+
+  @Mutation
+  setActorsPerPage(val: number) {
+    this.actorsPerPage = val;
+  }
+  
+  @Mutation
+  setMoviesPerPage(val: number) {
+    this.moviesPerPage = val;
+  }
+
+  @Mutation
+  setStudiosPerPage(val: number) {
+    this.studiosPerPage = val;
+  }
+  
+  @Mutation
+  setImagesPerPage(val: number) {
+    this.imagesPerPage = val;
   }
 }
 

@@ -305,8 +305,14 @@ export default async (): Promise<void> => {
     logger.error(err.message);
   });
 
-  if (config.SCAN_INTERVAL > 0)
+  if (config.SCAN_INTERVAL > 0) {
+    function printNextScanDate() {
+      const nextScanDate = new Date(Date.now() + config.SCAN_INTERVAL);
+      logger.message(`Next scan at ${nextScanDate.toLocaleString()}`);
+    }
+    printNextScanDate();
     setInterval(() => {
-      scanFolders();
+      scanFolders().then(printNextScanDate);
     }, config.SCAN_INTERVAL);
+  }
 };

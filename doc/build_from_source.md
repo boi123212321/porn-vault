@@ -15,6 +15,8 @@
   - `npm run serve`
 - Build web app (in app/ folder)
   - `npm run build`
+- Transpile server (in root folder)
+  - `npm run transpile`
 - Run server in dev mode (in root folder)
   - `npm run mon`
 - Run server in release mode (in root folder)

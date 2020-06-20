@@ -129,8 +129,9 @@ export async function onSceneCreate(
         try {
           actor = await onActorCreate(actor, []);
         } catch (error) {
-          logger.log(error);
-          logger.error(error.message);
+          const _err = error as Error;
+          logger.log(_err);
+          logger.error(_err.message);
         }
         await actorCollection.upsert(actor._id, actor);
         await indexActors([actor]);
@@ -185,8 +186,9 @@ export async function onSceneCreate(
       try {
         movie = await onMovieCreate(movie, "movieCreated");
       } catch (error) {
-        logger.log(error);
-        logger.error(error.message);
+        const _err = error as Error;
+        logger.log(_err);
+        logger.error(_err.message);
       }
 
       await movieCollection.upsert(movie._id, movie);

@@ -58,7 +58,7 @@ export default class Image {
     if (image.color) return image.color;
 
     if (image.path) {
-      Image.extractColor(image).catch((err) => {
+      Image.extractColor(image).catch((err: Error) => {
         logger.error("Image color extraction failed");
         logger.log(err);
         logger.error(image.path, err.message);

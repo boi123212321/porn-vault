@@ -270,7 +270,10 @@ export default {
         logger.log("Deleting scene from queue (if needed)");
         try {
           await removeSceneFromQueue(scene._id);
-        } catch (err) {}
+        } catch (err) {
+          const _err = err as Error;
+          logger.warn(`Could not delete scene ${scene._id} from queue: ${_err.message}`);
+        }
       }
     }
     return true;

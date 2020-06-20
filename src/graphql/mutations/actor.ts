@@ -4,12 +4,10 @@ import { isMatchingItem, isSingleWord } from "../../extractor";
 import * as logger from "../../logger";
 import { onActorCreate } from "../../plugin_events/actor";
 import { index as actorIndex, indexActors, updateActors } from "../../search/actor";
-import { isBlacklisted, updateImages } from "../../search/image";
 import { updateScenes } from "../../search/scene";
 import Actor from "../../types/actor";
 import ActorReference from "../../types/actor_reference";
 import { isValidCountryCode } from "../../types/countries";
-import Image from "../../types/image";
 import LabelledItem from "../../types/labelled_item";
 import Scene from "../../types/scene";
 import { Dictionary } from "../../types/utility";
@@ -65,7 +63,10 @@ export default {
     return runActorPlugins(ids);
   },
 
-  async addActor(_: unknown, args: Dictionary<any>): Promise<Actor> {
+  async addActor(
+    _: unknown,
+    args: { name: string; aliases?: string[]; labels?: string[] }
+  ): Promise<Actor> {
     let actor = new Actor(args.name, args.aliases);
     const config = getConfig();
 

@@ -50,9 +50,10 @@ export async function checkVideoFolders(): Promise<void> {
     try {
       await Scene.onImport(videoPath);
     } catch (error) {
-      logger.log(error.stack);
+      const _err = error as Error;
+      logger.log(_err.stack);
       logger.error("Error when importing " + videoPath);
-      logger.warn(error.message);
+      logger.warn(_err.message);
     }
   }
 

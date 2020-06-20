@@ -20,9 +20,10 @@ export async function resetIzzy(): Promise<void> {
   try {
     await Axios.delete(`http://localhost:${getConfig().IZZY_PORT}/collection`);
   } catch (error) {
+    const _err = error as Error;
     logger.error("Error while resetting izzy");
-    logger.log(error.message);
-    throw error;
+    logger.log(_err.message);
+    throw _err;
   }
 }
 
@@ -30,7 +31,7 @@ export async function izzyVersion(): Promise<string | null> {
   try {
     const res = await Axios.get<{ version: string }>(`http://localhost:${getConfig().IZZY_PORT}/`);
     return res.data.version;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

@@ -305,7 +305,7 @@ export default async (): Promise<void> => {
     logger.warn("Scanning folders is currently disabled. Enable in config.json & restart.");
   }
 
-  tryStartProcessing().catch((err) => {
+  tryStartProcessing().catch((err: Error) => {
     logger.error("Couldn't start processing...");
     logger.error(err.message);
   });

@@ -15,7 +15,7 @@ import { queueLoop } from "./queue_loop";
 import startServer from "./server";
 import { isRegExp } from "./types/utility";
 
-export async function onConfigLoad(config: IConfig): Promise<void> {
+export function onConfigLoad(config: IConfig): void {
   validatePlugins(config);
   checkUnusedPlugins(config);
 
@@ -40,59 +40,71 @@ export async function onConfigLoad(config: IConfig): Promise<void> {
   logger.message("FFPROBE set to " + config.FFPROBE_PATH);
 }
 
-if (!process.env.PREVENT_STARTUP)
-  (async () => {
-    printMaxMemory();
+async function startup() {
+  logger.log("Startup...");
 
-    await checkConfig();
-    const config = getConfig();
+  printMaxMemory();
 
-    // TODO: validate config
+  await checkConfig();
+  const config = getConfig();
 
-    await onConfigLoad(config);
+  // TODO: validate config
 
-    if (args["process-queue"] === true) {
-      await queueLoop(config);
-    } else {
-      const promptPassword =
-        !args["no-password"] && !!config.PASSWORD && process.env.NODE_ENV !== "development";
-      if (promptPassword) {
-        let password: string;
-        do {
-          password = (
-            await inquirer.prompt<{ password: string }>([
-              {
-                type: "password",
-                name: "password",
-                message: "Enter password",
-              },
-            ])
-          ).password;
-        } while (sha512(password) !== config.PASSWORD);
-      }
+  onConfigLoad(config);
 
-      if (args["update-gianna"]) {
-        await deleteGianna();
-      }
-
-      if (args["update-izzy"]) {
-        await deleteIzzy();
-      }
-
-      try {
-        let downloadedBins = 0;
-        downloadedBins += await ensureIzzyExists();
-        downloadedBins += await ensureGiannaExists();
-        if (downloadedBins > 0) {
-          logger.success("Binaries downloaded. Please restart.");
-          process.exit(0);
-        }
-        applyExitHooks();
-        startServer();
-      } catch (err) {
-        logger.log(err);
-        logger.error(err.message);
-        process.exit(1);
-      }
+  if (args["process-queue"] === true) {
+    await queueLoop(config);
+  } else {
+    const promptPassword =
+      !args["no-password"] && !!config.PASSWORD && process.env.NODE_ENV !== "development";
+    if (promptPassword) {
+      let password: string;
+      do {
+        password = (
+          await inquirer.prompt<{ password: string }>([
+            {
+              type: "password",
+              name: "password",
+              message: "Enter password",
+            },
+          ])
+        ).password;
+      } while (sha512(password) !== config.PASSWORD);
     }
-  })();
+
+    if (args["update-gianna"]) {
+      await deleteGianna();
+    }
+
+    if (args["update-izzy"]) {
+      await deleteIzzy();
+    }
+
+    try {
+      let downloadedBins = 0;
+      downloadedBins += await ensureIzzyExists();
+      downloadedBins += await ensureGiannaExists();
+      if (downloadedBins > 0) {
+        logger.success("Binaries downloaded. Please restart.");
+        process.exit(0);
+      }
+      applyExitHooks();
+      startServer().catch((err) => {
+        const _err = err as Error;
+        logger.error(_err.message);
+      });
+    } catch (err) {
+      const _err = err as Error;
+      logger.log(_err);
+      logger.error(_err.message);
+      process.exit(1);
+    }
+  }
+}
+
+if (!process.env.PREVENT_STARTUP) {
+  startup().catch((err) => {
+    const _err = err as Error;
+    logger.error(_err.message);
+  });
+}

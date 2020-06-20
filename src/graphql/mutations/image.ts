@@ -37,7 +37,29 @@ function isHexColorString(str: string) {
 }
 
 export default {
-  async uploadImage(_: unknown, args: Dictionary<any>): Promise<Image> {
+  async uploadImage(
+    _: unknown,
+    args: {
+      file: Promise<{
+        filename: string;
+        mimetype: string;
+        createReadStream: () => NodeJS.ReadableStream;
+      }>;
+      name: string;
+      scene?: string;
+      studio?: string;
+      actors: string[];
+      labels: string[];
+      lossless?: boolean;
+      compress?: boolean;
+      crop?: {
+        left: number;
+        top: number;
+        width: number;
+        height: number;
+      };
+    }
+  ): Promise<Image> {
     for (const actor of args.actors || []) {
       const actorInDb = await Actor.getById(actor);
 

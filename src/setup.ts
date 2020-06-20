@@ -133,8 +133,9 @@ export default async (): Promise<IConfig> => {
       await downloadFile(ffmpegURL, ffmpegPath);
       await downloadFile(ffprobeURL, ffprobePath);
     } catch (error) {
-      logger.log(error);
-      logger.error(error.message);
+      const _err = error as Error;
+      logger.log(_err);
+      logger.error(_err.message);
       process.exit(1);
     }
 

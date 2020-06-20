@@ -26,7 +26,7 @@ export async function giannaVersion(): Promise<string | null> {
   try {
     const res = await Axios.get(`http://localhost:${getConfig().GIANNA_PORT}/`);
     return res.data.version as string;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -35,9 +35,10 @@ export async function resetGianna(): Promise<void> {
   try {
     await Axios.delete(`http://localhost:${getConfig().GIANNA_PORT}/index`);
   } catch (error) {
+    const _err = error as Error;
     logger.error("Error while resetting gianna");
-    logger.log(error.message);
-    throw error;
+    logger.log(_err.message);
+    throw _err;
   }
 }
 

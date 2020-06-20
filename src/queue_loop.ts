@@ -82,7 +82,8 @@ export async function queueLoop(config: IConfig): Promise<void> {
     logger.success("Processing done.");
     process.exit(0);
   } catch (error) {
-    logger.error(`Processing error: ${error.message}`);
+    const _err = error as Error;
+    logger.error(`Processing error: ${_err.message}`);
     process.exit(1);
   }
 }

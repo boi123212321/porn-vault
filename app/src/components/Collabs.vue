@@ -20,7 +20,7 @@
           class="text-center"
         >
           <router-link :to="`/actor/${actor._id}`">
-            <v-avatar style="border: 2px solid white" v-ripple size="100">
+            <v-avatar :style="`border: 3px solid ${avatarColor(actor)}`" v-ripple size="100">
               <v-img :src="collabAvatar(actor)"></v-img>
             </v-avatar>
           </router-link>
@@ -42,6 +42,11 @@ export default class Collabs extends Vue {
   @Prop() collabs!: ICollabActor[];
 
   showCollabs = false;
+
+  avatarColor(actor: any) {
+    if (actor.avatar) return actor.avatar.color || "#ffffff";
+    return "#ffffff";
+  }
 
   firstName(name: string) {
     const tokens = name.split(" ");

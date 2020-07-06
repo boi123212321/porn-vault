@@ -23,11 +23,15 @@
         <v-app-bar-nav-icon class="mr-2" @click="navDrawer = true"></v-app-bar-nav-icon>
         <v-toolbar-title v-if="currentScene" class="mr-1 title">{{ currentScene.name }}</v-toolbar-title>
         <v-toolbar-title v-if="currentActor" class="mr-1 title">
-          {{ currentActor.name }}
-          <span
-            class="subtitle-1 med--text"
-            v-if="currentActor.bornOn"
-          >({{ age }})</span>
+          <div class="d-flex align-center">
+            <Flag
+              class="mr-2"
+              v-if="currentActor.nationality"
+              :value="currentActor.nationality.alpha2"
+            />
+            <div class="mr-1">{{ currentActor.name }}</div>
+            <div class="subtitle-1 med--text" v-if="currentActor.bornOn">({{ age }})</div>
+          </div>
         </v-toolbar-title>
         <v-toolbar-title v-if="currentMovie" class="mr-1 title">{{ currentMovie.name }}</v-toolbar-title>
         <v-toolbar-title v-if="currentStudio" class="mr-1 title">{{ currentStudio.name }}</v-toolbar-title>

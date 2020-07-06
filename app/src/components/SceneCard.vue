@@ -8,7 +8,7 @@
               <div
                 @mouseenter="mouseenter"
                 @mouseleave="mouseleave"
-                v-if="hover"
+                v-if="previewSceneOnMouseHover && hover"
                 style="position: absolute: top: 0; left: 0; width: 100%; height: 100%"
               >
                 <div style="width: 100%; height: 100%; position: relative">
@@ -133,6 +133,10 @@ export default class SceneCard extends Mixins(SceneMixin) {
     if (this.value.thumbnail && this.value.thumbnail.color)
       return ensureDarkColor(this.value.thumbnail.color);
     return null;
+  }
+
+  get previewSceneOnMouseHover() {
+    return contextModule.scenePreviewOnMouseHover;
   }
 
   mouseenter() {

@@ -95,7 +95,7 @@
         <v-row>
           <v-col class="text-center" v-for="actor in currentImage.actors" :key="actor._id" cols="6">
             <a :href="`#/actor/${actor._id}`">
-              <v-avatar style="border: 2px solid white" size="120">
+              <v-avatar :style="`border: 3px solid ${avatarColor(actor)}`" size="120">
                 <v-img class="hover" v-ripple eager :src="avatar(actor)"></v-img>
               </v-avatar>
             </a>
@@ -546,6 +546,11 @@ export default class Lightbox extends Vue {
         actor.avatar._id
       }?password=${localStorage.getItem("password")}`;
     return "";
+  }
+
+  avatarColor(actor: any) {
+    if (actor.avatar) return actor.avatar.color || "#ffffff";
+    return "#ffffff";
   }
 }
 </script>

@@ -1,5 +1,4 @@
 import boxen from "boxen";
-import { spawn } from "child_process";
 import express from "express";
 import { existsSync, readFileSync } from "fs";
 import https from "https";
@@ -20,9 +19,9 @@ import { httpLog } from "./logger";
 import cors from "./middlewares/cors";
 import { checkPassword, passwordHandler } from "./password";
 import queueRouter from "./queue_router";
-import { checkImageFolders, checkVideoFolders } from "./queue/check";
-import { getLength, isProcessing, setProcessingStatus } from "./queue/processing";
+import { tryStartProcessing } from "./queue/processing";
 import { renderHandlebars } from "./render";
+import { nextScanTimestamp, scanFolders, startScanInterval } from "./scanner";
 import { buildIndices } from "./search";
 import { index as imageIndex } from "./search/image";
 import { index as sceneIndex } from "./search/scene";
@@ -37,41 +36,6 @@ const cache = new LRU({
 
 let serverReady = false;
 let setupMessage = "Setting up...";
-
-async function tryStartProcessing() {
-  const config = getConfig();
-  if (!config.DO_PROCESSING) return;
-
-  const queueLen = await getLength();
-  if (queueLen > 0 && !isProcessing()) {
-    logger.message("Starting processing worker...");
-    setProcessingStatus(true);
-    spawn(process.argv[0], process.argv.slice(1).concat(["--process-queue"]), {
-      cwd: process.cwd(),
-      detached: false,
-      stdio: "inherit",
-    }).on("exit", (code) => {
-      logger.warn(`Processing process exited with code ${code}`);
-      setProcessingStatus(false);
-    });
-  } else if (!queueLen) {
-    logger.success("No more videos to process.");
-  }
-}
-
-async function scanFolders() {
-  logger.message("Scanning folders...");
-  await checkVideoFolders();
-  logger.success("Scan done.");
-  checkImageFolders().catch((err: Error) => {
-    logger.error(err.message);
-  });
-
-  tryStartProcessing().catch((err: Error) => {
-    logger.error("Couldn't start processing...");
-    logger.error(err.message);
-  });
-}
 
 export default async (): Promise<void> => {
   logger.message("Check https://github.com/boi123212321/porn-vault for discussion & updates");
@@ -247,6 +211,14 @@ export default async (): Promise<void> => {
     res.json("Started scan.");
   });
 
+  app.get("/next-scan", (req, res) => {
+    if (!nextScanTimestamp) return res.send("No scan planned");
+    res.json({
+      nextScanDate: new Date(nextScanTimestamp).toLocaleString(),
+      nextScanTimestamp,
+    });
+  });
+
   if (config.BACKUP_ON_STARTUP === true) {
     setupMessage = "Creating backup...";
     await createBackup(config.MAX_BACKUP_AMOUNT || 10);
@@ -295,34 +267,19 @@ export default async (): Promise<void> => {
     })
   );
 
-  // checkPreviews();
-
   watchConfig();
 
   if (config.SCAN_ON_STARTUP) {
     await scanFolders();
   } else {
     logger.warn("Scanning folders is currently disabled. Enable in config.json & restart.");
-  }
-
-  tryStartProcessing().catch((err: Error) => {
-    logger.error("Couldn't start processing...");
-    logger.error(err.message);
-  });
-
-  function printNextScanDate() {
-    const nextScanDate = new Date(Date.now() + config.SCAN_INTERVAL);
-    logger.message(`Next scan at ${nextScanDate.toLocaleString()}`);
+    tryStartProcessing().catch((err) => {
+      logger.error("Couldn't start processing...");
+      logger.error(err.message);
+    });
   }
 
   if (config.SCAN_INTERVAL > 0) {
-    printNextScanDate();
-    setInterval(() => {
-      scanFolders()
-        .then(printNextScanDate)
-        .catch((err: Error) => {
-          logger.error(err.message);
-        });
-    }, config.SCAN_INTERVAL);
+    startScanInterval(config.SCAN_INTERVAL);
   }
 };

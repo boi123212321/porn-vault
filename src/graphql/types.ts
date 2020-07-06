@@ -23,6 +23,8 @@ export default makeExecutableSchema({
     customFieldSchema,
     markerSchema,
   ],
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   resolvers: RootResolver,
   resolverValidationOptions: {
     requireResolversForResolveType: false,

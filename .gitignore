@@ -51,5 +51,10 @@ izzy
 izzy.exe
 compat/cross_references\.db
 
+.vscode
+
+config.test.json
+config.test.yaml
+
 gianna
 gianna.exe

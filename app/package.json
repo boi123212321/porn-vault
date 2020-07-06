@@ -16,10 +16,10 @@
     "axios": "^0.19.2",
     "chart.js": "^2.9.3",
     "color": "^3.1.2",
-    "core-js": "^3.6.4",
+    "core-js": "^3.6.5",
     "graphql-tag": "^2.10.3",
-    "hotkeys-js": "^3.7.6",
-    "moment": "^2.26.0",
+    "hotkeys-js": "^3.8.1",
+    "moment": "^2.27.0",
     "roboto-fontface": "*",
     "vue": "^2.6.11",
     "vue-advanced-cropper": "^0.16.1",
@@ -31,7 +31,7 @@
     "vue-the-mask": "^0.11.1",
     "vue-vis-network": "^1.0.2",
     "vuetify": "^2.2.15",
-    "vuex": "^3.4.0",
+    "vuex": "^3.5.1",
     "vuex-class-modules": "^1.1.2",
     "yaml": "^1.10.0"
   },
@@ -46,7 +46,7 @@
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "vue-cli-plugin-vuetify": "^2.0.5",
-    "typescript": "~3.9.3",
+    "typescript": "~3.9.5",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.4.3"
   }

@@ -55,6 +55,9 @@ async function startup() {
   if (args["process-queue"] === true) {
     await queueLoop(config);
   } else {
+    if (args["update-gianna"]) {
+      await deleteGianna();
+    }
     const promptPassword =
       !args["no-password"] && !!config.PASSWORD && process.env.NODE_ENV !== "development";
     if (promptPassword) {

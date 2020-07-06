@@ -12,6 +12,7 @@ class ContextModule extends VuexModule {
   fillActorCards = true;
 
   showSidenav = true; // TODO: store and load from localStorage
+  scenePreviewOnMouseHover = true;
 
   @Mutation
   toggleSidenav(bool: boolean) {
@@ -46,6 +47,11 @@ class ContextModule extends VuexModule {
   @Mutation
   setActorAspectRatio(val: number) {
     this.actorAspectRatio = val;
+  }
+
+  @Mutation
+  setScenePreviewOnMouseHover(val: boolean) {
+    this.scenePreviewOnMouseHover = val;
   }
 }
 

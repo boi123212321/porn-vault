@@ -46,6 +46,12 @@
                 <v-checkbox
                   color="primary"
                   hide-details
+                  label="Play scene preview on mouse hover"
+                  v-model="scenePreviewOnMouseHover"
+                />
+                <v-checkbox
+                  color="primary"
+                  hide-details
                   v-model="showCardLabels"
                   label="Show card labels on overview"
                 />
@@ -165,6 +171,15 @@ export default class About extends Vue {
 
   get scenePauseOnUnfocus() {
     return contextModule.scenePauseOnUnfocus;
+  }
+
+  set scenePreviewOnMouseHover(val: boolean) {
+    localStorage.setItem("pm_scenePreviewOnMouseHover", val.toString());
+    contextModule.setScenePreviewOnMouseHover(val);
+  }
+
+  get scenePreviewOnMouseHover() {
+    return contextModule.scenePreviewOnMouseHover;
   }
 
   toggleDarkMode() {

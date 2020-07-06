@@ -34,20 +34,43 @@ export async function walk(options: IWalkOptions): Promise<void> {
   while (folderStack.length) {
     const top = folderStack.pop();
     if (!top) break;
+
     logger.log(`Walking folder ${top}`);
-    const filesInDir = await readdirAsync(top);
+    let filesInDir: string[] = [];
+
+    try {
+      filesInDir = await readdirAsync(top);
+    } catch (err) {
+      logger.error(`Error reading contents of directory "${top}", skipping`);
+      logger.error(err);
+      continue;
+    }
 
     for (const file of filesInDir) {
       const path = join(top, file);
-      if (pathIsExcluded(options.exclude, path)) continue;
 
-      const stat = await statAsync(path);
-      if (stat.isDirectory()) {
-        logger.log("Pushed folder " + path);
-        folderStack.push(path);
-      } else if (validExtension(options.extensions, file)) {
-        logger.log("Found file " + file);
-        await options.cb(resolve(path));
+      if (pathIsExcluded(options.exclude, path)) {
+        logger.log(`"${path}" is excluded, skipping`);
+        continue;
+      }
+
+      try {
+        const stat = await statAsync(path);
+        if (stat.isDirectory()) {
+          logger.log(`Pushed folder ${path}`);
+          folderStack.push(path);
+        } else if (validExtension(options.extensions, file)) {
+          logger.log(`Found file ${file}`);
+          await options.cb(resolve(path));
+        }
+      } catch (err) {
+        // Check if error was an fs permission error
+        if (err.code && (err.code === "EACCES" || err.code === "EPERM")) {
+          logger.error(`"${path}" requires elevated permissions, skipping`);
+        } else {
+          logger.error(`Error walking or in callback for "${path}", skipping`);
+          logger.error(err);
+        }
       }
     }
   }

@@ -501,6 +501,7 @@ export default class ImageList extends mixins(DrawerMixin) {
                   ...ActorFragment
                   avatar {
                     _id
+                    color
                   }
                 }
                 scene {

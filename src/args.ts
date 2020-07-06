@@ -9,7 +9,6 @@ const argv = yargs
   .boolean("skip-compaction")
   .boolean("update-izzy")
   .boolean("update-gianna")
-  .boolean("no-password")
   .number("index-slice-size").argv;
 logger.log(argv);
 export default argv;

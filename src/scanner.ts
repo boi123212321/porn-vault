@@ -54,7 +54,7 @@ export async function scanFolders(nextScanMs: number = 0) {
 
   if (nextScanMs) {
     printNextScanDate(nextScanMs);
-    nextScanTimeout = setTimeout(() => {
+    nextScanTimeout = global.setTimeout(() => {
       scanFolders().catch((err) => {
         logger.error("Scan failed " + err.message);
       });

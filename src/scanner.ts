@@ -7,8 +7,15 @@ export let nextScanTimestamp = null as number | null;
 
 let nextScanTimeout: NodeJS.Timeout | null = null;
 
-function printNextScanDate(ms: number) {
-  const nextScanDate = new Date(Date.now() + ms);
+export let isScanning = false;
+
+/**
+ * Prints the date of the next scan & saves the timestamp
+ *
+ * @param nextScanMs - in how long the next scan will be executed
+ */
+function printNextScanDate(nextScanMs: number) {
+  const nextScanDate = new Date(Date.now() + nextScanMs);
   nextScanTimestamp = nextScanDate.valueOf();
   logger.message(`Next scan at ${nextScanDate.toLocaleString()}`);
 }
@@ -28,14 +35,19 @@ export async function scanFolders(nextScanMs: number = 0) {
 
   try {
     logger.message("Scanning folders...");
-    await checkVideoFolders();
-    logger.success("Scan done.");
-    checkImageFolders();
+    isScanning = true;
 
+    await checkVideoFolders();
+    logger.success("Video scan done.");
+
+    // Start processing as soon as video scan is done
     tryStartProcessing().catch((err) => {
       logger.error("Couldn't start processing...");
       logger.error(err.message);
     });
+
+    await checkImageFolders();
+    isScanning = false;
   } catch (err) {
     logger.error("Scan failed " + err.message);
   }

@@ -17,6 +17,7 @@ export interface IQueryOptions {
   durationMax: number | null;
   skip: number | null;
   take: number | null;
+  nationality: string | null;
 }
 
 const parseWords = (str = "") =>
@@ -55,6 +56,7 @@ export default (query?: string) => {
     durationMax: null,
     skip: null,
     take: null,
+    nationality: null,
   };
 
   if (!query) return options;
@@ -115,11 +117,16 @@ export default (query?: string) => {
           options[operation] = <"asc" | "desc">value;
         else throw `Query error: Unsupported sort direction '${value}'`;
         break;
+      case "nationality":
+        if (value !== "null") {
+          options[operation] = value;
+        }
+        break;
     }
   }
 
   if (!options.query && options.sortBy == "relevance") {
-    logger.log("No search query, defaulting to addedOn");
+    logger.log("No search query, defaulting to sortBy addedOn");
     options.sortBy = "addedOn";
     options.sortDir = "desc";
   }

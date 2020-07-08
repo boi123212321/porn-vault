@@ -1803,4 +1803,6 @@ export function isValidCountryCode(str: string) {
   return !!getNationality(str);
 }
 
+export const countryCodes = countries.map((c) => c.alpha2);
+
 export default countries;

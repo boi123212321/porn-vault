@@ -75,6 +75,22 @@
           :items="sortDirItems"
         ></v-select>
 
+        <Divider icon="mdi-flag">Nationality</Divider>
+
+        <v-autocomplete
+          placeholder="Filter by nationality"
+          hide-details
+          color="primary"
+          solo
+          flat
+          single-line
+          v-model="countryFilter"
+          :items="countries"
+          item-text="name"
+          item-value="alpha2"
+          clearable
+        ></v-autocomplete>
+
         <!-- <CustomFieldFilter :fields="fields" /> -->
       </v-container>
     </v-navigation-drawer>
@@ -266,6 +282,7 @@ import DrawerMixin from "@/mixins/drawer";
 import { mixins } from "vue-class-component";
 import { actorModule } from "@/store/actor";
 import CustomFieldFilter from "@/components/CustomFieldFilter.vue";
+import countries from "@/util/countries";
 
 @Component({
   components: {
@@ -276,6 +293,12 @@ import CustomFieldFilter from "@/components/CustomFieldFilter.vue";
   }
 })
 export default class ActorList extends mixins(DrawerMixin) {
+  countryFilter = localStorage.getItem("pm_actorNationality") || null;
+
+  get countries() {
+    return countries;
+  }
+
   get showSidenav() {
     return contextModule.showSidenav;
   }
@@ -590,6 +613,17 @@ export default class ActorList extends mixins(DrawerMixin) {
     this.loadPage(this.page);
   }
 
+  @Watch("countryFilter")
+  onNationalityChange() {
+    if (this.countryFilter) {
+      localStorage.setItem("pm_actorNationality", this.countryFilter);
+    } else {
+      localStorage.removeItem("pm_actorNationality");
+    }
+    actorModule.resetPagination();
+    this.loadPage(this.page);
+  }
+
   @Watch("selectedLabels")
   onLabelChange() {
     actorModule.resetPagination();
@@ -637,13 +671,12 @@ export default class ActorList extends mixins(DrawerMixin) {
         exclude = "exclude:" + this.selectedLabels.exclude.join(",");
 
       const query = `query:'${this.query ||
-        ""}' ${include} ${exclude} take:${take} page:${page - 1} sortDir:${
-        this.sortDir
-      } sortBy:${random ? "$shuffle" : this.sortBy} favorite:${
-        this.favoritesOnly ? "true" : "false"
-      } bookmark:${this.bookmarksOnly ? "true" : "false"} rating:${
-        this.ratingFilter
-      }`;
+        ""}' ${include} ${exclude} nationality:${this.countryFilter ||
+        null} take:${take} page:${page - 1} sortDir:${this.sortDir} sortBy:${
+        random ? "$shuffle" : this.sortBy
+      } favorite:${this.favoritesOnly ? "true" : "false"} bookmark:${
+        this.bookmarksOnly ? "true" : "false"
+      } rating:${this.ratingFilter}`;
 
       const result = await ApolloClient.query({
         query: gql`

@@ -64,7 +64,7 @@
     "tiny-async-pool": "^1.1.0",
     "validate": "^5.1.0",
     "yaml": "^1.10.0",
-    "yargs": "^15.4.0"
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.11",

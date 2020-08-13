@@ -58,3 +58,5 @@ config.test.yaml
 
 gianna
 gianna.exe
+ffmpeg.exe
+ffprobe.exe

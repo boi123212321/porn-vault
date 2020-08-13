@@ -3,8 +3,6 @@ WORKDIR /app
 ADD . /app
 RUN cd /app && \
     npm install && \
-    npm install typescript -g && \
-    npm install ts-node -g && \
     cd /app/app && \
     npm install && \
     npm run build && \

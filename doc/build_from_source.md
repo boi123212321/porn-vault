@@ -6,8 +6,6 @@
   - `git clone https://github.com/boi123212321/porn-vault.git`
 - Install dependencies
   - `npm install`
-  - `npm install typescript -g`
-  - `npm install ts-node -g`
 - Build web app dependencies
   - `cd app`
   - `npm install`

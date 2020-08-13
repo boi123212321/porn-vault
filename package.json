@@ -6,8 +6,8 @@
   "bin": "build/index.js",
   "scripts": {
     "install:app": "cd app && npm ci && cd ..",
-    "transpile": "tsc",
-    "watch": "tsc -w",
+    "transpile": "tsc -p tsconfig.dev.json",
+    "watch": "tsc -p tsconfig.dev.json -w",
     "start": "node build",
     "mon": "cross-env NODE_ENV=development nodemon build/",
     "dev": "cross-env NODE_ENV=development node --max_old_space_size=8192 -r ts-node/register ./src/index.ts",

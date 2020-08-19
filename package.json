@@ -51,7 +51,7 @@
     "graphql-type-json": "^0.3.2",
     "graphql-type-long": "^0.1.1",
     "handlebars": "^4.7.6",
-    "inquirer": "7.2.0",
+    "inquirer": "7.3.3",
     "jimp": "^0.14.0",
     "js-sha512": "^0.8.0",
     "lru-cache": "^5.1.1",

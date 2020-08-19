@@ -77,7 +77,7 @@
     "@types/inquirer": "^6.5.0",
     "@types/lru-cache": "^5.1.0",
     "@types/mkdirp": "^1.0.1",
-    "@types/mocha": "^7.0.2",
+    "@types/mocha": "^8.0.2",
     "@types/node": "^14.0.14",
     "@types/pug": "^2.0.4",
     "@types/rimraf": "^3.0.0",

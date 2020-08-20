@@ -194,6 +194,9 @@ export default class VideoPlayer extends Vue {
       if (volume <= 0.02) {
         this.mute();
       } else {
+        if (volume > 1) {
+          volume = 1;
+        }
         this.unmute();
         this.volume = volume;
         localStorage.setItem(VOLUME, volume.toString());
@@ -371,6 +374,7 @@ export default class VideoPlayer extends Vue {
     top: -110px;
     padding-bottom: 5px;
     padding-top: 5px;
+    user-select: none;
 
     .volume-bar-wrapper {
       position: relative;

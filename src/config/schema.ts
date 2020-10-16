@@ -10,7 +10,6 @@ const configSchema = zod
     import: zod.object({
       videos: zod.array(zod.string()),
       images: zod.array(zod.string()),
-      bulk: zod.array(zod.string()),
     }),
     scan: zod.object({
       scanOnStartup: zod.boolean(),

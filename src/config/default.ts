@@ -21,7 +21,6 @@ const defaultConfig: IConfig = {
     giannaPort: 8001,
   },
   import: {
-    bulk: [],
     images: [],
     videos: [],
   },

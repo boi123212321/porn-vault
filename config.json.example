@@ -9,7 +9,6 @@
     "giannaPort": 8001
   },
   "import": {
-    "bulk": [],
     "images": [
       "/images"
     ],

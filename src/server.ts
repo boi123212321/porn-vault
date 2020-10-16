@@ -13,7 +13,6 @@ import { getConfig, watchConfig } from "./config/index";
 import BROKEN_IMAGE from "./data/broken_image";
 import { actorCollection, imageCollection, loadStores, sceneCollection } from "./database/index";
 import { dvdRenderer } from "./dvd_renderer";
-import { checkImportFolders } from "./import/index";
 import { mountApolloServer } from "./middlewares/apollo";
 import cors from "./middlewares/cors";
 import { checkPassword, passwordHandler } from "./middlewares/password";
@@ -321,9 +320,6 @@ export default async (): Promise<void> => {
   } else {
     await spawnGianna();
   }
-
-  setupMessage = "Checking imports...";
-  await checkImportFolders();
 
   try {
     setupMessage = "Building search indices...";

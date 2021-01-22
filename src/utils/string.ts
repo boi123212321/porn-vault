@@ -39,12 +39,24 @@ export function escapeRegExp(string: string): string {
 
 // Parses the input to find a date. The date separator can be ".", " ", "-" or "/".
 export const dateToTimestamp = (dateStr: string): number | null => {
-  const ddmmyyyy = dateStr.match(/(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.]((?:19|20)\d\d)/);
-  const yyyymmdd = dateStr.match(/((?:19|20)\d\d)[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])/);
-  const yymmdd = dateStr.match(/\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])/);
-  const mmyyyy = dateStr.match(/(0[1-9]|1[012])[- /.]((?:19|20)\d\d)/);
-  const yyyymm = dateStr.match(/((?:19|20)\d\d)[- /.](0[1-9]|1[012])/);
-  const yyyy = dateStr.match(/((?:19|20)\d\d)/);
+  const ddmmyyyy = dateStr.match(
+    /(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.]((?:19|20)\d\d)/
+  );
+  const yyyymmdd = dateStr.match(
+    /((?:19|20)\d\d)[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])/
+  );
+  const yymmdd = dateStr.match(
+    /\d\d[- /.](0[1-9]|1[012])[- /.](0[1-9]|[12][0-9]|3[01])/
+  );
+  const mmyyyy = dateStr.match(
+    /(0[1-9]|1[012])[- /.]((?:19|20)\d\d)/
+  );
+  const yyyymm = dateStr.match(
+    /((?:19|20)\d\d)[- /.](0[1-9]|1[012])/
+  );
+  const yyyy = dateStr.match(
+    /((?:19|20)\d\d)/
+  );
 
   logger.verbose(`Converting date ${JSON.stringify(dateStr)} to timestamp`);
 

@@ -267,7 +267,7 @@ export default class Scene {
       const extractedDate = dateToTimestamp(videoPath);
 
       if (extractedDate) {
-        logger.debug(`Found release date in scene path: ${extractedDate.toString}`);
+        logger.debug(`Found release date in scene path: ${extractedDate}`);
         scene.releaseDate = extractedDate;
       }
     }

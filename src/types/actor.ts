@@ -106,6 +106,11 @@ export default class Actor {
     return actorCollection.get(_id);
   }
 
+  static async getByName(name: string): Promise<Actor | null> {
+    const actor = await actorCollection.query("name-index", encodeURIComponent(name));
+    return actor[0] as Actor | null;
+  }
+
   static async getBulk(_ids: string[]): Promise<Actor[]> {
     return actorCollection.getBulk(_ids);
   }

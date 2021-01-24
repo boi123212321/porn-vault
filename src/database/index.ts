@@ -142,7 +142,12 @@ export async function loadStores(): Promise<void> {
     },
   ]);
 
-  actorCollection = await Izzy.createCollection("actors", libraryPath("actors.db"));
+  actorCollection = await Izzy.createCollection("actors", libraryPath("actors.db"), [
+    {
+      name: "name-index",
+      key: "name",
+    },
+  ]);
 
   movieCollection = await Izzy.createCollection("movies", libraryPath("movies.db"), [
     {

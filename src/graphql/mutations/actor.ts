@@ -65,6 +65,21 @@ export default {
     const config = getConfig();
     const aliases = filterInvalidAliases(args.aliases || []);
 
+    // If the actor already exists (same name), do not add it to avoid creating duplicates
+    try {
+      const existingActor = await Actor.getByName(args.name);
+      if (existingActor) {
+        logger.info(`Actor ${args.name} was not added as an actor with that name already exists.`);
+        return existingActor;
+      }
+    } catch (error) {
+      logger.warn(
+        `Error while checking if actor already exists: ${args.name}. You should probably lauch pv with option "--reset-izzy".` +
+          ` Actor creation will proceed normally, but you might end-up with duplicate actors.`
+      );
+      logger.error(error);
+    }
+
     let actor = new Actor(args.name, aliases);
 
     let actorLabels = [] as string[];

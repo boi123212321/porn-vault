@@ -25,6 +25,6 @@ export async function getImages(
   return {
     numItems: result.total,
     numPages: result.numPages,
-    items: scenes.filter(Boolean),
+    items: scenes,
   };
 }

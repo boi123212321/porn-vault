@@ -1,8 +1,7 @@
 import { expect } from "chai";
 
 import defaultConfig from "../../src/config/default";
-import { WordMatcherOptions } from "../../src/config/schema";
-import { WordMatcher } from "./../../src/matching/wordMatcher";
+import { WordMatcher, WordMatcherOptions } from "../../src/matching/wordMatcher";
 import {
   filterFixtures,
   matchingActorFixtures,

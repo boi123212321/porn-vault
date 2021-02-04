@@ -79,7 +79,7 @@ The container requires some parameters for the app to run correctly. These param
 |               Parameter                | Function                                                                                                                                                                                                          |
 | :------------------------------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 |               `-p 3000`                | The port for the porn-vault webinterface. This must match what is in your config file.                                                                                                                            |
-|              `-v /config`              | Directory for persistent files (config file, database, backups...). It must be exactly this name.                                                   |
+|              `-v /config`              | Directory for persistent files (config file, database, backups...). Unless you changed the environment variable `PV_CONFIG_FOLDER`, it must be exactly this name.                                                    |
 |              `-v /videos`              | A directory for the `import.videos` config setting. The volume can have whatever path you want such as `/videos_from_drive_1` or `/videos_from_drive_2` _as long as you use that path in your config_.            |
 |              `-v /images`              | A directory for the `import.images` config The volume can have whatever path you want such as `/images_from_drive_1` or `/images_from_drive_2` _as long as you use that path in your config_.                     |
 
@@ -104,7 +104,7 @@ You could have a single volume such as `-v /my-stuff:/root_stuff` and then use i
 
 ## Notes
 
-When using Docker, the `binaries.ffmpeg` & `binaries.ffprobe` paths in the config must be valid, otherwise the program will exit. The images already have ffmpeg installed and thus use the following default paths:
+- When using Docker, the `binaries.ffmpeg` & `binaries.ffprobe` paths in the config must be valid, otherwise the program will exit. The images already have ffmpeg installed and thus use the following default paths:
 
 ```json
 {
@@ -114,6 +114,8 @@ When using Docker, the `binaries.ffmpeg` & `binaries.ffprobe` paths in the confi
   }
 }
 ```
+
+- By default, the images set the environment variable `PV_CONFIG_FOLDER=/config`, and create a volume for `/config`. Otherwise, you may run into permission or persistence issues.
 
 ## Integration with Elasticsearch
 

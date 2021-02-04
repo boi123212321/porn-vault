@@ -55,6 +55,6 @@ export async function getActors(
   return {
     numItems: result.total,
     numPages: result.numPages,
-    items: actors.filter(Boolean),
+    items: actors,
   };
 }

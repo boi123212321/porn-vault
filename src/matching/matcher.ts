@@ -1,7 +1,6 @@
 import { getConfig } from "../config";
-import { StringMatcherOptions, WordMatcherOptions } from "../config/schema";
-import { StringMatcher } from "./stringMatcher";
-import { WordMatcher } from "./wordMatcher";
+import { StringMatcher, StringMatcherOptions } from "./stringMatcher";
+import { WordMatcher, WordMatcherOptions } from "./wordMatcher";
 
 export interface MatchSource {
   _id: string;

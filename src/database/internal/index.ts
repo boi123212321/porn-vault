@@ -2,7 +2,7 @@
 import Axios, { AxiosError, AxiosResponse } from "axios";
 
 import { getConfig } from "../../config";
-import { logger } from "../../utils/logger";
+import { formatMessage, logger } from "../../utils/logger";
 
 export namespace Izzy {
   export interface IIndexCreation {
@@ -82,7 +82,18 @@ export namespace Izzy {
         `http://localhost:${getConfig().binaries.izzyPort}/collection/${this.name}/bulk`,
         { items }
       );
-      return res.data.items;
+      const filtered = res.data.items.filter(Boolean);
+      if (filtered.length < res.data.items.length) {
+        logger.warn(
+          `Retrieved some null value from getBulk (set logger to 'silly' for more info): `
+        );
+        logger.silly(`Before: ${formatMessage(res.data.items)}`);
+        logger.silly(`After: ${formatMessage(filtered)}`);
+        logger.verbose(
+          "This is not breaking, but it does mean your database probably contains some invalid value or the search index is out of sync"
+        );
+      }
+      return filtered;
     }
 
     async query(index: string, key: string | null): Promise<T[]> {

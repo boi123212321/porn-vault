@@ -77,7 +77,7 @@ export default class Movie {
 
   static async getByScene(id: string): Promise<Movie[]> {
     const movieScenes = await MovieScene.getByScene(id);
-    return (await Movie.getBulk(movieScenes.map((ms) => ms.movie))).filter(Boolean);
+    return await Movie.getBulk(movieScenes.map((ms) => ms.movie));
   }
 
   static getByStudio(studioId: string): Promise<Movie[]> {
@@ -97,9 +97,7 @@ export default class Movie {
     const actorIds = [
       ...new Set((await mapAsync(scenes, Scene.getActors)).flat().map((a) => a._id)),
     ];
-    return (await actorCollection.getBulk(actorIds))
-      .filter(Boolean)
-      .sort((a, b) => a.name.localeCompare(b.name));
+    return (await actorCollection.getBulk(actorIds)).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   static async setScenes(movie: Movie, sceneIds: string[]): Promise<void> {
@@ -122,7 +120,7 @@ export default class Movie {
 
   static async getScenes(movie: Movie): Promise<Scene[]> {
     const references = await MovieScene.getByMovie(movie._id);
-    return (await sceneCollection.getBulk(references.map((r) => r.scene))).filter(Boolean);
+    return sceneCollection.getBulk(references.map((r) => r.scene));
   }
 
   static async getRating(movie: Movie): Promise<number> {

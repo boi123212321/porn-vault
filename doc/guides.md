@@ -10,7 +10,7 @@
 
 ## Config
 
-See https://github.com/porn-vault/porn-vault/blob/dev/doc/config.md
+See [the config guide](https://github.com/porn-vault/porn-vault/blob/dev/doc/config.md) and [the environment variables guide](https://github.com/porn-vault/porn-vault/blob/dev/doc/env.md)
 
 ## How to run
 

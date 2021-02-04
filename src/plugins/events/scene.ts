@@ -4,6 +4,7 @@ import {
   actorCollection,
   imageCollection,
   labelCollection,
+  markerCollection,
   movieCollection,
   studioCollection,
   viewCollection,
@@ -18,11 +19,13 @@ import {
 import { runPluginsSerial } from "../../plugins";
 import { indexActors } from "../../search/actor";
 import { indexImages } from "../../search/image";
+import { indexMarkers } from "../../search/marker";
 import { indexMovies } from "../../search/movie";
 import { indexStudios } from "../../search/studio";
 import Actor from "../../types/actor";
 import Image from "../../types/image";
 import Label from "../../types/label";
+import Marker from "../../types/marker";
 import Movie from "../../types/movie";
 import Scene from "../../types/scene";
 import Studio from "../../types/studio";
@@ -51,6 +54,13 @@ export async function onSceneCreate(
     scene: JSON.parse(JSON.stringify(scene)) as Scene,
     sceneName: scene.name,
     scenePath: scene.path,
+    $createMarker: async (name: string, seconds: number) => {
+      const marker = new Marker(name, scene._id, seconds);
+      await markerCollection.upsert(marker._id, marker);
+      await Marker.createMarkerThumbnail(marker);
+      await indexMarkers([marker]);
+      return marker._id;
+    },
     $createLocalImage: async (path: string, name: string, thumbnail?: boolean) => {
       const img = await createLocalImage(path, name, thumbnail);
       img.scene = scene._id;
@@ -168,7 +178,9 @@ export async function onSceneCreate(
         }
         await Actor.setLabels(actor, actorLabels);
         await actorCollection.upsert(actor._id, actor);
-        await Actor.findUnmatchedScenes(actor, shouldApplyActorLabels ? actorLabels : []);
+        if (config.matching.matchCreatedActors) {
+          await Actor.findUnmatchedScenes(actor, shouldApplyActorLabels ? actorLabels : []);
+        }
         await indexActors([actor]);
         logger.debug(`Created actor ${actor.name}`);
       }

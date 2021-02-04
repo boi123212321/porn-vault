@@ -1,6 +1,26 @@
-import { StringMatcherOptions } from "../config/schema";
+import * as zod from "zod";
+
 import { formatMessage, logger } from "../utils/logger";
 import { ignoreSingleNames, isRegex, Matcher, MatchSource, REGEX_PREFIX } from "./matcher";
+
+export const StringMatcherOptionsSchema = zod.object({
+  ignoreSingleNames: zod.boolean(),
+  stripString: zod.string(),
+});
+
+export type StringMatcherOptions = zod.TypeOf<typeof StringMatcherOptionsSchema>;
+
+export const StringMatcherSchema = zod.object({
+  type: zod.enum(["legacy", "string"]),
+  options: StringMatcherOptionsSchema,
+});
+
+export type StringMatcherType = zod.TypeOf<typeof StringMatcherSchema>;
+
+export const DEFAULT_STRING_MATCHER: StringMatcherType = {
+  type: "legacy",
+  options: { ignoreSingleNames: true, stripString: "[^a-zA-Z0-9'/\\,()[\\]{}-]" },
+};
 
 export function stripStr(str: string, regexp: string): string {
   const regex = new RegExp(regexp, "gi");

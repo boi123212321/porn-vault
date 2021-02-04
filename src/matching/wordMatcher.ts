@@ -1,8 +1,60 @@
-import { WordMatcherOptions } from "../config/schema";
+import * as zod from "zod";
+
 import { formatMessage, logger } from "../utils/logger";
 import { createObjectSet } from "../utils/misc";
 import { escapeRegExp, getExtension, stripAccents } from "../utils/string";
 import { ignoreSingleNames, isRegex, Matcher, MatchSource, REGEX_PREFIX } from "./matcher";
+
+export const WordMatcherOptionsSchema = zod.object({
+  ignoreSingleNames: zod.boolean(),
+  ignoreDiacritics: zod.boolean(),
+  /**
+   * If word groups should be not used. Allows words to match across word groups.
+   * Example: allows "My WordGroup" to match against "My WordGroupExtra"
+   */
+  enableWordGroups: zod.boolean(),
+  /**
+   * If a group of words does not contain any group separators, if the word separators
+   * should be used to separate groups instead of words
+   */
+  wordSeparatorFallback: zod.boolean(),
+  /**
+   * If a camelCase word (PascalCase included) should create a word group
+   */
+  camelCaseWordGroups: zod.boolean(),
+  /**
+   * When inputs were matched on overlapping words, which one to return.
+   * Example: "My Studio", "Second My Studio" both overlap when matched against "second My Studio"
+   */
+  overlappingMatchPreference: zod.enum(["all", "longest", "shortest"]),
+  groupSeparators: zod.array(zod.string()),
+  wordSeparators: zod.array(zod.string()),
+  filepathSeparators: zod.array(zod.string()),
+});
+
+export type WordMatcherOptions = zod.TypeOf<typeof WordMatcherOptionsSchema>;
+
+export const WordMatcherSchema = zod.object({
+  type: zod.literal("word"),
+  options: WordMatcherOptionsSchema,
+});
+
+export type WordMatcherType = zod.TypeOf<typeof WordMatcherSchema>;
+
+export const DEFAULT_WORD_MATCHER: WordMatcherType = {
+  type: "word",
+  options: {
+    ignoreSingleNames: false,
+    ignoreDiacritics: true,
+    enableWordGroups: true,
+    wordSeparatorFallback: true,
+    camelCaseWordGroups: true,
+    overlappingMatchPreference: "longest",
+    groupSeparators: ["[\\s',()[\\]{}*\\.]"],
+    wordSeparators: ["[-_]"],
+    filepathSeparators: ["[/\\\\&]"],
+  },
+};
 
 const NORMALIZED_WORD_SEPARATOR = "-";
 
@@ -379,7 +431,7 @@ export class WordMatcher implements Matcher {
 
     itemsToMatch.forEach((source) => {
       const inputs = getInputs(source);
-      logger.silly(`(Word matcher) Ignoring single names`);
+      logger.silly(`(Word matcher) Ignoring single names: ${this.options.ignoreSingleNames}`);
       const filteredInputs = this.options.ignoreSingleNames ? ignoreSingleNames(inputs) : inputs;
 
       filteredInputs.forEach((input) => {
@@ -392,7 +444,7 @@ export class WordMatcher implements Matcher {
           );
           const res = inputRegex.exec(filePath);
           if (res) {
-            logger.silly(`(Word matcher) Regex match`);
+            logger.silly(`(Word matcher) Regex match (ID): ${source._id}`);
             regexSourceResults.push({
               source,
               sourceId: source._id,

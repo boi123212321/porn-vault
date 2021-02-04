@@ -13,10 +13,11 @@ import {
   resetLoadedConfig,
   watchConfig,
 } from "../../src/config";
-import defaultConfig, { DEFAULT_WORD_MATCHER } from "../../src/config/default";
+import defaultConfig from "../../src/config/default";
 import { IConfig } from "../../src/config/schema";
 import { preserve } from "./index.fixture";
 import { invalidConfig } from "./schema.fixture";
+import { DEFAULT_WORD_MATCHER } from "../../src/matching/wordMatcher";
 
 const configJSONFilename = path.resolve("config.test.json");
 const configJSONMergedFilename = path.resolve("config.test.merged.json");

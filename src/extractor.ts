@@ -1,6 +1,5 @@
-import { DEFAULT_STRING_MATCHER } from "./config/default";
 import { getMatcher, MatchSource } from "./matching/matcher";
-import { StringMatcher } from "./matching/stringMatcher";
+import { DEFAULT_STRING_MATCHER, StringMatcher } from "./matching/stringMatcher";
 import Actor from "./types/actor";
 import CustomField from "./types/custom_field";
 import Label from "./types/label";

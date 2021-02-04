@@ -25,6 +25,6 @@ export async function getScenes(
   return {
     numItems: result.total,
     numPages: result.numPages,
-    items: scenes.filter(Boolean),
+    items: scenes,
   };
 }

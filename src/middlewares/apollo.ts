@@ -11,7 +11,7 @@ export function mountApolloServer(app: express.Application): void {
       req,
     }),
     uploads: false,
-    playground: !!process.env.QL_PLAYGROUND,
+    playground: !!process.env.PV_QL_PLAYGROUND,
   });
   app.use(graphqlUploadExpress());
   server.applyMiddleware({ app, path: "/ql" });

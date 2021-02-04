@@ -50,15 +50,15 @@ export default class Label {
   }
 
   static async getById(_id: string): Promise<Label | null> {
-    return await labelCollection.get(_id);
+    return labelCollection.get(_id);
   }
 
   static async getBulk(_ids: string[]): Promise<Label[]> {
-    return (await labelCollection.getBulk(_ids)).filter(Boolean);
+    return labelCollection.getBulk(_ids);
   }
 
   static async getAll(): Promise<Label[]> {
-    return await labelCollection.getAll();
+    return labelCollection.getAll();
   }
 
   static async find(name: string): Promise<Label | undefined> {

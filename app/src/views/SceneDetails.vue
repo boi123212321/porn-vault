@@ -757,7 +757,11 @@ export default class SceneDetails extends Vue {
                 }
               }
               studio {
-                ...StudioFragment
+                _id
+                name
+                thumbnail {
+                  _id
+                }
               }
               movies {
                 ...MovieFragment

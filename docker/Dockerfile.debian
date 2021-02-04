@@ -18,4 +18,5 @@ COPY ["config.example.json", "./docker/run.sh", "/"]
 
 VOLUME [ "/config"]
 EXPOSE 3000
+ENV PV_CONFIG_FOLDER=/config
 ENTRYPOINT ["/run.sh"]

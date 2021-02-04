@@ -1,32 +1,7 @@
 import { platform } from "os";
 
-import {
-  ApplyActorLabelsEnum,
-  ApplyStudioLabelsEnum,
-  IConfig,
-  StringMatcherType,
-  WordMatcherType,
-} from "./schema";
-
-export const DEFAULT_STRING_MATCHER: StringMatcherType = {
-  type: "legacy",
-  options: { ignoreSingleNames: true, stripString: "[^a-zA-Z0-9'/\\,()[\\]{}-]" },
-};
-
-export const DEFAULT_WORD_MATCHER: WordMatcherType = {
-  type: "word",
-  options: {
-    ignoreSingleNames: false,
-    ignoreDiacritics: true,
-    enableWordGroups: true,
-    wordSeparatorFallback: true,
-    camelCaseWordGroups: true,
-    overlappingMatchPreference: "longest",
-    groupSeparators: ["[\\s',()[\\]{}*\\.]"],
-    wordSeparators: ["[-_]"],
-    filepathSeparators: ["[/\\\\&]"],
-  },
-};
+import { DEFAULT_WORD_MATCHER } from "../matching/wordMatcher";
+import { ApplyActorLabelsEnum, ApplyStudioLabelsEnum, IConfig } from "./schema";
 
 function isWindows(): boolean {
   return platform() === "win32";

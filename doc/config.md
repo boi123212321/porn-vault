@@ -1,12 +1,14 @@
 ## Config
 
+> Some parameters that are essential to the program are defined via environment variables. [See here](https://github.com/porn-vault/porn-vault/blob/dev/doc/env.md) 
+
 If the program cannot find a config file, the program will go through an interactive setup, and then create a config file for you.
 
 > Note: not all settings will be prompted to the user, the rest will automatically taken from defaults, [that you can find here](https://github.com/porn-vault/porn-vault/blob/dev/config.example.json).
 
 ### Config location
 
-The config file must adjacent to the program itself, and can either be JSON or YAML. It must be named `config.json` or `config.yaml`. If both files exist, the program will use JSON over YAML.
+The config file must be located in the folder defined by the environment variable `PV_CONFIG_FOLDER` (usually the same folder as the program), and can either be JSON or YAML. It must be named `config.json` or `config.yaml`. If both files exist, the program will use JSON over YAML.
 
 ### Adjusting the config
 

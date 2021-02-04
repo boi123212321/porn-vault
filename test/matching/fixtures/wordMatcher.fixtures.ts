@@ -1,4 +1,4 @@
-import { WordMatcherOptions } from "./../../../src/config/schema";
+import { WordMatcherOptions } from "../../../src/matching/wordMatcher";
 
 export const filterFixtures: {
   name: string;

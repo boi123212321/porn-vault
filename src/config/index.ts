@@ -3,6 +3,8 @@ import { existsSync, unlinkSync, writeFileSync } from "fs";
 import inquirer from "inquirer";
 import YAML from "yaml";
 
+import { DEFAULT_STRING_MATCHER, StringMatcherType } from "../matching/stringMatcher";
+import { DEFAULT_WORD_MATCHER, WordMatcherType } from "../matching/wordMatcher";
 import { refreshClient } from "../search";
 import { setupFunction } from "../setup";
 import { readFileAsync, writeFileAsync } from "../utils/fs/async";
@@ -10,8 +12,8 @@ import { createVaultLogger, handleError, logger, setLogger } from "../utils/logg
 import { mergeMissingProperties, removeUnknownProperties } from "../utils/misc";
 import { configPath } from "../utils/path";
 import { DeepPartial } from "../utils/types";
-import defaultConfig, { DEFAULT_STRING_MATCHER, DEFAULT_WORD_MATCHER } from "./default";
-import { IConfig, isValidConfig, StringMatcherType, WordMatcherType } from "./schema";
+import defaultConfig from "./default";
+import { IConfig, isValidConfig } from "./schema";
 import { validateConfigExtra } from "./validate";
 
 enum ConfigFileFormat {

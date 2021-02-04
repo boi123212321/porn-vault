@@ -348,11 +348,9 @@ export default class Scene {
 
   static async getByActor(id: string): Promise<Scene[]> {
     const references = await ActorReference.getByActor(id);
-    return (
-      await sceneCollection.getBulk(
-        references.filter((r) => r.item.startsWith("sc_")).map((r) => r.item)
-      )
-    ).filter(Boolean);
+    return await sceneCollection.getBulk(
+      references.filter((r) => r.item.startsWith("sc_")).map((r) => r.item)
+    );
   }
 
   static async getByStudio(id: string): Promise<Scene[]> {
@@ -369,9 +367,9 @@ export default class Scene {
 
   static async getActors(scene: Scene): Promise<Actor[]> {
     const references = await ActorReference.getByItem(scene._id);
-    return (await actorCollection.getBulk(references.map((r) => r.actor)))
-      .filter(Boolean)
-      .sort((a, b) => a.name.localeCompare(b.name));
+    return (await actorCollection.getBulk(references.map((r) => r.actor))).sort((a, b) =>
+      a.name.localeCompare(b.name)
+    );
   }
 
   static async setActors(scene: Scene, actorIds: string[]): Promise<void> {

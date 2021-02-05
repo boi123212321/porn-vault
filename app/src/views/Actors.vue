@@ -111,6 +111,9 @@
         </div>
       </v-container>
     </v-navigation-drawer>
+    <v-alert class="mb-3" v-if="skippedActorsWarning" dense dismissible type="warning"
+      >These Actors already existed and were skipped: {{ skippedActorsWarning }}</v-alert
+    >
 
     <div class="text-center" v-if="fetchError">
       <div>There was an error</div>
@@ -200,6 +203,7 @@
           <v-form v-model="validCreation">
             <v-text-field
               :rules="actorNameRules"
+              :error-messages="createActorErrors"
               color="primary"
               v-model="createActorName"
               placeholder="Name"
@@ -359,6 +363,8 @@ export default class ActorList extends mixins(DrawerMixin) {
   fetchingRandom = false;
 
   actorsBulkText = "" as string | null;
+  skippedActors: string[] = [];
+  skippedActorsWarning = null as string | null;
   bulkImportDialog = false;
   bulkLoader = false;
 
@@ -384,10 +390,18 @@ export default class ActorList extends mixins(DrawerMixin) {
   async runBulkImport() {
     this.bulkLoader = true;
 
+    this.skippedActors = [];
+    this.skippedActorsWarning = null;
+
     try {
       for (const name of this.actorsBulkImport) {
-        await this.createActorWithName(name);
+        if (await this.checkActorExist(name)) {
+          this.skippedActors.push(name);
+        } else {
+          await this.createActorWithName(name);
+        }
       }
+
       this.refreshPage();
       this.bulkImportDialog = false;
     } catch (error) {
@@ -396,7 +410,12 @@ export default class ActorList extends mixins(DrawerMixin) {
 
     this.actorsBulkText = "";
     this.bulkLoader = false;
-  }
+
+    // triggers warning alert if any actors were skipped because they already existed
+    if (this.skippedActors.length > 0) {
+      this.skippedActorsWarning = this.skippedActors.join(", ");
+    }
+  } 
 
   get actorsBulkImport() {
     if (this.actorsBulkText) return this.actorsBulkText.split("\n").filter(Boolean);
@@ -422,6 +441,7 @@ export default class ActorList extends mixins(DrawerMixin) {
   validCreation = false;
   createActorDialog = false;
   createActorName = "";
+  createActorErrors = [] as string[];
   createActorAliases = [] as string[];
   createSelectedLabels = [] as number[];
   labelSelectorDialog = false;
@@ -558,7 +578,17 @@ export default class ActorList extends mixins(DrawerMixin) {
     });
   }
 
-  addActor() {
+  @Watch("createActorName", {})
+  onCreateActorNameChange(newVal: number) {
+    this.createActorErrors = [];
+  }
+
+  async addActor() {
+    if (await this.checkActorExist(this.createActorName)) {
+      this.createActorErrors = ["This actor already exists."];
+      return;
+    }
+
     this.addActorLoader = true;
     ApolloClient.mutate({
       mutation: gql`
@@ -596,6 +626,36 @@ export default class ActorList extends mixins(DrawerMixin) {
       .finally(() => {
         this.addActorLoader = false;
       });
+  }
+
+  async checkActorExist(name: string) {
+    const result = await ApolloClient.query({
+      query: gql`
+        query($query: ActorSearchQuery!, $seed: String) {
+          getActors(query: $query, seed: $seed) {
+            items {
+              ...ActorFragment
+            }
+            numItems
+          }
+        }
+        ${actorFragment}
+      `,
+      variables: {
+        query: {
+          query: name,
+          sortBy: "relevance"
+        },
+        seed: localStorage.getItem("pm_seed") || "default",
+      },
+    });
+
+    // Verify that the highest relevance ES result is an exact name match
+    if (result.data.getActors.items.length > 0 && result.data.getActors.items[0].name == name) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   openLabelSelectorDialog() {

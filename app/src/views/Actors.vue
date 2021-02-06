@@ -634,7 +634,7 @@ export default class ActorList extends mixins(DrawerMixin) {
         query($query: ActorSearchQuery!, $seed: String) {
           getActors(query: $query, seed: $seed) {
             items {
-              ...ActorFragment
+              name
             }
             numItems
           }

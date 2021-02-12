@@ -638,7 +638,6 @@ export default class ActorList extends mixins(DrawerMixin) {
             numItems
           }
         }
-        ${actorFragment}
       `,
       variables: {
         query: {

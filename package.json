@@ -94,7 +94,7 @@
     "@types/gulp-zip": "^4.0.1",
     "@types/inquirer": "^7.3.1",
     "@types/lru-cache": "^5.1.0",
-    "@types/mocha": "^8.2.0",
+    "@types/mocha": "^8.2.1",
     "@types/node": "^14.14.20",
     "@types/node-fetch": "^2.5.7",
     "@types/pug": "^2.0.4",

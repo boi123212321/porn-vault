@@ -142,7 +142,12 @@ export async function searchActors(
   shuffleSeed = "default",
   extraFilter: unknown[] = []
 ): Promise<ISearchResults> {
-  const query = searchQuery(options.query, ["name^1.5", "labelNames", "nationalityName^0.75"]);
+  const query = searchQuery(options.query, [
+    "name^2",
+    "aliases^1.5",
+    "labelNames",
+    "nationalityName^0.75",
+  ]);
   const _shuffle = shuffle(shuffleSeed, query, options.sortBy);
 
   return performSearch<IActorSearchDoc, typeof options>({

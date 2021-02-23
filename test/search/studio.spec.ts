@@ -16,6 +16,7 @@ describe("Search", () => {
 
       expect(await Studio.getAll()).to.be.empty;
       const studio = new Studio("Porn Fidelity");
+      studio.aliases = ["Kelly Madison"];
       await studioCollection.upsert(studio._id, studio);
       await indexStudios([studio]);
       expect(await Studio.getAll()).to.have.lengthOf(1);
@@ -54,6 +55,17 @@ describe("Search", () => {
       it("Should find studio (typeahead)", async function () {
         const searchResult = await searchStudios({
           query: "p",
+        });
+        expect(searchResult).to.deep.equal({
+          items: [studio._id],
+          total: 1,
+          numPages: 1,
+        });
+      });
+
+      it("Should find studio from alias", async function () {
+        const searchResult = await searchStudios({
+          query: "Madison",
         });
         expect(searchResult).to.deep.equal({
           items: [studio._id],

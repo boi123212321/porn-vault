@@ -1,18 +1,20 @@
 <template>
-  <div style="width:100%" v-if="currentMovie" class="d-flex align-center">
+  <div style="width: 100%" v-if="currentMovie" class="d-flex align-center">
     <v-btn class="mr-1" icon @click="$router.go(-1)">
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
-    <v-toolbar-title v-if="$vuetify.breakpoint.smAndUp" class="mr-1 title">{{ currentMovie.name }}</v-toolbar-title>
+    <v-toolbar-title v-if="$vuetify.breakpoint.smAndUp" class="mr-1 title">{{
+      currentMovie.name
+    }}</v-toolbar-title>
 
     <v-btn @click="favorite" class="mr-1" icon>
-      <v-icon
-        :color="currentMovie.favorite ? 'error' : undefined"
-      >{{ currentMovie.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+      <v-icon :color="currentMovie.favorite ? 'error' : undefined">{{
+        currentMovie.favorite ? "mdi-heart" : "mdi-heart-outline"
+      }}</v-icon>
     </v-btn>
 
     <v-btn @click="bookmark" icon>
-      <v-icon>{{ currentMovie.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+      <v-icon>{{ currentMovie.bookmark ? "mdi-bookmark-check" : "mdi-bookmark-outline" }}</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
@@ -54,13 +56,9 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              color="primary"
-              class="text-none"
-              text
-              :disabled="!validEdit"
-              @click="editMovie"
-            >Edit</v-btn>
+            <v-btn color="primary" class="text-none" text :disabled="!validEdit" @click="editMovie"
+              >Edit</v-btn
+            >
           </v-card-actions>
         </v-form>
       </v-card>
@@ -96,8 +94,8 @@ import { checkMovieExist } from "../../api/search";
 @Component({
   components: {
     SceneSelector,
-    StudioSelector
-  }
+    StudioSelector,
+  },
 })
 export default class MovieToolbar extends Vue {
   editDialog = false;
@@ -108,24 +106,26 @@ export default class MovieToolbar extends Vue {
   editStudio = null as any;
   editReleaseDate = null as number | null;
 
-  movieNameRules = [v => (!!v && !!v.length) || "Invalid movie name"];
+  movieNameRules = [(v) => (!!v && !!v.length) || "Invalid movie name"];
   movieNameErrors = [] as string[];
 
   removeDialog = false;
   removeLoader = false;
 
   @Watch("editName", {})
-  onEditMovieNameChange(newVal: number) {
-    this.movieNameErrors = [];
+  async onEditMovieNameChange(newVal: string) {
+    if (this.currentMovie?.name === this.editName) return;
+
+    // Blocking error for name conflicts
+    if (await checkMovieExist(this.editName)) {
+      this.movieNameErrors = ["This movie already exists."];
+    } else {
+      this.movieNameErrors = [];
+    }
   }
 
   async editMovie() {
     if (!this.currentMovie) return;
-
-    if (await checkMovieExist(this.editName)) {
-      this.movieNameErrors = ["This movie already exists."];
-      return;
-    }
 
     ApolloClient.mutate({
       mutation: gql`
@@ -159,13 +159,13 @@ export default class MovieToolbar extends Vue {
         opts: {
           name: this.editName,
           description: this.editDescription,
-          scenes: this.editScenes.map(a => a._id),
+          scenes: this.editScenes.map((a) => a._id),
           studio: this.editStudio ? this.editStudio._id : null,
-          releaseDate: this.editReleaseDate
-        }
-      }
+          releaseDate: this.editReleaseDate,
+        },
+      },
     })
-      .then(res => {
+      .then((res) => {
         movieModule.setName(this.editName);
         movieModule.setDescription(this.editDescription);
         movieModule.setActors(res.data.updateMovies[0].actors);
@@ -176,7 +176,7 @@ export default class MovieToolbar extends Vue {
         movieModule.setReleaseDate(this.editReleaseDate);
         this.editDialog = false;
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
   }
@@ -184,6 +184,7 @@ export default class MovieToolbar extends Vue {
   openEditDialog() {
     if (!this.currentMovie) return;
 
+    this.movieNameErrors = [];
     this.editName = this.currentMovie.name;
     this.editDescription = this.currentMovie.description || "";
     this.editScenes = JSON.parse(JSON.stringify(this.currentMovie.scenes));
@@ -203,14 +204,14 @@ export default class MovieToolbar extends Vue {
         }
       `,
       variables: {
-        ids: [this.currentMovie._id]
-      }
+        ids: [this.currentMovie._id],
+      },
     })
-      .then(res => {
+      .then((res) => {
         this.removeDialog = false;
         this.$router.replace("/movies");
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       })
       .finally(() => {
@@ -236,10 +237,10 @@ export default class MovieToolbar extends Vue {
       variables: {
         ids: [this.currentMovie._id],
         opts: {
-          favorite: !this.currentMovie.favorite
-        }
-      }
-    }).then(res => {
+          favorite: !this.currentMovie.favorite,
+        },
+      },
+    }).then((res) => {
       movieModule.setFavorite(res.data.updateMovies[0].favorite);
     });
   }
@@ -258,10 +259,10 @@ export default class MovieToolbar extends Vue {
       variables: {
         ids: [this.currentMovie._id],
         opts: {
-          bookmark: this.currentMovie.bookmark ? null : Date.now()
-        }
-      }
-    }).then(res => {
+          bookmark: this.currentMovie.bookmark ? null : Date.now(),
+        },
+      },
+    }).then((res) => {
       movieModule.setBookmark(res.data.updateMovies[0].bookmark);
     });
   }

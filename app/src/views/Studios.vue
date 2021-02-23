@@ -92,9 +92,9 @@
         ></v-select>
       </v-container>
     </v-navigation-drawer>
-    <v-alert class="mb-3" v-if="skippedStudiosWarning" dense text dismissible type="warning"
-      >These studios already exist and were skipped: <b>{{ skippedStudiosWarning }}</b></v-alert
-    >
+    <v-alert class="mb-3" v-if="nameConflictsWarning" dense text dismissible type="warning">{{
+      nameConflictsWarning
+    }}</v-alert>
 
     <div class="text-center" v-if="fetchError">
       <div>There was an error</div>
@@ -237,7 +237,7 @@ import StudioCard from "@/components/Cards/Studio.vue";
 import { mixins } from "vue-class-component";
 import DrawerMixin from "@/mixins/drawer";
 import { studioModule } from "@/store/studio";
-import { checkStudioExist } from "../api/search";
+import { checkStudioExist, IDupCheckResults } from "../api/search";
 import { isQueryDifferent, SearchStateManager } from "../util/searchState";
 import { Dictionary, Route } from "vue-router/types/router";
 
@@ -298,7 +298,7 @@ export default class StudioList extends mixins(DrawerMixin) {
   }
 
   studiosBulkText = "" as string | null;
-  skippedStudiosWarning = null as string | null;
+  nameConflictsWarning = null as string | null;
   bulkImportDialog = false;
   bulkLoader = false;
 
@@ -310,11 +310,16 @@ export default class StudioList extends mixins(DrawerMixin) {
     this.bulkLoader = true;
 
     let skippedStudios: string[] = [];
-    this.skippedStudiosWarning = null;
+    let aliasConflictStudios: string[] = [];
+    this.nameConflictsWarning = null;
 
     try {
       for (const name of this.studiosBulkImport) {
-        if (await checkStudioExist(name)) {
+        const existResult: IDupCheckResults = await checkStudioExist(name);
+        if (existResult?.aliasesDup?.length) {
+          aliasConflictStudios.push(name);
+        }
+        if (existResult?.nameDup) {
           skippedStudios.push(name);
         } else {
           await this.createStudioWithName(name);
@@ -329,9 +334,17 @@ export default class StudioList extends mixins(DrawerMixin) {
     this.studiosBulkText = "";
     this.bulkLoader = false;
 
-    // triggers warning alert if any studios were skipped because they already existed
-    if (skippedStudios.length > 0) {
-      this.skippedStudiosWarning = skippedStudios.join(", ");
+    // Warn of studios that were skipped because they already existed or for which an alias with this name existed
+    this.nameConflictsWarning = "";
+    if (skippedStudios.length) {
+      this.nameConflictsWarning += `These studio already exist and were skipped: ${skippedStudios.join(
+        ", "
+      )}. `;
+    }
+    if (aliasConflictStudios.length) {
+      this.nameConflictsWarning += `These created studios also exist as alias of other studios: ${aliasConflictStudios.join(
+        ", "
+      )}. You may want to check for potential duplicates.`;
     }
   }
 

@@ -1,26 +1,22 @@
 <template>
-  <div v-if="currentActor" style="width:100%" class="d-flex align-center">
+  <div v-if="currentActor" style="width: 100%" class="d-flex align-center">
     <v-btn class="mr-1" icon @click="$router.go(-1)">
       <v-icon>mdi-chevron-left</v-icon>
     </v-btn>
     <v-toolbar-title v-if="$vuetify.breakpoint.smAndUp" class="d-flex align-center mr-1 title">
       <Flag class="mr-1" v-if="currentActor.nationality" :value="currentActor.nationality.alpha2" />
       <div class="mr-1">{{ currentActor.name }}</div>
-      <div class="subtitle-1 med--text" v-if="currentActor.bornOn">
-        ({{
-        currentActor.age
-        }})
-      </div>
+      <div class="subtitle-1 med--text" v-if="currentActor.bornOn">({{ currentActor.age }})</div>
     </v-toolbar-title>
 
     <v-btn @click="favorite" class="mx-1" icon>
-      <v-icon
-        :color="currentActor.favorite ? 'error' : undefined"
-      >{{ currentActor.favorite ? 'mdi-heart' : 'mdi-heart-outline' }}</v-icon>
+      <v-icon :color="currentActor.favorite ? 'error' : undefined">{{
+        currentActor.favorite ? "mdi-heart" : "mdi-heart-outline"
+      }}</v-icon>
     </v-btn>
 
     <v-btn @click="bookmark" icon>
-      <v-icon>{{ currentActor.bookmark ? 'mdi-bookmark-check' : 'mdi-bookmark-outline' }}</v-icon>
+      <v-icon>{{ currentActor.bookmark ? "mdi-bookmark-check" : "mdi-bookmark-outline" }}</v-icon>
     </v-btn>
 
     <v-spacer></v-spacer>
@@ -41,6 +37,7 @@
             <v-text-field
               :rules="actorNameRules"
               :error-messages="actorNameErrors"
+              :hint="actorAliasWarning"
               color="primary"
               v-model="editName"
               placeholder="Name"
@@ -78,13 +75,9 @@
         <v-divider></v-divider>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            text
-            @click="editActor"
-            color="primary"
-            class="text-none"
-            :disabled="!validEdit"
-          >Edit</v-btn>
+          <v-btn text @click="editActor" color="primary" class="text-none" :disabled="!validEdit"
+            >Edit</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -92,7 +85,10 @@
     <v-dialog v-model="removeDialog" max-width="400px">
       <v-card :loading="removeLoader">
         <v-card-title>Really delete '{{ currentActor.name }}'?</v-card-title>
-        <v-card-text>Scene and images featuring {{ currentActor.name }} will stay in your collection.</v-card-text>
+        <v-card-text
+          >Scene and images featuring {{ currentActor.name }} will stay in your
+          collection.</v-card-text
+        >
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn class="text-none" text color="error" @click="remove">Delete</v-btn>
@@ -111,12 +107,12 @@ import IActor from "../../types/actor";
 import moment from "moment";
 import CustomFieldSelector from "../CustomFieldSelector.vue";
 import countries from "../../util/countries";
-import { checkActorExist } from "../../api/search";
+import { checkActorExist, IDupCheckResults } from "../../api/search";
 
 @Component({
   components: {
-    CustomFieldSelector
-  }
+    CustomFieldSelector,
+  },
 })
 export default class ActorToolbar extends Vue {
   validEdit = false;
@@ -127,11 +123,33 @@ export default class ActorToolbar extends Vue {
   editDescription = "";
   editNationality = null as string | null;
 
-  actorNameRules = [v => (!!v && !!v.length) || "Invalid actor name"];
+  actorNameRules = [(v) => (!!v && !!v.length) || "Invalid actor name"];
   actorNameErrors = [] as string[];
+  actorAliasWarning = "" as string;
 
   removeDialog = false;
   removeLoader = false;
+
+  @Watch("editName", {})
+  async onEditNameChange(newVal: string) {
+    if (this.currentActor?.name === this.editName) return;
+
+    const existResult: IDupCheckResults = await checkActorExist(this.editName);
+    // Blocking error for name conflicts
+    if (existResult?.nameDup) {
+      this.actorNameErrors = ["This actor already exists."];
+    } else {
+      this.actorNameErrors = [];
+    }
+    // Non blocking hint warning for alias conflicts
+    if (existResult?.aliasesDup?.length) {
+      this.actorAliasWarning = `Warning: an alias with this name already exists for ${existResult.aliasesDup
+        .map((actor) => actor.name)
+        .join(", ")}.`;
+    } else {
+      this.actorAliasWarning = "";
+    }
+  }
 
   get countries() {
     return countries;
@@ -148,14 +166,14 @@ export default class ActorToolbar extends Vue {
         }
       `,
       variables: {
-        ids: [this.currentActor._id]
-      }
+        ids: [this.currentActor._id],
+      },
     })
-      .then(res => {
+      .then((res) => {
         this.removeDialog = false;
         this.$router.replace("/actors");
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       })
       .finally(() => {
@@ -168,21 +186,11 @@ export default class ActorToolbar extends Vue {
   }
 
   async sleep(ms: number) {
-    return new Promise(r => setTimeout(r, ms));
-  }
-
-  @Watch("editName", {})
-  onEditNameChange(newVal: number) {
-    this.actorNameErrors = [];
+    return new Promise((r) => setTimeout(r, ms));
   }
 
   async editActor() {
     if (!this.currentActor) return;
-
-    if (await checkActorExist(this.editName)) {
-      this.actorNameErrors = ["This actor already exists."];
-      return;
-    }
 
     await this.sleep(50);
 
@@ -207,12 +215,12 @@ export default class ActorToolbar extends Vue {
           description: this.editDescription,
           aliases: this.editAliases,
           bornOn: this.editBirthDate,
-          nationality: this.editNationality
-        }
-      }
+          nationality: this.editNationality,
+        },
+      },
     })
-      .then(res => {
-        const { aliases, nationality } = res.data.updateActors[0]
+      .then((res) => {
+        const { aliases, nationality } = res.data.updateActors[0];
         actorModule.setName(this.editName.trim());
         actorModule.setDescription(this.editDescription.trim());
         actorModule.setAliases(aliases);
@@ -220,13 +228,15 @@ export default class ActorToolbar extends Vue {
         actorModule.setNationality(nationality);
         this.editDialog = false;
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
   }
 
   openEditDialog() {
     if (!this.currentActor) return;
+    this.actorNameErrors = [];
+    this.actorAliasWarning = "";
     this.editName = this.currentActor.name;
     this.editAliases = this.currentActor.aliases;
     this.editDialog = true;
@@ -251,14 +261,14 @@ export default class ActorToolbar extends Vue {
       variables: {
         ids: [this.currentActor._id],
         opts: {
-          favorite: !this.currentActor.favorite
-        }
-      }
+          favorite: !this.currentActor.favorite,
+        },
+      },
     })
-      .then(res => {
+      .then((res) => {
         actorModule.setFavorite(res.data.updateActors[0].favorite);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
   }
@@ -277,14 +287,14 @@ export default class ActorToolbar extends Vue {
       variables: {
         ids: [this.currentActor._id],
         opts: {
-          bookmark: this.currentActor.bookmark ? null : Date.now()
-        }
-      }
+          bookmark: this.currentActor.bookmark ? null : Date.now(),
+        },
+      },
     })
-      .then(res => {
+      .then((res) => {
         actorModule.setBookmark(res.data.updateActors[0].bookmark);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
       });
   }

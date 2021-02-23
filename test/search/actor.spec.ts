@@ -15,7 +15,7 @@ describe("Search", () => {
       await startTestServer.call(this);
 
       expect(await Actor.getAll()).to.be.empty;
-      const actor = new Actor("Ginebra Bellucci");
+      const actor = new Actor("Ginebra Bellucci", ["Gina Spainish"]);
       await actorCollection.upsert(actor._id, actor);
       await indexActors([actor]);
       expect(await Actor.getAll()).to.have.lengthOf(1);
@@ -43,6 +43,17 @@ describe("Search", () => {
       it("Should find actor with 1 typo", async function () {
         const searchResult = await searchActors({
           query: "Belucci",
+        });
+        expect(searchResult).to.deep.equal({
+          items: [actor._id],
+          total: 1,
+          numPages: 1,
+        });
+      });
+
+      it("Should find actor through alias", async function () {
+        const searchResult = await searchActors({
+          query: "Spainish",
         });
         expect(searchResult).to.deep.equal({
           items: [actor._id],

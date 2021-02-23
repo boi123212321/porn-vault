@@ -416,7 +416,7 @@ export default class MovieList extends mixins(DrawerMixin) {
     this.bulkLoader = false;
 
     // triggers warning alert if any movies were skipped because they already existed
-    if (skippedMovies.length > 0) {
+    if (skippedMovies.length) {
       this.skippedMoviesWarning = skippedMovies.join(", ");
     }
   }
@@ -440,6 +440,17 @@ export default class MovieList extends mixins(DrawerMixin) {
 
   movieNameRules = [(v) => (!!v && !!v.length) || "Invalid movie name"];
   movieNameErrors = [] as string[];
+
+  @Watch("createMovieName", {})
+  async onCreateMovieNameChange(newVal: string) {
+    const existResult = await checkMovieExist(this.createMovieName);
+    // Blocking error for name conflicts
+    if (existResult) {
+      this.movieNameErrors = ["This movie already exists."];
+    } else {
+      this.movieNameErrors = [];
+    }
+  }
 
   @Watch("$route")
   onRouteChange(to: Route, from: Route) {
@@ -529,6 +540,7 @@ export default class MovieList extends mixins(DrawerMixin) {
 
   openCreateDialog() {
     this.createMovieDialog = true;
+    this.movieNameErrors = [];
   }
 
   createMovieWithName(name: string) {
@@ -562,17 +574,7 @@ export default class MovieList extends mixins(DrawerMixin) {
     });
   }
 
-  @Watch("createMovieName", {})
-  onCreateMovieNameChange(newVal: number) {
-    this.movieNameErrors = [];
-  }
-
   async addMovie() {
-    if (await checkMovieExist(this.createMovieName)) {
-      this.movieNameErrors = ["This movie already exists."];
-      return;
-    }
-
     this.addMovieLoader = true;
     ApolloClient.mutate({
       mutation: gql`

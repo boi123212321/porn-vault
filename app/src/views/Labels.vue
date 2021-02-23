@@ -66,6 +66,7 @@
                 placeholder="Label name"
                 :rules="labelNameRules"
                 :error-messages="editLabelNameErrors"
+                :hint="editLabelAliasWarning"
                 @keydown.enter="editLabel"
               ></v-text-field>
 
@@ -123,6 +124,7 @@
                 placeholder="Label name"
                 :rules="labelNameRules"
                 :error-messages="createLabelNameErrors"
+                :hint="createLabelAliasWarning"
                 @keydown.enter="addLabel"
               ></v-text-field>
 
@@ -165,6 +167,7 @@ import ApolloClient from "@/apollo";
 import gql from "graphql-tag";
 import LabelSelector from "@/components/LabelSelector.vue";
 import ILabel from "@/types/label";
+import { IDupCheckResults } from "../api/search";
 
 @Component({
   components: {
@@ -181,6 +184,7 @@ export default class Home extends Vue {
   editLabelLoader = false;
   editColor = "";
   editingLabel = null as ILabel | null;
+  initialEditLabelName = "";
   editLabelName = "";
   editLabelAliases = [] as string[];
   validEditing = false;
@@ -194,6 +198,8 @@ export default class Home extends Vue {
   labelNameRules = [(v) => (!!v && !!v.length) || "Invalid label name"];
   editLabelNameErrors = [] as string[];
   createLabelNameErrors = [] as string[];
+  editLabelAliasWarning = "" as string;
+  createLabelAliasWarning = "" as string;
   labelColorRules = [
     (v) => {
       if (!v) {
@@ -207,7 +213,10 @@ export default class Home extends Vue {
 
   openEditDialog(label: ILabel) {
     this.editLabelDialog = true;
+    this.editLabelNameErrors = [];
+    this.editLabelAliasWarning = "";
     this.editingLabel = label;
+    this.initialEditLabelName = label.name;
     this.editLabelName = label.name;
     this.editLabelAliases = label.aliases;
     this.editColor = label.color ? label.color.replace("#", "") : "";
@@ -221,23 +230,65 @@ export default class Home extends Vue {
     return new Promise((r) => setTimeout(r, ms));
   }
 
-  checkLabelExist(name: string) {
-    return this.labels.find(l => l.name === name);
+  checkLabelExist(name: string): IDupCheckResults {
+    const searchName = name.trim();
+    return {
+      nameDup: this.labels.find(
+        (l) => l.name.localeCompare(searchName, undefined, { sensitivity: "base" }) === 0
+      ),
+      aliasesDup: this.labels.filter(({ aliases }) =>
+        aliases.find(
+          (alias) => alias.localeCompare(searchName, undefined, { sensitivity: "base" }) === 0
+        )
+      ),
+    };
+  }
+
+  @Watch("createLabelName", {})
+  onCreateLabelNameChange(newVal: string) {
+    const existResult: IDupCheckResults = this.checkLabelExist(this.createLabelName);
+
+    // Blocking error for name conflicts
+    if (existResult?.nameDup) {
+      this.createLabelNameErrors = ["This label already exists."];
+    } else {
+      this.createLabelNameErrors = [];
+    }
+    // Non blocking hint warning for alias conflicts
+    if (existResult?.aliasesDup?.length) {
+      this.createLabelAliasWarning = `Warning: an alias with this name already exists for ${existResult.aliasesDup
+        .map((label) => label.name)
+        .join(", ")}.`;
+    } else {
+      this.createLabelAliasWarning = "";
+    }
   }
 
   @Watch("editLabelName", {})
-  onEditLabelNameChange(newVal: number) {
-    this.editLabelNameErrors = [];
+  onEditLabelNameChange(newVal: string) {
+    if (this.initialEditLabelName === this.editLabelName) return;
+
+    const existResult: IDupCheckResults = this.checkLabelExist(this.editLabelName);
+
+    // Blocking error for name conflicts
+    if (existResult?.nameDup) {
+      this.editLabelNameErrors = ["This label already exists."];
+    } else {
+      this.editLabelNameErrors = [];
+    }
+    // Non blocking hint warning for alias conflicts
+    if (existResult?.aliasesDup?.length) {
+      this.editLabelAliasWarning = `Warning: an alias with this name already exists for ${existResult.aliasesDup
+        .map((label) => label.name)
+        .join(", ")}.`;
+    } else {
+      this.editLabelAliasWarning = "";
+    }
   }
 
   async editLabel() {
     if (!this.editingLabel) return;
     if (!this.validEditing) return;
-
-    if (this.checkLabelExist(this.editLabelName)) {
-      this.editLabelNameErrors = ["This label already exists."];
-      return;
-    }
 
     await this.sleep(50);
     this.editLabelLoader = true;
@@ -309,18 +360,8 @@ export default class Home extends Vue {
       });
   }
 
-  @Watch("createLabelName", {})
-  onCreateLabelNameChange(newVal: number) {
-    this.createLabelNameErrors = [];
-  }
-
   addLabel() {
     if (!this.validCreation) return;
-
-    if (this.checkLabelExist(this.createLabelName)) {
-      this.createLabelNameErrors = ["This label already exists."];
-      return;
-    }
 
     this.createLabelLoader = true;
     ApolloClient.mutate({

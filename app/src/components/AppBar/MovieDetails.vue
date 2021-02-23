@@ -124,7 +124,7 @@ export default class MovieToolbar extends Vue {
     }
   }
 
-  async editMovie() {
+  editMovie() {
     if (!this.currentMovie) return;
 
     ApolloClient.mutate({

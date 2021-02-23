@@ -574,7 +574,7 @@ export default class MovieList extends mixins(DrawerMixin) {
     });
   }
 
-  async addMovie() {
+  addMovie() {
     this.addMovieLoader = true;
     ApolloClient.mutate({
       mutation: gql`

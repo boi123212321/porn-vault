@@ -703,7 +703,7 @@ export default class ActorList extends mixins(DrawerMixin) {
     });
   }
 
-  async addActor() {
+  addActor() {
     this.addActorLoader = true;
     ApolloClient.mutate({
       mutation: gql`

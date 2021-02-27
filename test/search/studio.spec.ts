@@ -11,25 +11,29 @@ describe("Search", () => {
       stopTestServer();
     });
 
-    it("Should find studio by name", async function () {
-      await startTestServer.call(this);
-
-      expect(await Studio.getAll()).to.be.empty;
+    describe("Studio searches with space separators", () => {
       const studio = new Studio("Porn Fidelity");
-      await studioCollection.upsert(studio._id, studio);
-      await indexStudios([studio]);
-      expect(await Studio.getAll()).to.have.lengthOf(1);
+      before( async function () {
+        await startTestServer.call(this);
 
-      const searchResult = await searchStudios({
-        query: "fidelity",
-      });
-      expect(searchResult).to.deep.equal({
-        items: [studio._id],
-        total: 1,
-        numPages: 1,
+        expect(await Studio.getAll()).to.be.empty;
+        await studioCollection.upsert(studio._id, studio);
+        await indexStudios([studio]);
+        expect(await Studio.getAll()).to.have.lengthOf(1);
       });
 
-      it("Should not find studio with bad query", async function () {
+      it("Should find studio by name", async function () {
+        const searchResult = await searchStudios({
+          query: "fidelity",
+        });
+        expect(searchResult).to.deep.equal({
+          items: [studio._id],
+          total: 1,
+          numPages: 1,
+        });
+      });
+
+      it.skip("Should not find studio with bad query", async function () {
         const searchResult = await searchStudios({
           query: "asdva35aeb5se5b",
         });

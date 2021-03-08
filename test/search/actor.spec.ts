@@ -26,14 +26,10 @@ describe("Search", () => {
       const searchResult = await searchActors({
         query: "ginebra",
       });
-
-      it("Should find actor by name", async function () {
-        const searchResult = await searchActors({ query: "ginebra" });
-        expect(searchResult).to.deep.equal({
-          items: [actor._id],
-          total: 1,
-          numPages: 1,
-        });
+      expect(searchResult).to.deep.equal({
+        items: [actor._id],
+        total: 1,
+        numPages: 1,
       });
     });
 

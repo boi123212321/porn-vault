@@ -76,7 +76,7 @@
     "typescript": "^4.2.2",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.0",
-    "yaml": "^1.10.0",
+    "yaml": "^1.10.2",
     "yargs": "^16.2.0",
     "zod": "^1.11.11"
   },

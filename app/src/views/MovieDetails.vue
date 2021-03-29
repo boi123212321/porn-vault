@@ -7,7 +7,6 @@
         <v-col cols="12" sm="6" md="4" lg="3" xl="2">
           <v-container>
             <div class="d-flex pa-2">
-              <v-img contain style="max-height: 400px" v-if="spineCover" :src="spineCover"></v-img>
               <v-hover style="width: 100%">
                 <template v-slot:default="{ hover }">
                   <v-img style="max-height: 400px" contain :aspect-ratio="0.71" :src="frontCover">

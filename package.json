@@ -126,7 +126,7 @@
     "nyc": "^15.1.0",
     "pkg": "^4.4.9",
     "prettier": "^2.2.1",
-    "sinon": "^10.0.0"
+    "sinon": "^10.0.1"
   },
   "nodemonConfig": {
     "ignore": [

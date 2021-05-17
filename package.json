@@ -55,7 +55,7 @@
     "elasticsearch": "^16.7.1",
     "express": "^4.17.1",
     "fluent-ffmpeg": "^2.1.2",
-    "graphql-tools": "^7.0.2",
+    "graphql-tools": "^7.0.5",
     "graphql-type-json": "^0.3.2",
     "graphql-type-long": "^0.1.1",
     "graphql-upload": "^11.0.0",

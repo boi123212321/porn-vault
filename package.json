@@ -100,7 +100,7 @@
     "@types/tiny-async-pool": "^1.0.0",
     "@types/yargs": "^16.0.0",
     "@typescript-eslint/eslint-plugin": "^4.28.0",
-    "@typescript-eslint/parser": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.2",
     "chai": "^4.3.0",
     "chai-as-promised": "^7.1.1",
     "cross-env": "^7.0.3",

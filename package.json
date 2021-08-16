@@ -76,7 +76,7 @@
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.0",
     "yaml": "^1.10.0",
-    "yargs": "^16.2.0",
+    "yargs": "^17.1.1",
     "zod": "^1.11.11"
   },
   "devDependencies": {

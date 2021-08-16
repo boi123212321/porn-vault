@@ -98,7 +98,7 @@
     "@types/semver": "^7.3.4",
     "@types/sinon": "^10.0.0",
     "@types/tiny-async-pool": "^1.0.0",
-    "@types/yargs": "^16.0.0",
+    "@types/yargs": "^17.0.2",
     "@typescript-eslint/eslint-plugin": "^4.29.1",
     "@typescript-eslint/parser": "^4.29.1",
     "chai": "^4.3.0",

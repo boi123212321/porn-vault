@@ -58,6 +58,17 @@
             }}</v-icon>
           </v-btn>
 
+          <v-btn
+            :color="searchState.unwatchedOnly ? 'primary' : undefined"
+            icon
+            @click="searchStateManager.onValueChanged('unwatchedOnly', !searchState.unwatchedOnly)"
+          >
+            <v-icon>{{
+              searchState.unwatchedOnly ? "mdi-eye-off" : "mdi-eye"
+            }}</v-icon>
+          </v-btn>
+
+
           <v-spacer></v-spacer>
 
           <Rating
@@ -416,6 +427,7 @@ export default class SceneList extends mixins(DrawerMixin) {
     durationRange: number[];
     favoritesOnly: boolean;
     bookmarksOnly: boolean;
+    unwatchedOnly: boolean;
     ratingFilter: number;
     selectedLabels: { include: string[]; exclude: string[] };
     selectedActors: IActor[];
@@ -432,6 +444,7 @@ export default class SceneList extends mixins(DrawerMixin) {
       query: true,
       favoritesOnly: { default: () => false },
       bookmarksOnly: { default: () => false },
+      unwatchedOnly: { default: () => false },
       ratingFilter: { default: () => 0 },
       selectedLabels: { default: () => ({ include: [], exclude: [] }) },
       selectedActors: {
@@ -809,6 +822,7 @@ export default class SceneList extends mixins(DrawerMixin) {
           sortBy: random ? "$shuffle" : this.searchState.sortBy,
           favorite: this.searchState.favoritesOnly,
           bookmark: this.searchState.bookmarksOnly,
+          unwatchedOnly: this.searchState.unwatchedOnly,
           rating: this.searchState.ratingFilter,
           durationMin:
             this.searchState.useDuration && this.searchState.durationRange[0] !== this.durationMax

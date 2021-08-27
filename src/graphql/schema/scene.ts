@@ -43,6 +43,7 @@ export default gql`
     page: Int
     durationMin: Int
     durationMax: Int
+    unwatchedOnly: Boolean
 
     rawQuery: Json
   }

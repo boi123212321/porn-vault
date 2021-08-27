@@ -18,6 +18,7 @@ import {
   searchQuery,
   shuffle,
   shuffleSwitch,
+  unwatchedOnly,
 } from "./common";
 import { addSearchDocs, buildIndex, indexItems, ProgressCallback } from "./internal/buildIndex";
 
@@ -122,6 +123,7 @@ export interface ISceneSearchQuery {
   query: string;
   favorite?: boolean;
   bookmark?: boolean;
+  unwatchedOnly: boolean;
   rating: number;
   include?: string[];
   exclude?: string[];
@@ -162,6 +164,7 @@ export async function searchScenes(
           ...ratingFilter(options.rating),
           ...bookmark(options.bookmark),
           ...favorite(options.favorite),
+          ...unwatchedOnly(options.unwatchedOnly),
 
           ...includeFilter(options.include),
           ...excludeFilter(options.exclude),

@@ -97,6 +97,16 @@
               {{ new Date(currentScene.releaseDate).toDateString(undefined, { timeZone: "UTC" }) }}
             </div>
           </div>
+          <div v-if="currentScene.addedOn">
+            <div class="d-flex align-center">
+              <v-icon>mdi-calendar-check</v-icon>
+              <v-subheader>Added to collection</v-subheader>
+            </div>
+            <div class="med--text pa-2">
+              {{ new Date(currentScene.addedOn).toDateString(undefined, { timeZone: "UTC" }) }}
+            </div>
+          </div>
+
 
           <div v-if="currentScene.description">
             <div class="d-flex align-center">

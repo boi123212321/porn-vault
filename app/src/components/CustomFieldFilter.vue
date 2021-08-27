@@ -258,10 +258,12 @@ export default class CustomFieldSelector extends Vue {
     const copied = JSON.parse(JSON.stringify(this.innerValue)) as {
       id: string;
       op: string;
+      type: string;
       value: any;
     }[];
     for (const item of copied) {
       item.op = mapOperation(item.op);
+      item.type = this.getField(item.id).type;
     }
     this.$emit("input", copied);
     this.$emit("change");

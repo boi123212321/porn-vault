@@ -429,7 +429,7 @@ export default class ActorList extends mixins(DrawerMixin) {
     sortBy: string;
     sortDir: string;
     countryFilter: string;
-    customFilter: { id: string; op: string; value: string }[];
+    customFilter: { id: string; op: string; value: string, type: string }[];
   }>({
     localStorageNamer: (key: string) => `pm_actor${key[0].toUpperCase()}${key.substr(1)}`,
     props: {
@@ -460,11 +460,28 @@ export default class ActorList extends mixins(DrawerMixin) {
   bulkImportDialog = false;
   bulkLoader = false;
 
-  customFilterTemp: { id: string; op: string; value: string }[] = [];
+  customFilterTemp: { id: string; op: string; value: string, type: string }[] = [];
   customDialog = false;
 
   get customFilterTempInvalid() {
-    return this.customFilterTemp.some((el) => !el.op || !el.value);
+    return this.customFilterTemp.some( (el) => {
+      // no operation selected
+      if (!el.op) {
+        return true;
+      }
+
+      switch(el.type) {
+        // if boolean, all values are valid
+        case 'BOOLEAN':
+          return false;
+        // if number, only undefined (initial state) or empty string (entering values then deleting them) are invalid
+        case 'NUMBER':
+          const val: number = +el.value;
+          return typeof el.value === 'undefined' || el.value === '' || isNaN(val);
+        default:
+          return !el.value;
+      }
+    });
   }
 
   openCustomFilterDialog() {

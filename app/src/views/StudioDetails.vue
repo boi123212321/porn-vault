@@ -43,6 +43,11 @@
           <div v-if="currentStudio.description" class="med--text pa-2">
             {{ currentStudio.description }}
           </div>
+          <div v-if="currentStudio.url" class="med--text pa-2">
+            <a :href="currentStudio.url" target="_blank" rel="noopener noreferrer">
+            {{ currentStudio.url }}
+            </a>
+          </div>
           <div class="py-1">
             <b>{{ currentStudio.numScenes }}</b> scenes
           </div>

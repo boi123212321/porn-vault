@@ -47,6 +47,13 @@
               :rows="2"
             />
 
+            <v-text-field
+              :rules="urlRules"
+              color="primary"
+              v-model="editUrl"
+              placeholder="URL"
+            />
+
             <v-combobox
               clearable
               color="primary"
@@ -94,6 +101,9 @@ import { studioModule } from "../../store/studio";
 import StudioSelector from "../../components/StudioSelector.vue";
 import studioFragment from "../../fragments/studio";
 
+const urlExpression = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi;
+const urlRegex = new RegExp(urlExpression);
+
 @Component({
   components: {
     StudioSelector,
@@ -104,10 +114,13 @@ export default class StudioToolbar extends Vue {
   validEdit = false;
   editName = "";
   editDescription = "";
+  editUrl = "";
   editParent = null as any | null;
   editAliases = [] as string[];
 
   studioNameRules = [(v) => (!!v && !!v.length) || "Invalid studio name"];
+
+  urlRules = [(url: string) => url.match(urlRegex) || "Invalid URL"];
 
   removeDialog = false;
   removeLoader = false;
@@ -177,6 +190,7 @@ export default class StudioToolbar extends Vue {
         opts: {
           name: this.editName,
           description: this.editDescription,
+          url: this.editUrl,
           parent: this.editParent ? this.editParent._id : null,
           aliases: this.editAliases,
         },
@@ -186,6 +200,7 @@ export default class StudioToolbar extends Vue {
         const { aliases, parent } = res.data.updateStudios[0];
         studioModule.setName(this.editName.trim());
         studioModule.setDescription(this.editDescription.trim());
+        studioModule.setUrl(this.editUrl.trim());
         studioModule.setParent(parent);
         studioModule.setAliases(aliases);
         this.editDialog = false;
@@ -200,6 +215,7 @@ export default class StudioToolbar extends Vue {
 
     this.editName = this.currentStudio.name;
     this.editDescription = this.currentStudio.description || "";
+    this.editUrl = this.currentStudio.url || "";
     this.editDialog = true;
     this.editParent = this.currentStudio.parent;
     this.editAliases = this.currentStudio.aliases || [];

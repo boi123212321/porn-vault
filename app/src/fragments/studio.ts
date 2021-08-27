@@ -5,6 +5,7 @@ export default gql`
     _id
     name
     description
+    url 
     aliases
     rating
     favorite

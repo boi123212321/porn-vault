@@ -33,6 +33,7 @@ export default gql`
     _id: String!
     name: String!
     description: String
+    url: String
     addedOn: Long!
     favorite: Boolean!
     bookmark: Long
@@ -56,6 +57,7 @@ export default gql`
   input StudioUpdateOpts {
     name: String
     description: String
+    url: String
     thumbnail: String
     favorite: Boolean
     bookmark: Long

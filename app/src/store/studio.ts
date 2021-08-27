@@ -20,6 +20,11 @@ class StudioModule extends VuexModule {
   }
 
   @Mutation
+  setUrl(url: string) {
+    if (this.current) this.current.url = url;
+  }
+
+  @Mutation
   setCurrent(current: any) {
     this.current = current;
   }

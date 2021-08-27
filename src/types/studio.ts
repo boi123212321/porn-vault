@@ -20,6 +20,7 @@ export default class Studio {
   _id: string;
   name: string;
   description: string | null = null;
+  url: string | null = null;
   thumbnail: string | null = null;
   addedOn: number = +new Date();
   favorite = false;

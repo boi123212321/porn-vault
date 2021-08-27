@@ -18,6 +18,7 @@ import { Dictionary } from "../../utils/types";
 type IStudioUpdateOpts = Partial<{
   name: string;
   description: string;
+  url: string;
   thumbnail: string;
   favorite: boolean;
   bookmark: number | null;
@@ -116,6 +117,10 @@ export default {
 
         if (typeof opts.description === "string") {
           studio.description = opts.description.trim();
+        }
+
+        if (typeof opts.url === "string") {
+          studio.url = opts.url.trim();
         }
 
         if (typeof opts.thumbnail === "string") {

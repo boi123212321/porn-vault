@@ -44,7 +44,7 @@
   },
   "homepage": "https://github.com/boi123212321/porn-vault#readme",
   "dependencies": {
-    "@apollo/client": "3.3.0",
+    "@apollo/client": "3.4.10",
     "apollo-server-express": "^2.13.1",
     "axios": "^0.21.1",
     "boxen": "^5.0.0",
